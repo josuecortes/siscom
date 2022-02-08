@@ -1,0 +1,29 @@
+<% content_for :title do %>
+  <i class="fa fa-sitemap"></i> Departamentos
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= departamentos_url %>">Departamentos</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de funções
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_departamento_path, class: "btn btn-sm btn-success", title: "Novo Departamento", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Sigla</th>
+      <th>Usuários</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <%= render @departamentos %>
+  </tbody>
+</table>
+ 

@@ -1,0 +1,28 @@
+<% content_for :title do %>
+  <i class="fa fa-address-card"></i> Funções
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= funcoes_url %>">Funções</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de funções
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_funcao_path, class: "btn btn-sm btn-success", title: "Nova Função", remote: true do %>
+    <i class="fas fa-plus"></i> Nova
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Usuários</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <%= render @funcoes %>
+  </tbody>
+</table>
+ 

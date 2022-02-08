@@ -1,0 +1,96 @@
+<% content_for :title do %>
+  Pefil
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= perfil_index_url %>">Perfil</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Perfil de <%= @usuario.nome.split.first %>
+<% end %>
+<% content_for :buttons do %>
+<% end %>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card card-primary card-outline">
+      <div class="card-body box-profile">
+        <div class="text-center">
+          <% if @usuario.avatar.present? %>
+            <%= image_tag @usuario.avatar.variant(resize_to_fill: [128, 128]), class: "profile-user-img img-fluid img-circle" %>
+          <% else %>
+            <img class="profile-user-img img-fluid img-circle"
+                 src="/adminLTE/dist/img/avt.png"
+                 alt="User profile picture">  
+          <% end %>       
+        </div>
+        <h3 class="profile-username text-center"><%= @usuario.nome %></h3>
+        <p class="text-muted text-center"><%= @usuario.funcao.nome ||= "Sem função"  %></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-body">
+        
+
+        <%= form_for @usuario, url: perfil_update_path(@usuario), method: :put do |f| %>
+          
+          <div class="form-group row">
+            <div class="col-sm-2">
+              <%= f.label :nome, class: "form-label" %>
+            </div>  
+            <div class="col-sm-10">
+              <%= f.text_field :nome, autocomplete: "Nome", placeholder: "Digite o nome da função", class: "form-control", required: true %>
+              <%= has_error(@usuario, :nome) %>
+            </div>  
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-2">
+              <%= f.label :email, class: "form-label" %>
+            </div>
+            <div class="col-sm-10">
+              <%= f.email_field :email, autocomplete: "Email", placeholder: "Digite o seu email", class: "form-control", required: true %>
+              <%= has_error(@usuario, :email) %>
+            </div>
+              
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-2">
+              <%= f.label :funcao_id, "Função", class: "form-label" %>
+            </div>  
+            <div class="col-sm-10">
+              <%= f.select :funcao_id, Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+              <%= has_error(@usuario, :funcao_id) %>  
+            </div>  
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-2">
+              <%= f.label :departamento_id, class: "form-label" %>
+            </div>  
+            <div class="col-sm-10">
+              <%= f.select :departamento_id, Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>  
+              <%= has_error(@usuario, :departamento_id) %>
+            </div>  
+          </div>
+
+          <div class="form-group row">
+            <%= f.label :avatar, class: "col-sm-2 col-form-label" %>
+            <div class="col-sm-10">
+              <%= f.file_field :avatar, class: "" %>
+            </div>  
+          </div>
+
+          <div class="form-group row">
+            <div class="offset-sm-2 col-sm-10">
+              <button type="submit" class="btn btn-danger">Atualizar</button>
+            </div>
+          </div>
+        
+        <% end %>
+        
+      </div>
+    </div>
+  </div>
+</div>

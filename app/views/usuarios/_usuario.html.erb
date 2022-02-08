@@ -1,0 +1,15 @@
+<tr>
+  <td><%= usuario.nome %></td>
+  <td><%= usuario.email %></td>
+  <td>
+    <%= link_to usuario, class: "btn btn-sm btn-default", title: "Ver"  do %>
+      <i class="fas fa-eye"></i>
+    <% end %>
+    <%= link_to edit_usuario_path(usuario), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+      <i class="fas fa-edit"></i>
+    <% end %>
+    <%= link_to usuario, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr> 

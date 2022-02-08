@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Siscom - Seed</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="/adminLTE/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/adminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="/adminLTE/plugins/toastr/toastr.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/adminLTE/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/adminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/adminLTE/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+    <link rel="stylesheet" href="/adminLTE/dist/css/adminlte.min.css">
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    
+  </head>
+
+  <body class="sidebar-mini layout-navbar-fixed layout-fixed layout-footer-fixed" style="height: auto;">
+
+      <div class="wrapper">
+
+        <div class="preloader flex-column justify-content-center align-items-center">
+          <img class="animation__shake" src="/adminLTE/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+        </div>
+
+        <%= render "base/header" %>
+        <%= render "base/sidebar" %>
+
+        <div class="content-wrapper">
+          <section class="content-header">
+            <div class="container-fluid">
+              <div class="row mb-2">
+                <div class="col-sm-6">
+                  <h1><%= yield :title %></h1>
+                </div>
+                <div class="col-sm-6">
+                  <ol class="breadcrumb float-sm-right">
+                    <%= yield :breadcrumb %>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <section class="content">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><%= yield :sub_title %></h3>
+                <div class="card-tools">
+                  <%= yield :buttons %>
+                </div>
+              </div>
+              <div class="card-body">
+                <%= yield %>
+                <%= toastr_flash %>
+              </div>
+            </div>
+          </section>
+        </div>
+        
+        
+        
+        <%= render "base/footer" %>
+        <%= render "base/control_sidebar" %>
+
+        <div id="form-modal" class="modal fade" data-keyboard="false" data-backdrop="static">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 id="form-modal-title" class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div id="form-modal-body"></div>
+            </div>
+          </div>
+        </div>
+
+      <div>
+
+      <%= javascript_include_tag 'application' %>
+      <script src="/adminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script src="/adminLTE/plugins/sweetalert2/sweetalert2.min.js"></script>
+      <script src="/adminLTE/plugins/toastr/toastr.min.js"></script>
+      <script src="/adminLTE/dist/js/adminlte.min.js"></script>
+      <!-- DataTables -->
+      <script src="/adminLTE/plugins/datatables/jquery.dataTables.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+      <script src="/adminLTE/plugins/jszip/jszip.min.js"></script>
+      <script src="/adminLTE/plugins/pdfmake/pdfmake.min.js"></script>
+      <script src="/adminLTE/plugins/pdfmake/vfs_fonts.js"></script>
+      <script src="/adminLTE/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+      <script src="/adminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+
+      <script>
+        $(function () {
+          $("#example1").DataTable({
+            "responsive": true, "lengthChange": false, "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+          }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+          $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+          });
+        });
+      </script> 
+
+      <script>
+        $(function () {
+          $('#data-table').DataTable({
+              "responsive": true, "lengthChange": false, "autoWidth": false,
+              "language": {
+                  "sProcessing":    "Processando...",
+                  "sLengthMenu":    "Mostrar _MENU_ registros",
+                  "sZeroRecords":   "Nenhum resultado encontrado",
+                  "sEmptyTable":    "Nenhum dado disponível nesta tabela",
+                  "sInfo":          "Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros",
+                  "sInfoEmpty":     "Mostrando registros de 0 a 0 de um total de 0 registros",
+                  "sInfoFiltered":  "(filtrando um total de _MAX_ registros)",
+                  "sInfoPostFix":   "",
+                  "sSearch":        "Buscar:",
+                  "sUrl":           "",
+                  "sInfoThousands":  ",",
+                  "sLoadingRecords": "Carregando...",
+                  "oPaginate": {
+                      "sFirst":    "Primeiro",
+                      "sLast":    "Último",
+                      "sNext":    "Próximo",
+                      "sPrevious": "Anterior"
+                  },
+                  "oAria": {
+                      "sSortAscending":  ": Ative para classificar a coluna em ordem crescente",
+                      "sSortDescending": ": Ative para classificar a coluna em ordem decrescente"
+                  }
+              }
+          });
+        });
+      </script>       
+
+      <script>
+        $(function() {
+          var Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+
+          $('.swalDefaultSuccess').click(function() {
+            Toast.fire({
+              icon: 'success',
+              title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.swalDefaultInfo').click(function() {
+            Toast.fire({
+              icon: 'info',
+              title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.swalDefaultError').click(function() {
+            Toast.fire({
+              icon: 'error',
+              title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.swalDefaultWarning').click(function() {
+            Toast.fire({
+              icon: 'warning',
+              title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.swalDefaultQuestion').click(function() {
+            Toast.fire({
+              icon: 'question',
+              title: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+
+          $('.toastrDefaultSuccess').click(function() {
+            toastr.success('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+          });
+          $('.toastrDefaultInfo').click(function() {
+            toastr.info('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+          });
+          $('.toastrDefaultError').click(function() {
+            toastr.error('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+          });
+          $('.toastrDefaultWarning').click(function() {
+            toastr.warning('Lorem ipsum dolor sit amet, consetetur sadipscing elitr.')
+          });
+
+          $('.toastsDefaultDefault').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultTopLeft').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              position: 'topLeft',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultBottomRight').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              position: 'bottomRight',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultBottomLeft').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              position: 'bottomLeft',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultAutohide').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              autohide: true,
+              delay: 750,
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultNotFixed').click(function() {
+            $(document).Toasts('create', {
+              title: 'Toast Title',
+              fixed: false,
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultFull').click(function() {
+            $(document).Toasts('create', {
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              icon: 'fas fa-envelope fa-lg',
+            })
+          });
+          $('.toastsDefaultFullImage').click(function() {
+            $(document).Toasts('create', {
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              image: '/adminLTE/dist/img/user3-128x128.jpg',
+              imageAlt: 'User Picture',
+            })
+          });
+          $('.toastsDefaultSuccess').click(function() {
+            $(document).Toasts('create', {
+              class: 'bg-success',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultInfo').click(function() {
+            $(document).Toasts('create', {
+              class: 'bg-info',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultWarning').click(function() {
+            $(document).Toasts('create', {
+              class: 'bg-warning',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultDanger').click(function() {
+            $(document).Toasts('create', {
+              class: 'bg-danger',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+          $('.toastsDefaultMaroon').click(function() {
+            $(document).Toasts('create', {
+              class: 'bg-maroon',
+              title: 'Toast Title',
+              subtitle: 'Subtitle',
+              body: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.'
+            })
+          });
+        });
+      </script>
+  </body>
+</html>

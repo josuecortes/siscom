@@ -1,0 +1,120 @@
+ruby 2.7.1
+
+rails _6.0.4.1_ new siscom --database=postgresql --skip-javascript
+
+caso precise renomear ** USAR GEM RENAME
+rails g rename:into novo-nome
+
+/database.yml
+->
+user: postgres
+password: 12345678
+->
+
+rails db:create
+
+/gemfile
+->
+gem 'devise'
+gem 'rolify'
+gem 'pundit'
+gem 'rename'
+
+rails generate controller home index
+
+template: https://adminlte.io/docs/3.1/
+
+clonar em /public
+
+  -> git clone https://github.com/ColorlibHQ/AdminLTE.git
+  
+  ## só pra ver o layout/index
+  https://dev.to/brayvasq/integrate-andminlte-with-ruby-on-rails-6-od7
+  
+criar a pasta javascripts dentro de assets
+
+mkdir app/views/base
+touch app/views/base/_header.html.erb
+touch app/views/base/_sidebar.html.erb
+touch app/views/base/_footer.html.erb
+touch app/views/base/_control_sidebar.html.erb
+
+rails g devise:install
+
+rails g devise User
+
+rails db:migrate
+
+rails g devise:views
+
+layouts diferentes para o devise   #https://stackoverflow.com/questions/11082213/changing-devise-default-layouts
+application.rb
+->
+config.to_prepare do
+  Devise::SessionsController.layout "devise"
+  Devise::RegistrationsController.layout proc{ |controller| user_signed_in? ? "application" : "devise" }
+  Devise::ConfirmationsController.layout "devise"
+  Devise::UnlocksController.layout "devise"
+  Devise::PasswordsController.layout "devise"
+end
+->
+
+criar o arquivo em layouts
+  devise.html.erb
+
+Alterando o idioma para o pt-BR
+application.rb
+->
+  I18n.config.available_locales = :'pt-BR'
+  config.i18n.default_locale = :'pt-BR'
+  config.i18n.load_path += Dir[Rails.root.join('config/locales/**/*.{rb,yml')]
+->
+
+criar os arquivos devise.pt-BR.yml e pt-BR.yml e procurar as traducoes 
+
+# https://raw.githubusercontent.com/tigrish/devise-i18n/master/rails/locales/pt-BR.yml
+
+# https://gist.githubusercontent.com/mateusg/924555/raw/33adc6f029e5e73d844452d6735e5f2350934bb3/devise.pt-BR.yml
+
+TOAST
+
+# https://stackoverflow.com/questions/58777081/how-do-you-add-toastr-rails-gem-to-rails-6-project
+
+---------------->
+
+I wrote a helper method for flas messages. Add this method to application_helper.rb or another helper
+
+def toastr_flash
+  flash.each_with_object([]) do |(type, message), flash_messages|
+    type = 'success' if type == 'notice'
+    type = 'error' if type == 'alert'
+    text = "<script>toastr.#{type}('#{message}', '', { closeButton: true, progressBar: true })</script>"
+    flash_messages << text.html_safe if message
+  end.join("\n").html_safe
+end
+Add toastr_flash method to layouts/application.html.erb or wherever you want
+
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <%= yield %>
+    <%= toastr_flash %>
+  </body>
+</html>
+
+---------------->
+
+
+rails g scaffold funcao nome
+
+rails g scaffold departamento nome sigla
+
+rails g migration add_others_fields_to_users nome:string celular:string cpf:string data_nascimento:date departamento:references funcao:references 
+
+mudar para null: true 
+  add_reference :users, :departamento, null: true, foreign_key: true
+  add_reference :users, :funcao, null: true, foreign_key: true
+
+

@@ -1,0 +1,46 @@
+<div class="modal-body">
+  <%= form_for @usuario, url: "#{@url}", method: "#{@method}", remote: true do |f| %>
+    <% if @usuario.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, class: "form-control", required: true %>
+      <%= has_error(@usuario, :nome) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :email %>
+      <%= f.text_field :email, class: "form-control", required: true %>
+      <%= has_error(@usuario, :email) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :funcao_id, "Função" %>
+      <%= f.select :funcao_id, Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+      <%= has_error(@usuario, :funcao_id) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :departamento_id %>
+      <%= f.select :departamento_id, Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+      <%= has_error(@usuario, :departamento_id) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :role_ids, "Permissões" %>
+      <%= f.collection_check_boxes(:role_ids, Role.autorizado(current_user).all, :id, :exibition_name) do |b| %>
+        <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+          <%= b.check_box class: "custom-control-input" %>
+          <%= b.label class: "custom-control-label" do %>
+            <%= b.label %>
+          <% end %>
+        </div>
+      <% end %>
+      <%= has_error(@usuario, :role) %>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>

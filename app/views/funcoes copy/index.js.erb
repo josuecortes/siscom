@@ -1,0 +1,2 @@
+$('#funcoes').html('<%= escape_javascript render(@funcoes) %>')
+$('#paginator').html('<%= escape_javascript paginate(@funcoes, remote: true) %>')

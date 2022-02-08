@@ -1,0 +1,15 @@
+<tr>
+  <td><%= funcao.nome %></td>
+  <td><%= funcao.users.count %></td>
+  <td>
+    <%= link_to funcao, class: "btn btn-sm btn-default", title: "Ver"  do %>
+      <i class="fas fa-eye"></i>
+    <% end %>
+    <%= link_to edit_funcao_path(funcao), class: "btn btn-sm btn-primary", title: "Editar"  do %>
+      <i class="fas fa-edit"></i>
+    <% end %>
+    <%= link_to funcao, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr> 

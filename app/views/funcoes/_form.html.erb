@@ -1,0 +1,29 @@
+<div class="modal-body">
+
+  <%= form_for @funcao, remote: true do |f| %>
+    
+    <% if @funcao.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, autocomplete: "Nome", placeholder: "Digite o nome da função", class: "form-control", required: true %>
+      <%= has_error(@funcao, :nome) %>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+
+</div>
+
+
+
+

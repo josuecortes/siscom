@@ -1,0 +1,37 @@
+<% content_for :title do %>
+  <i class="fa fa-address-card"></i> Função
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= funcoes_url %>">Função</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de funções
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_funcao_path, class: "btn btn-sm btn-success", title: "Nova Função", remote: true do %>
+    <i class="fas fa-plus"></i> Nova
+  <% end %>
+<% end %>
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Lista</h3>
+    <%= render 'funcoes/search_form' %>
+  </div>
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover text-nowrap" id='funcoes'>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Usuários</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= render @funcoes %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="pagination justify-content-center" id='paginator'>
+  <%= paginate @funcoes, remote: true %>
+</div>
