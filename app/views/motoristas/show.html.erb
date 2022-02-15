@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nome:</strong>
+  <%= @motorista.nome %>
+</p>
+
+<p>
+  <strong>Cpf:</strong>
+  <%= @motorista.cpf %>
+</p>
+
+<p>
+  <strong>Data nascimento:</strong>
+  <%= @motorista.data_nascimento %>
+</p>
+
+<p>
+  <strong>Cnh:</strong>
+  <%= @motorista.cnh %>
+</p>
+
+<p>
+  <strong>Validade cnh:</strong>
+  <%= @motorista.validade_cnh %>
+</p>
+
+<p>
+  <strong>Celular:</strong>
+  <%= @motorista.celular %>
+</p>
+
+<%= link_to 'Edit', edit_motorista_path(@motorista) %> |
+<%= link_to 'Back', motoristas_path %>

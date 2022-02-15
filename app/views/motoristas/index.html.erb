@@ -1,0 +1,46 @@
+<% content_for :title do %>
+  <i class="fa fa-users"></i> Motoristas
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= motoristas_url %>">Motoristas</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de usuários
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_motorista_path, class: "btn btn-sm btn-success", title: "Novo Usuário", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Cpf</th>
+      <th>Cnh</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% @motoristas.each do |motorista| %>
+      <tr>
+        <td><%= motorista.nome %></td>
+        <td><%= motorista.cpf %></td>
+        <td><%= motorista.cnh %></td>
+        <td>
+          <%= link_to motorista_path(motorista), class: "btn btn-sm btn-default", title: "Ver"  do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
+          <%= link_to edit_motorista_path(motorista), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+          <%= link_to motorista_path(motorista), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </td>
+      </tr> 
+    <% end %>
+  </tbody>
+</table>
+ 

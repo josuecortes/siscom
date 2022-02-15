@@ -1,0 +1,39 @@
+<div class="modal-body">
+  <%= form_for @motorista, remote: true do |f| %>
+    <% if @motorista.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, class: "form-control", required: true %>
+      <%= has_error(@motorista, :nome) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :cpf %>
+      <%= f.text_field :cpf, class: "form-control cpf", required: true %>
+      <%= has_error(@motorista, :cpf) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :data_nascimento %>
+      <%= f.text_field :data_nascimento, class: "form-control", required: true %>
+      <%= has_error(@motorista, :data_nascimento) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :cnh %>
+      <%= f.text_field :cnh, class: "form-control", required: true %>
+      <%= has_error(@motorista, :cnh) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :validade_cnh %>
+      <%= f.text_field :validade_cnh, class: "form-control", required: true %>
+      <%= has_error(@motorista, :validade_cnh) %>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>
