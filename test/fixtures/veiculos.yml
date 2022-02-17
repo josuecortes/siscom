@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  placa: MyString
+  marca: MyString
+  modelo: MyString
+  combustivel: 1
+  capacidade: 1
+  carga: 1
+  status: 1
+
+two:
+  placa: MyString
+  marca: MyString
+  modelo: MyString
+  combustivel: 1
+  capacidade: 1
+  carga: 1
+  status: 1

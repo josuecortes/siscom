@@ -1,0 +1,52 @@
+<%= form_with(model: veiculo, local: true) do |form| %>
+  <% if veiculo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(veiculo.errors.count, "error") %> prohibited this veiculo from being saved:</h2>
+
+      <ul>
+        <% veiculo.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :placa %>
+    <%= form.text_field :placa %>
+  </div>
+
+  <div class="field">
+    <%= form.label :marca %>
+    <%= form.text_field :marca %>
+  </div>
+
+  <div class="field">
+    <%= form.label :modelo %>
+    <%= form.text_field :modelo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :combustivel %>
+    <%= form.number_field :combustivel %>
+  </div>
+
+  <div class="field">
+    <%= form.label :capacidade %>
+    <%= form.number_field :capacidade %>
+  </div>
+
+  <div class="field">
+    <%= form.label :carga %>
+    <%= form.number_field :carga %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.number_field :status %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :veiculos
   resources :motoristas
   get 'home/index'
 
