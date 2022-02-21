@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @requisicao_transporte.status %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @requisicao_transporte.user_id %>
+</p>
+
+<p>
+  <strong>Departamento:</strong>
+  <%= @requisicao_transporte.departamento_id %>
+</p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @requisicao_transporte.tipo %>
+</p>
+
+<p>
+  <strong>Documento viagem:</strong>
+  <%= @requisicao_transporte.documento_viagem %>
+</p>
+
+<p>
+  <strong>Data hora ida:</strong>
+  <%= @requisicao_transporte.data_hora_ida %>
+</p>
+
+<p>
+  <strong>Data hora retorno:</strong>
+  <%= @requisicao_transporte.data_hora_retorno %>
+</p>
+
+<p>
+  <strong>Motivo:</strong>
+  <%= @requisicao_transporte.motivo %>
+</p>
+
+<%= link_to 'Edit', edit_requisicao_transporte_path(@requisicao_transporte) %> |
+<%= link_to 'Back', requisicao_transportes_path %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_17_141837) do
+ActiveRecord::Schema.define(version: 2022_02_21_145720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -58,6 +58,21 @@ ActiveRecord::Schema.define(version: 2022_02_17_141837) do
     t.string "celular"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "requisicao_transportes", force: :cascade do |t|
+    t.integer "status"
+    t.bigint "user_id", null: false
+    t.bigint "departamento_id", null: false
+    t.integer "tipo"
+    t.string "documento_viagem"
+    t.datetime "data_hora_ida"
+    t.datetime "data_hora_retorno"
+    t.text "motivo"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["departamento_id"], name: "index_requisicao_transportes_on_departamento_id"
+    t.index ["user_id"], name: "index_requisicao_transportes_on_user_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -111,6 +126,8 @@ ActiveRecord::Schema.define(version: 2022_02_17_141837) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "requisicao_transportes", "departamentos"
+  add_foreign_key "requisicao_transportes", "users"
   add_foreign_key "users", "departamentos"
   add_foreign_key "users", "funcoes"
 end
