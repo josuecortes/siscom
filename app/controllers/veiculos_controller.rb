@@ -1,64 +1,66 @@
 class VeiculosController < ApplicationController
-  before_action :set_veiculo, only: %i[ show edit update destroy ]
+  before_action :set_Veiculo, only: %i[ show edit update destroy ]
 
-  # GET /veiculos or /veiculos.json
+  # GET /Veiculos or /Veiculos.json
   def index
-    @veiculos = Veiculo.all
+    @veiculos = Veiculo.all 
   end
 
-  # GET /veiculos/1 or /veiculos/1.json
+  # GET /Veiculos/1 or /Veiculos/1.json
   def show
   end
 
-  # GET /veiculos/new
+  # GET /Veiculos/new
   def new
     @veiculo = Veiculo.new
   end
 
-  # GET /veiculos/1/edit
+  # GET /Veiculos/1/edit
   def edit
   end
 
-  # POST /veiculos or /veiculos.json
+  # POST /Veiculos or /Veiculos.json
   def create
     @veiculo = Veiculo.new(veiculo_params)
-
     respond_to do |format|
       if @veiculo.save
-        format.html { redirect_to @veiculo, notice: "Veiculo was successfully created." }
-        format.json { render :show, status: :created, location: @veiculo }
+        flash[:success] = "Veiculo criado."
+        format.js {render :create, status: :created  }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @veiculo.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :new, status: :unprocessable_entity }
       end
     end
   end
 
-  # PATCH/PUT /veiculos/1 or /veiculos/1.json
+  # PATCH/PUT /Veiculos/1 or /Veiculos/1.json
   def update
     respond_to do |format|
       if @veiculo.update(veiculo_params)
-        format.html { redirect_to @veiculo, notice: "Veiculo was successfully updated." }
-        format.json { render :show, status: :ok, location: @veiculo }
+        flash[:success] = "Veiculo atualizado."
+        format.js {render :update, status: :created  }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @veiculo.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :edit, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /veiculos/1 or /veiculos/1.json
+  # DELETE /Veiculos/1 or /Veiculos/1.json
   def destroy
-    @veiculo.destroy
+    if @veiculo.destroy
+      flash[:success] = "Veiculo excluido"
+    else
+      flash[:error] = "Opss! Algo deu errado."
+    end
     respond_to do |format|
-      format.html { redirect_to veiculos_url, notice: "Veiculo was successfully destroyed." }
-      format.json { head :no_content }
+      format.html { redirect_to veiculos_url }
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_veiculo
+    def set_Veiculo
       @veiculo = Veiculo.find(params[:id])
     end
 
