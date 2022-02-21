@@ -1,0 +1,53 @@
+<% content_for :title do %>
+  <i class="fa fa-users"></i> Veículos
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= motoristas_url %>">Veículos</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de veículos
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_veiculo_path, class: "btn btn-sm btn-success", title: "Novo Veículo", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Placa</th>
+      <th>Marca</th>
+      <th>Modelo</th>
+      <th>Combustivel</th>
+      <th>Capacidade</th>
+      <th>Carga</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% @veiculos.each do |veiculo| %>
+      <tr>
+        <td><%= veiculo.placa %></td>
+        <td><%= veiculo.marca %></td>
+        <td><%= veiculo.modelo %></td>
+        <td><%= veiculo.combustivel %></td>
+        <td><%= veiculo.capacidade %></td>
+        <td><%= veiculo.carga %></td>
+        <td><%= veiculo.status %></td>
+        <td>
+          <%= link_to veiculo_path(veiculo), class: "btn btn-sm btn-default", title: "Ver"  do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
+          <%= link_to edit_veiculo_path(veiculo), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+          <%= link_to veiculo_path(veiculo), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </td>
+      </tr> 
+    <% end %>
+  </tbody>
+</table>

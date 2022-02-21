@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_15_141549) do
+ActiveRecord::Schema.define(version: 2022_02_17_141837) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,17 +45,6 @@ ActiveRecord::Schema.define(version: 2022_02_15_141549) do
 
   create_table "funcoes", force: :cascade do |t|
     t.string "nome"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "motorista", force: :cascade do |t|
-    t.string "nome"
-    t.string "cpf"
-    t.date "data_nascimento"
-    t.string "cnh"
-    t.date "validade_cnh"
-    t.string "celular"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -107,6 +96,18 @@ ActiveRecord::Schema.define(version: 2022_02_15_141549) do
     t.index ["role_id"], name: "index_users_roles_on_role_id"
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
     t.index ["user_id"], name: "index_users_roles_on_user_id"
+  end
+
+  create_table "veiculos", force: :cascade do |t|
+    t.string "placa"
+    t.string "marca"
+    t.string "modelo"
+    t.integer "combustivel"
+    t.integer "capacidade"
+    t.integer "carga"
+    t.integer "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
