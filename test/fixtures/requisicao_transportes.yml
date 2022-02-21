@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  status: 1
+  user: one
+  departamento: one
+  tipo: 1
+  documento_viagem: MyString
+  data_hora_ida: 2022-02-21 11:57:20
+  data_hora_retorno: 2022-02-21 11:57:20
+  motivo: MyText
+
+two:
+  status: 1
+  user: two
+  departamento: two
+  tipo: 1
+  documento_viagem: MyString
+  data_hora_ida: 2022-02-21 11:57:20
+  data_hora_retorno: 2022-02-21 11:57:20
+  motivo: MyText

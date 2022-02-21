@@ -1,0 +1,57 @@
+<%= form_with(model: requisicao_transporte, local: true) do |form| %>
+  <% if requisicao_transporte.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(requisicao_transporte.errors.count, "error") %> prohibited this requisicao_transporte from being saved:</h2>
+
+      <ul>
+        <% requisicao_transporte.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.number_field :status %>
+  </div>
+
+  <div class="field">
+    <%= form.label :user_id %>
+    <%= form.text_field :user_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :departamento_id %>
+    <%= form.text_field :departamento_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :tipo %>
+    <%= form.number_field :tipo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :documento_viagem %>
+    <%= form.text_field :documento_viagem %>
+  </div>
+
+  <div class="field">
+    <%= form.label :data_hora_ida %>
+    <%= form.datetime_select :data_hora_ida %>
+  </div>
+
+  <div class="field">
+    <%= form.label :data_hora_retorno %>
+    <%= form.datetime_select :data_hora_retorno %>
+  </div>
+
+  <div class="field">
+    <%= form.label :motivo %>
+    <%= form.text_area :motivo %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
