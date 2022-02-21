@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :passageiros
   resources :requisicao_transportes
   resources :veiculos
   resources :motoristas
