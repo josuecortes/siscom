@@ -1,0 +1,39 @@
+<div class="modal-body">
+  <%= form_for @passageiro, remote: true do |f| %>
+    <% if @passageiro.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %> 
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, class: "form-control", required: true %>
+      <%= has_error(@passageiro, :nome) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :celular %>
+      <%= f.text_field :celular, class: "form-control cpf", required: true %>
+      <%= has_error(@passageiro, :celular) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :cpf %>
+      <%= f.text_field :cpf, class: "form-control cpf", required: true %>
+      <%= has_error(@passageiro, :cpf) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :requisicao_transporte_id %>
+      <%= f.text_field :requisicao_transporte_id, class: "form-control", required: true %>
+      <%= has_error(@passageiro, :requisicao_transporte_id) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :user_id %>
+      <%= f.text_field :user_id, class: "form-control", required: true %>
+      <%= has_error(@passageiro, :cnh) %>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>

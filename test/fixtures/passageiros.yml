@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  nome: MyString
+  celular: MyString
+  cpf: MyString
+  requisicao_transporte: one
+  user: one
+
+two:
+  nome: MyString
+  celular: MyString
+  cpf: MyString
+  requisicao_transporte: two
+  user: two
