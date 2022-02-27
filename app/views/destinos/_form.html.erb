@@ -1,0 +1,59 @@
+<div class="modal-body">
+  <%= form_for @destino, remote: true do |f| %>
+    <% if @destino.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %> 
+    <div class="form-group">
+      <%= f.label :tipo %>
+      <%= f.text_field :tipo, autofocus: true, class: "form-control", required: true %>
+      <%= has_error(@destino, :tipoo) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :descricao %>
+      <%= f.text_field :descricao, class: "form-control", required: true %>
+      <%= has_error(@destino, :descricao) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :cep %>
+      <%= f.text_field :cep, class: "form-control", required: true %>
+      <%= has_error(@destino, :cep) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :numero %>
+      <%= f.text_field :numero, class: "form-control", required: true %>
+      <%= has_error(@destino, :numero) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :cidade %>
+      <%= f.text_field :cidade, class: "form-control", required: true %>
+      <%= has_error(@destino, :cidade) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :bairro %>
+      <%= f.text_field :bairro, class: "form-control", required: true %>
+      <%= has_error(@destino, :bairro) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :logradouro %>
+      <%= f.text_field :logradouro, class: "form-control", required: true %>
+      <%= has_error(@destino, :logradouro) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :requisicao_transporte_id %>
+      <%= f.text_field :requisicao_transporte_id, class: "form-control", required: true %>
+      <%= has_error(@destino, :requisicao_transporte_id) %>
+    </div>
+    <div class="form-group">
+      <%= f.label :user_id %>
+      <%= f.number_field :user_id, class: "form-control", required: true %>
+      <%= has_error(@destino, :user_id) %>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>

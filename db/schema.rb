@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_21_223858) do
+ActiveRecord::Schema.define(version: 2022_02_27_004709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,22 @@ ActiveRecord::Schema.define(version: 2022_02_21_223858) do
     t.string "sigla"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "destinos", force: :cascade do |t|
+    t.string "tipo"
+    t.text "descricao"
+    t.string "cep"
+    t.integer "numero"
+    t.string "cidade"
+    t.string "bairro"
+    t.string "logradouro"
+    t.bigint "requisicao_transporte_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["requisicao_transporte_id"], name: "index_destinos_on_requisicao_transporte_id"
+    t.index ["user_id"], name: "index_destinos_on_user_id"
   end
 
   create_table "funcoes", force: :cascade do |t|
@@ -138,6 +154,8 @@ ActiveRecord::Schema.define(version: 2022_02_21_223858) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "destinos", "requisicao_transportes"
+  add_foreign_key "destinos", "users"
   add_foreign_key "passageiros", "requisicao_transportes"
   add_foreign_key "passageiros", "users"
   add_foreign_key "requisicao_transportes", "departamentos"
