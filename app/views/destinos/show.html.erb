@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @destino.tipo %>
+</p>
+
+<p>
+  <strong>Descricao:</strong>
+  <%= @destino.descricao %>
+</p>
+
+<p>
+  <strong>Cep:</strong>
+  <%= @destino.cep %>
+</p>
+
+<p>
+  <strong>Numero:</strong>
+  <%= @destino.numero %>
+</p>
+
+<p>
+  <strong>Cidade:</strong>
+  <%= @destino.cidade %>
+</p>
+
+<p>
+  <strong>Bairro:</strong>
+  <%= @destino.bairro %>
+</p>
+
+<p>
+  <strong>Logradouro:</strong>
+  <%= @destino.logradouro %>
+</p>
+
+<p>
+  <strong>Requisicao transporte:</strong>
+  <%= @destino.requisicao_transporte_id %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @destino.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_destino_path(@destino) %> |
+<%= link_to 'Back', destinos_path %>

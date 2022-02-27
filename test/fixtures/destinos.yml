@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tipo: MyString
+  descricao: MyText
+  cep: MyString
+  numero: 1
+  cidade: MyString
+  bairro: MyString
+  logradouro: MyString
+  requisicao_transporte: one
+  user: one
+
+two:
+  tipo: MyString
+  descricao: MyText
+  cep: MyString
+  numero: 1
+  cidade: MyString
+  bairro: MyString
+  logradouro: MyString
+  requisicao_transporte: two
+  user: two
