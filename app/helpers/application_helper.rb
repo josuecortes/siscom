@@ -18,5 +18,22 @@ module ApplicationHelper
     resource.errors.messages[field].present? ? "<span class='help-block text-danger'>#{resource.errors.messages[field].join(', ')}</span>".html_safe : nil
   end
 
+  def preencher_dia(tipo)
+    if tipo == 'urgente'
+      "#{Time.now.strftime('%d/%m/%Y')}"
+    else
+      dia_util = pegar_dia_util(Time.now + 1.day)
+      "#{dia_util.strftime('%d/%m/%Y')}"
+    end
+  end
+
+  def pegar_dia_util(data)
+    if data.wday == 0 or data.wday == 6
+      pegar_dia_util(data + 1.day)
+    else
+      return data
+    end
+  end
+
 end
 

@@ -39,7 +39,7 @@
           <%= link_to edit_passageiro_path(passageiro), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
             <i class="fas fa-edit"></i>
           <% end %>
-          <%= link_to passageiro_path(motorista), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+          <%= link_to passageiro_path(passageiro), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
             <i class="fas fa-trash"></i>
           <% end %>
         </td>

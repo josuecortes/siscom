@@ -1,41 +1,24 @@
-<p id="notice"><%= notice %></p>
+<% content_for :title do %>
+  <i class="fa fa-car"></i> Requisições de Transporte
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= requisicao_transportes_url %>">Requisições de transporte</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de Requisições
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_requisicao_transporte_path(tipo_solicitacao: 'urgente'), class: "btn btn-sm btn-warning", title: "Novo Requisiço de transporte", remote: true do %>
+    <i class="fas fa-bolt"></i> Urgente
+  <% end %>
+  <%= link_to new_requisicao_transporte_path(tipo_solicitacao: 'normal'), class: "btn btn-sm btn-success", title: "Novo Requisiço de transporte", remote: true do %>
+    <i class="fas fa-calendar-check"></i> Dia seguinte
+  <% end %>
+  <%= link_to new_requisicao_transporte_path(tipo_solicitacao: 'viagem'), class: "btn btn-sm btn-primary", title: "Novo Requisiço de transporte", remote: true do %>
+    <i class="fas fa-calendar-day"></i> Viagem
+  <% end %>
+<% end %>
 
-<h1>Requisicao Transportes</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>Status</th>
-      <th>User</th>
-      <th>Departamento</th>
-      <th>Tipo</th>
-      <th>Documento viagem</th>
-      <th>Data hora ida</th>
-      <th>Data hora retorno</th>
-      <th>Motivo</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% @requisicao_transportes.each do |requisicao_transporte| %>
-      <tr>
-        <td><%= requisicao_transporte.status %></td>
-        <td><%= requisicao_transporte.user_id %></td>
-        <td><%= requisicao_transporte.departamento_id %></td>
-        <td><%= requisicao_transporte.tipo %></td>
-        <td><%= requisicao_transporte.documento_viagem %></td>
-        <td><%= requisicao_transporte.data_hora_ida %></td>
-        <td><%= requisicao_transporte.data_hora_retorno %></td>
-        <td><%= requisicao_transporte.motivo %></td>
-        <td><%= link_to 'Show', requisicao_transporte %></td>
-        <td><%= link_to 'Edit', edit_requisicao_transporte_path(requisicao_transporte) %></td>
-        <td><%= link_to 'Destroy', requisicao_transporte, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Requisicao Transporte', new_requisicao_transporte_path %>
+<div id='requisicoes'>
+  <%= render 'requisicoes', requisicoes: @requisicao_transportes, status: @status, contagem_requisicoes: @contagem_requisicoes %>  
+</div>
