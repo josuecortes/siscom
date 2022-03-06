@@ -1,57 +1,95 @@
-<%= form_with(model: requisicao_transporte, local: true) do |form| %>
-  <% if requisicao_transporte.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(requisicao_transporte.errors.count, "error") %> prohibited this requisicao_transporte from being saved:</h2>
+<div class="modal-body">
+  <%= form_for @requisicao_transporte, remote: true do |f| %>
+    <% if @requisicao_transporte.errors.any? %>
+      
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.
+          <% @requisicao_transporte.errors.each do |k,v| %>
+            <% if k.to_s == 'passageiros' %>
+              <br/> <i class="icon fas fa-users"></i> Você precisa adicionar ao menos 1 passageiro
+            <% end %>
+            <% if k.to_s == 'destinos' %>
+              <br/> <i class="icon fas fa-map"></i> Você precisa adicionar ao menos 1 destino
+            <% end %>
+          <% end %>
+        </h5>
+      </div>
+    <% end %> 
+    
+    <%= f.hidden_field :tipo, value: @requisicao_transporte.tipo %>
+    <%= f.hidden_field :status, value: "aguardando" %>
+    <%= f.hidden_field :user_id, value: current_user.id %>
+    <%= f.hidden_field :departamento_id, value: current_user.departamento_id %>
 
-      <ul>
-        <% requisicao_transporte.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+    <div class="form-group">
+      <%= f.label :motivo %>
+      <%= f.text_area :motivo, class: "form-control", required: true %>
+      <%= has_error(@requisicao_transporte, :motivo) %>
+    </div>
+
+    <% if @requisicao_transporte.tipo == "viagem" %>
+      <div class="form-group">
+        <%= f.label :documento_viagem, "Documento autorizando a viagem" %>
+        <%= f.text_field :documento_viagem, class: "form-control", required: true %>
+        <%= has_error(@requisicao_transporte, :documento_viagem) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :data_hora_ida, "Data/Hora da saída" %>
+        <%= f.datetime_field :data_hora_ida, class: "form-control", required: true %>
+        <%= has_error(@requisicao_transporte, :data_hora_ida) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :data_hora_retorno, "Data.Hora do retorno" %>
+        <%= f.datetime_field :data_hora_retorno, class: "form-control", required: true %>
+        <%= has_error(@requisicao_transporte, :data_hora_retorno) %>
+      </div>
+    <% else %>
+      <div class="form-group">
+        <%= f.label :dia_requisicao_normal_urgente, "Dia da saída" %>
+        <%= f.text_field :dia_requisicao_normal_urgente, class: "form-control", required: true, value: preencher_dia(@requisicao_transporte.tipo), readonly: true %>
+        <%= has_error(@requisicao_transporte, :dia_requisicao_normal_urgente) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :hora_requisicao_normal_urgente, "Hora da saída" %>
+        <%= f.time_field :hora_requisicao_normal_urgente, class: "form-control", required: true, value: (@requisicao_transporte.data_hora_ida ? @requisicao_transporte.data_hora_ida.strftime("%H:%M") : @requisicao_transporte.hora_requisicao_normal_urgente) %>
+        <%= has_error(@requisicao_transporte, :hora_requisicao_normal_urgente) %>
+      </div>
+    <% end %>  
+    
+    <br/>
+    <hr/>
+    <h5 class = 'text text-primary'><i class="icon fas fa-users"></i> <strong>Passageiros</strong></h5>
+    <hr/>
+    <div id="passageiros">
+      <%= f.fields_for :passageiros do |passageiro| %>
+        <%= render 'passageiro_fields', f: passageiro  %>
+      <% end %>
+      <div class="links">
+        <%= link_to_add_association 'Adicionar Passageiros', f, :passageiros, class: 'btn btn-primary float-right' %>
+        <br><br>
+      </div>
+    </div>
+
+    <br/>
+    <hr/>
+    <h5 class = 'text text-warning'><i class="icon fas fa-map"></i> <strong>Destinos</strong></h5>
+    <hr/>
+    <div id="destinos">
+      <%= f.fields_for :destinos do |destino| %>
+        <%= render 'destino_fields', f: destino  %>
+      <% end %>
+      <div class="links">
+        <%= link_to_add_association 'Adicionar Destinos', f, :destinos, class: 'btn btn-warning float-right' %>
+        <br><br>
+      </div>
+    </div>    
+    <br/>
+    <br/>
+    
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= form.label :status %>
-    <%= form.number_field :status %>
-  </div>
-
-  <div class="field">
-    <%= form.label :user_id %>
-    <%= form.text_field :user_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :departamento_id %>
-    <%= form.text_field :departamento_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :tipo %>
-    <%= form.number_field :tipo %>
-  </div>
-
-  <div class="field">
-    <%= form.label :documento_viagem %>
-    <%= form.text_field :documento_viagem %>
-  </div>
-
-  <div class="field">
-    <%= form.label :data_hora_ida %>
-    <%= form.datetime_select :data_hora_ida %>
-  </div>
-
-  <div class="field">
-    <%= form.label :data_hora_retorno %>
-    <%= form.datetime_select :data_hora_retorno %>
-  </div>
-
-  <div class="field">
-    <%= form.label :motivo %>
-    <%= form.text_area :motivo %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>

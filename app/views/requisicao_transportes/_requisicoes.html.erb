@@ -1,0 +1,58 @@
+<ul class="nav nav-pills">
+  <li class="nav-item">
+    <%= link_to "Aguardando (#{contagem_requisicoes[0]})", requisicao_transportes_path(status: 1), class: "nav-link #{'active' if status.to_i == 1}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Aprovadas (#{contagem_requisicoes[1]})", requisicao_transportes_path(status: 2), class: "nav-link #{'active' if status.to_i == 2}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Em serviço (#{contagem_requisicoes[2]})", requisicao_transportes_path(status: 3), class: "nav-link #{'active' if status.to_i == 3}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Negadas (#{contagem_requisicoes[3]})", requisicao_transportes_path(status: 4), class: "nav-link #{'active' if status.to_i == 4}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Canceladas (#{contagem_requisicoes[4]})", requisicao_transportes_path(status: 5), class: "nav-link #{'active' if status.to_i == 5}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Finalizadas (#{contagem_requisicoes[5]})", requisicao_transportes_path(status: 6), class: "nav-link #{'active' if status.to_i == 6}", remote: true %>
+  </li>
+</ul>
+
+<br/>
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Tipo</th>
+      <th>Data/Hora</th>
+      <th>Destino</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% requisicoes.each do |requisicao_transporte| %>
+      <tr>
+        <td><%= requisicao_transporte.tipo %></td>
+        <td><%= requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_ida %></td>
+        <td>
+          <% requisicao_transporte.destinos.each do |d| %>
+            <%= "<strong>Cep: </strong>#{d.cep}".html_safe() %>
+            <%= "<br/><strong>Nun: </strong>#{d.numero}".html_safe() %>
+            <%= "puxar os outros campos" %>
+          <% end %>
+        </td>
+        <td>
+          <%= link_to requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-default", title: "Ver"  do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
+          <%= link_to edit_requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+            <i class="fas fa-edit"></i>
+          <% end %>
+          <%= link_to requisicao_transporte_path(requisicao_transporte), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </td>
+      </tr> 
+    <% end %>
+  </tbody>
+</table>
