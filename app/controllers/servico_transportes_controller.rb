@@ -1,6 +1,7 @@
 class ServicoTransportesController < ApplicationController
+  before_action :verificar_permissao
   before_action :set_requisicao_transporte, only: %i[ new ]
-  # before_action :set_requisicao_transporte, only: %i[ show edit update ]
+  before_action :set_servico_transporte, only: %i[ edit update ]
   
   # GET /requisicao_transportes/1 or /requisicao_transportes/1.json
   def show
@@ -12,8 +13,7 @@ class ServicoTransportesController < ApplicationController
   end
 
   # GET /requisicao_transportes/1/edit
-  def edit
-    
+  def edit    
   end
 
   # POST /requisicao_transportes or /requisicao_transportes.json
@@ -36,8 +36,10 @@ class ServicoTransportesController < ApplicationController
   # PATCH/PUT /requisicao_transportes/1 or /requisicao_transportes/1.json
   def update
     respond_to do |format|
-      if @requisicao_transporte.update(requisicao_transporte_params)
-        flash[:success] = "Requisição atualizada."
+      if @servico_transporte.update(servico_transporte_params)
+        @servico_transporte.veiculo.mudar_status('patio')
+        @servico_transporte.requisicao_transporte.mudar_status('finalizada')
+        flash[:success] = "Operação concluida com sucesso."
         format.js {render :update, status: :created  }
       else
         flash.now[:error] = "Opss! Algo deu errado."
@@ -65,15 +67,22 @@ class ServicoTransportesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_requisicao_transporte
-      puts "---------------------------------"
-      puts params[:requisicao_transporte_id]
       @requisicao_transporte = RequisicaoTransporte.find(params[:requisicao_transporte_id])
     end
 
-    # Only allow a list of trusted parameters through.
+    def set_servico_transporte
+      @servico_transporte = ServicoTransporte.find(params[:id])
+    end
+
     def servico_transporte_params
       params.require(:servico_transporte).permit(:status, :requisicao_transporte_id, :veiculo_id, :motorista_id, :km_inicial, :km_final, :observacoes)
+    end
+
+    def verificar_permissao
+      unless current_user.has_role? :tec_serv_tp or current_user.has_role? :master
+        flash[:error] = "Você não possui permissão para acessar essa area!"
+        redirect_to home_index_path
+      end
     end
 end

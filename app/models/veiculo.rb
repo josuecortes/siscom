@@ -18,6 +18,7 @@ class Veiculo < ApplicationRecord
 
   def mudar_status(status)
     self.status = status
+    self.motorista_id = nil if status == 'garagem'
     self.save
   end
 end
