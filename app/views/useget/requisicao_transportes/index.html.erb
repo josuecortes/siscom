@@ -1,0 +1,13 @@
+<% content_for :title do %>
+  <i class="fa fa-desktop"></i> Requisições de Transporte
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= requisicao_transportes_url %>">Requisições de transporte</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de Requisições
+<% end %>
+
+<div id='requisicoes'>
+  <%= render 'requisicoes', requisicoes: @requisicao_transportes, status: @status, contagem_requisicoes: @contagem_requisicoes %>  
+</div>
