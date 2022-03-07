@@ -5,6 +5,8 @@ class RequisicaoTransporte < ApplicationRecord
   belongs_to :user
   belongs_to :departamento
 
+  has_one :servico_transporte, dependent: :destroy
+
   has_many :passageiros, dependent: :destroy
   has_many :destinos, dependent: :destroy
 

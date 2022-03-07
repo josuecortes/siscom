@@ -7,6 +7,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :servico_transportes, only: [:show, :new, :create, :edit, :update]
+
   resources :destinos
   resources :passageiros
   resources :requisicao_transportes
