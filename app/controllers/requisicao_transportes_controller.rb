@@ -29,6 +29,9 @@ class RequisicaoTransportesController < ApplicationController
 
   # GET /requisicao_transportes/1/edit
   def edit
+    unless @requisicao_transporte.status == "aguardando"
+      render :show
+    end
   end
 
   # POST /requisicao_transportes or /requisicao_transportes.json
@@ -61,8 +64,13 @@ class RequisicaoTransportesController < ApplicationController
 
   # DELETE /requisicao_transportes/1 or /requisicao_transportes/1.json
   def destroy
-    if @requisicao_transporte.destroy
-      flash[:success] = "Requisição excluida"
+    if @requisicao_transporte.status == "aguardando" or @requisicao_transporte.status == "aprovada"
+      @requisicao_transporte.status = "cancelada"
+      if @requisicao_transporte.save
+        flash[:success] = "Requisição Cancelada"
+      else
+        flash[:error] = "Opss! Algo deu errado."
+      end
     else
       flash[:error] = "Opss! Algo deu errado."
     end

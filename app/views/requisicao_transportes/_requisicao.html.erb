@@ -1,0 +1,81 @@
+<div class="modal-body">
+  
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Número</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.id %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Status</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.status %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Tipo</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.tipo %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Data/Hora Criação</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.created_at.strftime("%d/%m/%Y %H:%M") %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Data/Hora Ida</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") %><br/>
+    </div>
+  </div>
+
+  <hr/>
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Passageiros</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <% @requisicao_transporte.passageiros.each do |p| %>
+        <%= "<strong>Nome: </strong>#{p.nome}".html_safe() %>
+        <%= "<br/><strong>Cpf: </strong>#{p.cpf}".html_safe() %>
+        <hr/>
+      <% end %>
+    </div>
+  </div>
+
+  <hr/>
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Destinos</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <% @requisicao_transporte.destinos.each do |d| %>
+        <%= "<strong>Cep: </strong>#{d.cep}".html_safe() %>
+        <%= "<br/><strong>Nun: </strong>#{d.numero}".html_safe() %>
+        <%= "puxar os outros campos" %>
+        <hr/>
+      <% end %>
+    </div>
+  </div>  
+    
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+ 
+</div>

@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
 
+  namespace :useget do
+    resources :requisicao_transportes, only: [:index, :show] do
+      get 'aprovar'
+      get 'negar'    
+    end
+  end
+
   resources :destinos
   resources :passageiros
   resources :requisicao_transportes
