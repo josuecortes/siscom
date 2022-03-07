@@ -1,0 +1,3 @@
+$('#form-modal-title').html("<i class='fa fa-edit'></i> Finalizar Serviço de Transporte ( <%= @servico_transporte.requisicao_transporte.departamento.sigla %> | Requisição: <%= @servico_transporte.requisicao_transporte.id %> )")
+$('#form-modal-body').html('<%= j render("finalizar_servico") %>')
+$('#form-modal').modal('show')

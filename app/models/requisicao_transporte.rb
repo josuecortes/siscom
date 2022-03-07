@@ -5,6 +5,8 @@ class RequisicaoTransporte < ApplicationRecord
   belongs_to :user
   belongs_to :departamento
 
+  has_one :servico_transporte, dependent: :destroy
+
   has_many :passageiros, dependent: :destroy
   has_many :destinos, dependent: :destroy
 
@@ -20,16 +22,15 @@ class RequisicaoTransporte < ApplicationRecord
   enum tipo: { urgente: 1, normal: 2, viagem: 3 }
 
   before_validation :ajustar_datahora_saida
-
-
- 
-
+  
   def ajustar_datahora_saida
     if self.dia_requisicao_normal_urgente and self.hora_requisicao_normal_urgente
       self.data_hora_ida = "#{self.dia_requisicao_normal_urgente} #{self.hora_requisicao_normal_urgente}"
     end
   end
 
-  
-
+  def mudar_status(status)
+    self.status = status
+    self.save
+  end
 end

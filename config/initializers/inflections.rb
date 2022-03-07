@@ -6,4 +6,5 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'requisicao_transporte', 'requisicao_transportes'
   inflect.irregular 'passageiro', 'passageiros'
   inflect.irregular 'destino', 'destinos'
+  inflect.irregular 'servico_transporte', 'servico_transportes'
 end

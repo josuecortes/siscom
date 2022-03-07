@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_27_004709) do
+ActiveRecord::Schema.define(version: 2022_03_07_035920) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(version: 2022_02_27_004709) do
     t.string "celular"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "status"
   end
 
   create_table "passageiros", force: :cascade do |t|
@@ -111,6 +112,21 @@ ActiveRecord::Schema.define(version: 2022_02_27_004709) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
     t.index ["resource_type", "resource_id"], name: "index_roles_on_resource_type_and_resource_id"
+  end
+
+  create_table "servico_transportes", force: :cascade do |t|
+    t.bigint "requisicao_transporte_id", null: false
+    t.bigint "veiculo_id", null: false
+    t.bigint "motorista_id", null: false
+    t.integer "status"
+    t.integer "km_inicial"
+    t.integer "km_final"
+    t.text "observacoes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["motorista_id"], name: "index_servico_transportes_on_motorista_id"
+    t.index ["requisicao_transporte_id"], name: "index_servico_transportes_on_requisicao_transporte_id"
+    t.index ["veiculo_id"], name: "index_servico_transportes_on_veiculo_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -151,6 +167,8 @@ ActiveRecord::Schema.define(version: 2022_02_27_004709) do
     t.integer "status"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "motorista_id"
+    t.index ["motorista_id"], name: "index_veiculos_on_motorista_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -160,6 +178,10 @@ ActiveRecord::Schema.define(version: 2022_02_27_004709) do
   add_foreign_key "passageiros", "users"
   add_foreign_key "requisicao_transportes", "departamentos"
   add_foreign_key "requisicao_transportes", "users"
+  add_foreign_key "servico_transportes", "motoristas"
+  add_foreign_key "servico_transportes", "requisicao_transportes"
+  add_foreign_key "servico_transportes", "veiculos"
   add_foreign_key "users", "departamentos"
   add_foreign_key "users", "funcoes"
+  add_foreign_key "veiculos", "motoristas"
 end

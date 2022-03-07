@@ -64,6 +64,16 @@
               <i class="fas fa-ban"></i>
             <% end %>
           <% end %>
+          <% if requisicao_transporte.status == "aprovada" %>
+            <%= link_to new_servico_transporte_path(requisicao_transporte_id: requisicao_transporte), class: "btn btn-sm btn-success", title: "Iniciar Serviço", remote: true do %>
+              <i class="fas fa-car"></i>
+            <% end %>
+          <% end %>
+          <% if requisicao_transporte.status == "em_servico" %>
+            <%= link_to edit_servico_transporte_path(requisicao_transporte.servico_transporte), class: "btn btn-sm btn-warning", title: "Finalizar Serviço", remote: true do %>
+              <i class="fas fa-car"></i>
+            <% end %>
+          <% end %>
         </td>
       </tr> 
     <% end %>

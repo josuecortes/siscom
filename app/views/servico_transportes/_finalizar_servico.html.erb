@@ -1,0 +1,43 @@
+<div class="modal-body">
+  <%= form_for @servico_transporte, remote: true do |f| %>
+    <% if @servico_transporte.errors.any? %>
+      
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.
+          
+        </h5>
+      </div>
+    <% end %> 
+
+    <%= f.hidden_field :status, value: "finalizado" %>
+    
+    <div class="form-group">
+      <%= f.label :veiculo_id %>
+      <input type=text value=<%= "#{@servico_transporte.veiculo.placa} - #{@servico_transporte.veiculo.modelo}" %> readonly="readonly" class="form-control">
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :km_inicial, "Km Inicial" %>
+      <%= f.text_field :km_inicial, class: "form-control", required: true, readonly: true %>
+      <%= has_error(@servico_transporte, :km_inicial) %>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :km_final, "Km Final" %>
+      <%= f.text_field :km_final, class: "form-control", required: true %>
+      <%= has_error(@servico_transporte, :km_final) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :observacoes, "Observações" %>
+      <%= f.text_area :observacoes, class: "form-control" %>
+      <%= has_error(@servico_transporte, :observacoes) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>
