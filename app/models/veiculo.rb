@@ -15,4 +15,9 @@ class Veiculo < ApplicationRecord
   def novo_veiculo
     self.status = 1
   end
+
+  def mudar_status(status)
+    self.status = status
+    self.save
+  end
 end

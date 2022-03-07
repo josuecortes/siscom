@@ -9,6 +9,8 @@
         </h5>
       </div>
     <% end %> 
+
+    <%= @requisicao_transporte.id %>
     
     <%= f.hidden_field :requisicao_transporte_id, value: @requisicao_transporte.id %>
     <%= f.hidden_field :status, value: "em_servico" %>
@@ -20,8 +22,8 @@
     </div>
 
     <div class="form-group">
-      <%= f.label :veiculo_id, "Veículo" %>
-      <%= f.text_field :veiculo_id, class: "form-control", required: true %>
+      <%= f.label :veiculo_id %>
+      <%= f.select :veiculo_id, Veiculo.com_status(2).order(placa: :asc).all.map{ |v| ["#{v.placa} - #{v.modelo}", v.id] }, { include_blank: true }, { class: "form-control", required: true } %>
       <%= has_error(@servico_transporte, :veiculo_id) %>
     </div>
 

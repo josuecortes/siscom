@@ -19,14 +19,11 @@ class ServicoTransportesController < ApplicationController
   # POST /requisicao_transportes or /requisicao_transportes.json
   def create
     @servico_transporte = ServicoTransporte.new(servico_transporte_params)
-
+    @servico_transporte.motorista_id = @servico_transporte.veiculo.motorista_id if @servico_transporte.veiculo_id
     respond_to do |format|
       if @servico_transporte.save!
-        @servico_transporte.motorista = @servico_transporte.veiculo.motorista
-        @servico_transporte.save
-        @requisicao_transporte = @servico_transporte.requisicao_transporte
-        @requisicao_transporte.status = 'em_servico'
-        @requisicao_transporte.save
+        @servico_transporte.veiculo.mudar_status('em_servico')
+        @servico_transporte.requisicao_transporte.mudar_status('em_servico')
         flash[:success] = "Servico Criado."
         format.js {render :create, status: :created  }
       else

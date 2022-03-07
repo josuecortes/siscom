@@ -28,4 +28,9 @@ class RequisicaoTransporte < ApplicationRecord
       self.data_hora_ida = "#{self.dia_requisicao_normal_urgente} #{self.hora_requisicao_normal_urgente}"
     end
   end
+
+  def mudar_status(status)
+    self.status = status
+    self.save
+  end
 end
