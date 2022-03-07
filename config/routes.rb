@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
 
+  get 'patio/index'
+  get 'patio/entrada'
+  get 'patio/saida'
+
   namespace :useget do
     resources :requisicao_transportes, only: [:index, :show] do
       get 'aprovar'

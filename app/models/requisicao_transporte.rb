@@ -22,16 +22,10 @@ class RequisicaoTransporte < ApplicationRecord
   enum tipo: { urgente: 1, normal: 2, viagem: 3 }
 
   before_validation :ajustar_datahora_saida
-
-
- 
-
+  
   def ajustar_datahora_saida
     if self.dia_requisicao_normal_urgente and self.hora_requisicao_normal_urgente
       self.data_hora_ida = "#{self.dia_requisicao_normal_urgente} #{self.hora_requisicao_normal_urgente}"
     end
   end
-
-  
-
 end
