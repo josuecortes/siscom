@@ -1,6 +1,6 @@
 class Useget::RequisicaoTransportesController < ApplicationController
   before_action :verificar_permissao
-  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar]
+  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar ]
 
   # GET /requisicao_transportes or /requisicao_transportes.json
   def index

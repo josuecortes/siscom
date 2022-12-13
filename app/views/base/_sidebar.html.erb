@@ -46,7 +46,7 @@
         </li>
 
         <li class="nav-item">
-          <a href="../calendar.html" class="nav-link">
+          <a href="<%= requisicao_tis_path %>" class="nav-link">
             <i class="nav-icon fa fa-desktop"></i>
             <p>Requisições TI</p>
           </a>
@@ -67,6 +67,7 @@
         </li>
 
         <li class="nav-header">ADMINISTRAÇÃO</li>
+
         <li class="nav-item">
           <a href="<%= usuarios_path %>" class="nav-link">
             <i class="nav-icon fa fa-users"></i>
@@ -89,6 +90,7 @@
         </li>
 
         <li class="nav-header">USEGET</li>
+
         <li class="nav-item">
           <a href="<%= useget_requisicao_transportes_path %>" class="nav-link">
             <i class="nav-icon fa fa-desktop"></i>
@@ -118,8 +120,9 @@
         </li>
 
         <li class="nav-header">NUINFO</li>
+
         <li class="nav-item">
-          <a href="../calendar.html" class="nav-link">
+          <a href="<%= nuinfo_requisicao_tis_path %>" class="nav-link">
             <i class="nav-icon far fa-calendar-alt"></i>
             <p>
               Requisições
@@ -127,6 +130,28 @@
             </p>
           </a>
         </li>
+
+        <li class="nav-item">
+          <a href="<%= problema_tis_path %>" class="nav-link">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>
+              Problemas
+              <span class="badge badge-info right">2</span>
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="<%= tipo_problema_tis_path %>" class="nav-link">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>
+              Tipos de Problemas
+              <span class="badge badge-info right">2</span>
+            </p>
+          </a>
+        </li>
+
+
         
       </ul>
     </nav>

@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nome:</strong>
+  <%= @tipo_problema_ti.nome %>
+</p>
+
+<p>
+  <strong>Descricao:</strong>
+  <%= @tipo_problema_ti.descricao %>
+</p>
+
+<%= link_to 'Edit', edit_tipo_problema_ti_path(@tipo_problema_ti) %> |
+<%= link_to 'Back', tipo_problema_tis_path %>

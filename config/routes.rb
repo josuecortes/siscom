@@ -1,5 +1,24 @@
 Rails.application.routes.draw do
 
+  resources :problema_tis
+  resources :tipo_problema_tis
+  resources :requisicao_tis do
+    member do 
+      get 'finalizar'
+      put 'salvar'
+    end
+  end
+  
+  namespace :nuinfo do
+    resources :requisicao_tis, only: [:index, :show] do
+      get 'pegar'
+      member do
+        get 'concluir'    
+        put 'salvar'
+      end
+    end
+  end
+
   get 'patio/index'
   get 'patio/entrada'
   get 'patio/saida'
@@ -31,6 +50,7 @@ Rails.application.routes.draw do
   resources :funcoes do
     get 'autocomplete', on: :collection
   end
+  
   devise_for :users
   devise_scope :user do
     authenticated :user do

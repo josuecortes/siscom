@@ -7,4 +7,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'passageiro', 'passageiros'
   inflect.irregular 'destino', 'destinos'
   inflect.irregular 'servico_transporte', 'servico_transportes'
+  inflect.irregular 'requisicao_ti', 'requisicao_tis'
+  inflect.irregular 'problema_ti', 'problema_tis'
+  inflect.irregular 'tipo_problema_ti', 'tipo_problema_tis'
 end

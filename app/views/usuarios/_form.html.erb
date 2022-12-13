@@ -18,12 +18,12 @@
     </div>
     <div class="form-group">
       <%= f.label :funcao_id, "Função" %>
-      <%= f.select :funcao_id, Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+      <%= f.select :funcao_id, Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }, { include_blank: true }, { class: "form-control js-searchable", required: true } %>
       <%= has_error(@usuario, :funcao_id) %>
     </div>
     <div class="form-group">
       <%= f.label :departamento_id %>
-      <%= f.select :departamento_id, Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+      <%= f.select :departamento_id, Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }, { include_blank: true }, { class: "form-control js-searchable", required: true } %>
       <%= has_error(@usuario, :departamento_id) %>
     </div>
     <div class="form-group">
@@ -44,3 +44,14 @@
     </div>
   <% end %>
 </div>
+
+<script>
+  $(document).ready(function() {
+    $('.js-searchable').select2({
+      placeholder: "Selecione",
+      allowClear: true,
+      theme: 'bootstrap',
+      width: '100%'    
+    });
+  }); 
+</script>

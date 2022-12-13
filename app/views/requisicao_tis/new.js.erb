@@ -1,0 +1,7 @@
+<% if @erro_padrao %>
+  location.reload();
+<% else %>
+  $('#form-modal-title').html("<i class='fa fa-plus'></i> Nova Requisição de TI")
+  $('#form-modal-body').html('<%= j render("form") %>')
+  $('#form-modal').modal('show')
+<% end %>

@@ -9,6 +9,10 @@ class User < ApplicationRecord
   belongs_to :departamento
   has_one_attached :avatar
 
+  has_many :requisicao_transportes
+  has_many :requisicao_tis
+  has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
+
   validates_presence_of :nome, :departamento_id, :funcao_id
   validates_uniqueness_of :nome
   validate :verificar_roles_padrao
@@ -51,4 +55,10 @@ class User < ApplicationRecord
       where(id: u.id)
     end
   end 
+
+  def pode_solicitar_requisicao_ti
+    return false if self.requisicao_tis.where(status: [1, 2, 3]).any?
+    
+    true
+  end
 end

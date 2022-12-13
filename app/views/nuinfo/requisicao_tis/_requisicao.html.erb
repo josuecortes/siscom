@@ -1,0 +1,62 @@
+<div class="modal-body">  
+  <div class="form-group">
+    <%= label_tag "Status" %>
+    <%= text_field_tag '', @requisicao_ti.status, class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Data/Hora Criação" %>
+    <%= text_field_tag '', @requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M"), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Problema" %>
+    <%= text_field_tag '', (@requisicao_ti.problema_ti.nome if @requisicao_ti.problema_ti), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Observações" %>
+    <%= text_area_tag '', (@requisicao_ti.observacoes.html_safe if @requisicao_ti.observacoes), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Requisitante" %>
+    <%= text_field_tag '',(@requisicao_ti.user.nome if @requisicao_ti.user), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
+    <%= label_tag "Departamento" %>
+    <%= text_field_tag '',(@requisicao_ti.departamento.nome if @requisicao_ti.departamento), class: "form-control", readonly: true %>
+  </div>
+
+  <% unless @requisicao_ti.status.in? ['Solicitada','Cancelada']%>
+    <div class="form-group">
+      <%= label_tag "Responsável Técnico" %>
+      <%= text_field_tag '',(@requisicao_ti.tecnico.nome if @requisicao_ti.tecnico), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
+
+  <% if @requisicao_ti.status.in? ['Concluída','Finalizada']%>
+    <div class="form-group">
+      <%= label_tag "Parecer Técnico" %>
+      <%= text_area_tag '',(@requisicao_ti.solucao if @requisicao_ti.solucao), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
+
+  <% if @requisicao_ti.status == 'Finalizada'%>
+    <div class="form-group">
+      <%= label_tag "Avaliação do requisitante" %>
+      <%= text_field_tag '',(@requisicao_ti.avaliacao if @requisicao_ti.avaliacao), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Comentarios do requisitante" %>
+      <%= text_area_tag '',(@requisicao_ti.comentario if @requisicao_ti.comentario), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+ 
+</div>

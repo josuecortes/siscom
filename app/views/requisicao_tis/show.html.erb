@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @requisicao_ti.status %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @requisicao_ti.user_id %>
+</p>
+
+<p>
+  <strong>Departamento:</strong>
+  <%= @requisicao_ti.departamento_id %>
+</p>
+
+<p>
+  <strong>Problema ti:</strong>
+  <%= @requisicao_ti.problema_ti_id %>
+</p>
+
+<p>
+  <strong>Observacoes:</strong>
+  <%= @requisicao_ti.observacoes %>
+</p>
+
+<p>
+  <strong>Solucao:</strong>
+  <%= @requisicao_ti.solucao %>
+</p>
+
+<%= link_to 'Edit', edit_requisicao_ti_path(@requisicao_ti) %> |
+<%= link_to 'Back', requisicao_tis_path %>

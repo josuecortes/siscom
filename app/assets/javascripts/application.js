@@ -2,6 +2,5 @@
 //= require cocoon
 //= require jquery_ujs
 //= require jquery-ui
+//= require select2
 //= require_tree .
-
-

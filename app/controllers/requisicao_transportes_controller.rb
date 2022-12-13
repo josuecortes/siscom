@@ -5,11 +5,11 @@ class RequisicaoTransportesController < ApplicationController
   def index
     params[:status] ? @status = params[:status] : @status = 1
     @requisicao_transportes = RequisicaoTransporte.do_usuario(current_user)
-    aprovadas = @requisicao_transportes.com_status(2).count
     aguardando = @requisicao_transportes.com_status(1).count
+    aprovadas = @requisicao_transportes.com_status(2).count
     em_servico = @requisicao_transportes.com_status(3).count
-    canceladas = @requisicao_transportes.com_status(5).count
     negadas = @requisicao_transportes.com_status(4).count
+    canceladas = @requisicao_transportes.com_status(5).count
     finalizadas = @requisicao_transportes.com_status(6).count
     @contagem_requisicoes = [aguardando, aprovadas, em_servico, negadas, canceladas, finalizadas]
     @requisicao_transportes = @requisicao_transportes.com_status(@status)
@@ -39,7 +39,7 @@ class RequisicaoTransportesController < ApplicationController
     @requisicao_transporte = RequisicaoTransporte.new(requisicao_transporte_params)
 
     respond_to do |format|
-      if @requisicao_transporte.save!
+      if @requisicao_transporte.save
         flash[:success] = "Requisição criada."
         format.js {render :create, status: :created  }
       else

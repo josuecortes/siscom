@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_07_035920) do
+ActiveRecord::Schema.define(version: 2022_12_08_174336) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,33 @@ ActiveRecord::Schema.define(version: 2022_03_07_035920) do
     t.index ["user_id"], name: "index_passageiros_on_user_id"
   end
 
+  create_table "problema_tis", force: :cascade do |t|
+    t.string "nome"
+    t.text "descricao"
+    t.bigint "tipo_problema_ti_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["tipo_problema_ti_id"], name: "index_problema_tis_on_tipo_problema_ti_id"
+  end
+
+  create_table "requisicao_tis", force: :cascade do |t|
+    t.integer "status"
+    t.bigint "user_id", null: false
+    t.bigint "departamento_id", null: false
+    t.bigint "problema_ti_id", null: false
+    t.bigint "tecnico_id"
+    t.text "observacoes"
+    t.text "solucao"
+    t.integer "avaliacao"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.text "comentario"
+    t.index ["departamento_id"], name: "index_requisicao_tis_on_departamento_id"
+    t.index ["problema_ti_id"], name: "index_requisicao_tis_on_problema_ti_id"
+    t.index ["tecnico_id"], name: "index_requisicao_tis_on_tecnico_id"
+    t.index ["user_id"], name: "index_requisicao_tis_on_user_id"
+  end
+
   create_table "requisicao_transportes", force: :cascade do |t|
     t.integer "status"
     t.bigint "user_id", null: false
@@ -127,6 +154,13 @@ ActiveRecord::Schema.define(version: 2022_03_07_035920) do
     t.index ["motorista_id"], name: "index_servico_transportes_on_motorista_id"
     t.index ["requisicao_transporte_id"], name: "index_servico_transportes_on_requisicao_transporte_id"
     t.index ["veiculo_id"], name: "index_servico_transportes_on_veiculo_id"
+  end
+
+  create_table "tipo_problema_tis", force: :cascade do |t|
+    t.string "nome"
+    t.text "descricao"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -176,6 +210,11 @@ ActiveRecord::Schema.define(version: 2022_03_07_035920) do
   add_foreign_key "destinos", "users"
   add_foreign_key "passageiros", "requisicao_transportes"
   add_foreign_key "passageiros", "users"
+  add_foreign_key "problema_tis", "tipo_problema_tis"
+  add_foreign_key "requisicao_tis", "departamentos"
+  add_foreign_key "requisicao_tis", "problema_tis"
+  add_foreign_key "requisicao_tis", "users"
+  add_foreign_key "requisicao_tis", "users", column: "tecnico_id"
   add_foreign_key "requisicao_transportes", "departamentos"
   add_foreign_key "requisicao_transportes", "users"
   add_foreign_key "servico_transportes", "motoristas"

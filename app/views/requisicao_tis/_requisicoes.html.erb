@@ -1,0 +1,68 @@
+<ul class="nav nav-pills">
+  <li class="nav-item">
+    <%= link_to "Solicitadas (#{contagem_requisicoes[0]})", requisicao_tis_path(status: 1), class: "nav-link #{'active' if status.to_i == 1}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Em atendimento (#{contagem_requisicoes[1]})", requisicao_tis_path(status: 2), class: "nav-link #{'active' if status.to_i == 2}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Concluídas (#{contagem_requisicoes[2]})", requisicao_tis_path(status: 3), class: "nav-link #{'active' if status.to_i == 3}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Canceladas (#{contagem_requisicoes[3]})", requisicao_tis_path(status: 4), class: "nav-link #{'active' if status.to_i == 4}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Finalizadas (#{contagem_requisicoes[4]})", requisicao_tis_path(status: 5), class: "nav-link #{'active' if status.to_i == 5}", remote: true %>
+  </li>
+</ul>
+
+<br/>
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Data/Hora</th>
+      <th>Problema</th>
+      <% if [2,3,5].include? status.to_i %>
+        <th>Responsável Técnico</th>
+      <% end %>
+      <% if status.to_i == 5 %>
+        <th>Avaliação</th>
+      <% end %>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% requisicoes.each do |requisicao_ti| %>
+      <tr>
+        <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+        <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
+        <% if [2,3,5].include? status.to_i%>
+          <td><%= requisicao_ti.tecnico.nome if requisicao_ti.tecnico %></td>
+        <% end %>
+        <% if status.to_i == 5 %>
+          <td><%= requisicao_ti.avaliacao if requisicao_ti.avaliacao %></td>
+        <% end %>
+        <td>
+          <%= link_to requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
+          <% if requisicao_ti.status == 'Solicitada' %>
+            <%= link_to edit_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+              <i class="fas fa-edit"></i>
+            <% end %>
+          <% end %>
+          <% if requisicao_ti.status == 'Concluída' %>
+            <%= link_to finalizar_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-primary", title: "Finalizar", remote: true  do %>
+              <i class="fas fa-share"></i>
+            <% end %>
+          <% end %>
+          <% if requisicao_ti.status == 'Solicitada' %>
+            <%= link_to requisicao_ti_path(requisicao_ti), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Cancelar"  do %>
+              <i class="fas fa-trash"></i>
+            <% end %>
+          <% end %>
+        </td>
+      </tr> 
+    <% end %>
+  </tbody>
+</table>

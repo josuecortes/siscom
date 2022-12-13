@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  status: MyString
+  user: one
+  departamento: one
+  problema_ti: one
+  observacoes: MyText
+  solucao: MyText
+
+two:
+  status: MyString
+  user: two
+  departamento: two
+  problema_ti: two
+  observacoes: MyText
+  solucao: MyText

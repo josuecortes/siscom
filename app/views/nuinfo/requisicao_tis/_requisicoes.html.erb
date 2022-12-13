@@ -1,0 +1,65 @@
+<ul class="nav nav-pills">
+  <li class="nav-item">
+    <%= link_to "Solicitadas (#{contagem_requisicoes[0]})", nuinfo_requisicao_tis_path(status: 1), class: "nav-link #{'active' if status.to_i == 1}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Em atendimento (#{contagem_requisicoes[1]})", nuinfo_requisicao_tis_path(status: 2), class: "nav-link #{'active' if status.to_i == 2}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Concluídas (#{contagem_requisicoes[2]})", nuinfo_requisicao_tis_path(status: 3), class: "nav-link #{'active' if status.to_i == 3}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Canceladas (#{contagem_requisicoes[3]})", nuinfo_requisicao_tis_path(status: 4), class: "nav-link #{'active' if status.to_i == 4}", remote: true %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "Finalizadas (#{contagem_requisicoes[4]})", nuinfo_requisicao_tis_path(status: 5), class: "nav-link #{'active' if status.to_i == 5}", remote: true %>
+  </li>
+</ul>
+
+<br/>
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Data/Hora</th>
+      <th>Problema</th>
+      <th>Departamento</th>
+      <% if [2,3,5].include? status.to_i %>
+        <th>Responsável Técnico</th>
+      <% end %>
+      <% if status.to_i == 5 %>
+        <th>Avaliação</th>
+      <% end %>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% requisicoes.each do |requisicao_ti| %>
+      <tr>
+        <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+        <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
+        <td><%= requisicao_ti.departamento.nome if requisicao_ti.departamento %></td>
+        <% if [2,3,5].include? status.to_i%>
+          <td><%= requisicao_ti.tecnico.nome if requisicao_ti.tecnico %></td>
+        <% end %>
+        <% if status.to_i == 5%>
+          <td><%= requisicao_ti.avaliacao if requisicao_ti.avaliacao %></td>
+        <% end %>
+        <td>
+          <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
+          <% if requisicao_ti.status == "Solicitada" %>
+            <%= link_to nuinfo_requisicao_ti_pegar_path(requisicao_ti), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-primary", title: "Pegar"  do %>
+              <i class="fas fa-reply"></i>
+            <% end %>
+          <% end %>
+          <% if requisicao_ti.status == "Em atendimento" %>
+            <%= link_to concluir_nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-primary", title: "Concluir", remote: true  do %>
+              <i class="fas fa-share"></i>
+            <% end %>  
+          <% end %>
+        </td>
+      </tr> 
+    <% end %>
+  </tbody>
+</table>

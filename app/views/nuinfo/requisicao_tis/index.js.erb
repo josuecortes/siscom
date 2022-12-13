@@ -1,0 +1,3 @@
+$('#requisicoes').html("")
+$('#requisicoes').html('<%= j render("requisicoes", requisicoes: @requisicao_tis, status: @status, contagem_requisicoes: @contagem_requisicoes) %>')
+ajustar_datatables_remote($('#data-table'))

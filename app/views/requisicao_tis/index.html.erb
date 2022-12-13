@@ -1,0 +1,18 @@
+<% content_for :title do %>
+  <i class="fa fa-desktop"></i> Requisições de TI
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= requisicao_tis_url %>">Requisições de ti</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de Requisições
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_requisicao_ti_path, class: "btn btn-sm btn-success", title: "Novo Requisiço de ti", remote: true do %>
+    <i class="fas fa-plus"></i> Nova requisição
+  <% end %>
+<% end %>
+
+<div id='requisicoes'>
+  <%= render 'requisicoes', requisicoes: @requisicao_tis, status: @status, contagem_requisicoes: @contagem_requisicoes %>  
+</div>

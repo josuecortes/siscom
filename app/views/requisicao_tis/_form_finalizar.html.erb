@@ -1,0 +1,57 @@
+<div class="modal-body">
+
+  <%= form_for @requisicao_ti, url: salvar_requisicao_ti_path(@requisicao_ti), method: :put, remote: true do |f| %>
+    <% if @requisicao_ti.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+          <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+        </div>
+    <% end %> 
+
+    <%= f.hidden_field :status, value: 'Finalizada' %>
+
+    <div class="form-group">
+      <%= label_tag "Problema" %>
+      <%= text_field_tag '',(@requisicao_ti.problema_ti.nome if @requisicao_ti.problema_ti), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Observações" %>
+      <%= text_area_tag '',(@requisicao_ti.observacoes.html_safe if @requisicao_ti.observacoes), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Solução" %>
+      <%= text_area_tag '',(@requisicao_ti.solucao if @requisicao_ti.solucao), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :avaliacao, "Como você avalia esse atendimento?" %>
+      <%= f.select :avaliacao, ['Muito bom', 'Bom', 'Normal', 'Ruim', 'Péssimo'], { include_blank: true }, { class: "form-control", required: true } %>
+      <%= has_error(@requisicao_ti, :avaliacao) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :comentario, "Deixe um comentário sobre esse atendimento" %>
+      <%= f.text_area :comentario, class: "form-control" %>
+      <%= has_error(@requisicao_ti, :comentario) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  
+  <% end %>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('.js-searchable').select2({
+      placeholder: "Selecione",
+      allowClear: true,
+      theme: 'bootstrap',
+      width: '100%'    
+    });
+  }); 
+</script>
