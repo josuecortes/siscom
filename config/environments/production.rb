@@ -5,6 +5,8 @@ Rails.application.configure do
   config.cache_classes = true
 
   config.hosts << "192.168.239.10"
+  config.hosts << "siscom.seedsistemas.ap.gov.br"
+  config.hosts.clear
 
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
