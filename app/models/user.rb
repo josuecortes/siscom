@@ -61,4 +61,34 @@ class User < ApplicationRecord
     
     true
   end
+
+  def alterar_senha(params)
+    unless params[:current_password] or params[:password] or params[:password_confirmation]
+      self.errors.add(:current_password, 'Você deve preencher esse campo')
+      return false
+    end
+
+    if params[:password] == 'Seed@123' or params[:password] == 'seed@123'
+      self.errors.add(:password, 'A nova senha não pode ser (Seed@123)!')
+      return false
+    end
+
+    unless self.valid_password?(params[:current_password])
+      self.errors.add(:current_password, 'A senha atual não confere!')
+      return false
+    end
+
+    if params[:password] != params[:password_confirmation]
+      self.errors.add(:password_confirmation, 'A confirmação da senha não é igual a nova senha!')
+      return false
+    end
+
+    self.password = params[:password]
+    self.password_confirmation = params[:password_confirmation]
+    if self.save
+      return true
+    end
+
+    return false
+  end
 end

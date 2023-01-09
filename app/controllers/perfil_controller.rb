@@ -16,10 +16,25 @@ class PerfilController < ApplicationController
     end
   end
 
+  def alterar_senha
+    @usuario = current_user
+  end
+
+  def salvar_senha
+    @usuario = current_user
+    if @usuario.alterar_senha(user_params)
+      flash[:success] = 'Senha alterada, efetue o login para continuar.'
+      redirect_to new_user_session_url
+    else
+      flash.now[:error] = "Opss! Algo deu errado."
+      render :alterar_senha 
+    end
+  end
+
   private
 
   def user_params
-    params.require(:user).permit(:nome, :email, :avatar, :departamento_id, :funcao_id)
+    params.require(:user).permit(:nome, :email, :avatar, :departamento_id, :funcao_id, :current_password, :password, :password_confirmation)
   end
 
   def load_funcoes

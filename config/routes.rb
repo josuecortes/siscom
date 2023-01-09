@@ -41,6 +41,8 @@ Rails.application.routes.draw do
 
   get 'perfil/index'
   put 'perfil/update'
+  get 'perfil/alterar_senha'
+  put 'perfil/salvar_senha'
   
   resources :usuarios do
 

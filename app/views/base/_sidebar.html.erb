@@ -43,6 +43,10 @@
             <i class="nav-icon fa fa-user"></i>
             <p>Meu Perfil</p>
           </a>
+          <a href="<%= perfil_alterar_senha_url %>" class="nav-link <%= 'active' if (params[:controller] == 'perfil' and params[:action] == 'alterar_senha') %>">
+            <i class="nav-icon fa fa-lock"></i>
+            <p>Alterar Senha</p>
+          </a>
         </li>
 
         <% if current_user.has_role? :req_serv_ti %>
