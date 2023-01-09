@@ -35,5 +35,16 @@ module ApplicationHelper
     end
   end
 
+  def pegar_status(status)
+    case status 
+      when 'Solicitada'
+        '1'
+      when 'Em atendimento'
+        '2'
+      when 'Concluída'
+        '3'
+    end
+  end
+
 end
 

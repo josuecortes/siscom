@@ -3,23 +3,117 @@
 <% end %>
 
 <% content_for :breadcrumb do %>
-  <li class="breadcrumb-item"><a href="#">Home</a></li>
-  <li class="breadcrumb-item active">Blank Page</li>
+  <li class="breadcrumb-item active"><a href="#">Início</a></li>
 <% end %>
 
 <% content_for :sub_title do %>
-  Home
+  Início
 <% end %>
 
-<% content_for :buttons do %>
-  <button type="button" class="btn btn-sm btn-success" data-card-widget="collapse" title="Collapse">
-    <i class="fas fa-plus"></i>
-    &nbsp; Novo
-  </button>
-  <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-    <i class="fas fa-times"></i>
-  </button>
+<% if current_user.has_role? :req_serv_ti %>
+  <% if @requisicao_ti %>
+    <h5 class="mb-2 mt-4 alert alert-info">Você possui 1 requisição de T.I. <%= @requisicao_ti.status %>.</h5>
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <!-- small card -->
+        <div class="small-box bg-danger">
+          <div class="inner">
+            <h3>1</h3>
+            <p><b>Data: </b><%= @requisicao_ti.created_at.strftime("%d/%m/%Y") %></p>
+            <% if @requisicao_ti.tecnico %>
+              <p><b>Responsável: </b><%= @requisicao_ti.tecnico.nome.split.first %></p>
+            <% end %>
+          </div>
+          <div class="icon">
+            <i class="fas fa-desktop"></i>
+          </div>
+          <a href="<%= requisicao_tis_path(status: pegar_status(@requisicao_ti.status)) %>" class="small-box-footer">
+            Mais detalhes <i class="fas fa-arrow-circle-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>  
+  <% else %>
+  <h5 class="mb-2 mt-4 alert alert-success">Você não possui requisições de T.I. em atendimento.</h5>
+    <div class="row">
+      <div class="col-lg-3 col-6">
+        <!-- small card -->
+        <div class="small-box bg-success">
+          <div class="inner">
+            <h3><%= current_user.requisicao_tis.count %></h3>
+            <p>Requisições de T.I.</p>
+          </div>
+          <div class="icon">
+            <i class="fas fa-desktop"></i>
+          </div>
+          <%= link_to new_requisicao_ti_path, class: "small-box-footer", title: "Novo Requisiço de ti", remote: true do %>
+            Nova requisição de T.I. <i class="fas fa-plus"></i> 
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
 <% end %>
 
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+
+<% if current_user.has_role? :tec_serv_ti %>
+  <hr/>
+  <% if @requisicoes_ti_abertas.count >= 1 %>    
+    <h5 class="mb-2 mt-4 alert alert-danger">Requisições de T.I. abertas:</h5>
+    <table id="data-table" class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Problema</th>
+          <th>Usuário</th>
+          <th>Departamento</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="data-table-body">
+        <% @requisicoes_ti_abertas.each do |requisicao_ti| %>
+          <tr>
+            <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+            <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
+            <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
+            <td><%= requisicao_ti.departamento.sigla if requisicao_ti.departamento %></td>
+            <td>
+              <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+                <i class="fas fa-eye"></i>
+              <% end %>
+              <% if requisicao_ti.status == "Solicitada" %>
+                <%= link_to nuinfo_requisicao_ti_pegar_path(requisicao_ti), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-primary", title: "Pegar"  do %>
+                  <i class="fas fa-reply"></i>
+                <% end %>
+              <% end %>
+            </td>
+          </tr> 
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <h5 class="mb-2 mt-4 alert alert-info">Sem requisições de T.I. abertas no momento.</h5>
+  <% end %>
+
+  <% if @requisicoes_ti_em_atendimento.count >= 1 %>
+    <div class="col-lg-3 col-6">
+      <!-- small card -->
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3><%= @requisicoes_ti_em_atendimento.count %></h3>
+          <p><%= @requisicoes_ti_em_atendimento.count > 1 ? 'Requisições' : 'Requisição' %> T.I. em atendimento</p>
+        </div>
+        <div class="icon">
+          <i class="fas fa-desktop"></i>
+        </div>
+        <a href="<%= nuinfo_requisicao_tis_path(status: 2) %>" class="small-box-footer">
+          Mais detalhes <i class="fas fa-arrow-circle-right"></i>
+        </a>
+      </div>
+    </div>
+  <% else %>
+    <div class="col-lg-3 col-6">
+      <h5 class="mb-2 mt-4">Você não possui requisições de T.I. em atendimento no momento.</h5>
+    </div>  
+  <% end %>
+<% end %>

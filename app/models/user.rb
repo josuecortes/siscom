@@ -30,8 +30,8 @@ class User < ApplicationRecord
   
 
   def novo_usuario
-    self.password = "@seed123"
-    self.password_confirmation = "@seed123"
+    self.password = "Seed@123"
+    self.password_confirmation = "Seed@123"
     # self.add_role(:user) unless self.roles.include? :user
     # self.add_role(:req_serv_ti) unless self.roles.include? :req_serv_ti
   end

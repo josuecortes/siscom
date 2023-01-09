@@ -60,7 +60,7 @@
               <%= f.label :funcao_id, "Função", class: "form-label" %>
             </div>  
             <div class="col-sm-10">
-              <%= f.select :funcao_id, Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>
+              <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control", required: true } %>
               <%= has_error(@usuario, :funcao_id) %>  
             </div>  
           </div>
@@ -70,7 +70,7 @@
               <%= f.label :departamento_id, class: "form-label" %>
             </div>  
             <div class="col-sm-10">
-              <%= f.select :departamento_id, Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }, { include_blank: true }, { class: "form-control", required: true } %>  
+              <%= f.select :departamento_id, @departamentos, { include_blank: true }, { class: "form-control", required: true } %>  
               <%= has_error(@usuario, :departamento_id) %>
             </div>  
           </div>

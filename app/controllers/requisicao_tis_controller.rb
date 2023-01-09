@@ -1,5 +1,6 @@
 class RequisicaoTisController < ApplicationController
-  before_action :set_requisicao_ti, only: %i[ show edit update destroy finalizar salvar ]
+  before_action :verify_permission
+  before_action :set_requisicao_ti, only: %i[ show edit update destroy finalizar salvar ]  
 
   # GET /requisicao_tis or /requisicao_tis.json
   def index
@@ -113,5 +114,12 @@ class RequisicaoTisController < ApplicationController
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
       params.require(:requisicao_ti).permit(:status, :user_id, :departamento_id, :problema_ti_id, :observacoes, :solucao, :comentario, :avaliacao)
+    end
+
+    def verify_permission
+      unless current_user.has_role? :req_serv_ti
+        flash[:info] = "Você não possui as permissões necessárias para acessar!"
+        redirect_to home_index_path
+      end
     end
 end
