@@ -1,7 +1,8 @@
 class UsuariosController < ApplicationController
-  before_action :set_usuario, only: %i[ show edit update destroy ]
+  before_action :set_usuario, only: %i[ show edit update destroy resetar_senha ]
   before_action :set_post_url, only: %i[ new create ]
   before_action :set_put_url, only: %i[ edit update ]
+  before_action :load_departamento, :load_funcoes, only: %i[ new edit update create ]
   
 
   # GET /usuarios or /usuarios.json
@@ -31,7 +32,6 @@ class UsuariosController < ApplicationController
   # POST /usuarios or /usuarios.json
   def create
     @usuario = User.new(user_params)
-    # @usuario.novo_usuario
     respond_to do |format|
       if @usuario.save
         flash[:success] = "Usuário criado."
@@ -68,6 +68,18 @@ class UsuariosController < ApplicationController
     end
   end
 
+  def resetar_senha
+    if @usuario.resetar_senha
+      flash[:success] = "A senha foi resetada com sucesso - (Seed@123)."
+    else
+      flash[:error] = "Erro ao resetar a senha."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to usuarios_url }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_usuario
@@ -88,4 +100,24 @@ class UsuariosController < ApplicationController
       @url = usuario_path(@usuario)
       @method = 'put'
     end  
+
+    def load_funcoes
+      if current_user.has_role? :master
+        @funcoes = Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      elsif current_user.has_role? :admin
+        @funcoes = Funcao.where("nome <> ?", 'Master').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      elsif current_user.has_role? :tec_serv_ti
+        @funcoes = Funcao.where("nome <> ? and nome <> ?", 'master', 'admin').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      else
+        @funcoes = Funcao.order(nome: :asc).where(id: current_user.funcao_id).map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      end
+    end
+
+    def load_departamento
+      if current_user.has_role? :admin or current_user.has_role? :master
+        @departamentos = Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      else
+        @departamentos = Departamento.order(nome: :asc).where(id: current_user.departamento_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      end
+    end
 end

@@ -45,7 +45,9 @@ Rails.application.routes.draw do
   put 'perfil/salvar_senha'
   
   resources :usuarios do
-
+    member do
+      get 'resetar_senha'
+    end
   end
 
   resources :departamentos

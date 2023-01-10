@@ -17,7 +17,7 @@ class User < ApplicationRecord
   validates_uniqueness_of :nome
   validate :verificar_roles_padrao
 
-  before_validation :novo_usuario, on: :create
+  before_validation :senha_padrao, on: :create
 
   def verificar_roles_padrao
     unless self.has_role? :user
@@ -29,11 +29,9 @@ class User < ApplicationRecord
   end 
   
 
-  def novo_usuario
+  def senha_padrao
     self.password = "Seed@123"
     self.password_confirmation = "Seed@123"
-    # self.add_role(:user) unless self.roles.include? :user
-    # self.add_role(:req_serv_ti) unless self.roles.include? :req_serv_ti
   end
 
   # Roles
@@ -85,6 +83,15 @@ class User < ApplicationRecord
 
     self.password = params[:password]
     self.password_confirmation = params[:password_confirmation]
+    if self.save
+      return true
+    end
+
+    return false
+  end
+
+  def resetar_senha
+    senha_padrao
     if self.save
       return true
     end

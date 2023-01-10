@@ -38,15 +38,19 @@ class PerfilController < ApplicationController
   end
 
   def load_funcoes
-    if current_user.has_role? :tec_serv_ti or current_user.has_role? :master
+    if current_user.has_role? :master
       @funcoes = Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+    elsif current_user.has_role? :admin
+      @funcoes = Funcao.where("nome <> ?", 'Master').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+    elsif current_user.has_role? :tec_serv_ti
+      @funcoes = Funcao.where("nome <> ? and nome <> ?", 'master', 'admin').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
     else
       @funcoes = Funcao.order(nome: :asc).where(id: current_user.funcao_id).map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
     end
   end
 
   def load_departamento
-    if current_user.has_role? :tec_serv_ti or current_user.has_role? :master
+    if current_user.has_role? :admin or current_user.has_role? :master
       @departamentos = Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
     else
       @departamentos = Departamento.order(nome: :asc).where(id: current_user.departamento_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
