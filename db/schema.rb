@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_12_08_174336) do
+ActiveRecord::Schema.define(version: 2023_01_12_171915) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,9 +36,8 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "departamentos", force: :cascade do |t|
+  create_table "cargos", force: :cascade do |t|
     t.string "nome"
-    t.string "sigla"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -101,7 +100,7 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
   create_table "requisicao_tis", force: :cascade do |t|
     t.integer "status"
     t.bigint "user_id", null: false
-    t.bigint "departamento_id", null: false
+    t.bigint "unidade_id", null: false
     t.bigint "problema_ti_id", null: false
     t.bigint "tecnico_id"
     t.text "observacoes"
@@ -110,16 +109,16 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "comentario"
-    t.index ["departamento_id"], name: "index_requisicao_tis_on_departamento_id"
     t.index ["problema_ti_id"], name: "index_requisicao_tis_on_problema_ti_id"
     t.index ["tecnico_id"], name: "index_requisicao_tis_on_tecnico_id"
+    t.index ["unidade_id"], name: "index_requisicao_tis_on_unidade_id"
     t.index ["user_id"], name: "index_requisicao_tis_on_user_id"
   end
 
   create_table "requisicao_transportes", force: :cascade do |t|
     t.integer "status"
     t.bigint "user_id", null: false
-    t.bigint "departamento_id", null: false
+    t.bigint "unidade_id", null: false
     t.integer "tipo"
     t.string "documento_viagem"
     t.datetime "data_hora_ida"
@@ -127,7 +126,7 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
     t.text "motivo"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["departamento_id"], name: "index_requisicao_transportes_on_departamento_id"
+    t.index ["unidade_id"], name: "index_requisicao_transportes_on_unidade_id"
     t.index ["user_id"], name: "index_requisicao_transportes_on_user_id"
   end
 
@@ -163,6 +162,21 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "tipo_unidades", force: :cascade do |t|
+    t.string "nome"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "unidades", force: :cascade do |t|
+    t.string "nome"
+    t.string "sigla"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "tipo_unidade_id", null: false
+    t.index ["tipo_unidade_id"], name: "index_unidades_on_tipo_unidade_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -175,12 +189,12 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
     t.string "celular"
     t.string "cpf"
     t.date "data_nascimento"
-    t.bigint "departamento_id"
+    t.bigint "unidade_id"
     t.bigint "funcao_id"
-    t.index ["departamento_id"], name: "index_users_on_departamento_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["funcao_id"], name: "index_users_on_funcao_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["unidade_id"], name: "index_users_on_unidade_id"
   end
 
   create_table "users_roles", id: false, force: :cascade do |t|
@@ -211,16 +225,17 @@ ActiveRecord::Schema.define(version: 2022_12_08_174336) do
   add_foreign_key "passageiros", "requisicao_transportes"
   add_foreign_key "passageiros", "users"
   add_foreign_key "problema_tis", "tipo_problema_tis"
-  add_foreign_key "requisicao_tis", "departamentos"
   add_foreign_key "requisicao_tis", "problema_tis"
+  add_foreign_key "requisicao_tis", "unidades"
   add_foreign_key "requisicao_tis", "users"
   add_foreign_key "requisicao_tis", "users", column: "tecnico_id"
-  add_foreign_key "requisicao_transportes", "departamentos"
+  add_foreign_key "requisicao_transportes", "unidades"
   add_foreign_key "requisicao_transportes", "users"
   add_foreign_key "servico_transportes", "motoristas"
   add_foreign_key "servico_transportes", "requisicao_transportes"
   add_foreign_key "servico_transportes", "veiculos"
-  add_foreign_key "users", "departamentos"
+  add_foreign_key "unidades", "tipo_unidades"
   add_foreign_key "users", "funcoes"
+  add_foreign_key "users", "unidades"
   add_foreign_key "veiculos", "motoristas"
 end

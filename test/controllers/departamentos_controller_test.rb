@@ -1,48 +1,48 @@
 require 'test_helper'
 
-class DepartamentosControllerTest < ActionDispatch::IntegrationTest
+class UnidadesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @departamento = departamentos(:one)
+    @unidade = unidades(:one)
   end
 
   test "should get index" do
-    get departamentos_url
+    get unidades_url
     assert_response :success
   end
 
   test "should get new" do
-    get new_departamento_url
+    get new_unidade_url
     assert_response :success
   end
 
-  test "should create departamento" do
-    assert_difference('Departamento.count') do
-      post departamentos_url, params: { departamento: { nome: @departamento.nome, sigla: @departamento.sigla } }
+  test "should create unidade" do
+    assert_difference('Unidade.count') do
+      post unidades_url, params: { unidade: { nome: @unidade.nome, sigla: @unidade.sigla } }
     end
 
-    assert_redirected_to departamento_url(Departamento.last)
+    assert_redirected_to unidade_url(Unidade.last)
   end
 
-  test "should show departamento" do
-    get departamento_url(@departamento)
+  test "should show unidade" do
+    get unidade_url(@unidade)
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_departamento_url(@departamento)
+    get edit_unidade_url(@unidade)
     assert_response :success
   end
 
-  test "should update departamento" do
-    patch departamento_url(@departamento), params: { departamento: { nome: @departamento.nome, sigla: @departamento.sigla } }
-    assert_redirected_to departamento_url(@departamento)
+  test "should update unidade" do
+    patch unidade_url(@unidade), params: { unidade: { nome: @unidade.nome, sigla: @unidade.sigla } }
+    assert_redirected_to unidade_url(@unidade)
   end
 
-  test "should destroy departamento" do
-    assert_difference('Departamento.count', -1) do
-      delete departamento_url(@departamento)
+  test "should destroy unidade" do
+    assert_difference('Unidade.count', -1) do
+      delete unidade_url(@unidade)
     end
 
-    assert_redirected_to departamentos_url
+    assert_redirected_to unidades_url
   end
 end

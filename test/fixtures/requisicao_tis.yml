@@ -3,7 +3,7 @@
 one:
   status: MyString
   user: one
-  departamento: one
+  unidade: one
   problema_ti: one
   observacoes: MyText
   solucao: MyText
@@ -11,7 +11,7 @@ one:
 two:
   status: MyString
   user: two
-  departamento: two
+  unidade: two
   problema_ti: two
   observacoes: MyText
   solucao: MyText

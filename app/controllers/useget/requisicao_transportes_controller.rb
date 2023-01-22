@@ -42,7 +42,7 @@ class Useget::RequisicaoTransportesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_transporte_params
-      params.require(:requisicao_transporte).permit(:status, :user_id, :departamento_id, :tipo, :documento_viagem, :data_hora_ida, :data_hora_retorno, 
+      params.require(:requisicao_transporte).permit(:status, :user_id, :unidade_id, :tipo, :documento_viagem, :data_hora_ida, :data_hora_retorno, 
                                                     :motivo, :dia_requisicao_normal_urgente, :hora_requisicao_normal_urgente, 
                                                     passageiros_attributes: [:id, :nome, :cpf, :user_id, :_destroy],
                                                     destinos_attributes: [:id, :descricao, :cep, :numero, :user_id, :_destroy])

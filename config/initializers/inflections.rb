@@ -1,6 +1,8 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'funcao', 'funcoes'
-  inflect.irregular 'departamento', 'departamentos'
+  inflect.irregular 'unidade', 'unidades'
+  inflect.irregular 'tipo_unidade', 'tipo_unidades'
+  inflect.irregular 'cargo', 'cargos'
   inflect.irregular 'motorista', 'motoristas'
   inflect.irregular 'veiculo', 'veiculos'
   inflect.irregular 'requisicao_transporte', 'requisicao_transportes'

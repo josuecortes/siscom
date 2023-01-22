@@ -2,7 +2,7 @@ class UsuariosController < ApplicationController
   before_action :set_usuario, only: %i[ show edit update destroy resetar_senha ]
   before_action :set_post_url, only: %i[ new create ]
   before_action :set_put_url, only: %i[ edit update ]
-  before_action :load_departamento, :load_funcoes, only: %i[ new edit update create ]
+  before_action :load_unidade, :load_funcoes, only: %i[ new edit update create ]
   
 
   # GET /usuarios or /usuarios.json
@@ -88,7 +88,7 @@ class UsuariosController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:nome, :email, :departamento_id, :funcao_id, role_ids: [])
+      params.require(:user).permit(:nome, :email, :unidade_id, :funcao_id, role_ids: [])
     end
 
     def set_post_url
@@ -113,11 +113,11 @@ class UsuariosController < ApplicationController
       end
     end
 
-    def load_departamento
+    def load_unidade
       if current_user.has_role? :admin or current_user.has_role? :master
-        @departamentos = Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+        @unidades = Unidade.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
       else
-        @departamentos = Departamento.order(nome: :asc).where(id: current_user.departamento_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+        @unidades = Unidade.order(nome: :asc).where(id: current_user.unidade_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
       end
     end
 end

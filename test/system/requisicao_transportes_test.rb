@@ -16,7 +16,7 @@ class RequisicaoTransportesTest < ApplicationSystemTestCase
 
     fill_in "Data hora ida", with: @requisicao_transporte.data_hora_ida
     fill_in "Data hora retorno", with: @requisicao_transporte.data_hora_retorno
-    fill_in "Departamento", with: @requisicao_transporte.departamento_id
+    fill_in "Unidade", with: @requisicao_transporte.unidade_id
     fill_in "Documento viagem", with: @requisicao_transporte.documento_viagem
     fill_in "Motivo", with: @requisicao_transporte.motivo
     fill_in "Status", with: @requisicao_transporte.status
@@ -34,7 +34,7 @@ class RequisicaoTransportesTest < ApplicationSystemTestCase
 
     fill_in "Data hora ida", with: @requisicao_transporte.data_hora_ida
     fill_in "Data hora retorno", with: @requisicao_transporte.data_hora_retorno
-    fill_in "Departamento", with: @requisicao_transporte.departamento_id
+    fill_in "Unidade", with: @requisicao_transporte.unidade_id
     fill_in "Documento viagem", with: @requisicao_transporte.documento_viagem
     fill_in "Motivo", with: @requisicao_transporte.motivo
     fill_in "Status", with: @requisicao_transporte.status

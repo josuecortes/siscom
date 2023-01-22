@@ -22,9 +22,9 @@
       <%= has_error(@usuario, :funcao_id) %>
     </div>
     <div class="form-group">
-      <%= f.label :departamento_id %>
-      <%= f.select :departamento_id, @departamentos, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
-      <%= has_error(@usuario, :departamento_id) %>
+      <%= f.label :unidade_id %>
+      <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+      <%= has_error(@usuario, :unidade_id) %>
     </div>
     <div class="form-group">
       <%= f.label :role_ids, "Permissões" %>

@@ -20,7 +20,7 @@
     <%= f.hidden_field :tipo, value: @requisicao_transporte.tipo %>
     <%= f.hidden_field :status, value: "aguardando" %>
     <%= f.hidden_field :user_id, value: current_user.id %>
-    <%= f.hidden_field :departamento_id, value: current_user.departamento_id %>
+    <%= f.hidden_field :unidade_id, value: current_user.unidade_id %>
 
     <div class="form-group">
       <%= f.label :motivo %>

@@ -1,0 +1,15 @@
+Trocar o nome do modelo departamentos por unidade                                   FEITO
+
+Criar modelo Tipo de Unidade (SEDE, ANEXO, ESCOLA, OUTRO)                           FEITO
+
+Atualizar/Preencher tabela tipo de unidade                                          FEITO
+
+Criar relacionamento tipo unidade para unidade                                      FEITO
+
+Verificar os antigos departamentos e atualizar o tipo de unidade                    FEITO
+
+Migrar a lista das escolas para dentro de unidade com o tipo_de_unidade correto.    (AGUARDANDO)
+
+Criar a tabela cargo
+
+Migrar a tabela cargo

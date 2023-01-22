@@ -1,15 +1,15 @@
 <% content_for :title do %>
-  <i class="fa fa-sitemap"></i> Departamentos
+  <i class="fa fa-sitemap"></i> Unidades
 <% end %>
 <% content_for :breadcrumb do %>
-  <li class="breadcrumb-item active"><a href="<%= departamentos_url %>">Departamentos</a></li>
+  <li class="breadcrumb-item active"><a href="<%= unidades_url %>">Unidades</a></li>
 <% end %>
 <% content_for :sub_title do %>
-  Lista de funções
+  Lista de unidades
 <% end %>
 <% content_for :buttons do %>
-  <%= link_to new_departamento_path, class: "btn btn-sm btn-success", title: "Novo Departamento", remote: true do %>
-    <i class="fas fa-plus"></i> Novo
+  <%= link_to new_unidade_path, class: "btn btn-sm btn-success", title: "Nova Unidade", remote: true do %>
+    <i class="fas fa-plus"></i> Nova
   <% end %>
 <% end %>
 
@@ -18,12 +18,13 @@
     <tr>
       <th>Nome</th>
       <th>Sigla</th>
+      <th>Tipo</th>
       <th>Usuários</th>
       <th>Ações</th>
     </tr>
   </thead>
   <tbody id="data-table-body">
-    <%= render @departamentos %>
+    <%= render @unidades %>
   </tbody>
 </table>
  

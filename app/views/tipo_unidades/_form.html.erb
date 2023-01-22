@@ -1,0 +1,22 @@
+<%= form_with(model: tipo_unidade, local: true) do |form| %>
+  <% if tipo_unidade.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(tipo_unidade.errors.count, "error") %> prohibited this tipo_unidade from being saved:</h2>
+
+      <ul>
+        <% tipo_unidade.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :nome %>
+    <%= form.text_field :nome %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

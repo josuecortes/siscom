@@ -1,5 +1,5 @@
 class PerfilController < ApplicationController
-  before_action :load_departamento, :load_funcoes
+  before_action :load_unidade, :load_funcoes
 
   def index
     @usuario = current_user
@@ -34,7 +34,7 @@ class PerfilController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:nome, :email, :avatar, :departamento_id, :funcao_id, :current_password, :password, :password_confirmation)
+    params.require(:user).permit(:nome, :email, :avatar, :unidade_id, :funcao_id, :current_password, :password, :password_confirmation)
   end
 
   def load_funcoes
@@ -49,11 +49,11 @@ class PerfilController < ApplicationController
     end
   end
 
-  def load_departamento
+  def load_unidade
     if current_user.has_role? :admin or current_user.has_role? :master
-      @departamentos = Departamento.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      @unidades = Unidade.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
     else
-      @departamentos = Departamento.order(nome: :asc).where(id: current_user.departamento_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      @unidades = Unidade.order(nome: :asc).where(id: current_user.unidade_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
     end
   end
 end

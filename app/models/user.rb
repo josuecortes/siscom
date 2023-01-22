@@ -6,14 +6,14 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   belongs_to :funcao
-  belongs_to :departamento
+  belongs_to :unidade
   has_one_attached :avatar
 
   has_many :requisicao_transportes
   has_many :requisicao_tis
   has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
 
-  validates_presence_of :nome, :departamento_id, :funcao_id
+  validates_presence_of :nome, :unidade_id, :funcao_id
   validates_uniqueness_of :nome
   validate :verificar_roles_padrao
 

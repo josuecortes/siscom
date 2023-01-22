@@ -67,7 +67,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
-      params.require(:requisicao_ti).permit(:status, :user_id, :departamento_id, :problema_ti_id, :observacoes, :solucao)
+      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao)
     end
 
     def verificar_permissao

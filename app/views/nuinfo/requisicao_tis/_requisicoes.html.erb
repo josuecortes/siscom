@@ -23,7 +23,7 @@
       <th>Data/Hora</th>
       <th>Problema</th>
       <th>Usuário</th>
-      <th>Departamento</th>
+      <th>Unidade</th>
       <% if [2,3,5].include? status.to_i %>
         <th>Responsável Técnico</th>
       <% end %>
@@ -39,7 +39,7 @@
         <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
         <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
         <td><%= requisicao_ti.user.nome if requisicao_ti.user %></td>
-        <td><%= requisicao_ti.departamento.nome if requisicao_ti.departamento %></td>
+        <td><%= requisicao_ti.unidade.nome if requisicao_ti.unidade %></td>
         <% if [2,3,5].include? status.to_i%>
           <td><%= requisicao_ti.tecnico.nome if requisicao_ti.tecnico %></td>
         <% end %>

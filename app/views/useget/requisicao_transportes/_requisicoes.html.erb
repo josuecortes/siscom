@@ -28,7 +28,7 @@
       <th>Data/Hora Criação</th>
       <th>Data/Hora Saída</th>
       <th>Destino</th>
-      <th>Departamento</th>
+      <th>Unidade</th>
       <th>Usuário</th>
       <th>Ações</th>
     </tr>
@@ -48,7 +48,7 @@
             <hr/>
           <% end %>
         </td>
-        <td><%= requisicao_transporte.departamento.sigla %></td>
+        <td><%= requisicao_transporte.unidade.sigla %></td>
         <td><%= requisicao_transporte.user.nome.split.first %></td>
         <td>
           <%= link_to useget_requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-default", title: "Ver", remote: true  do %>

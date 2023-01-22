@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DepartamentoTest < ActiveSupport::TestCase
+class UnidadeTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

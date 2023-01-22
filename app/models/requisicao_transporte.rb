@@ -3,7 +3,7 @@ class RequisicaoTransporte < ApplicationRecord
   attr_accessor :hora_requisicao_normal_urgente
 
   belongs_to :user
-  belongs_to :departamento
+  belongs_to :unidade
 
   has_one :servico_transporte, dependent: :destroy
 

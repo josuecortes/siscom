@@ -67,11 +67,11 @@
 
           <div class="form-group row">
             <div class="col-sm-2">
-              <%= f.label :departamento_id, class: "form-label" %>
+              <%= f.label :unidade_id, class: "form-label" %>
             </div>  
             <div class="col-sm-10">
-              <%= f.select :departamento_id, @departamentos, { include_blank: true }, { class: "form-control", required: true } %>  
-              <%= has_error(@usuario, :departamento_id) %>
+              <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control", required: true } %>  
+              <%= has_error(@usuario, :unidade_id) %>
             </div>  
           </div>
 

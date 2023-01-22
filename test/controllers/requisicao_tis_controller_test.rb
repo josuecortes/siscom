@@ -17,7 +17,7 @@ class RequisicaoTisControllerTest < ActionDispatch::IntegrationTest
 
   test "should create requisicao_ti" do
     assert_difference('RequisicaoTi.count') do
-      post requisicao_tis_url, params: { requisicao_ti: { departamento_id: @requisicao_ti.departamento_id, observacoes: @requisicao_ti.observacoes, problema_ti_id: @requisicao_ti.problema_ti_id, solucao: @requisicao_ti.solucao, status: @requisicao_ti.status, user_id: @requisicao_ti.user_id } }
+      post requisicao_tis_url, params: { requisicao_ti: { unidade_id: @requisicao_ti.unidade_id, observacoes: @requisicao_ti.observacoes, problema_ti_id: @requisicao_ti.problema_ti_id, solucao: @requisicao_ti.solucao, status: @requisicao_ti.status, user_id: @requisicao_ti.user_id } }
     end
 
     assert_redirected_to requisicao_ti_url(RequisicaoTi.last)
@@ -34,7 +34,7 @@ class RequisicaoTisControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update requisicao_ti" do
-    patch requisicao_ti_url(@requisicao_ti), params: { requisicao_ti: { departamento_id: @requisicao_ti.departamento_id, observacoes: @requisicao_ti.observacoes, problema_ti_id: @requisicao_ti.problema_ti_id, solucao: @requisicao_ti.solucao, status: @requisicao_ti.status, user_id: @requisicao_ti.user_id } }
+    patch requisicao_ti_url(@requisicao_ti), params: { requisicao_ti: { unidade_id: @requisicao_ti.unidade_id, observacoes: @requisicao_ti.observacoes, problema_ti_id: @requisicao_ti.problema_ti_id, solucao: @requisicao_ti.solucao, status: @requisicao_ti.status, user_id: @requisicao_ti.user_id } }
     assert_redirected_to requisicao_ti_url(@requisicao_ti)
   end
 

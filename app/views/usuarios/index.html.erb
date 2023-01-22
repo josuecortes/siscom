@@ -18,7 +18,7 @@
     <tr>
       <th>Nome</th>
       <th>Email</th>
-      <th>Departamento</th>
+      <th>Unidade</th>
       <th>Ações</th>
     </tr>
   </thead>
@@ -27,7 +27,7 @@
       <tr>
         <td><%= usuario.nome %></td>
         <td><%= usuario.email %></td>
-        <td><%= usuario.departamento.sigla ||= "SEM DPT." %></td>
+        <td><%= usuario.unidade.sigla ||= "SEM UNIDADE." %></td>
         <td>
           <%= link_to usuario_path(usuario), class: "btn btn-sm btn-default", title: "Ver"  do %>
             <i class="fas fa-eye"></i>

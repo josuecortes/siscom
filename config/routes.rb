@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  resources :cargos
+  resources :tipo_unidades
   resources :problema_tis
   resources :tipo_problema_tis
   resources :requisicao_tis do
@@ -50,7 +52,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :departamentos
+  resources :unidades
   resources :funcoes do
     get 'autocomplete', on: :collection
   end

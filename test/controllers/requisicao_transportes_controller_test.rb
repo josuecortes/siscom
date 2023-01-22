@@ -17,7 +17,7 @@ class RequisicaoTransportesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create requisicao_transporte" do
     assert_difference('RequisicaoTransporte.count') do
-      post requisicao_transportes_url, params: { requisicao_transporte: { data_hora_ida: @requisicao_transporte.data_hora_ida, data_hora_retorno: @requisicao_transporte.data_hora_retorno, departamento_id: @requisicao_transporte.departamento_id, documento_viagem: @requisicao_transporte.documento_viagem, motivo: @requisicao_transporte.motivo, status: @requisicao_transporte.status, tipo: @requisicao_transporte.tipo, user_id: @requisicao_transporte.user_id } }
+      post requisicao_transportes_url, params: { requisicao_transporte: { data_hora_ida: @requisicao_transporte.data_hora_ida, data_hora_retorno: @requisicao_transporte.data_hora_retorno, unidade_id: @requisicao_transporte.unidade_id, documento_viagem: @requisicao_transporte.documento_viagem, motivo: @requisicao_transporte.motivo, status: @requisicao_transporte.status, tipo: @requisicao_transporte.tipo, user_id: @requisicao_transporte.user_id } }
     end
 
     assert_redirected_to requisicao_transporte_url(RequisicaoTransporte.last)
@@ -34,7 +34,7 @@ class RequisicaoTransportesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update requisicao_transporte" do
-    patch requisicao_transporte_url(@requisicao_transporte), params: { requisicao_transporte: { data_hora_ida: @requisicao_transporte.data_hora_ida, data_hora_retorno: @requisicao_transporte.data_hora_retorno, departamento_id: @requisicao_transporte.departamento_id, documento_viagem: @requisicao_transporte.documento_viagem, motivo: @requisicao_transporte.motivo, status: @requisicao_transporte.status, tipo: @requisicao_transporte.tipo, user_id: @requisicao_transporte.user_id } }
+    patch requisicao_transporte_url(@requisicao_transporte), params: { requisicao_transporte: { data_hora_ida: @requisicao_transporte.data_hora_ida, data_hora_retorno: @requisicao_transporte.data_hora_retorno, unidade_id: @requisicao_transporte.unidade_id, documento_viagem: @requisicao_transporte.documento_viagem, motivo: @requisicao_transporte.motivo, status: @requisicao_transporte.status, tipo: @requisicao_transporte.tipo, user_id: @requisicao_transporte.user_id } }
     assert_redirected_to requisicao_transporte_url(@requisicao_transporte)
   end
 

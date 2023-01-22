@@ -109,12 +109,12 @@ Add toastr_flash method to layouts/application.html.erb or wherever you want
 
 rails g scaffold funcao nome
 
-rails g scaffold departamento nome sigla
+rails g scaffold unidade nome sigla
 
-rails g migration add_others_fields_to_users nome:string celular:string cpf:string data_nascimento:date departamento:references funcao:references 
+rails g migration add_others_fields_to_users nome:string celular:string cpf:string data_nascimento:date unidade:references funcao:references 
 
 mudar para null: true 
-  add_reference :users, :departamento, null: true, foreign_key: true
+  add_reference :users, :unidade, null: true, foreign_key: true
   add_reference :users, :funcao, null: true, foreign_key: true
 
 

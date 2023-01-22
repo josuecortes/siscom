@@ -3,7 +3,7 @@
 one:
   status: 1
   user: one
-  departamento: one
+  unidade: one
   tipo: 1
   documento_viagem: MyString
   data_hora_ida: 2022-02-21 11:57:20
@@ -13,7 +13,7 @@ one:
 two:
   status: 1
   user: two
-  departamento: two
+  unidade: two
   tipo: 1
   documento_viagem: MyString
   data_hora_ida: 2022-02-21 11:57:20

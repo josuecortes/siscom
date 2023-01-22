@@ -1,7 +1,7 @@
 class RequisicaoTi < ApplicationRecord
   belongs_to :user
   belongs_to :tecnico, class_name: 'User', foreign_key: 'tecnico_id', optional: true
-  belongs_to :departamento
+  belongs_to :unidade
   belongs_to :problema_ti
 
   validates_presence_of :user_id, :problema_ti_id

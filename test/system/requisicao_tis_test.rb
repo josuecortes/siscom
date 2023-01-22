@@ -14,7 +14,7 @@ class RequisicaoTisTest < ApplicationSystemTestCase
     visit requisicao_tis_url
     click_on "New Requisicao Ti"
 
-    fill_in "Departamento", with: @requisicao_ti.departamento_id
+    fill_in "Unidade", with: @requisicao_ti.unidade_id
     fill_in "Observacoes", with: @requisicao_ti.observacoes
     fill_in "Problema ti", with: @requisicao_ti.problema_ti_id
     fill_in "Solucao", with: @requisicao_ti.solucao
@@ -30,7 +30,7 @@ class RequisicaoTisTest < ApplicationSystemTestCase
     visit requisicao_tis_url
     click_on "Edit", match: :first
 
-    fill_in "Departamento", with: @requisicao_ti.departamento_id
+    fill_in "Unidade", with: @requisicao_ti.unidade_id
     fill_in "Observacoes", with: @requisicao_ti.observacoes
     fill_in "Problema ti", with: @requisicao_ti.problema_ti_id
     fill_in "Solucao", with: @requisicao_ti.solucao

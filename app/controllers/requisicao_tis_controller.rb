@@ -41,7 +41,7 @@ class RequisicaoTisController < ApplicationController
   def create
     @requisicao_ti = RequisicaoTi.new(requisicao_ti_params)
     @requisicao_ti.user = current_user
-    @requisicao_ti.departamento = current_user.departamento
+    @requisicao_ti.unidade = current_user.unidade
     @requisicao_ti.status = 1
 
     respond_to do |format|
@@ -113,7 +113,7 @@ class RequisicaoTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
-      params.require(:requisicao_ti).permit(:status, :user_id, :departamento_id, :problema_ti_id, :observacoes, :solucao, :comentario, :avaliacao)
+      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, :comentario, :avaliacao)
     end
 
     def verify_permission
