@@ -54,20 +54,19 @@
   </div>
 <% end %>
 
-<hr/>
-
-<div class="card-header">
-  <h3 class="card-title">
-    <% if @requisicoes_ti_abertas.count >= 1 %>
-      <h5 class="text-danger"><b><%= @requisicoes_ti_abertas.count %></b> <%= @requisicoes_ti_abertas.count > 1 ? "Requisições" : "Requisição" %> de T.I. em aberto:</h5>
-    <% else %>
-      <h5>Sem requisições de T.I. em aberto no momento.</h5>
-    <% end %>
-  </h3>
-</div>
-<br/>
-
 <% if current_user.has_role? :tec_serv_ti %>
+  <hr/>
+  <div class="card-header">
+    <h3 class="card-title">
+      <% if @requisicoes_ti_abertas.count >= 1 %>
+        <h5 class="text-danger"><b><%= @requisicoes_ti_abertas.count %></b> <%= @requisicoes_ti_abertas.count > 1 ? "Requisições" : "Requisição" %> de T.I. em aberto:</h5>
+      <% else %>
+        <h5>Sem requisições de T.I. em aberto no momento.</h5>
+      <% end %>
+    </h3>
+  </div>
+  <br/>
+
   <% if @requisicoes_ti_abertas.count >= 1 %>    
     <table id="data-table" class="table table-bordered table-hover">
       <thead>
