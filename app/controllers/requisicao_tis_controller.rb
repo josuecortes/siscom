@@ -1,6 +1,13 @@
 class RequisicaoTisController < ApplicationController
   before_action :verify_permission
   before_action :set_requisicao_ti, only: %i[ show edit update destroy finalizar salvar ]  
+  before_action :load_problemas, only: %i[ new create edit update ]
+  before_action :load_unidades, only: %i[ new create edit update ]
+  before_action :load_funcoes, only: %i[ new create edit update ]
+  before_action :load_cargos, only: %i[ new create edit update ]
+  before_action :load_perfis, only: %i[ new create edit update ]
+  before_action :load_municipios, only: %i[ new create edit update ]
+  before_action :load_estados, only: %i[ new create edit update ]
 
   # GET /requisicao_tis or /requisicao_tis.json
   def index
@@ -21,7 +28,7 @@ class RequisicaoTisController < ApplicationController
 
   # GET /requisicao_tis/new
   def new
-    if current_user.pode_solicitar_requisicao_ti
+    if current_user.pode_solicitar_requisicao_ti_normal or current_user.pode_solicitar_requisicao_ti
       @requisicao_ti = RequisicaoTi.new
     else
       flash[:error] = "Opss! Você não pode fazer um nova requisição enquanto não FINALIZAR ou CANCELAR a requisição atual."
@@ -113,7 +120,10 @@ class RequisicaoTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
-      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, :comentario, :avaliacao)
+      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, 
+                                            :comentario, :avaliacao,
+                                            :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
+                                            :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id)
     end
 
     def verify_permission
@@ -122,4 +132,53 @@ class RequisicaoTisController < ApplicationController
         redirect_to home_index_path
       end
     end
+
+    def load_problemas
+      @aviso_requisicao_normal = nil
+      if current_user.has_role? :req_serv_ti_sis
+        if current_user.pode_solicitar_requisicao_ti_normal
+          @problemas = ProblemaTi.order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }
+        else
+          @aviso_requisicao_normal = "Você pode solicitar mais de 1 requisições para sistemas web ao mesmo tempo! <br/> Você só pode solicitar uma requisição normal por vez!"
+          @problemas = ProblemaTi.where("tipo_problema_ti_id = ?", 3).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }  
+        end
+      elsif current_user.has_role? :req_serv_ti
+        @problemas = ProblemaTi.where("tipo_problema_ti_id <> ?", 3).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }
+      end
+    end
+
+    def load_unidades
+      if current_user.has_role? :admin or current_user.has_role? :master
+        @unidades = Unidade.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      else
+        @unidades = Unidade.order(nome: :asc).where(id: current_user.unidade_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
+      end
+    end
+
+    def load_funcoes
+      if current_user.has_role? :master
+        @funcoes = Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      elsif current_user.has_role? :admin
+        @funcoes = Funcao.where("nome <> ?", 'Master').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      else
+        @funcoes = Funcao.where("nome <> ? and nome <> ?", 'master', 'admin').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+      end
+    end
+     
+    def load_cargos
+      @cargos = Cargo.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
+    end
+
+    def load_perfis
+      @perfis = ['RESPONSÁVEL POR UNIDADE', 'AUXILIAR DO RESPONSÁVEL', 'CONSULTA/RASCUNHO', 'ANALISTA']    
+    end
+
+    def load_municipios
+      @municipios = ['Amapá', 'Calçoene', 'Cutias', 'Ferreira Gomes', 'Itaubal', 'Laranjal do Jarí', 'Macapá', 'Mazagão', 'Oiapoque', 'Pedra Branca do Amapari', 'Porto Grande', 'Pracuúba', 'Santana', 'Serra do Navio', 'Tartarugalzinho', 'Vitória do Jari']
+    end
+
+    def load_estados
+      @estados = ['Amapá']
+    end
+    
 end

@@ -31,6 +31,8 @@ class Role < ApplicationRecord
       "Técnico de requisições de Mídia"
     when 'req_serv_ti'
       "Requisitante de serviços de TI"
+    when 'req_serv_ti_sis'
+      "Requisitante de serviços de TI - SISTEMAS"  
     when 'req_serv_tp'
       "Requisitante de serviços de Transporte"
     when 'req_serv_md'
