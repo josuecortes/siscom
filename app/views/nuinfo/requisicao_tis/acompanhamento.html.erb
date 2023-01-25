@@ -10,7 +10,7 @@
   Acompanhamento de Requisições
 <% end %>
 
-<% if current_user.has_role? :tec_serv_ti %>
+<% if current_user.has_role? :tec_serv_ti or current_user.has_role? :admin %>
 
 
   <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
