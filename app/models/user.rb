@@ -114,4 +114,10 @@ class User < ApplicationRecord
 
     return false
   end
+
+  def pode_chatear
+    return true if self.requisicao_tis.where(status: [2]).any?
+
+    false
+  end
 end
