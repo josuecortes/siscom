@@ -101,7 +101,7 @@
           </li>
         <% end %>
 
-        <% if current_user.has_any_role? :tec_serv_transporte, :admin, :master %>
+        <% if current_user.has_any_role? :tec_serv_transporte, :master %>
           <li class="nav-header">USEGET</li>
 
           <li class="nav-item">
@@ -141,7 +141,6 @@
               <i class="nav-icon fa fa-desktop"></i>
               <p>
                 Requisições
-                <span class="badge badge-info right">2</span>
               </p>
             </a>
           </li>
@@ -151,7 +150,6 @@
               <i class="nav-icon far fa-bell"></i>
               <p>
                 Problemas
-                <span class="badge badge-info right">2</span>
               </p>
             </a>
           </li>
@@ -161,7 +159,15 @@
               <i class="nav-icon far fa-edit"></i>
               <p>
                 Tipos de Problemas
-                <span class="badge badge-info right">2</span>
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= acompanhamento_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'acompanhamento') %>">
+              <i class="nav-icon far fa-edit"></i>
+              <p>
+                Acompanhamento
               </p>
             </a>
           </li>

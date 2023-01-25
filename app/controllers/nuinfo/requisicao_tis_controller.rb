@@ -2,6 +2,8 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   before_action :verificar_permissao
   before_action :set_requisicao_ti, only: %i[ show pegar concluir salvar ]
 
+  layout "acompanhamento", only: [:acompanhamento]
+
   def index
     params[:status] ? @status = params[:status] : @status = 1
     solicitadas = RequisicaoTi.com_status(1).count
@@ -55,6 +57,11 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     end
   end
 
+  def acompanhamento
+    @tecnicos = Role.where(name: 'tec_serv_ti').first.users
+    @requisicoes_ti_abertas = RequisicaoTi.where(status: 1).all
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_requisicao_ti
@@ -71,7 +78,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     end
 
     def verificar_permissao
-      unless current_user.has_role? :tec_serv_ti or current_user.has_role? :master
+      unless current_user.has_role? :tec_serv_ti or current_user.has_role? :master or current_user.has_role? :admin
         flash[:error] = "Você não possui permissão para acessar essa area!"
         redirect_to home_index_path
       end

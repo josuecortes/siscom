@@ -38,10 +38,10 @@ class User < ApplicationRecord
   # :user             => Usuario do sistema
   # :admin            => Administrador do sistema
   # :tec_serv_ti      => Tecnico de requisicoes de Tecnologia da Informacao
-  # :tec_serv_ti_sis  => Tecnico de requisicoes de Tecnologia da Informacao Sistemas Tipo Prodoc
+  # :tec_serv_ti      => Tecnico de requisicoes de Tecnologia da Informacao Sistemas Tipo Prodoc
   # :tec_serv_tp      => Tecnico de requisicoes de Transporte
   # :tec_serv_md      => Tecnico de requisicoes de Midia
-  # :req_serv_ti      => Requisitante de servico de Tecnologia da Informacao
+  # :req_serv_ti_sis  => Requisitante de servico de Tecnologia da Informacao
   # :req_serv_tp      => Requisitante de servico de Transporte
   # :req_serv_md      => Requisitante de servico de Midia
 

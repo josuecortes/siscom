@@ -14,6 +14,9 @@ Rails.application.routes.draw do
   namespace :nuinfo do
     resources :requisicao_tis, only: [:index, :show] do
       get 'pegar'
+      collection do
+        get 'acompanhamento'
+      end      
       member do
         get 'concluir'    
         put 'salvar'

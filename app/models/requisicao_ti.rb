@@ -39,7 +39,7 @@ class RequisicaoTi < ApplicationRecord
       when 'PRODOC - LIBERAR ACESSO'  
         validates_presence_of :nome, :email, :funcao_id, :perfil, :periodo_inicio, :periodo_fim
       when 'PRODOC - OUTROS'  
-        validates_presence_of :descricao
+        validates_presence_of :observacoes
       when 'WEBMAIL - CADASTRO'
         validates_presence_of :nome, :funcao_id, :email, :unidade_id
       when 'WEBMAIL - TROCAR SENHA'  
