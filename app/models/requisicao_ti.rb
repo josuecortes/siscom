@@ -38,18 +38,26 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :nome, :email, :perfil  
       when 'PRODOC - LIBERAR ACESSO'  
         validates_presence_of :nome, :email, :funcao_id, :perfil, :periodo_inicio, :periodo_fim
-      when 'PRODOC - OUTROS'  
+      when 'PRODOC - PROBLEMAS'  
         validates_presence_of :observacoes
       when 'WEBMAIL - CADASTRO'
         validates_presence_of :nome, :funcao_id, :email, :unidade_id
       when 'WEBMAIL - TROCAR SENHA'  
         validates_presence_of :nome, :email    
+      when 'WEBMAIL - PROBLEMAS'  
+        validates_presence_of :observacoes  
       when 'SISCOM - CADASTRO'
         validates_presence_of :nome, :funcao_id, :unidade_id, :email
       when 'SISCOM - TROCAR SENHA'  
         validates_presence_of :nome, :email   
-      else
-        validates_presence_of :descricao
+      when 'SISCOM - PROBLEMAS'  
+        validates_presence_of :observacoes  
+      when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO'  
+        validates_presence_of :nome, :email, :unidade   
+      when 'SIGDOC - DESABILITAR PERMISSÃO'  
+        validates_presence_of :nome, :email  
+      when 'SIGDOC - PROBLEMAS'  
+        validates_presence_of :observacoes       
     end
 
   end
