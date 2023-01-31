@@ -77,8 +77,8 @@ class RequisicaoTisController < ApplicationController
 
   # DELETE /requisicao_tis/1 or /requisicao_tis/1.json
   def destroy
-    if @requisicao_ti.status == 1
-      @requisicao_ti.status = 4
+    if @requisicao_ti.status == "Solicitada"
+      @requisicao_ti.status = "Cancelada"
       if @requisicao_ti.save
         flash.now[:success] = "Requisição Cancelada"
       else
