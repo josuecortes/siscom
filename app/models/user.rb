@@ -71,6 +71,8 @@ class User < ApplicationRecord
           pode_requisitar_normal = false
         end
       end
+    elsif self.has_role?(:req_serv_ti) 
+      pode_requisitar_normal = false if self.requisicao_tis.where(status: [1, 2, 3]).any?
     end
     
     return pode_requisitar_normal
