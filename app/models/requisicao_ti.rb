@@ -3,6 +3,9 @@ class RequisicaoTi < ApplicationRecord
   belongs_to :tecnico, class_name: 'User', foreign_key: 'tecnico_id', optional: true
   belongs_to :unidade
   belongs_to :problema_ti
+  # belongs_to :unidade
+  belongs_to :cargo, optional: true
+  belongs_to :funcao, optional: true
 
   validates_presence_of :user_id, :problema_ti_id
   validates_presence_of :tecnico_id, if: Proc.new{ |r| r.status.in? ['Em atendimento', 'Concluída', 'Finalizada'] }
@@ -28,7 +31,7 @@ class RequisicaoTi < ApplicationRecord
     case problema_ti.nome 
       when 'PRODOC - CADASTRO'
         validates_presence_of :nome, :email, :cpf, :rg, :data_nascimento, :celular, :cargo_id, :funcao_id, :estado, :municipio, :perfil
-      when 'PRODOC - SUBSTITUIÇÃO'  
+      when 'PRODOC - SUBSTITUIÇÃO'
         validates_presence_of :nome, :email, :periodo_inicio, :periodo_fim
       when 'PRODOC - RETIRADA'  
         validates_presence_of :nome, :email
