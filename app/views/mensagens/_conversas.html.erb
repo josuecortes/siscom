@@ -22,6 +22,7 @@
           <h5>
             <%= user.nome %> 
             <% nao_lidas = r.mensagens_nao_lidas(current_user) %>
+
             <% if nao_lidas and nao_lidas > 0 %>
               <div class="badge badge-danger"> 
                 <%= nao_lidas %> 

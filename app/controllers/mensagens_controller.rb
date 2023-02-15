@@ -34,11 +34,18 @@ class MensagensController < ApplicationController
   private
   
   def set_requisicoes
-    if current_user.has_role? :tec_serv_ti
-      @requisicoes_ti = RequisicaoTi.do_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
-    else
-      @requisicoes_ti = RequisicaoTi.do_usuario(current_user).pode_enviar_mensagem.order(created_at: :desc)
-    end
+    # @nao_lidas = []
+    # RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc).each do |requisicao|
+    #   mensagens_nao_lidas = requisicao.mensagens_nao_lidas(current_user)
+    #   @nao_lidas << [id: requisicao.id, total: mensagens_nao_lidas]
+    # end
+    
+    @requisicoes_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
+    # if current_user.has_role? :tec_serv_ti
+    #   @requisicoes_ti = RequisicaoTi.do_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
+    # else
+    #   @requisicoes_ti = RequisicaoTi.do_usuario(current_user).pode_enviar_mensagem.order(created_at: :desc)
+    # end
   end
 
   def set_conversa
