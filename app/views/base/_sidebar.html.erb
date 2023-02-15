@@ -51,6 +51,15 @@
 
         <% if current_user.has_role? :req_serv_ti %>
           <li class="nav-item">
+            <a href="<%= mensagens_index_path %>" target="_blank" class="nav-link <%= 'active' if (params[:controller] == 'mensagens' and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-sms"></i>
+              <p>Mensagens Diretas <span id="mensagens-diretas"></span></p>
+            </a>
+          </li>
+        <% end %>
+
+        <% if current_user.has_role? :req_serv_ti %>
+          <li class="nav-item">
             <a href="<%= requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_tis' and params[:action] == 'index') %>">
               <i class="nav-icon fa fa-desktop"></i>
               <p>Requisições TI</p>
@@ -164,7 +173,7 @@
           </li>
 
           <li class="nav-item">
-            <a href="<%= acompanhamento_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'acompanhamento') %>">
+            <a href="<%= acompanhamento_nuinfo_requisicao_tis_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'acompanhamento') %>">
               <i class="nav-icon far fa-edit"></i>
               <p>
                 Acompanhamento

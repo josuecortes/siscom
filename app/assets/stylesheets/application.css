@@ -5,3 +5,22 @@
  *= require select2-bootstrap
  *= require_self
  */
+
+.piscar {
+  margin: 0 2px 0 0;
+  animation: animate 3s linear infinite;
+}
+
+@keyframes animate {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

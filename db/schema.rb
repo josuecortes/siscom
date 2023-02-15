@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_22_021013) do
+ActiveRecord::Schema.define(version: 2023_02_13_134225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,6 +62,17 @@ ActiveRecord::Schema.define(version: 2023_01_22_021013) do
     t.string "nome"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "mensagens", force: :cascade do |t|
+    t.string "status"
+    t.text "texto"
+    t.bigint "user_id", null: false
+    t.bigint "requisicao_ti_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["requisicao_ti_id"], name: "index_mensagens_on_requisicao_ti_id"
+    t.index ["user_id"], name: "index_mensagens_on_user_id"
   end
 
   create_table "motoristas", force: :cascade do |t|
@@ -237,6 +248,8 @@ ActiveRecord::Schema.define(version: 2023_01_22_021013) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
+  add_foreign_key "mensagens", "requisicao_tis"
+  add_foreign_key "mensagens", "users"
   add_foreign_key "passageiros", "requisicao_transportes"
   add_foreign_key "passageiros", "users"
   add_foreign_key "problema_tis", "tipo_problema_tis"

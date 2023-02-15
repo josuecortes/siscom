@@ -105,32 +105,7 @@
       <script src="/adminLTE/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
       <script src="/adminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
       <script src="/adminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-
-      <!--Start of Tawk.to Script-->
-      <% if current_user.pode_chatear %>
-        <script type="text/javascript">
-          var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-          Tawk_API.visitor = {
-              name  : '<%= (current_user.nome.split(" ").first).capitalize %> - <%= current_user.unidade.sigla %>',
-              email : '<%= current_user.email %>'
-          };
-          (function(){
-          var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-          s1.async=true;
-          // chat siscom antigo josue.cort3s@gmail.com
-          s1.src='https://embed.tawk.to/5a747a45d7591465c7075349/default';
-
-          // chat siscom novo josuecortes@seed.ap.gov.br
-          // s1.src='https://embed.tawk.to/63cff802c2f1ac1e202f5c54/1gni61it1';
-          s1.charset='UTF-8';
-          s1.setAttribute('crossorigin','*');
-          s0.parentNode.insertBefore(s1,s0);
-          })();
-        </script>
-      <% end %>
-      <!--End of Tawk.to Script-->
-
-
+      
       <script>
         $(function () {
           $("#example1").DataTable({
@@ -337,11 +312,63 @@
       </script>
 
       <script>
+        var tempo_de_refresh_application = 2000
+        var pode_chatear = false
+        var numero_de_mensagens = 0       
+
         $(document).ready(function(){
           $('.data').mask('00/00/0000')
           $('.cpf').mask('000.000.000-00')
           $('.celular').mask('(00) 0000-0000')
+          loop()
+          requisitar_refresh()
         })
+
+        function atualizar_p_mensagens_diretas(valor){
+          if(valor != '0'){
+            $('#mensagens-diretas').html('')
+            $('#mensagens-diretas').addClass('badge badge-danger piscar')
+            $('#mensagens-diretas').html(valor)
+          }else{
+            $('#mensagens-diretas').html('')
+            $('#mensagens-diretas').removeClass('badge badge-danger piscar')
+          }          
+        }
+
+        function requisitar_refresh(){
+          $.get( '<%= mensagens_mensagens_diretas_url %>', function( data ) {
+            pode_chatear = data["pode_chatear"]
+            numero_de_mensagens = data["mensagens_nao_lidas"]
+          });   
+          atualizar_p_mensagens_diretas(numero_de_mensagens)         
+          if(pode_chatear){
+            tempo_de_refresh_application = 60000
+            // tempo_de_refresh_application = 2000
+            console.log('Tempo de requisição: 1min')
+          }else{
+            tempo_de_refresh_application = 300000
+            // tempo_de_refresh_application = 10000
+            console.log('Tempo de requisição: 5min')
+          } 
+        }
+
+        function loop() {
+          setTimeout(() => {
+            requisitar_refresh()
+            loop();
+          }, tempo_de_refresh_application);
+        }
+
+        document.addEventListener("visibilitychange", function() {
+          if (document.hidden){
+            console.log('Requisição 5 min')
+            requisitar_refresh()
+          } else {
+            console.log('To Solicitando...')
+            requisitar_refresh()
+          }
+        });
+
       </script>
       
   </body>

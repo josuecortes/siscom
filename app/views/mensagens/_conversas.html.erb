@@ -1,0 +1,39 @@
+
+<% requisicoes.each do |r| %>
+  <%= link_to mensagens_index_path(requisicao_ti: r.id) do %>
+    <div class="chat_list <%= 'active_chat' if params[:requisicao_ti].to_s == r.id.to_s %>">
+      <div class="chat_people">
+
+        <%  if current_user == r.user %>
+          <% user = r.tecnico %>
+        <% else %>  
+          <% user = r.user %>
+        <% end %>
+
+        <% if user.avatar.present? %>
+          <%= image_tag user.avatar.variant(resize_to_fill: [128, 128]), class: "chat_img profile-user-img img-fluid img-circle" %>
+        <% else %>
+          <img class="chat_img profile-user-img img-fluid img-circle"
+                src="/adminLTE/dist/img/avt.png"
+                alt="User profile picture">  
+        <% end %>    
+
+        <div class="chat_ib">
+          <h5>
+            <%= user.nome %> 
+            <% nao_lidas = r.mensagens_nao_lidas(current_user) %>
+            <% if nao_lidas and nao_lidas > 0 %>
+              <div class="badge badge-danger"> 
+                <%= nao_lidas %> 
+              </div>
+            <% end %>
+            <span class="chat_date">
+              <%= r.created_at.strftime("%H:%M") if r.created_at %> | <%= r.created_at.strftime("%b %e") if r.created_at %>
+            </span>
+          </h5>
+          <p><%= r.problema_ti.nome %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

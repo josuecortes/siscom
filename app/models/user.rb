@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :requisicao_transportes
   has_many :requisicao_tis
   has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
+  has_many :mensagens
 
   validates_presence_of :nome, :unidade_id, :funcao_id
   validates_uniqueness_of :nome
@@ -120,6 +121,24 @@ class User < ApplicationRecord
   def pode_chatear
     return true if self.requisicao_tis.where(status: [2]).any?
 
+    return true if self.has_role? :tec_serv_ti
+
     false
   end
+
+  def mensagens_nao_lidas
+    mensagens = 0
+    self.requisicao_tis.each do |r|
+      mensagens += r.mensagens_nao_lidas(self)
+    end
+
+    if self.has_role? :tec_serv_ti
+      RequisicaoTi.do_tecnico(self).each do |r|
+        mensagens += r.mensagens_nao_lidas(self)
+      end
+    end
+
+    mensagens
+  end
 end
+

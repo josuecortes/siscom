@@ -1,0 +1,88 @@
+<% content_for :lista_conversas do %>
+  <div class="conversas">
+    <%= render "conversas", requisicoes: @requisicoes_ti %>
+  </div>
+<% end %>
+
+
+<% content_for :mensagens do %> 
+  <div class="conversa"></div>
+  
+<% end %>
+
+<% content_for :caixa_de_digitacao do %>
+  <input type="text" class="write_msg texto" placeholder="Type a message" />
+  <button class="msg_send_btn enviar" type="button"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+<% end %>      
+
+<% content_for :javascripts do %> 
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script>
+    var tempo_de_refresh = 5000
+    
+    $( document ).ready(function() {
+      console.log('conversa startada...')
+      requisitar_refresh()
+      loop()
+    })  
+
+    $('.enviar').click(function(){
+      let mensagem
+      mensagem = $('.texto').val()
+      $('.texto').val('')
+      if (mensagem) {
+        enviar_mensagem(mensagem)
+      }else{
+        alert('Você deve digitar uma mensagem.')
+      }
+    })
+
+    function requisitar_refresh(){
+      let requisicao_id 
+      requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
+      if(requisicao_id) {
+        $.get( '<%= mensagens_refresh_url %>', { requisicao_ti: '<%= @requisicao_ti ? @requisicao_ti.id : nil %>'}, function( data ) {
+          $( ".result" ).html( data );
+        });
+      }
+    }
+
+    function loop() {
+      if(document.hidden){
+        tempo_de_refresh = 30000
+        console.log('Tempo de requisição: 30s')
+      }else{
+        tempo_de_refresh = 10000
+        console.log('Tempo de requisição: 10s')
+      }  
+      setTimeout(() => {
+        requisitar_refresh()
+        loop();
+      }, tempo_de_refresh);
+    }
+
+    function enviar_mensagem(mensagem){
+      let requisicao_id 
+      requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
+      if(requisicao_id) {
+        $.post( '<%= mensagens_create_url %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
+          $( ".result" ).html( data );
+        });
+      }else{
+        alert('Selecione uma conversa.')
+      }
+    } 
+
+    document.addEventListener("visibilitychange", function() {
+      if (document.hidden){
+        console.log('Solicitando saida...')
+        requisitar_refresh()
+      } else {
+        requisitar_refresh()
+        console.log('Solicitando entrada...')
+      }
+    });
+    
+  </script>
+
+<% end %>

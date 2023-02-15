@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
 
+  get 'mensagens/index'
+  post 'mensagens/create'
+  get 'mensagens/refresh'
+  get 'mensagens/mensagens_diretas'
+  
   resources :cargos
   resources :tipo_unidades
   resources :problema_tis

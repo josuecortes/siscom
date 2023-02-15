@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  status: MyString
+  texto: MyText
+  user: one
+  requisicao_ti: one
+
+two:
+  status: MyString
+  texto: MyText
+  user: two
+  requisicao_ti: two

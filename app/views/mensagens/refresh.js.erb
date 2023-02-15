@@ -1,0 +1,10 @@
+
+$('.conversa').html('')
+$('.conversa').html('<%= j render("conversa", conversa: @conversa) %>')
+$('.msg_history').scrollTop(10000)
+
+$('.conversas').html('')
+$('.conversas').html('<%= j render("conversas", requisicoes: @requisicoes_ti) %>')
+
+
+

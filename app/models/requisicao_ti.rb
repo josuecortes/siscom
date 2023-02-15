@@ -7,6 +7,8 @@ class RequisicaoTi < ApplicationRecord
   belongs_to :cargo, optional: true
   belongs_to :funcao, optional: true
 
+  has_many :mensagens
+
   validates_presence_of :user_id, :problema_ti_id
   validates_presence_of :tecnico_id, if: Proc.new{ |r| r.status.in? ['Em atendimento', 'Concluída', 'Finalizada'] }
   validates_presence_of :solucao, if: Proc.new{ |r| r.status == 'Concluída' }
@@ -20,8 +22,9 @@ class RequisicaoTi < ApplicationRecord
   scope :do_usuario, ->(id) { where("user_id = ?", id) }
   scope :do_tecnico, ->(id) { where("tecnico_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
+  scope :do_usuario_ou_tecnico, ->(id) { where("user_id = ? or tecnico_id = ?", id, id) }
+  scope :pode_enviar_mensagem, -> { where("status = ?", 2) }
   
-
   def verificar_requisicao_sistemas
     return true unless self.problema_ti
     
@@ -82,6 +85,9 @@ class RequisicaoTi < ApplicationRecord
 
     false
   end
-  
 
+  def mensagens_nao_lidas(user)
+    self.mensagens.where('user_id != ? and status = ?', user, 'não lida').count
+  end
+  
 end
