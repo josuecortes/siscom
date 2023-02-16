@@ -9,6 +9,9 @@ class MensagensController < ApplicationController
   end
 
   def create
+    if @requisicao_ti.status == 'Concluída'
+      return false
+    end
     @mensagem.user = current_user
     @mensagem.status = "não lida"
     @mensagem.texto = params[:mensagem]
@@ -34,13 +37,14 @@ class MensagensController < ApplicationController
   private
   
   def set_requisicoes
-    # @nao_lidas = []
-    # RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc).each do |requisicao|
-    #   mensagens_nao_lidas = requisicao.mensagens_nao_lidas(current_user)
-    #   @nao_lidas << [id: requisicao.id, total: mensagens_nao_lidas]
-    # end
+    @mensagens_da_requisicao = Hash.new
+    @requisicoes_ti = []
+    RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc).each do |requisicao|
+      @mensagens_da_requisicao["#{requisicao.id}"] = requisicao.mensagens_nao_lidas(current_user)
+      @requisicoes_ti << requisicao
+    end
     
-    @requisicoes_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
+    # @requisicoes_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
     # if current_user.has_role? :tec_serv_ti
     #   @requisicoes_ti = RequisicaoTi.do_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
     # else

@@ -23,7 +23,7 @@ class RequisicaoTi < ApplicationRecord
   scope :do_tecnico, ->(id) { where("tecnico_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
   scope :do_usuario_ou_tecnico, ->(id) { where("user_id = ? or tecnico_id = ?", id, id) }
-  scope :pode_enviar_mensagem, -> { where("status = ?", 2) }
+  scope :pode_enviar_mensagem, -> { where("status = ? or status = ?", 2, 3) }
   
   def verificar_requisicao_sistemas
     return true unless self.problema_ti
