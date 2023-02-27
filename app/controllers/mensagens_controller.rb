@@ -1,21 +1,58 @@
 class MensagensController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:create]
-  before_action :set_requisicoes, only: [:index, :refresh, :create]
-  before_action :set_conversa, only: [:index, :refresh, :create]
-  before_action :set_mensagem, only: [:index, :refresh, :create]
+  skip_before_action :verify_authenticity_token, only: [:js_create, :create_imagem]
+  before_action :set_requisicoes, only: [:index, :refresh, :js_create, :create_imagem]
+  before_action :set_conversa, only: [:index, :refresh, :js_create, :create_imagem]
+  before_action :set_mensagem, only: [:index, :refresh, :js_create, :create_imagem]
   
   def index
     
   end
 
-  def create
-    if @requisicao_ti.status == 'Concluída'
+  def show
+    render :index
+  end
+
+  def js_create
+    if @requisicao_ti.status == 'Concluída' or params[:mensagem].blank?
       return false
     end
     @mensagem.user = current_user
     @mensagem.status = "não lida"
     @mensagem.texto = params[:mensagem]
     if @mensagem.save
+      return true
+    else
+      return false
+    end
+  end
+
+  def new_image
+    respond_to do |format|
+      format.js { }
+    end
+
+  end
+
+  def create_imagem
+    puts "index do enviar imagem mensagens..................................................................."
+    puts "x"
+    puts "x"
+    puts "x"
+    puts "x"
+    puts "x"
+    puts "x"
+    puts "x"
+    puts "x"
+    puts params
+    puts "---------------------------------------"   
+    if @requisicao_ti.status == 'Concluída' or params[:imagem].blank?
+      return false
+    end
+    @mensagem.user = current_user
+    @mensagem.status = "não lida"
+    @mensagem.imagem = params[:imagem]
+    puts "ainda to aqui............................................................................xxxxxxxxxxxxxxxxxxxxxxxxxx"
+    if @mensagem.save!
       return true
     else
       return false
@@ -53,8 +90,12 @@ class MensagensController < ApplicationController
   end
 
   def set_conversa
-    if params[:requisicao_ti]
-      if @requisicao_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.find(params[:requisicao_ti])
+    if params[:requisicao_ti] or params[:id]
+      id = params[:requisicao_ti]
+      unless id
+        id = params[:id]
+      end
+      if @requisicao_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.find(id)
         @conversa = @requisicao_ti.mensagens.order(created_at: :asc) if @requisicao_ti
       end
     end

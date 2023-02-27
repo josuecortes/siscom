@@ -11,9 +11,18 @@
 <% end %>
 
 <% content_for :caixa_de_digitacao do %>
-  <input type="text" class="write_msg texto" placeholder="Type a message" />
-  <button class="msg_send_btn enviar" type="button"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-<% end %>      
+  <div class="row">
+    <div class='col-md-9'>
+      <input type="text" name="texto" class="write_msg texto" placeholder="Digite a mensagem" />
+    </div>   
+    <div class='col-md-3 pull-right'>
+      <% if @requisicao_ti %>
+        <% link_to 'Imagem', new_image_mensagem_path(@requisicao_ti), class: 'btn enviar-upload', remote: true %>
+      <% end %>  
+      <button class="btn enviar enviar-upload pull-right" type="button">Enviar</button>
+    </div>
+  </div>
+<% end %>     
 
 <% content_for :javascripts do %> 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -21,12 +30,11 @@
     var tempo_de_refresh = 5000
     
     $( document ).ready(function() {
-      console.log('conversa startada...')
       requisitar_refresh()
       loop()
-    })  
+    }) 
 
-    $('.enviar').click(function(){
+    function enviarMensagem(){
       let mensagem
       mensagem = $('.texto').val()
       $('.texto').val('')
@@ -35,13 +43,28 @@
       }else{
         alert('Você deve digitar uma mensagem.')
       }
+    }
+
+    $('.enviar').click(function(){
+      enviarMensagem()
+    })
+
+    jQuery('.texto').keypress(function(event){
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if(keycode == '13'){
+        enviarMensagem()
+      }
     })
 
     function requisitar_refresh(){
       let requisicao_id 
       requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
       if(requisicao_id) {
-        $.get( '<%= mensagens_refresh_url %>', { requisicao_ti: '<%= @requisicao_ti ? @requisicao_ti.id : nil %>'}, function( data ) {
+        $.get( '<%= refresh_mensagens_url %>', { requisicao_ti: '<%= @requisicao_ti ? @requisicao_ti.id : nil %>'}, function( data ) {
+          $( ".result" ).html( data );
+        });
+      } else {
+        $.get( '<%= mensagens_url %>', function( data ) {
           $( ".result" ).html( data );
         });
       }
@@ -50,10 +73,8 @@
     function loop() {
       if(document.hidden){
         tempo_de_refresh = 30000
-        console.log('Tempo de requisição: 30s')
       }else{
         tempo_de_refresh = 10000
-        console.log('Tempo de requisição: 10s')
       }  
       setTimeout(() => {
         requisitar_refresh()
@@ -65,7 +86,7 @@
       let requisicao_id 
       requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
       if(requisicao_id) {
-        $.post( '<%= mensagens_create_url %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
+        $.post( '<%= js_create_mensagens_path %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
           $( ".result" ).html( data );
         });
       }else{
@@ -75,11 +96,9 @@
 
     document.addEventListener("visibilitychange", function() {
       if (document.hidden){
-        console.log('Solicitando saida...')
         requisitar_refresh()
       } else {
         requisitar_refresh()
-        console.log('Solicitando entrada...')
       }
     });
     

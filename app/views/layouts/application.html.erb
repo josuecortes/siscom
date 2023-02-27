@@ -336,19 +336,15 @@
         }
 
         function requisitar_refresh(){
-          $.get( '<%= mensagens_mensagens_diretas_url %>', function( data ) {
+          $.get( '<%= mensagens_diretas_mensagens_url %>', function( data ) {
             pode_chatear = data["pode_chatear"]
             numero_de_mensagens = data["mensagens_nao_lidas"]
           });   
           atualizar_p_mensagens_diretas(numero_de_mensagens)         
           if(pode_chatear){
             tempo_de_refresh_application = 60000
-            // tempo_de_refresh_application = 2000
-            console.log('Tempo de requisição: 1min')
           }else{
             tempo_de_refresh_application = 300000
-            // tempo_de_refresh_application = 10000
-            console.log('Tempo de requisição: 5min')
           } 
         }
 
@@ -361,10 +357,8 @@
 
         document.addEventListener("visibilitychange", function() {
           if (document.hidden){
-            console.log('Requisição 5 min')
             requisitar_refresh()
           } else {
-            console.log('To Solicitando...')
             requisitar_refresh()
           }
         });

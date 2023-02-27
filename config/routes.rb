@@ -1,9 +1,16 @@
 Rails.application.routes.draw do
 
-  get 'mensagens/index'
-  post 'mensagens/create'
-  get 'mensagens/refresh'
-  get 'mensagens/mensagens_diretas'
+  resources :mensagens do
+    get 'mensagens_diretas', on: :collection
+    get 'refresh', on: :collection
+    post 'js_create', on: :collection
+    member do
+      get 'new_image'
+      put 'update_image'
+    end
+  end
+
+
   
   resources :cargos
   resources :tipo_unidades
@@ -21,6 +28,7 @@ Rails.application.routes.draw do
       get 'pegar'
       collection do
         get 'acompanhamento'
+        get 'refresh_acompanhamento'
       end      
       member do
         get 'concluir'    

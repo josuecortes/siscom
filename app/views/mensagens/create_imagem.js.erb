@@ -4,7 +4,6 @@ $('.conversa').html('<%= j render("conversa", conversa: @conversa) %>')
 
 status = "<%= @requisicao_ti.status %>"
 if(status == 'Concluída'){
-  console.log('to aqui no status 3')
   $('.conversa').append("<br/><center><p class='text-danger'>Esta requisição está com o status Concluída! Você não pode enviar mensagens quando a requisição está neste status.</p></center><br/>")
 }
 

@@ -1,6 +1,6 @@
 
 <% requisicoes.each do |r| %>
-  <%= link_to mensagens_index_path(requisicao_ti: r.id) do %>
+  <%= link_to mensagens_path(requisicao_ti: r.id) do %>
     <div class="chat_list <%= 'active_chat' if params[:requisicao_ti].to_s == r.id.to_s %>">
       <div class="chat_people">
 

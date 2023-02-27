@@ -27,8 +27,7 @@ class User < ApplicationRecord
     unless self.has_role? :req_serv_ti
       self.errors.add(:role, "A permissão ( Requisitante de serviços de TI ) deve estar selecionada")
     end
-  end 
-  
+  end
 
   def senha_padrao
     self.password = "Seed@123"

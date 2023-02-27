@@ -22,7 +22,8 @@
           </div>
           <div class="received_msg">
             <div class="received_withd_msg">
-              <p><%= c.texto %></p>
+              <p><%= c.texto if c.texto %></p>
+              <%= c.imagem unless c.imagem.blank? %>
               <span class="time_date"><%= c.created_at.strftime("%H:%M") if c.created_at %> | <%= c.created_at.strftime("%b %e") if c.created_at %></span> 
             </div>
           </div>

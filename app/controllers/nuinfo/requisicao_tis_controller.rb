@@ -62,6 +62,11 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @requisicoes_ti_abertas = RequisicaoTi.where(status: 1).all
   end
 
+  def refresh_acompanhamento
+    @tecnicos = Role.where(name: 'tec_serv_ti').first.users
+    @requisicoes_ti_abertas = RequisicaoTi.where(status: 1).all
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_requisicao_ti

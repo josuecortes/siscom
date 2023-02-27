@@ -1,0 +1,24 @@
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" >
+  <ol class="carousel-indicators">
+    <% tecnicos.each_with_index do |tecnico, index| %>        
+      <li data-target='#<%= "#{tecnico.nome.first}-#{tecnico.id}" %>' data-slide-to="<%= index %>" class='<%= index == 0 ? "active" : "" %>'></li>
+    <% end %>
+  </ol>
+  <div class="carousel-inner">
+    <% tecnicos.each_with_index do |tecnico, index| %>        
+      <div class="carousel-item <%= index == 0 ? 'active' : '' %>">
+        <%= render "estatisticas_tecnico", tecnico: tecnico %>
+      </div>
+    <% end %>
+  </div>
+  
+  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Anterior</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Próximo</span>
+  </a>
+</div>
+

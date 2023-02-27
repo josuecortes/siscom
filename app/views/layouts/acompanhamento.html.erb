@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Refresh" content="50"> 
     <title> Siscom - Seed</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -319,6 +318,10 @@
           $('.celular').mask('(00) 0000-0000')
         })
       </script>
+
+  
+
+      <%= yield :javascripts %>
       
   </body>
 </html>

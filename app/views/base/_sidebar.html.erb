@@ -51,7 +51,7 @@
 
         <% if current_user.has_role? :req_serv_ti %>
           <li class="nav-item">
-            <a href="<%= mensagens_index_path %>" target="_blank" class="nav-link <%= 'active' if (params[:controller] == 'mensagens' and params[:action] == 'index') %>">
+            <a href="<%= mensagens_path %>" target="_blank" class="nav-link <%= 'active' if (params[:controller] == 'mensagens' and params[:action] == 'index') %>">
               <i class="nav-icon fa fa-sms"></i>
               <p>Mensagens Diretas <span id="mensagens-diretas"></span></p>
             </a>
@@ -81,31 +81,6 @@
             <a href="../calendar.html" class="nav-link">
               <i class="nav-icon fa fa-image"></i>
               <p>Requisições Mídia</p>
-            </a>
-          </li>
-        <% end %>
-
-        <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
-          <li class="nav-header">ADMINISTRAÇÃO</li>
-
-          <li class="nav-item">
-            <a href="<%= usuarios_path %>" class="nav-link <%= 'active' if (params[:controller] == 'usuarios' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-users"></i>
-              <p>Usuarios</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-sitemap"></i>
-              <p>Unidades</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-address-card"></i>
-              <p>Funções</p>
             </a>
           </li>
         <% end %>
@@ -181,6 +156,33 @@
             </a>
           </li>
         <% end %>
+
+
+        <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
+          <li class="nav-header">ADMINISTRAÇÃO</li>
+
+          <li class="nav-item">
+            <a href="<%= usuarios_path %>" class="nav-link <%= 'active' if (params[:controller] == 'usuarios' and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-users"></i>
+              <p>Usuarios</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-sitemap"></i>
+              <p>Unidades</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-address-card"></i>
+              <p>Funções</p>
+            </a>
+          </li>
+        <% end %>
+
 
         
       </ul>

@@ -1,0 +1,11 @@
+
+$('.cabecalho').html('')
+$('.cabecalho').html('<%= j render("cabecalho", tecnicos: @tecnicos) %>')
+
+$('.requisicoes').html('')
+$('.requisicoes').html('<%= j render("requisicoes_em_abertas", requisicoes_ti_abertas: @requisicoes_ti_abertas) %>')
+
+
+$('.carousel').carousel({
+  interval: 3000
+})

@@ -11,72 +11,50 @@
 <% end %>
 
 <% if current_user.has_role? :tec_serv_ti or current_user.has_role? :admin %>
-
-
-  <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-      <% @tecnicos.each_with_index do |tecnico, index| %>        
-        <li data-target='#<%= "#{tecnico.nome.first}-#{tecnico.id}" %>' data-slide-to="<%= index %>" class='<%= index == 0 ? "active" : "" %>'></li>
-      <% end %>
-    </ol>
-    <div class="carousel-inner">
-      <% @tecnicos.each_with_index do |tecnico, index| %>        
-        <div class="carousel-item <%= index == 0 ? 'active' : '' %>">
-          <%= render "estatisticas_tecnico", tecnico: tecnico %>
-        </div>
-      <% end %>
-    </div>
-    
-    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Anterior</span>
-    </a>
-    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Próximo</span>
-    </a>
+  <div class="cabecalho">
+    <%= render "cabecalho", tecnicos: @tecnicos %>  
   </div>
-  
   <hr/>
-  <div class="card-header">
-    <h3 class="card-title">
-      <% if @requisicoes_ti_abertas.count >= 1 %>
-        <h5 class="text-danger"><b><%= @requisicoes_ti_abertas.count %></b> <%= @requisicoes_ti_abertas.count > 1 ? "Requisições" : "Requisição" %> de T.I. em aberto:</h5>
-      <% else %>
-        <h5>Sem requisições de T.I. em aberto no momento.</h5>
-      <% end %>
-    </h3>
+  <div class="requisicoes">
+    <%= render "requisicoes_em_abertas", requisicoes_ti_abertas: @requisicoes_ti_abertas %>  
   </div>
-  <br/>
-
-  <% if @requisicoes_ti_abertas.count >= 1 %>    
-    <table id="data-table" class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th>Data/Hora</th>
-          <th>Problema</th>
-          <th>Usuário</th>
-          <th>Unidade</th>
-        </tr>
-      </thead>
-      <tbody id="data-table-body">
-        <% @requisicoes_ti_abertas.each do |requisicao_ti| %>
-          <tr>
-            <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
-            <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
-            <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
-            <td><%= requisicao_ti.unidade.sigla if requisicao_ti.unidade %></td>
-          </tr> 
-        <% end %>
-      </tbody>
-    </table>
-  <% end %>
 <% end %>
 
-<script>
-$('.carousel').carousel({
-  interval: 900
-})
-</script>
 
+
+<% content_for :javascripts do %> 
+
+  
+
+  <script>  
+    var tempo_de_refresh = 30000
+    
+    
+
+
+    $( document ).ready(function() {
+      requisitar_refresh()
+      loop()
+      
+    }) 
+
+    function requisitar_refresh(){
+      $.get( '<%= refresh_acompanhamento_nuinfo_requisicao_tis_url %>', function( data ) {
+        $( ".result" ).html( data );
+      });
+    }
+
+    function loop() {
+      if(document.hidden){
+        tempo_de_refresh = 30000
+      }  
+      setTimeout(() => {
+        requisitar_refresh()
+        loop();
+      }, tempo_de_refresh);
+    }
+
+  </script>
+
+<% end %>
   
