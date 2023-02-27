@@ -27,7 +27,7 @@
 
     <div class="form-group">
       <%= f.label :avaliacao, "Como você avalia esse atendimento?" %>
-      <%= f.select :avaliacao, ['Muito bom', 'Bom', 'Normal', 'Ruim', 'Péssimo'], { include_blank: true }, { class: "form-control", required: true } %>
+      <%= f.select :avaliacao, ['Muito Bom', 'Bom', 'Normal', 'Ruim', 'Péssimo'], { include_blank: true }, { class: "form-control", required: true } %>
       <%= has_error(@requisicao_ti, :avaliacao) %>
     </div>
 
