@@ -38,6 +38,9 @@
           <%= link_to resetar_senha_usuario_path(usuario), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha"  do %>
             <i class="fas fa-sync-alt"></i>
           <% end %>
+          <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
         </td>
       </tr> 
     <% end %>
