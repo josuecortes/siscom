@@ -15,28 +15,111 @@
   </div>
 
   <div class="form-group">
-    <%= label_tag "Observações" %>
-    <%= text_area_tag '', (@requisicao_ti.observacoes.html_safe if @requisicao_ti.observacoes), class: "form-control", readonly: true %>
-  </div>
-
-  <div class="form-group">
     <%= label_tag "Requisitante" %>
     <%= text_field_tag '',(@requisicao_ti.user.nome if @requisicao_ti.user), class: "form-control", readonly: true %>
   </div>
 
   <div class="form-group">
-    <%= label_tag "Unidade" %>
-    <%= text_field_tag '',(@requisicao_ti.unidade.nome if @requisicao_ti.unidade), class: "form-control", readonly: true %>
+    <%= label_tag "Unidade do Requisitante" %>
+    <%= text_field_tag '',(@requisicao_ti.user.unidade.nome if @requisicao_ti.user and @requisicao_ti.user.unidade), class: "form-control", readonly: true %>
   </div>
 
-  <% unless @requisicao_ti.status.in? ['Solicitada','Cancelada']%>
+  <div class="d-none" id="nome-email">
+    <div class="form-group">
+      <%= label_tag 'Nome completo' %>
+      <%= text_field_tag '', (@requisicao_ti.nome), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag 'email' %>
+      <%= text_field_tag '', (@requisicao_ti.email), class: "form-control", readonly: true %>
+    </div>
+  </div>
+
+  <div class="d-none" id="cpf-rg">
+    <div class="form-group">
+      <%= label_tag 'cpf' %>
+      <%= text_field_tag '', (@requisicao_ti.cpf), class: "form-control", readonly: true %>
+    </div>  
+
+    <div class="form-group">
+      <%= label_tag 'rg' %>
+      <%= text_field_tag '', (@requisicao_ti.rg), class: "form-control", readonly: true %>
+    </div>
+  </div>
+
+  <div class="d-none" id="nascimento-celular">
+    <div class="form-group">
+      <%= label_tag 'data_nascimento' %>
+      <%= text_field_tag '', (@requisicao_ti.data_nascimento), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag 'celular' %>
+      <%= text_field_tag '', (@requisicao_ti.celular), class: "form-control", readonly: true %>
+    </div>
+  </div>
+
+  <div class="d-none" id="cargo-funcao">
+    <div class="form-group">
+      <%= label_tag 'cargo' %>
+      <%= text_field_tag '', (@requisicao_ti.cargo.nome if @requisicao_ti.cargo), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag 'função' %>
+      <%= text_field_tag '', (@requisicao_ti.funcao.nome if @requisicao_ti.funcao), class: "form-control", readonly: true %>
+    </div>
+  </div>  
+
+  <div class="d-none" id="estado-municipio">
+    <div class="form-group">
+      <%= label_tag 'estado' %>
+      <%= text_field_tag '', (@requisicao_ti.estado), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag 'municipio' %>
+      <%= text_field_tag '', (@requisicao_ti.municipio), class: "form-control", readonly: true %>
+    </div> 
+
+  </div>
+
+  <div class="d-none" id="inicio-fim">
+    <div class="form-group">
+      <%= label_tag 'periodo inicio' %>
+      <%= text_field_tag '', (@requisicao_ti.periodo_inicio.strftime('%d/%m/%Y') if @requisicao_ti.periodo_inicio), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag 'periodo fim' %>
+      <%= text_field_tag '', (@requisicao_ti.periodo_fim.strftime('%d/%m/%Y') if @requisicao_ti.periodo_fim), class: "form-control", readonly: true %>
+    </div>
+  </div>
+
+  <div class="form-group d-none" id="unidade">
+    <%= label_tag 'unidade' %>
+    <%= text_field_tag '', (@requisicao_ti.unidade.nome), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group d-none" id="perfil">
+    <%= label_tag 'perfil' %>
+    <%= text_field_tag '', (@requisicao_ti.perfil), class: "form-control", readonly: true %>
+  </div> 
+
+  <div class="form-group">
+    <%= label_tag "Observações" %>
+    <%= text_area_tag '', (@requisicao_ti.observacoes.html_safe if @requisicao_ti.observacoes), class: "form-control", readonly: true %>
+  </div>
+
+  <% unless @requisicao_ti.status.in? ['Solicitada', 'Cancelada']%>
     <div class="form-group">
       <%= label_tag "Responsável Técnico" %>
       <%= text_field_tag '',(@requisicao_ti.tecnico.nome if @requisicao_ti.tecnico), class: "form-control", readonly: true %>
     </div>
   <% end %>
 
-  <% if @requisicao_ti.status.in? ['Concluída','Finalizada']%>
+  <% if @requisicao_ti.status.in? ['Concluída', 'Finalizada']%>
     <div class="form-group">
       <%= label_tag "Parecer Técnico" %>
       <%= text_area_tag '',(@requisicao_ti.solucao if @requisicao_ti.solucao), class: "form-control", readonly: true %>
@@ -45,18 +128,95 @@
 
   <% if @requisicao_ti.status == 'Finalizada'%>
     <div class="form-group">
-      <%= label_tag "Avaliação do requisitante" %>
+      <%= label_tag "Sua avaliação sobre a requisição" %>
       <%= text_field_tag '',(@requisicao_ti.avaliacao if @requisicao_ti.avaliacao), class: "form-control", readonly: true %>
     </div>
 
     <div class="form-group">
-      <%= label_tag "Comentarios do requisitante" %>
+      <%= label_tag "Seu comentario sobre a requisição" %>
       <%= text_area_tag '',(@requisicao_ti.comentario if @requisicao_ti.comentario), class: "form-control", readonly: true %>
     </div>
   <% end %>
-
+  
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
   </div>
  
 </div>
+
+<script>
+  $(document).ready(function() {
+    function limpar_area(){
+      $('#nome-email').addClass('d-none')
+      $('#cpf-rg').addClass('d-none')
+      $('#nascimento-celular').addClass('d-none')
+      $('#cargo-funcao').addClass('d-none')
+      $('#estado-municipio').addClass('d-none')
+      $('#inicio-fim').addClass('d-none')
+      $('#unidade').addClass('d-none')
+      $('#perfil').addClass('d-none')
+    }
+    
+    function carregar_area(nome){
+      limpar_area()
+      switch (nome){
+        case 'PRODOC - CADASTRO':
+          $('#nome-email').removeClass('d-none')
+          $('#cpf-rg').removeClass('d-none')
+          $('#nascimento-celular').removeClass('d-none')
+          $('#cargo-funcao').removeClass('d-none')
+          $('#estado-municipio').removeClass('d-none')
+          $('#perfil').removeClass('d-none')
+          break
+        case 'PRODOC - SUBSTITUIÇÃO':
+          $('#nome-email').removeClass('d-none')
+          $('#inicio-fim').removeClass('d-none')
+          break  
+        case 'PRODOC - RETIRADA':
+          $('#nome-email').removeClass('d-none')
+          break    
+        case 'PRODOC - TROCAR SENHA':
+          $('#nome-email').removeClass('d-none')
+          break      
+        case 'PRODOC - ALTERAR PERFIL':
+          $('#nome-email').removeClass('d-none')
+          $('#perfil').removeClass('d-none')
+          break  
+        case 'PRODOC - LIBERAR ACESSO':
+          $('#nome-email').removeClass('d-none')
+          $('#cargo-funcao').removeClass('d-none')
+          $('#inicio-fim').removeClass('d-none')
+          $('#perfil').removeClass('d-none')
+          break
+        case 'WEBMAIL - CADASTRO':
+          $('#nome-email').removeClass('d-none')
+          $('#cargo-funcao').removeClass('d-none')
+          $('#unidade').removeClass('d-none')
+          break     
+        case 'WEBMAIL - TROCAR SENHA':
+          $('#nome-email').removeClass('d-none')
+          break       
+        case 'SISCOM - CADASTRO':
+          $('#nome-email').removeClass('d-none')
+          $('#cargo-funcao').removeClass('d-none')
+          $('#unidade').removeClass('d-none')
+          break     
+        case 'SISCOM - TROCAR SENHA':
+          $('#nome-email').removeClass('d-none') 
+          break  
+        case 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO':
+          $('#nome-email').removeClass('d-none') 
+          $('#unidade').removeClass('d-none')
+          break     
+        case 'SIGDOC - DESABILITAR PERMISSÃO':
+          $('#nome-email').removeClass('d-none') 
+          $('#unidade').removeClass('d-none')
+          break        
+      }
+    }
+
+    let problemaSelecionado = '<%= @requisicao_ti.problema_ti.nome %>'
+    carregar_area(problemaSelecionado)  
+
+  });  
+</script>
