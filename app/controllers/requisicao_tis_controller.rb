@@ -55,7 +55,7 @@ class RequisicaoTisController < ApplicationController
     puts "---------->"
 
     respond_to do |format|
-      if @requisicao_ti.save!
+      if @requisicao_ti.save
         flash[:success] = "Requisição criada."
         format.js {render :create, status: :created  }
       else

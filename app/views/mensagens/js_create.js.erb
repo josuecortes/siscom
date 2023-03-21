@@ -2,6 +2,9 @@
 $('.conversa').html('')
 $('.conversa').html('<%= j render("conversa", conversa: @conversa) %>')
 
+$('.write_msg').val('')
+$('.enviar-upload').val('')
+
 status = "<%= @requisicao_ti.status %>"
 if(status == 'Concluída'){
   $('.conversa').append("<br/><center><p class='text-danger'>Esta requisição está com o status Concluída! Você não pode enviar mensagens quando a requisição está neste status.</p></center><br/>")

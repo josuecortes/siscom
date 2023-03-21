@@ -10,7 +10,7 @@
   
 <% end %>
 
-<% content_for :caixa_de_digitacao do %>
+<% content_for :caixa_de_digitacao_ do %>
   <div class="row">
     <div class='col-md-9'>
       <input type="text" name="texto" class="write_msg texto" placeholder="Digite a mensagem" />
@@ -23,6 +23,29 @@
     </div>
   </div>
 <% end %>     
+
+<% content_for :caixa_de_digitacao do %>
+  <%= form_with(url: "#{js_create_mensagens_path}", method: "post", multipart: true, id: "post-form") do |form| %>
+    <div class="row">
+      
+      <%= form.hidden_field :requisicao_ti, value: (@requisicao_ti.id if @requisicao_ti) %>
+      
+      <div class='col-md-6'>  
+        <%= form.text_field :mensagem, class: "write_msg texto", placeholder: 'Digite a mensagem' %>
+      </div>
+      <div class='col-md-4'>  
+        <%= form.file_field :image, class: 'btn enviar-upload' %>
+      </div>
+      <div class='col-md-2'>  
+        <%= form.submit "Enviar", class: "btn btn-primary pull-right", type: "submit" %>
+      </div>
+    </div>
+  <% end %>
+<% end %>  
+
+
+
+
 
 <% content_for :javascripts do %> 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -45,16 +68,16 @@
       }
     }
 
-    $('.enviar').click(function(){
-      enviarMensagem()
-    })
+    // $('.enviar').click(function(){
+    //   enviarMensagem()
+    // })
 
-    jQuery('.texto').keypress(function(event){
-      var keycode = (event.keyCode ? event.keyCode : event.which);
-      if(keycode == '13'){
-        enviarMensagem()
-      }
-    })
+    // jQuery('.texto').keypress(function(event){
+    //   var keycode = (event.keyCode ? event.keyCode : event.which);
+    //   if(keycode == '13'){
+    //     enviarMensagem()
+    //   }
+    // })
 
     function requisitar_refresh(){
       let requisicao_id 
@@ -85,13 +108,21 @@
     function enviar_mensagem(mensagem){
       let requisicao_id 
       requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
+      // if(requisicao_id) {
+      //   $.post( '<%= js_create_mensagens_path %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
+      //     $( ".result" ).html( data );
+      //   });
+      // }else{
+      //   alert('Selecione uma conversa.')
+      // }
+
       if(requisicao_id) {
-        $.post( '<%= js_create_mensagens_path %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
-          $( ".result" ).html( data );
-        });
-      }else{
+
+      } else {
         alert('Selecione uma conversa.')
-      }
+      }  
+
+
     } 
 
     document.addEventListener("visibilitychange", function() {
@@ -99,6 +130,29 @@
         requisitar_refresh()
       } else {
         requisitar_refresh()
+      }
+    });
+
+    $('#post-form').submit(function(event) {
+      event.preventDefault();
+      let requisicao_id 
+      requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
+      if(requisicao_id) {
+        var formData = new FormData($(this)[0]);
+        $.post({
+          url: $(this).attr('action'),
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+            // Adicione aqui o código para lidar com a resposta do servidor
+          },
+          error: function(response) {
+            alert('Algo deu errado.')
+          }
+        });
+      } else {
+        alert('Selecione uma conversa.')
       }
     });
     

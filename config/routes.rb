@@ -8,10 +8,9 @@ Rails.application.routes.draw do
       get 'new_image'
       put 'update_image'
     end
+    get 'imagem', on: :collection
   end
-
-
-  
+ 
   resources :cargos
   resources :tipo_unidades
   resources :problema_tis

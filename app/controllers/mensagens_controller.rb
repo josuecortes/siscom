@@ -8,17 +8,26 @@ class MensagensController < ApplicationController
     
   end
 
+  def imagem
+    @mensagem_id = params[:mensagem_id]
+    @requisicao_id = params[:requisicao_id]
+  end
+
   def show
     render :index
   end
 
   def js_create
-    if @requisicao_ti.status == 'Concluída' or params[:mensagem].blank?
+
+    if @requisicao_ti.status == 'Concluída' or (params[:mensagem].blank? and params[:image].blank?) 
       return false
     end
+    
     @mensagem.user = current_user
     @mensagem.status = "não lida"
-    @mensagem.texto = params[:mensagem]
+    @mensagem.texto = params[:mensagem] if params[:mensagem]
+    @mensagem.imagem = params[:image] if params[:image]
+
     if @mensagem.save
       return true
     else
@@ -26,38 +35,7 @@ class MensagensController < ApplicationController
     end
   end
 
-  def new_image
-    respond_to do |format|
-      format.js { }
-    end
-
-  end
-
-  def create_imagem
-    puts "index do enviar imagem mensagens..................................................................."
-    puts "x"
-    puts "x"
-    puts "x"
-    puts "x"
-    puts "x"
-    puts "x"
-    puts "x"
-    puts "x"
-    puts params
-    puts "---------------------------------------"   
-    if @requisicao_ti.status == 'Concluída' or params[:imagem].blank?
-      return false
-    end
-    @mensagem.user = current_user
-    @mensagem.status = "não lida"
-    @mensagem.imagem = params[:imagem]
-    puts "ainda to aqui............................................................................xxxxxxxxxxxxxxxxxxxxxxxxxx"
-    if @mensagem.save!
-      return true
-    else
-      return false
-    end
-  end
+  
 
   def refresh
     
