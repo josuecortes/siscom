@@ -10,95 +10,209 @@
   Início
 <% end %>
 
-<div class="card-header">
-  <h3 class="card-title">
+
+<div class="row">
+
+  <div class="col-md-9">
+
+    <div class="card-header">
+      <h3 class="card-title">
+        <% if @requisicao_tis.count >= 1 %>
+          <h5>
+            Você possui <%= @requisicao_tis.count %> <%= @requisicao_tis.count > 1 ? "requisições" : "requisição" %> de T.I.
+            <%= link_to new_requisicao_ti_path, class: "btn btn-success float-right", title: "Novo Requisiço de ti", remote: true do %>
+              <i class="fas fa-plus"></i> Nova requisição T.I.
+            <% end %>
+          </h5>
+        <% else %>
+          <h5>
+            Você não possui requisições de T.I. no momento.
+            <%= link_to new_requisicao_ti_path, class: "btn btn-success float-right", title: "Novo Requisiço de ti", remote: true do %>
+              <i class="fas fa-plus"></i> Nova requisição T.I.
+            <% end %>
+          </h5>
+        <% end %>
+      </h3>
+    </div>
+    <br/>
+
     <% if @requisicao_tis.count >= 1 %>
-      <h5>
-        Você possui <%= @requisicao_tis.count %> <%= @requisicao_tis.count > 1 ? "requisições" : "requisição" %> de T.I.
-        <%= link_to new_requisicao_ti_path, class: "btn btn-success float-right", title: "Novo Requisiço de ti", remote: true do %>
-          <i class="fas fa-plus"></i> Nova requisição T.I.
-        <% end %>
-      </h5>
-    <% else %>
-      <h5>
-        Você não possui requisições de T.I. no momento.
-        <%= link_to new_requisicao_ti_path, class: "btn btn-success float-right", title: "Novo Requisiço de ti", remote: true do %>
-          <i class="fas fa-plus"></i> Nova requisição T.I.
-        <% end %>
-      </h5>
-    <% end %>
-  </h3>
-</div>
-<br/>
-
-<% if @requisicao_tis.count >= 1 %>
-  <div class="row">  
-  <% @requisicao_tis.each do |requisicao| %>    
-    <div class="col-lg-6">
-      <div class="small-box bg-danger">
-        <div class="inner">
-          <p><b>Status: </b><%= requisicao.status %></p>
-          <p><b>Solicitação: </b><%= requisicao.problema_ti.nome %></p>
-          <p><b>Data: </b><%= requisicao.created_at.strftime("%d/%m/%Y") %></p>
-          <p><b>Responsável: </b><%= requisicao.tecnico ? requisicao.tecnico.nome.split.first : "Aguardando..."%></p>
-        </div>
-        <div class="icon">
-          <i class="fas fa-desktop"></i>
-        </div>
-        <a href="<%= requisicao_tis_path(status: pegar_status(requisicao.status)) %>" class="small-box-footer">
-          Mais detalhes <i class="fas fa-arrow-circle-right"></i>
-        </a>
-      </div>
-    </div>    
-  <% end %>
-  </div>
-<% end %>
-
-<% if current_user.has_role? :tec_serv_ti %>
-  <hr/>
-  <div class="card-header">
-    <h3 class="card-title">
-      <% if @requisicoes_ti_abertas.count >= 1 %>
-        <h5 class="text-danger"><b><%= @requisicoes_ti_abertas.count %></b> <%= @requisicoes_ti_abertas.count > 1 ? "Requisições" : "Requisição" %> de T.I. em aberto:</h5>
-      <% else %>
-        <h5>Sem requisições de T.I. em aberto no momento.</h5>
+      <div class="row">  
+      <% @requisicao_tis.each do |requisicao| %>    
+        <div class="col-lg-6">
+          <div class="small-box bg-danger">
+            <div class="inner">
+              <p><b>Status: </b><%= requisicao.status %></p>
+              <p><b>Solicitação: </b><%= requisicao.problema_ti.nome %></p>
+              <p><b>Data: </b><%= requisicao.created_at.strftime("%d/%m/%Y") %></p>
+              <p><b>Responsável: </b><%= requisicao.tecnico ? requisicao.tecnico.nome.split.first : "Aguardando..."%></p>
+            </div>
+            <div class="icon">
+              <i class="fas fa-desktop"></i>
+            </div>
+            <a href="<%= requisicao_tis_path(status: pegar_status(requisicao.status)) %>" class="small-box-footer">
+              Mais detalhes <i class="fas fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>    
       <% end %>
-    </h3>
-  </div>
-  <br/>
+      </div>
+    <% end %>
 
-  <% if @requisicoes_ti_abertas.count >= 1 %>    
-    <table id="data-table" class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th>Data/Hora</th>
-          <th>Problema</th>
-          <th>Usuário</th>
-          <th>Unidade</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="data-table-body">
-        <% @requisicoes_ti_abertas.each do |requisicao_ti| %>
-          <tr>
-            <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
-            <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
-            <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
-            <td><%= requisicao_ti.unidade.sigla if requisicao_ti.unidade %></td>
-            <td>
-              <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
-                <i class="fas fa-eye"></i>
-              <% end %>
-              <% if requisicao_ti.status == "Solicitada" %>
-                <%= link_to nuinfo_requisicao_ti_pegar_path(requisicao_ti), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-primary", title: "Pegar"  do %>
-                  <i class="fas fa-reply"></i>
-                <% end %>
-              <% end %>
-            </td>
-          </tr> 
-        <% end %>
-      </tbody>
-    </table>
-  <% end %>
-<% end %>
-  
+    <% if current_user.has_role? :tec_serv_ti %>
+      <hr/>
+      <div class="card-header">
+        <h3 class="card-title">
+          <% if @requisicoes_ti_abertas.count >= 1 %>
+            <h5 class="text-danger"><b><%= @requisicoes_ti_abertas.count %></b> <%= @requisicoes_ti_abertas.count > 1 ? "Requisições" : "Requisição" %> de T.I. em aberto:</h5>
+          <% else %>
+            <h5>Sem requisições de T.I. em aberto no momento.</h5>
+          <% end %>
+        </h3>
+      </div>
+      <br/>
+
+      <% if @requisicoes_ti_abertas.count >= 1 %>    
+        <table id="data-table" class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Problema</th>
+              <th>Usuário</th>
+              <th>Unidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="data-table-body">
+            <% @requisicoes_ti_abertas.each do |requisicao_ti| %>
+              <tr>
+                <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+                <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
+                <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
+                <td><%= requisicao_ti.unidade.sigla if requisicao_ti.unidade %></td>
+                <td>
+                  <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  <% if requisicao_ti.status == "Solicitada" %>
+                    <%= link_to nuinfo_requisicao_ti_pegar_path(requisicao_ti), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-primary", title: "Pegar"  do %>
+                      <i class="fas fa-reply"></i>
+                    <% end %>
+                  <% end %>
+                </td>
+              </tr> 
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    <% end %>
+      
+  </div>
+
+  <div class="col-md-3">
+
+    <div class="card card-primary card-outline">
+      <div class="card-body box-profile">
+
+        
+        <h4>&nbsp;&nbsp;Manuais e Vídeos</h4>
+
+        <div class="col-12" id="accordion">
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapseOne">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                          1. Manual de instruções SISCOM
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapseOne" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+
+                    <%= link_to asset_path('manual.pdf'), target: '_blank' do %>
+                      <%= image_tag('manual-siscom', style: "height:auto;width:100%;") %>
+                    <% end %>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapseTwo">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                          2. Manual de instruções SISCOM - Video
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapseTwo" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/vvBOLSaXe4k" title="Como acessar o SISCOM: Sistema de Comunicação || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapse3">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                          3. Como fazer upload e assinatura no SIGDOC
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapse3" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/aFPW_v3PBM4" title="Como fazer upload e assinatura no SigDocs || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapse4">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                          4. Como acessar o WEBMAIL Institucional
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapse4" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/vQI_Hmqemjg" title="Como acessar o Webmail Institucional || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapse5">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                          5. Como acessar o SERVIDOR DE ARQUIVOS
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapse5" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/tP1-pNXktww" title="Como acessar o Servidor de Arquivos || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
+                  </div>
+              </div>
+          </div>
+
+
+        </div>
+      </div>
+
+    </div>
+
+   
+    
+
+    
+
+    
+
+    
+
+
+  </div>
+
+
+</div>      
