@@ -5,12 +5,14 @@ class MensagensController < ApplicationController
   before_action :set_mensagem, only: [:index, :refresh, :js_create, :create_imagem]
   
   def index
-    
   end
 
   def imagem
-    @mensagem_id = params[:mensagem_id]
-    @requisicao_id = params[:requisicao_id]
+    mensagem_id = params[:mensagem_id]
+    if mensagem_id
+      @mensagem = Mensagem.find(mensagem_id)
+    end
+    render :layout => false
   end
 
   def show

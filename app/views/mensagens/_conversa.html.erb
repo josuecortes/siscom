@@ -7,8 +7,11 @@
             <% unless c.texto.blank? %>
               <p><%= c.texto %></p>
             <% end %>
-            <%= image_tag(c.imagem.variant(resize: "200x200")) unless c.imagem.blank? %>
-            
+            <% unless c.imagem.blank? %>
+              <%= link_to imagem_mensagens_path(mensagem_id: c.id), target: '_blank' do %>
+                <%= image_tag(c.imagem.variant(resize: "200x200")) %>
+              <% end %>  
+            <% end %>
             <span class="time_date"><%= c.created_at.strftime("%H:%M") if c.created_at %> | <%= c.created_at.strftime("%b %e") if c.created_at %> (<%= c.status %>)</span> 
           </div>
         </div>
@@ -29,8 +32,13 @@
               <% unless c.texto.blank? %>
                 <p><%= c.texto %></p>
               <% end %>
-              <%= image_tag(c.imagem.variant(resize: "200x200")) unless c.imagem.blank? %>
-              
+              <% unless c.imagem.blank? %>
+              <%= link_to imagem_mensagens_path(mensagem_id: c.id), target: '_blank' do %>
+                <%= image_tag(c.imagem.variant(resize: "200x200")) %>
+              <% end %>  
+            <% end %>
+
+
               <span class="time_date"><%= c.created_at.strftime("%H:%M") if c.created_at %> | <%= c.created_at.strftime("%b %e") if c.created_at %></span> 
             </div>
           </div>

@@ -1,0 +1,6 @@
+<% if @mensagem %>
+  <%= image_tag(@mensagem.imagem, style: "height:auto;width:100%;") unless @mensagem.imagem.blank? %>
+<% else %>
+  Erro ao carregar imagem
+<% end %>
+
