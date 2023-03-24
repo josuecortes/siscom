@@ -128,9 +128,8 @@
               </a>
               <div id="collapseOne" class="collapse" data-parent="#accordion">
                   <div class="card-body">
-
                     <%= link_to asset_path('manual.pdf'), target: '_blank' do %>
-                      <%= image_tag('manual-siscom', style: "height:auto;width:100%;") %>
+                      <%= image_tag('manual-pdf', style: "height:auto;width:100%;") %>
                     <% end %>
                   </div>
               </div>
@@ -146,7 +145,9 @@
               </a>
               <div id="collapseTwo" class="collapse" data-parent="#accordion">
                   <div class="card-body">
-                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/vvBOLSaXe4k" title="Como acessar o SISCOM: Sistema de Comunicação || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    <%= link_to "https://www.youtube.com/embed/vvBOLSaXe4k", target: '_blank' do %>
+                      <%= image_tag('manual-video', style: "height:auto;width:100%;") %>
+                    <% end %>
                   </div>
               </div>
           </div>
@@ -161,7 +162,9 @@
               </a>
               <div id="collapse3" class="collapse" data-parent="#accordion">
                   <div class="card-body">
-                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/aFPW_v3PBM4" title="Como fazer upload e assinatura no SigDocs || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    <%= link_to "https://www.youtube.com/embed/aFPW_v3PBM4", target: '_blank' do %>
+                      <%= image_tag('assinatura-sigdoc', style: "height:auto;width:100%;") %>
+                    <% end %>
                   </div>
               </div>
           </div>
@@ -176,7 +179,9 @@
               </a>
               <div id="collapse4" class="collapse" data-parent="#accordion">
                   <div class="card-body">
-                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/vQI_Hmqemjg" title="Como acessar o Webmail Institucional || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    <%= link_to "https://www.youtube.com/embed/vQI_Hmqemjg", target: '_blank' do %>
+                      <%= image_tag('acessar-webmail', style: "height:auto;width:100%;") %>
+                    <% end %>
                   </div>
               </div>
           </div>
@@ -191,11 +196,12 @@
               </a>
               <div id="collapse5" class="collapse" data-parent="#accordion">
                   <div class="card-body">
-                    <iframe style="height:auto;width:100%;" src="https://www.youtube.com/embed/tP1-pNXktww" title="Como acessar o Servidor de Arquivos || NUINFO - SEED/AP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
+                    <%= link_to "https://www.youtube.com/embed/tP1-pNXktww", target: '_blank' do %>
+                      <%= image_tag('servidor-de-arquivos', style: "height:auto;width:100%;") %>
+                    <% end %>
                   </div>
               </div>
           </div>
-
 
         </div>
       </div>

@@ -20,7 +20,7 @@
 
         <div class="chat_ib">
           <h5>
-            <%= user.nome %> 
+            <%= user.nome %> <%= "(Concluída)" if current_user == r.tecnico and r.status == 'Concluída' %>
             <% nao_lidas = r.mensagens_nao_lidas(current_user) %>
             
 
