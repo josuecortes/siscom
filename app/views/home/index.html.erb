@@ -10,7 +10,6 @@
   Início
 <% end %>
 
-
 <div class="row">
 
   <div class="col-md-9">
@@ -92,11 +91,11 @@
                 <td><%= requisicao_ti.unidade.sigla if requisicao_ti.unidade %></td>
                 <td>
                   <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
-                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-eye">&nbsp;Detalhes</i>
                   <% end %>
                   <% if requisicao_ti.status == "Solicitada" %>
                     <%= link_to nuinfo_requisicao_ti_pegar_path(requisicao_ti), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-primary", title: "Pegar"  do %>
-                      <i class="fas fa-reply"></i>
+                      <i class="fas fa-hand-stop-o">&nbsp;Pegar</i>
                     <% end %>
                   <% end %>
                 </td>

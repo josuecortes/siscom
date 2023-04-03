@@ -1,5 +1,6 @@
 class UnidadesController < ApplicationController
   before_action :set_unidade, only: %i[ show edit update destroy ]
+  before_action :load_unidade, only: %i[ new edit update create ]
 
   # GET /unidades or /unidades.json
   def index
@@ -66,6 +67,10 @@ class UnidadesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def unidade_params
-      params.require(:unidade).permit(:nome, :sigla)
+      params.require(:unidade).permit(:nome, :sigla, :tipo_unidade_id)
+    end
+
+    def load_unidade
+      @tipo_unidades = TipoUnidade.order(nome: :asc).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
     end
 end

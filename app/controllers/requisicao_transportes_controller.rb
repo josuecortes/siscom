@@ -96,7 +96,7 @@ class RequisicaoTransportesController < ApplicationController
     end
 
     def verify_permission
-      unless current_user.has_role? :req_serv_transporte
+      unless current_user.has_role? :req_serv_tp
         flash[:info] = "Você não possui as permissões necessárias para acessar!"
         redirect_to home_index_path
       end

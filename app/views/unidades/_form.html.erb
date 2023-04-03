@@ -20,6 +20,12 @@
       <%= f.text_field :sigla, autocomplete: "Sigla", placeholder: "Digite a sigla do unidade", class: "form-control", required: true %>
       <%= has_error(@unidade, :sigla) %>
     </div>
+
+    <div class="form-group">
+      <%= f.label :tipo_unidade_id %>
+      <%= f.select :tipo_unidade_id, @tipo_unidades, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+      <%= has_error(@unidade, :tipo_unidade_id) %>
+    </div>
     
     <div class="modal-footer">
       <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>

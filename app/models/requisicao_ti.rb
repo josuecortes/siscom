@@ -11,10 +11,12 @@ class RequisicaoTi < ApplicationRecord
 
   validates_presence_of :user_id, :problema_ti_id
   validates_presence_of :tecnico_id, if: Proc.new{ |r| r.status.in? ['Em atendimento', 'Concluída', 'Finalizada'] }
+  # validates_presence_of :observacoes, on: :create
   validates_presence_of :solucao, if: Proc.new{ |r| r.status == 'Concluída' }
   validates_presence_of :avaliacao, if: Proc.new{ |r| r.status == 'Finalizada' }
   validates_presence_of :comentario, if: Proc.new{ |r| r.avaliacao.in? ['Péssimo', 'Ruim'] }
   validate :verificar_requisicao_sistemas
+  validate :verificar_requisicao_sistemas_problemas, on: :create
  
   enum status: { "Solicitada": 1,  "Em atendimento": 2, "Concluída": 3, "Cancelada": 4, "Finalizada": 5 }
   enum avaliacao: { "Muito Bom": 5,  "Bom": 4, "Normal": 3, "Ruim": 2, "Péssimo": 1 }
@@ -24,6 +26,23 @@ class RequisicaoTi < ApplicationRecord
   scope :com_status, ->(status) { where("status = ?", status) }
   scope :do_usuario_ou_tecnico, ->(id) { where("user_id = ? or tecnico_id = ?", id, id) }
   scope :pode_enviar_mensagem, -> { where("status = ? or status = ?", 2, 3) }
+
+  def verificar_requisicao_sistemas_problemas
+    return true unless self.problema_ti
+    problema_ti = ProblemaTi.find(self.problema_ti_id)
+    return true unless problema_ti
+
+    case problema_ti.nome 
+      when 'PRODOC - PROBLEMAS'  
+        validates_presence_of :observacoes
+      when 'WEBMAIL - PROBLEMAS'  
+        validates_presence_of :observacoes  
+      when 'SISCOM - PROBLEMAS'  
+        validates_presence_of :observacoes  
+      when 'SIGDOC - PROBLEMAS'  
+        validates_presence_of :observacoes       
+    end
+  end
   
   def verificar_requisicao_sistemas
     return true unless self.problema_ti

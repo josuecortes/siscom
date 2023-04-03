@@ -82,3 +82,5 @@ xerial*.*
 /config/credentials/production.key
 
 /config/master.key
+
+.byebug_history

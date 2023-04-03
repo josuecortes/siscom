@@ -7,9 +7,13 @@ class PatioController < ApplicationController
   end
 
   def entrada
-    puts params
-    @veiculo = Veiculo.com_status(1).find(params[:veiculo_id]) if params[:veiculo_id]
-    @motorista = Motorista.com_status(1).find(params[:motorista_id]) if params[:motorista_id]
+    
+    if params[:veiculo_id] and params[:veiculo_id] != "Selecione o veículo..."
+      @veiculo = Veiculo.com_status(1).find(params[:veiculo_id]) 
+    end
+    if params[:motorista_id] and params[:motorista_id] != "Selecione o motorista..."
+      @motorista = Motorista.com_status(1).find(params[:motorista_id]) 
+    end
     if @veiculo and @motorista
       @motorista.status = 'em_servico'
       @veiculo.status = 'patio'

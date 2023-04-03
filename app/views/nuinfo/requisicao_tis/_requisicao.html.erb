@@ -20,8 +20,13 @@
   </div>
 
   <div class="form-group">
+    <%= label_tag "Função" %>
+    <%= text_field_tag '',(@requisicao_ti.user.funcao.nome if @requisicao_ti.user and @requisicao_ti.user.funcao), class: "form-control", readonly: true %>
+  </div>
+
+  <div class="form-group">
     <%= label_tag "Unidade do Requisitante" %>
-    <%= text_field_tag '',(@requisicao_ti.user.unidade.nome if @requisicao_ti.user and @requisicao_ti.user.unidade), class: "form-control", readonly: true %>
+    <%= text_field_tag '',(@requisicao_ti.user.unidade.sigla_nome if @requisicao_ti.user and @requisicao_ti.user.unidade), class: "form-control", readonly: true %>
   </div>
 
   <div class="d-none" id="nome-email">
@@ -51,7 +56,7 @@
   <div class="d-none" id="nascimento-celular">
     <div class="form-group">
       <%= label_tag 'data_nascimento' %>
-      <%= text_field_tag '', (@requisicao_ti.data_nascimento), class: "form-control", readonly: true %>
+      <%= text_field_tag '', (@requisicao_ti.data_nascimento.strftime("%d/%m/%Y %H:%M") if @requisicao_ti.data_nascimento), class: "form-control", readonly: true %>
     </div>
 
     <div class="form-group">

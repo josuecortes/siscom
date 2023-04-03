@@ -7,8 +7,8 @@
  */
 
 .piscar {
-  margin: 0 2px 0 0;
-  animation: animate 3s linear infinite;
+  margin: 0 3px 0 0;
+  animation: animate 1s linear infinite;
 }
 
 @keyframes animate {

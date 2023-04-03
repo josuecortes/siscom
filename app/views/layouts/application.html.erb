@@ -3,12 +3,13 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> Siscom - Seed</title>
+    <title>Siscom - Seed</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="/adminLTE/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/adminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <link rel="stylesheet" href="/adminLTE/plugins/toastr/toastr.min.css">
     <!-- DataTables -->
@@ -18,7 +19,7 @@
 
     <link rel="stylesheet" href="/adminLTE/dist/css/adminlte.min.css">
 
-    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
     
   </head>
 
@@ -27,7 +28,7 @@
       <div class="wrapper">
 
         <div class="preloader flex-column justify-content-center align-items-center">
-          <img class="animation__shake" src="/adminLTE/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+          <%= image_tag('AdminLTELogo', class: "brand-image img-circle elevation-3", style: "opacity: .8") %>
         </div>
 
         <%= render "base/header" %>
@@ -83,8 +84,17 @@
             </div>
           </div>
         </div>
+        
 
       <div>
+
+
+       
+       
+
+
+      
+
 
       <%= javascript_include_tag 'application' %>
       <script src="/adminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -314,9 +324,12 @@
       <script>
         var tempo_de_refresh_application = 2000
         var pode_chatear = false
-        var numero_de_mensagens = 0       
-
+        var numero_de_mensagens = 0    
+        
+        
         $(document).ready(function(){
+          
+
           $('.data').mask('00/00/0000')
           $('.cpf').mask('000.000.000-00')
           $('.celular').mask('(00) 0000-0000')
@@ -329,6 +342,9 @@
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').addClass('badge badge-danger piscar')
             $('#mensagens-diretas').html(valor)
+            
+            toastr.error('Você possui mensagens diretas não lidas!.')
+
           }else{
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').removeClass('badge badge-danger piscar')
@@ -357,7 +373,7 @@
 
         document.addEventListener("visibilitychange", function() {
           if (document.hidden){
-            requisitar_refresh()
+            
           } else {
             requisitar_refresh()
           }

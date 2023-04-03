@@ -19,7 +19,7 @@
       <div class="col-auto my-1">
         <label class="mr-sm-2 sr-only" for="veiculo_id">Veículo</label>
         <select name="veiculo_id" class="custom-select mr-sm-2" id="veiculo_id">
-          <option selected>Selecione o veiculo...</option>
+          <option selected>Selecione o veículo...</option>
           <% @veiculos_garagem.each do |v| %>
             <option value="<%= v.id %>"><%= v.placa %></option>
           <% end %>

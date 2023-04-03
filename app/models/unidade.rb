@@ -24,4 +24,8 @@ class Unidade < ApplicationRecord
       end 
     end
   end
+
+  def sigla_nome
+    "#{self.sigla} - #{self.nome}"
+  end
 end

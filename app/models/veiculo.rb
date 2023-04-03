@@ -8,7 +8,7 @@ class Veiculo < ApplicationRecord
 
   enum status: { garagem: 1, patio: 2, em_servico: 3 }
 
-  scope :com_status, ->(status) { where("status = ?", status) }
+  scope :com_status, -> (status) { where("status = ?", status) }
 
   before_validation :novo_veiculo, on: :create
 

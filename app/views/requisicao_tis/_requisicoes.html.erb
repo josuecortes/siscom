@@ -44,21 +44,21 @@
         <% end %>
         <td>
           <%= link_to requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
-            <i class="fas fa-eye"></i>
+            <i class="fas fa-eye">&nbsp;Detalhes</i>
           <% end %>
           <% if requisicao_ti.status == 'Solicitada' %>
             <%= link_to edit_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
-              <i class="fas fa-edit"></i>
+              <i class="fas fa-edit">&nbsp;Editar</i>
             <% end %>
           <% end %>
           <% if requisicao_ti.status == 'Concluída' %>
-            <%= link_to finalizar_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-primary", title: "Finalizar", remote: true  do %>
-              <i class="fas fa-share"></i>
+            <%= link_to finalizar_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-success", title: "Finalizar", remote: true  do %>
+              <i class="fas fa-check">&nbsp;Finalizar</i>
             <% end %>
           <% end %>
           <% if requisicao_ti.status == 'Solicitada' %>
             <%= link_to requisicao_ti_path(requisicao_ti), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Cancelar"  do %>
-              <i class="fas fa-trash"></i>
+              <i class="fas fa-close">&nbsp;Excluir</i>
             <% end %>
           <% end %>
         </td>
