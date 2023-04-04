@@ -88,7 +88,7 @@
                 <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
                 <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
                 <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
-                <td><%= requisicao_ti.unidade.sigla if requisicao_ti.unidade %></td>
+                <td><%= requisicao_ti.unidade.sigla_nome if requisicao_ti.unidade %></td>
                 <td>
                   <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
                     <i class="fas fa-eye">&nbsp;Detalhes</i>
