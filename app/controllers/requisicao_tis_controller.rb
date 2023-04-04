@@ -50,10 +50,7 @@ class RequisicaoTisController < ApplicationController
     @requisicao_ti.user = current_user
     @requisicao_ti.unidade = current_user.unidade
     @requisicao_ti.status = 1
-
-    puts requisicao_ti_params
-    puts "---------->"
-
+    
     respond_to do |format|
       if @requisicao_ti.save
         flash[:success] = "Requisição criada."

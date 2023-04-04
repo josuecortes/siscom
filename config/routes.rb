@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       collection do
         get 'acompanhamento'
         get 'refresh_acompanhamento'
+        get 'em_atendimento'
       end      
       member do
         get 'concluir'    

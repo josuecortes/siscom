@@ -67,6 +67,10 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @requisicoes_ti_abertas = RequisicaoTi.where(status: 1).all
   end
 
+  def em_atendimento
+    @requisicoes = RequisicaoTi.where("status = ? or status = ?", 2, 3).order("created_at ASC")
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_requisicao_ti
