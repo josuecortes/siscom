@@ -27,6 +27,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     if @requisicao_ti.tecnico_id.blank?
       @requisicao_ti.tecnico = current_user
       @requisicao_ti.status = 2
+      @requisicao_ti.data_hora_em_atendimento = DateTime.now
       if @requisicao_ti.save
         flash[:success] = "Você tornou-se o responsável tecnico pela requisição!"
       else  
@@ -83,7 +84,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
-      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao)
+      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, :data_hora_concluida)
     end
 
     def verificar_permissao

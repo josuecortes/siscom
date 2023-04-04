@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_13_134225) do
+ActiveRecord::Schema.define(version: 2023_04_04_133743) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -133,6 +133,9 @@ ActiveRecord::Schema.define(version: 2023_02_13_134225) do
     t.string "perfil"
     t.date "periodo_inicio"
     t.date "periodo_fim"
+    t.datetime "data_hora_em_atendimento"
+    t.datetime "data_hora_concluida"
+    t.datetime "data_hora_finalizada"
     t.index ["cargo_id"], name: "index_requisicao_tis_on_cargo_id"
     t.index ["funcao_id"], name: "index_requisicao_tis_on_funcao_id"
     t.index ["problema_ti_id"], name: "index_requisicao_tis_on_problema_ti_id"

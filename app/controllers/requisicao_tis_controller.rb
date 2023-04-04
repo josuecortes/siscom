@@ -121,7 +121,7 @@ class RequisicaoTisController < ApplicationController
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
       params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, 
-                                            :comentario, :avaliacao,
+                                            :comentario, :avaliacao, :data_hora_finalizada,
                                             :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
                                             :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id)
     end

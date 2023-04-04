@@ -9,6 +9,7 @@
     <% end %> 
 
     <%= f.hidden_field :status, value: 'Finalizada' %>
+    <%= f.hidden_field :data_hora_finalizada, value: DateTime.now %>
 
     <div class="form-group">
       <%= label_tag "Problema" %>

@@ -120,7 +120,7 @@
     
     <div class="form-group">
       <%= f.label :observacoes, 'Observações' %>
-      <%= f.text_area :observacoes, class: "form-control" %>
+      <%= f.text_area :observacoes, class: "form-control", placeholder: 'Descreva sucintamente o tipo de requisição' %>
       <%= has_error(@requisicao_ti, :observacoes) %>
     </div>
 
