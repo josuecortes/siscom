@@ -69,7 +69,9 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def em_atendimento
-    @requisicoes = RequisicaoTi.where("status = ? or status = ?", 2, 3).order("created_at ASC")
+    # @requisicoes = RequisicaoTi.where("status = ? or status = ?", 2, 3).order("created_at ASC")
+    @requisicoes = RequisicaoTi.all
+    @tecnicos = Role.where(name: 'tec_serv_ti').first.users
   end
 
   private
