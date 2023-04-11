@@ -108,5 +108,24 @@ class RequisicaoTi < ApplicationRecord
   def mensagens_nao_lidas(user)
     self.mensagens.where('user_id != ? and status = ?', user, 'não lida').count
   end
+
+  def self.finalizar_requisicoes(user)
+    cont_finalizadas = 0
+    RequisicaoTi.do_usuario(user).where("status = ? and data_hora_concluida < ?", 3, (DateTime.now - 36.hours)).each do |r|
+      r.status = 'Finalizada'
+      r.avaliacao = 'Muito Bom'
+      r.comentario = 'Requisição finalizada automaticamente pelo sistema após o prazo de 48 horas.'
+      r.data_hora_finalizada = DateTime.now
+      if r.save
+        cont_finalizadas += 1
+      end
+    end
+    return cont_finalizadas
+  end
+
+  def self.requisicoes_a_finalizar(user)
+    cont_a_finalizar = RequisicaoTi.do_usuario(user).where("status = ?", 3).count
+    return cont_a_finalizar
+  end
   
 end
