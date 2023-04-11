@@ -54,7 +54,7 @@
     
     <% @tecnicos.each do |tecnico| %>
       <div class="card-body">
-        <% total = @requisicoes.where("status = ? or status = ? and tecnico_id = ?", 3, 5, tecnico.id).count %>
+        <% total = @requisicoes.do_tecnico(tecnico).where("status = ? or status = ?", 3, 5).count %>
         <% if total and total > 0 %>
           <span><%= tecnico.nome.split.first %> (<%= total %>)</span>
           <div class="progress mb-3">
