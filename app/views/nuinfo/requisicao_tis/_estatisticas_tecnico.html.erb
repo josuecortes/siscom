@@ -15,20 +15,74 @@
     <h3 class="widget-user-username"><%= tecnico.nome %></h3>
     <h5 class="widget-user-desc"><%= tecnico.funcao.nome ||= "Sem função"  %></h5>
   </div>
+</div>
 
-  <div class="card-footer p-0">
+
+<% total_hoje = RequisicaoTi.where("created_at >= ? and created_at <= ? and status <> 4", DateTime.now.beginning_of_day, DateTime.now.end_of_day).count %>
+<% total_semana = RequisicaoTi.where("created_at >= ? and created_at <= ? and status <> 4", DateTime.now.beginning_of_week, DateTime.now.end_of_week).count %>
+
+<div class='row'>
+  <div class='col-lg-6'>
     <ul class="nav flex-column">
       <li class="nav-item">
         <a href="#" class="nav-link">
-          Atendendo <span class="float-right badge bg-danger"><%= tecnico.atendimento_tis.where(status: 2).count %></span>
+          HOJE 
         </a>
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          Concluídos <span class="float-right badge bg-primary"><%= tecnico.atendimento_tis.where(status: 3).count %></span>
+          <% atendendo_hoje = RequisicaoTi.do_tecnico(tecnico).where("status = ? and data_hora_em_atendimento >= ? and data_hora_em_atendimento <= ?", 2, DateTime.now.beginning_of_day, DateTime.now.end_of_day).count %>
+          Atendendo <span class="badge bg-danger style="margin: 0 0 10px 2px;"><%= atendendo_hoje %></span>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_hoje %>" style="width: <%= total_hoje > 0 ? ((atendendo_hoje * 100) / total_hoje).to_i : 0 %>%">
+              <span class=""><%= total_hoje > 0 ? (atendendo_hoje * 100) / total_hoje : 0 %>%</span>
+            </div>
+          </div>
+          
         </a>
       </li>
-      
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+        <% concluidos_hoje = RequisicaoTi.do_tecnico(tecnico).where("status = ? or status = ? and data_hora_concluida >= ? and data_hora_concluida <= ?", 3, 5, DateTime.now.beginning_of_day, DateTime.now.end_of_day).count %>
+          Concluídos <span class="badge bg-primary" style="margin: 0 0 10px 2px;"><%= concluidos_hoje %></span>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_hoje %>" style="width: <%= total_hoje > 0 ? ((concluidos_hoje * 100) / total_hoje).to_i : 0 %>%">
+              <span class=""><%= total_hoje > 0 ? (concluidos_hoje * 100) / total_hoje : 0 %>%</span>
+            </div>
+          </div>
+        </a>        
+      </li>      
     </ul>
   </div>
-</div>
+  <div class='col-lg-6'>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          SEMANA 
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          <% atendendo_na_semana = RequisicaoTi.do_tecnico(tecnico).where("status = ? and data_hora_em_atendimento >= ? and data_hora_em_atendimento <= ?", 2, DateTime.now.beginning_of_week, DateTime.now.end_of_week).count %>
+          Atendendo <span class="badge bg-danger style="margin: 0 0 10px 2px;"><%= atendendo_na_semana %></span>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_semana %>" style="width: <%= total_semana > 0 ? ((atendendo_na_semana * 100) / total_semana).to_i : 0 %>%">
+              <span class=""><%= total_semana > 0 ? (atendendo_na_semana * 100) / total_semana : 0 %>%</span>
+            </div>
+          </div>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+        <% concluidos_na_semana = RequisicaoTi.do_tecnico(tecnico).where("status = ? or status = ? and data_hora_concluida >= ? and data_hora_concluida <= ?", 3, 5, DateTime.now.beginning_of_week, DateTime.now.end_of_week).count %>
+          Concluídos <span class="badge bg-primary" style="margin: 0 0 10px 2px;"><%= concluidos_na_semana %></span>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_semana %>" style="width: <%= total_semana > 0 ? ((concluidos_na_semana * 100) / total_semana).to_i : 0 %>%">
+              <span class=""><%= total_semana > 0 ? (concluidos_na_semana * 100) / total_semana : 0 %>%</span>
+            </div>
+          </div>
+        </a>        
+      </li>      
+    </ul>
+  </div>
+</div>    

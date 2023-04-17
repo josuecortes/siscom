@@ -7,66 +7,62 @@
 <% end %>
 
 <% content_for :sub_title do %>
-  Lista de Requisições
+  Lista de Requisições em atendimento ou concluídas (<%= @requisicoes.where("status = ? or status = ?", 2, 3).count >= 1 ? @requisicoes.where("status = ? or status = ?", 2, 3).count : 0 %>)
 <% end %>
 
  
-  <% if current_user.has_role? :tec_serv_ti %>    
-    <% if @requisicoes.count >= 1 %>    
-      <table id="data-table" class="table table-bordered table-hover">
-        <thead>
+<% if current_user.has_role? :tec_serv_ti %>    
+  <% if @requisicoes.count >= 1 %>    
+    <table id="data-table" class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Problema</th>
+          <th>Usuário</th>
+          <th>Unidade</th>
+          <th>Responsável</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="data-table-body">
+        <% @requisicoes.where("status = ? or status = ?", 2, 3).order("created_at ASC").each do |requisicao_ti| %>
           <tr>
-            <th>Data/Hora</th>
-            <th>Problema</th>
-            <th>Usuário</th>
-            <th>Unidade</th>
-            <th>Responsável</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="data-table-body">
-          <% @requisicoes.where("status = ? or status = ?", 2, 3).order("created_at ASC").each do |requisicao_ti| %>
-            <tr>
-              <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
-              <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
-              <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
-              <td><%= requisicao_ti.unidade.sigla_nome if requisicao_ti.unidade %></td>
-              <td><%= requisicao_ti.tecnico.nome.split.first if requisicao_ti.tecnico %></td>
-              <td><%= requisicao_ti.status %></td>
-              <td>
-                <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
-                  <i class="fas fa-eye">&nbsp;Detalhes</i>
-                <% end %>
-              </td>
-            </tr> 
-          <% end %>
-        </tbody>
-      </table>
-    <% end %>
-
-    <hr/>
-    
-    
-    <div class="card-header">
-      <h3 class="card-title">Atendimentos</h3>
-    </div>
-    
-    <% @tecnicos.each do |tecnico| %>
-      <div class="card-body">
-        <% total = @requisicoes.do_tecnico(tecnico).where("status = ? or status = ?", 3, 5).count %>
-        <% if total and total > 0 %>
-          <span><%= tecnico.nome.split.first %> (<%= total %>)</span>
-          <div class="progress mb-3">
-            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: <%= total %>%">
-              <span class="sr-only"><%= total %>% Complete (success)</span>
-            </div>
-          </div>
+            <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+            <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
+            <td><%= requisicao_ti.user.nome.split.first if requisicao_ti.user %></td>
+            <td><%= requisicao_ti.unidade.sigla_nome if requisicao_ti.unidade %></td>
+            <td><%= requisicao_ti.tecnico.nome.split.first if requisicao_ti.tecnico %></td>
+            <td><%= requisicao_ti.status %></td>
+            <td>
+              <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+                <i class="fas fa-eye">&nbsp;Detalhes</i>
+              <% end %>
+            </td>
+          </tr> 
         <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <hr/>
+  
+  
+  <div class="card-header">
+    <h3 class="card-title">Atendimentos (<%= @requisicoes.where("status = ? or status = ? or status = ?", 2, 3, 5).count >= 1 ? @requisicoes.where("status = ? or status = ? or status = ?", 2, 3, 5).count : 0  %>)</h3>
+  </div>
+  <br/>
+  <% total_requisicoes = @requisicoes.count %>
+  <% @tecnicos.each do |tecnico| %>      
+    <% total = @requisicoes.do_tecnico(tecnico).where("status = ? or status = ? or status = ?", 2, 3, 5).count %>
+    <% if total and total > 0 and total_requisicoes and total_requisicoes >= 1 %>
+      <span><%= tecnico.nome.split.first %> (<%= total %>)</span>
+      <div class="progress mb-3">
+        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_requisicoes %>" style="width: <%= ((total * 100) / total_requisicoes).to_i %>%">
+          <span class=""><%= (total * 100) / total_requisicoes %>%</span>
+        </div>
       </div>
     <% end %>
-    
-
-
   <% end %>
-     
+<% end %>
+    

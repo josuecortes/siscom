@@ -3,7 +3,7 @@
 <% end %>
 
 <% content_for :breadcrumb do %>
-  <li class="breadcrumb-item active"><a href="#">Voltar para início</a></li>
+  <li class="breadcrumb-item active"><a href="<%= home_index_path %>">Voltar para início</a></li>
 <% end %>
 
 <% content_for :sub_title do %>
@@ -20,22 +20,13 @@
   </div>
 <% end %>
 
-
-
 <% content_for :javascripts do %> 
-
-  
-
   <script>  
     var tempo_de_refresh = 60000
     
-    
-
-
     $( document ).ready(function() {
       requisitar_refresh()
       loop()
-      
     }) 
 
     function requisitar_refresh(){
@@ -53,8 +44,6 @@
         loop();
       }, tempo_de_refresh);
     }
-
   </script>
-
 <% end %>
   
