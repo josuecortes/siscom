@@ -60,7 +60,7 @@
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <% atendendo_na_semana = RequisicaoTi.do_tecnico(tecnico).where("status = ? and data_hora_em_atendimento >= ? and data_hora_em_atendimento <= ?", 2, DateTime.now.beginning_of_week, DateTime.now.end_of_week).all %>
+          <% atendendo_na_semana = RequisicaoTi.do_tecnico(tecnico).where("status = ? and (data_hora_em_atendimento >= ? and data_hora_em_atendimento <= ?)", 2, DateTime.now.beginning_of_week, DateTime.now.end_of_week).all %>
           Atendendo <span class="badge bg-danger style="margin: 0 0 10px 2px;"><%= atendendo_na_semana.count %></span>
           <% if atendendo_na_semana.count > 0 %>
             <% atendendo_na_semana.order(data_hora_em_atendimento: :desc).limit(3).each do |r| %>
@@ -72,7 +72,7 @@
       </li>
       <li class="nav-item">
         <a href="#" class="nav-link">
-          <% concluidos_na_semana = RequisicaoTi.do_tecnico(tecnico).where("status = ? or status = ? and data_hora_concluida >= ? and data_hora_concluida <= ?", 3, 5, DateTime.now.beginning_of_week, DateTime.now.end_of_week).all %>
+          <% concluidos_na_semana = RequisicaoTi.do_tecnico(tecnico).where("(status = ? or status = ?) and (data_hora_concluida >= ? and data_hora_concluida <= ?)", 3, 5, DateTime.now.beginning_of_week, DateTime.now.end_of_week).all %>
           Concluídos <span class="badge bg-primary" style="margin: 0 0 10px 2px;"><%= concluidos_na_semana.count %></span>
           <% if concluidos_na_semana.count > 0 %>
             <% concluidos_na_semana.order(data_hora_concluida: :desc).limit(3).each do |r| %>
