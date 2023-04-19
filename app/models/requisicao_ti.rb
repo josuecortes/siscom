@@ -135,6 +135,12 @@ class RequisicaoTi < ApplicationRecord
         m.save
       end
     end
+    RequisicaoTi.do_tecnico(user).where("status = ? or status = ?", 3, 5).each do |r|
+      r.mensagens.each do |m|
+        m.status = "lida"
+        m.save
+      end
+    end
   end
 
 end
