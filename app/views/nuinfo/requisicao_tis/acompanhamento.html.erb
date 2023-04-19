@@ -12,22 +12,22 @@
 
 <% if current_user.has_role? :tec_serv_ti or current_user.has_role? :admin %>
   <div class="cabecalho">
-    <%= render "cabecalho", tecnicos: @tecnicos %>  
+    <%= render "cabecalho", tecnicos: @tecnicos %>
   </div>
   <hr/>
   <div class="requisicoes">
-    <%= render "requisicoes_em_abertas", requisicoes_ti_abertas: @requisicoes_ti_abertas %>  
+    <%= render "requisicoes_em_abertas", requisicoes_ti_abertas: @requisicoes_ti_abertas %>
   </div>
 <% end %>
 
-<% content_for :javascripts do %> 
-  <script>  
+<% content_for :javascripts do %>
+  <script>
     var tempo_de_refresh = 60000
-    
+
     $( document ).ready(function() {
       requisitar_refresh()
       loop()
-    }) 
+    })
 
     function requisitar_refresh(){
       $.get( '<%= refresh_acompanhamento_nuinfo_requisicao_tis_url %>', function( data ) {
@@ -38,7 +38,7 @@
     function loop() {
       if(document.hidden){
         tempo_de_refresh = 60000
-      }  
+      }
       setTimeout(() => {
         requisitar_refresh()
         loop();
@@ -46,4 +46,3 @@
     }
   </script>
 <% end %>
-  

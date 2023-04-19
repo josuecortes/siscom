@@ -17,10 +17,10 @@ class RequisicaoTi < ApplicationRecord
   validates_presence_of :comentario, if: Proc.new{ |r| r.avaliacao.in? ['Péssimo', 'Ruim'] }
   validate :verificar_requisicao_sistemas
   validate :verificar_requisicao_sistemas_problemas, on: :create
- 
+
   enum status: { "Solicitada": 1,  "Em atendimento": 2, "Concluída": 3, "Cancelada": 4, "Finalizada": 5 }
   enum avaliacao: { "Muito Bom": 5,  "Bom": 4, "Normal": 3, "Ruim": 2, "Péssimo": 1 }
-  
+
   scope :do_usuario, ->(id) { where("user_id = ?", id) }
   scope :do_tecnico, ->(id) { where("tecnico_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
@@ -32,57 +32,57 @@ class RequisicaoTi < ApplicationRecord
     problema_ti = ProblemaTi.find(self.problema_ti_id)
     return true unless problema_ti
 
-    case problema_ti.nome 
-      when 'PRODOC - PROBLEMAS'  
+    case problema_ti.nome
+      when 'PRODOC - PROBLEMAS'
         validates_presence_of :observacoes
-      when 'WEBMAIL - PROBLEMAS'  
-        validates_presence_of :observacoes  
-      when 'SISCOM - PROBLEMAS'  
-        validates_presence_of :observacoes  
-      when 'SIGDOC - PROBLEMAS'  
-        validates_presence_of :observacoes       
+      when 'WEBMAIL - PROBLEMAS'
+        validates_presence_of :observacoes
+      when 'SISCOM - PROBLEMAS'
+        validates_presence_of :observacoes
+      when 'SIGDOC - PROBLEMAS'
+        validates_presence_of :observacoes
     end
   end
-  
+
   def verificar_requisicao_sistemas
     return true unless self.problema_ti
-    
+
     problema_ti = ProblemaTi.find(self.problema_ti_id)
     return true unless problema_ti.tipo_problema_ti_id == 3
 
-    case problema_ti.nome 
+    case problema_ti.nome
       when 'PRODOC - CADASTRO'
         validates_presence_of :nome, :email, :cpf, :rg, :data_nascimento, :celular, :cargo_id, :funcao_id, :estado, :municipio, :perfil
       when 'PRODOC - SUBSTITUIÇÃO'
         validates_presence_of :nome, :email, :periodo_inicio, :periodo_fim
-      when 'PRODOC - RETIRADA'  
+      when 'PRODOC - RETIRADA'
         validates_presence_of :nome, :email
-      when 'PRODOC - TROCAR SENHA'  
-        validates_presence_of :nome, :email  
-      when 'PRODOC - ALTERAR PERFIL'  
-        validates_presence_of :nome, :email, :perfil  
-      when 'PRODOC - LIBERAR ACESSO'  
+      when 'PRODOC - TROCAR SENHA'
+        validates_presence_of :nome, :email
+      when 'PRODOC - ALTERAR PERFIL'
+        validates_presence_of :nome, :email, :perfil
+      when 'PRODOC - LIBERAR ACESSO'
         validates_presence_of :nome, :email, :funcao_id, :perfil, :periodo_inicio, :periodo_fim
-      when 'PRODOC - PROBLEMAS'  
+      when 'PRODOC - PROBLEMAS'
         validates_presence_of :observacoes
       when 'WEBMAIL - CADASTRO'
         validates_presence_of :nome, :funcao_id, :email, :unidade_id
-      when 'WEBMAIL - TROCAR SENHA'  
-        validates_presence_of :nome, :email    
-      when 'WEBMAIL - PROBLEMAS'  
-        validates_presence_of :observacoes  
+      when 'WEBMAIL - TROCAR SENHA'
+        validates_presence_of :nome, :email
+      when 'WEBMAIL - PROBLEMAS'
+        validates_presence_of :observacoes
       when 'SISCOM - CADASTRO'
         validates_presence_of :nome, :funcao_id, :unidade_id, :email
-      when 'SISCOM - TROCAR SENHA'  
-        validates_presence_of :nome, :email   
-      when 'SISCOM - PROBLEMAS'  
-        validates_presence_of :observacoes  
-      when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO'  
-        validates_presence_of :nome, :email, :unidade   
-      when 'SIGDOC - DESABILITAR PERMISSÃO'  
-        validates_presence_of :nome, :email  
-      when 'SIGDOC - PROBLEMAS'  
-        validates_presence_of :observacoes       
+      when 'SISCOM - TROCAR SENHA'
+        validates_presence_of :nome, :email
+      when 'SISCOM - PROBLEMAS'
+        validates_presence_of :observacoes
+      when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO'
+        validates_presence_of :nome, :email, :unidade
+      when 'SIGDOC - DESABILITAR PERMISSÃO'
+        validates_presence_of :nome, :email
+      when 'SIGDOC - PROBLEMAS'
+        validates_presence_of :observacoes
     end
 
   end
@@ -127,5 +127,14 @@ class RequisicaoTi < ApplicationRecord
     cont_a_finalizar = RequisicaoTi.do_usuario(user).where("status = ?", 3).count
     return cont_a_finalizar
   end
-  
+
+  def self.atualizar_mensagens_nao_lidas(user)
+    RequisicaoTi.do_usuario(user).where("status = ? or status = ?", 3, 5).each do |r|
+      r.mensagens.each do |m|
+        m.status = "lida"
+        m.save
+      end
+    end
+  end
+
 end

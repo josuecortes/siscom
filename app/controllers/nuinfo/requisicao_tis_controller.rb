@@ -30,7 +30,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
       @requisicao_ti.data_hora_em_atendimento = DateTime.now
       if @requisicao_ti.save
         flash[:success] = "Você tornou-se o responsável tecnico pela requisição!"
-      else  
+      else
         flash[:error] = "Opss! Algo deu errado."
       end
     else
@@ -42,7 +42,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   def concluir
     unless @requisicao_ti.pode_ser_concluida(current_user)
       flash[:error] = "Opss! Você não pode concluir essa requisição."
-      @erro_padrao = true  
+      @erro_padrao = true
     end
   end
 
