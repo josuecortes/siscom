@@ -10,18 +10,18 @@ Rails.application.routes.draw do
     end
     get 'imagem', on: :collection
   end
- 
+
   resources :cargos
   resources :tipo_unidades
   resources :problema_tis
   resources :tipo_problema_tis
   resources :requisicao_tis do
-    member do 
+    member do
       get 'finalizar'
       put 'salvar'
     end
   end
-  
+
   namespace :nuinfo do
     resources :requisicao_tis, only: [:index, :show] do
       get 'pegar'
@@ -29,9 +29,11 @@ Rails.application.routes.draw do
         get 'acompanhamento'
         get 'refresh_acompanhamento'
         get 'em_atendimento'
-      end      
+        get 'estatisticas'
+        post 'buscar_estatisticas'
+      end
       member do
-        get 'concluir'    
+        get 'concluir'
         put 'salvar'
       end
     end
@@ -44,7 +46,7 @@ Rails.application.routes.draw do
   namespace :useget do
     resources :requisicao_transportes, only: [:index, :show] do
       get 'aprovar'
-      get 'negar'    
+      get 'negar'
     end
   end
 
@@ -61,7 +63,7 @@ Rails.application.routes.draw do
   put 'perfil/update'
   get 'perfil/alterar_senha'
   put 'perfil/salvar_senha'
-  
+
   resources :usuarios do
     member do
       get 'resetar_senha'
@@ -72,7 +74,7 @@ Rails.application.routes.draw do
   resources :funcoes do
     get 'autocomplete', on: :collection
   end
-  
+
   devise_for :users
   devise_scope :user do
     authenticated :user do

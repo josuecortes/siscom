@@ -143,4 +143,8 @@ class RequisicaoTi < ApplicationRecord
     end
   end
 
+  def tipo_problema_ti_id
+    self.problema_ti.tipo_problema_ti_id
+  end
+
 end

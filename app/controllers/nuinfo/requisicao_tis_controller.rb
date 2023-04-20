@@ -74,6 +74,55 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users
   end
 
+  def estatisticas
+    puts "TO NO ESTATISTICAS ------------------------------->"
+    carregar_estatisticas
+  end
+
+  def buscar_estatisticas
+    puts "TO NO BUSCAR ESTATISTICAS ------------------------>"
+    carregar_estatisticas
+    render :estatisticas
+  end
+
+  def carregar_estatisticas
+    puts "TO NO CARREGAR ESTATISTICAS -------------------<<<<<<<<<<>>>>>>>>>"
+
+    puts '-------------------'
+    puts params
+    puts '--------------------'
+
+    @tecnicos = Role.where(name: 'tec_serv_ti').first.users.map{ |u| [u.nome, u.id] }
+    @tecnico_id = params[:tecnico_id] if params[:tecnico_id] != 'Todos' and !params[:tecnico_id].blank?
+    @tecnico = User.find @tecnico_id if @tecnico_id
+    @data_inicial = params[:data_inicial].to_time if params[:data_inicial]
+    @data_final = params[:data_final].to_time if params[:data_final]
+    @tipo_problemas = params[:tipo_problemas]
+
+
+    puts @tecnico_id
+    puts @data_inicial
+    puts @data_final
+    puts @tipo_problemas
+    puts '--'
+
+
+    @requisicoes = RequisicaoTi.all
+
+    if @tecnico
+      @requisicoes = @requisicoes.do_tecnico(@tecnico_id)
+    end
+    if @data_inicial
+      @requisicoes = @requisicoes.where("requisicao_tis.created_at >= ?", @data_inicial)
+    end
+    if @data_final
+     @requisicoes = @requisicoes.where("requisicao_tis.created_at <= ?", @data_final)
+    end
+    if @tipo_problemas and @tipo_problemas.count >= 1
+      @requisicoes = @requisicoes.joins(:problema_ti).where("problema_tis.tipo_problema_ti_id in (?)", @tipo_problemas.map{|tp| tp.to_i}.to_a)
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_requisicao_ti

@@ -1,0 +1,155 @@
+<% content_for :title do %>
+  <i class="fa fa-star"></i> Estatísticas
+<% end %>
+
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="#">Início</a></li>
+<% end %>
+
+<% content_for :sub_title do %>
+  Estatísticas de requisições (<%= @requisicoes.count %>)
+<% end %>
+
+<% if current_user.has_role? :tec_serv_ti %>
+  <div class="card card-primary">
+    <div class="card-header">
+      <h3 class="card-title">Formulário de seleção</h3>
+    </div>
+
+    <%= form_tag buscar_estatisticas_nuinfo_requisicao_tis_path, class: 'form-horizontal' do %>
+      <div class="card-body">
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Técnico</label>
+          <div class="col-sm-10">
+            <%= select_tag(:tecnico_id, options_for_select(@tecnicos, (@tecnico ? @tecnico.id : '')), prompt: 'Todos', class: 'form-control') %>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Data Inicial</label>
+          <div class="col-sm-10">
+            <input name="data_inicial" type="text" class="form-control data" id="inputdatainicial" placeholder="dd/mm/yyyy" value="<%= @data_inicial ? @data_inicial.strftime("%d/%m/%Y") : '' %>">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Data Final</label>
+          <div class="col-sm-10">
+            <input name="data_final" type="text" class="form-control data" id="inputdatafinal" placeholder="dd/mm/yyyy" value="<%= @data_final ? @data_final.strftime("%d/%m/%Y") : '' %>">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Tipo de chamado</label>
+          <div class="col-sm-10">
+            <% TipoProblemaTi.all.each do |tipo| %>
+              <%= check_box_tag("tipo_problemas[]", tipo.id, ((@tipo_problemas and @tipo_problemas.map(&:to_i).include? tipo.id) ? true : false)) %>
+              <span style="margin-right: 10px;"><%= tipo.nome %></span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button type="submit" class="btn btn-info float-right">Buscar</button>
+      </div>
+
+    <% end %>
+  </div>
+
+
+  <% if @requisicoes.count >= 1 %>
+
+    <hr/>
+
+    <h3>Tipo de problema</h3>
+
+    <br>
+
+    <% array_tipo_problemas = [] %>
+
+    <% TipoProblemaTi.all.order(:nome).each do |tp| %>
+      <% total = @requisicoes.joins(:problema_ti).where("problema_tis.tipo_problema_ti_id = ?", tp.id).count %>
+      <% array_tipo_problemas << [tp.nome, total] %>
+    <% end %>
+
+    <% (array_tipo_problemas.sort_by(&:last)).reverse.each do |k,v| %>
+      <% if v > 0 %>
+        <div class="row">
+          <div class="col-lg-3">
+            <%= k %>
+            <span class="float-right"><%= v %></span>
+          </div>
+          <div class="col-lg-9">
+            <div class="progress mb-3">
+              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
+                <span class=""><%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+
+    <hr/>
+
+    <h3>Problemas</h3>
+
+    <br>
+
+    <% array_problemas = [] %>
+
+    <% ProblemaTi.all.order(:nome).each do |p| %>
+      <% total = @requisicoes.joins(:problema_ti).where("problema_ti_id = ?", p.id).count %>
+      <% array_problemas << [p.nome, total] %>
+    <% end %>
+
+    <% (array_problemas.sort_by(&:last)).reverse.each do |k,v| %>
+      <% if v > 0 %>
+        <div class="row">
+          <div class="col-lg-3">
+            <%= k %>
+            <span class="float-right"><%= v %></span>
+          </div>
+          <div class="col-lg-9">
+            <div class="progress mb-3">
+              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
+                <span class=""><%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <hr/>
+
+    <h3>Técnicos</h3>
+
+    <br>
+
+    <% array_requisicoes_do_tecnico = [] %>
+
+    <% Role.where(name: 'tec_serv_ti').first.users.order(:nome).each do |t| %>
+      <% total = @requisicoes.where("tecnico_id = ?", t.id).count %>
+      <% array_requisicoes_do_tecnico << [t.nome, total] %>
+    <% end %>
+
+    <% (array_requisicoes_do_tecnico.sort_by(&:last)).reverse.each do |k,v| %>
+      <% if v > 0 %>
+        <div class="row">
+          <div class="col-lg-3">
+            <%= k %>
+            <span class="float-right"><%= v %></span>
+          </div>
+          <div class="col-lg-9">
+            <div class="progress mb-3">
+              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
+                <span class=""><%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+  <% end %>
+<% end %>
