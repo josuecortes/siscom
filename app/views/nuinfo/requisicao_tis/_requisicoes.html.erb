@@ -20,7 +20,16 @@
 <table id="data-table" class="table table-bordered table-hover">
   <thead>
     <tr>
-      <th>Data/Hora</th>
+      <th>Data/Hora criação</th>
+      <% if status.to_i >= 2 and status.to_i != 4 %>
+        <th>Data/Hora em atendimento</th>
+      <% end %>
+      <% if status.to_i >= 3 and status.to_i != 4 %>
+        <th>Data/Hora concluida</th>
+      <% end %>
+      <% if status.to_i > 4 %>
+        <th>Data/Hora finalizada</th>
+      <% end %>
       <th>Problema</th>
       <th>Usuário</th>
       <th>Unidade</th>
@@ -35,8 +44,18 @@
   </thead>
   <tbody id="data-table-body">
     <% requisicoes.each do |requisicao_ti| %>
+      <%= status.to_i %>
       <tr>
         <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
+        <% if status.to_i >= 2 and status.to_i != 4 %>
+          <td><%= requisicao_ti.data_hora_em_atendimento.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_em_atendimento %></td>
+        <% end %>
+        <% if status.to_i >= 3 and status.to_i != 4 %>
+          <td><%= requisicao_ti.data_hora_concluida.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_concluida %></td>
+        <% end %>
+        <% if status.to_i > 4  %>
+          <td><%= requisicao_ti.data_hora_finalizado.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_finalizado %></td>
+        <% end %>
         <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
         <td><%= requisicao_ti.user.nome if requisicao_ti.user %></td>
         <td><%= requisicao_ti.unidade.sigla_nome if requisicao_ti.unidade %></td>
@@ -58,15 +77,15 @@
           <% if requisicao_ti.status == "Em atendimento" %>
             <%= link_to concluir_nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-success", title: "Concluir", remote: true  do %>
               <i class="fas fa-check">&nbsp;Concluir</i>
-            <% end %>  
+            <% end %>
           <% end %>
           <% if [2,3,5].include? status.to_i %>
             <%= link_to concluir_nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-danger", title: "Trocar técnico", remote: true  do %>
               <i class="fas fa-users">&nbsp;Trocar</i>
-            <% end %>    
+            <% end %>
           <% end %>
         </td>
-      </tr> 
+      </tr>
     <% end %>
   </tbody>
 </table>

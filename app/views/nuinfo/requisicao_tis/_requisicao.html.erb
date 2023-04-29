@@ -1,4 +1,4 @@
-<div class="modal-body">  
+<div class="modal-body">
   <div class="form-group">
     <%= label_tag "Status" %>
     <%= text_field_tag '', @requisicao_ti.status, class: "form-control", readonly: true %>
@@ -8,6 +8,27 @@
     <%= label_tag "Data/Hora Criação" %>
     <%= text_field_tag '', @requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M"), class: "form-control", readonly: true %>
   </div>
+
+   <% if @requisicao_ti.data_hora_em_atendimento %>
+    <div class="form-group">
+      <%= label_tag "Data/Hora em atendimento" %>
+      <%= text_field_tag '',(@requisicao_ti.data_hora_em_atendimento.strftime("%d/%m/%Y %H:%M") if @requisicao_ti.data_hora_em_atendimento), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
+
+  <% if @requisicao_ti.data_hora_concluida %>
+    <div class="form-group">
+      <%= label_tag "Data/Hora concluída" %>
+      <%= text_field_tag '',(@requisicao_ti.data_hora_concluida.strftime("%d/%m/%Y %H:%M") if @requisicao_ti.data_hora_concluida), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
+
+  <% if @requisicao_ti.data_hora_finalizada %>
+    <div class="form-group">
+      <%= label_tag "Data/Hora finalizada" %>
+      <%= text_field_tag '',(@requisicao_ti.data_hora_finalizada.strftime("%d/%m/%Y %H:%M") if @requisicao_ti.data_hora_finalizada), class: "form-control", readonly: true %>
+    </div>
+  <% end %>
 
   <div class="form-group">
     <%= label_tag "Problema" %>
@@ -45,7 +66,7 @@
     <div class="form-group">
       <%= label_tag 'cpf' %>
       <%= text_field_tag '', (@requisicao_ti.cpf), class: "form-control", readonly: true %>
-    </div>  
+    </div>
 
     <div class="form-group">
       <%= label_tag 'rg' %>
@@ -75,7 +96,7 @@
       <%= label_tag 'função' %>
       <%= text_field_tag '', (@requisicao_ti.funcao.nome if @requisicao_ti.funcao), class: "form-control", readonly: true %>
     </div>
-  </div>  
+  </div>
 
   <div class="d-none" id="estado-municipio">
     <div class="form-group">
@@ -86,7 +107,7 @@
     <div class="form-group">
       <%= label_tag 'municipio' %>
       <%= text_field_tag '', (@requisicao_ti.municipio), class: "form-control", readonly: true %>
-    </div> 
+    </div>
 
   </div>
 
@@ -110,7 +131,7 @@
   <div class="form-group d-none" id="perfil">
     <%= label_tag 'perfil' %>
     <%= text_field_tag '', (@requisicao_ti.perfil), class: "form-control", readonly: true %>
-  </div> 
+  </div>
 
   <div class="form-group">
     <%= label_tag "Observações" %>
@@ -142,11 +163,11 @@
       <%= text_area_tag '',(@requisicao_ti.comentario if @requisicao_ti.comentario), class: "form-control", readonly: true %>
     </div>
   <% end %>
-  
+
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
   </div>
- 
+
 </div>
 
 <script>
@@ -161,7 +182,7 @@
       $('#unidade').addClass('d-none')
       $('#perfil').addClass('d-none')
     }
-    
+
     function carregar_area(nome){
       limpar_area()
       switch (nome){
@@ -176,17 +197,17 @@
         case 'PRODOC - SUBSTITUIÇÃO':
           $('#nome-email').removeClass('d-none')
           $('#inicio-fim').removeClass('d-none')
-          break  
+          break
         case 'PRODOC - RETIRADA':
           $('#nome-email').removeClass('d-none')
-          break    
+          break
         case 'PRODOC - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
-          break      
+          break
         case 'PRODOC - ALTERAR PERFIL':
           $('#nome-email').removeClass('d-none')
           $('#perfil').removeClass('d-none')
-          break  
+          break
         case 'PRODOC - LIBERAR ACESSO':
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
@@ -197,31 +218,31 @@
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'WEBMAIL - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
-          break       
+          break
         case 'SISCOM - CADASTRO':
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'SISCOM - TROCAR SENHA':
-          $('#nome-email').removeClass('d-none') 
-          break  
+          $('#nome-email').removeClass('d-none')
+          break
         case 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO':
-          $('#nome-email').removeClass('d-none') 
+          $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'SIGDOC - DESABILITAR PERMISSÃO':
-          $('#nome-email').removeClass('d-none') 
+          $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break        
+          break
       }
     }
 
     let problemaSelecionado = '<%= @requisicao_ti.problema_ti.nome %>'
-    carregar_area(problemaSelecionado)  
+    carregar_area(problemaSelecionado)
 
-  });  
+  });
 </script>

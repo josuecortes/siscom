@@ -69,43 +69,26 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def em_atendimento
-    # @requisicoes = RequisicaoTi.where("status = ? or status = ?", 2, 3).order("created_at ASC")
     @requisicoes = RequisicaoTi.where("status <> ?", 4)
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users
   end
 
   def estatisticas
-    puts "TO NO ESTATISTICAS ------------------------------->"
     carregar_estatisticas
   end
 
   def buscar_estatisticas
-    puts "TO NO BUSCAR ESTATISTICAS ------------------------>"
     carregar_estatisticas
     render :estatisticas
   end
 
   def carregar_estatisticas
-    puts "TO NO CARREGAR ESTATISTICAS -------------------<<<<<<<<<<>>>>>>>>>"
-
-    puts '-------------------'
-    puts params
-    puts '--------------------'
-
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users.map{ |u| [u.nome, u.id] }
     @tecnico_id = params[:tecnico_id] if params[:tecnico_id] != 'Todos' and !params[:tecnico_id].blank?
     @tecnico = User.find @tecnico_id if @tecnico_id
     @data_inicial = params[:data_inicial].to_time if params[:data_inicial]
     @data_final = params[:data_final].to_time if params[:data_final]
     @tipo_problemas = params[:tipo_problemas]
-
-
-    puts @tecnico_id
-    puts @data_inicial
-    puts @data_final
-    puts @tipo_problemas
-    puts '--'
-
 
     @requisicoes = RequisicaoTi.all
 

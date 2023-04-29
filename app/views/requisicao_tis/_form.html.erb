@@ -6,21 +6,21 @@
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
           <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
         </div>
-    <% end %> 
+    <% end %>
 
     <% if @aviso_requisicao_normal %>
       <div class="alert alert-info alert-dismissible">
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
           <h5><i class="icon fas fa-info"></i><br/><%= @aviso_requisicao_normal.html_safe() %></h5>
         </div>
-    <% end %> 
+    <% end %>
 
     <div class="form-group">
       <%= f.label :problema_ti_id, "Requisição" %>
       <%= f.select :problema_ti_id, @problemas, { include_blank: true }, { class: "form-control js-searchable select2-problema", required: true } %>
       <%= has_error(@requisicao_ti, :problema_ti_id) %>
     </div>
-    
+
     <div class="row d-none" id="nome-email">
       <div class="form-group col-md-6">
         <%= f.label :nome, 'Nome completo' %>
@@ -40,7 +40,7 @@
         <%= f.label :cpf %>
         <%= f.text_field :cpf, class: "form-control cpf", placeholder: '000.000.000-00', required: false %>
         <%= has_error(@requisicao_ti, :cpf) %>
-      </div>  
+      </div>
 
       <div class="form-group col-md-6">
         <%= f.label :rg %>
@@ -66,29 +66,29 @@
     <div class="row d-none" id="cargo-funcao">
       <div class="form-group col-md-6">
         <%= f.label :cargo_id %>
-        <%= f.select :cargo_id, @cargos, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+        <%= f.select :cargo_id, @cargos, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
         <%= has_error(@requisicao_ti, :cargo_id) %>
       </div>
 
       <div class="form-group col-md-6">
         <%= f.label :funcao_id %>
-        <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+        <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
         <%= has_error(@requisicao_ti, :funcao_id) %>
       </div>
-    </div>  
+    </div>
 
     <div class="row d-none" id="estado-municipio">
       <div class="form-group col-md-6">
         <%= f.label :estado %>
-        <%= f.select :estado, @estados, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+        <%= f.select :estado, @estados, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
         <%= has_error(@requisicao_ti, :estado) %>
       </div>
 
       <div class="form-group col-md-6">
         <%= f.label :municipio %>
-        <%= f.select :municipio, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+        <%= f.select :municipio, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
         <%= has_error(@requisicao_ti, :municipio) %>
-      </div> 
+      </div>
 
     </div>
 
@@ -108,16 +108,16 @@
 
     <div class="form-group d-none" id="unidade">
       <%= f.label :unidade_id %>
-      <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+      <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
       <%= has_error(@requisicao_ti, :unidade_id) %>
     </div>
 
     <div class="form-group d-none" id="perfil">
       <%= f.label :perfil %>
-      <%= f.select :perfil, @perfis, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+      <%= f.select :perfil, @perfis, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
       <%= has_error(@requisicao_ti, :perfil) %>
-    </div> 
-    
+    </div>
+
     <div class="form-group">
       <%= f.label :observacoes, 'Observações' %>
       <%= f.text_area :observacoes, class: "form-control", placeholder: 'Descreva sucintamente o tipo de requisição' %>
@@ -128,7 +128,7 @@
       <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
       <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
     </div>
-  
+
   <% end %>
 </div>
 
@@ -138,9 +138,9 @@
       placeholder: "Selecione",
       allowClear: true,
       theme: 'bootstrap',
-      width: '100%'    
+      width: '100%'
     });
-    
+
     function limpar_area(){
       $('#nome-email').addClass('d-none')
       $('#cpf-rg').addClass('d-none')
@@ -151,7 +151,7 @@
       $('#unidade').addClass('d-none')
       $('#perfil').addClass('d-none')
     }
-    
+
     function carregar_area(nome){
       limpar_area()
       switch (nome){
@@ -166,17 +166,17 @@
         case 'PRODOC - SUBSTITUIÇÃO':
           $('#nome-email').removeClass('d-none')
           $('#inicio-fim').removeClass('d-none')
-          break  
+          break
         case 'PRODOC - RETIRADA':
           $('#nome-email').removeClass('d-none')
-          break    
+          break
         case 'PRODOC - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
-          break      
+          break
         case 'PRODOC - ALTERAR PERFIL':
           $('#nome-email').removeClass('d-none')
           $('#perfil').removeClass('d-none')
-          break  
+          break
         case 'PRODOC - LIBERAR ACESSO':
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
@@ -187,42 +187,48 @@
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'WEBMAIL - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
-          break       
+          break
         case 'SISCOM - CADASTRO':
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'SISCOM - TROCAR SENHA':
-          $('#nome-email').removeClass('d-none') 
-          break  
+          $('#nome-email').removeClass('d-none')
+          break
         case 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO':
-          $('#nome-email').removeClass('d-none') 
+          $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break     
+          break
         case 'SIGDOC - DESABILITAR PERMISSÃO':
-          $('#nome-email').removeClass('d-none') 
+          $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
-          break        
+          break
+        case 'ADICIONAR USUARIO NO DOMINIO':
+          $('#nome-email').removeClass('d-none')
+          break
+        case 'ACESSO A PASTA COMPARTILHADA':
+          $('#nome-email').removeClass('d-none')
+          break
       }
     }
 
     let problemaSelecionado = $('.select2-problema :selected').text()
-    carregar_area(problemaSelecionado)  
-  
+    carregar_area(problemaSelecionado)
+
     $('.select2-problema').change(function(){
       let problemaSelecionado = $('.select2-problema :selected').text()
       carregar_area(problemaSelecionado)
     })
 
-  });  
+  });
 
-  
 
-  
-  
- 
+
+
+
+
 </script>

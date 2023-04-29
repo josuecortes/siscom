@@ -41,6 +41,10 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :observacoes
       when 'SIGDOC - PROBLEMAS'
         validates_presence_of :observacoes
+      when 'SIGDOC - TREINAMENTO'
+        validates_presence_of :observacoes
+      when 'PRODOC - TREINAMENTO'
+        validates_presence_of :observacoes
     end
   end
 
@@ -83,6 +87,11 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :nome, :email
       when 'SIGDOC - PROBLEMAS'
         validates_presence_of :observacoes
+      when 'ADICIONAR USUARIO NO DOMINIO'
+        validates_presence_of :nome, :unidade_id, on: :create
+      when 'ACESSO A PASTA COMPARTILHADA'
+        validates_presence_of :nome, :unidade_id, on: :create
+
     end
 
   end
