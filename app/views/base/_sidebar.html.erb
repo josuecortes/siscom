@@ -162,7 +162,16 @@
             <a href="<%= em_atendimento_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'em_atendimento') %>">
               <i class="nav-icon far fa-star"></i>
               <p>
-                AT/Concluídas
+                Ultimos 30 dias
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= estatisticas_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'estatisticas') %>">
+              <i class="nav-icon far fa-map"></i>
+              <p>
+                Estatísticas
               </p>
             </a>
           </li>

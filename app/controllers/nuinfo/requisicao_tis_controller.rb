@@ -1,6 +1,6 @@
 class Nuinfo::RequisicaoTisController < ApplicationController
   before_action :verificar_permissao
-  before_action :set_requisicao_ti, only: %i[ show pegar concluir salvar ]
+  before_action :set_requisicao_ti, only: %i[ show pegar concluir salvar trocar_tecnico salvar_troca_tecnico ]
 
   layout "acompanhamento", only: [:acompanhamento]
 
@@ -58,6 +58,23 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     end
   end
 
+  def trocar_tecnico
+
+  end
+
+  def salvar_troca_tecnico
+    byebug
+    respond_to do |format|
+      if @requisicao_ti.update(requisicao_ti_params)
+        flash[:success] = "Técnico alterado."
+        format.js {render :salvar_troca_tecnico, status: :ok  }
+      else
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :trocar_tecnico, status: :unprocessable_entity }
+      end
+    end
+  end
+
   def acompanhamento
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users
     @requisicoes_ti_abertas = RequisicaoTi.where(status: 1).all
@@ -69,8 +86,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def em_atendimento
-    @requisicoes = RequisicaoTi.where("status <> ?", 4)
-    @tecnicos = Role.where(name: 'tec_serv_ti').first.users
+    @requisicoes = RequisicaoTi.where("created_at >= ?", Time.now - 30.days)
   end
 
   def estatisticas
@@ -118,7 +134,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def requisicao_ti_params
-      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, :data_hora_concluida)
+      params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, :data_hora_concluida, :tecnico_id)
     end
 
     def verificar_permissao

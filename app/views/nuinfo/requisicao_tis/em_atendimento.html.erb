@@ -1,5 +1,5 @@
 <% content_for :title do %>
-  <i class="fa fa-star"></i> Requisições em Atendimento/Concluídas
+  <i class="fa fa-star"></i> Requisições últimos 30 dias
 <% end %>
 
 <% content_for :breadcrumb do %>
@@ -7,16 +7,15 @@
 <% end %>
 
 <% content_for :sub_title do %>
-  Lista de Requisições em atendimento ou concluídas (<%= @requisicoes.where("status = ? or status = ?", 2, 3).count >= 1 ? @requisicoes.where("status = ? or status = ?", 2, 3).count : 0 %>)
+  Lista de Requisições dos últimos 30 dias (<%= @requisicoes.count %>)
 <% end %>
-
 
 <% if current_user.has_role? :tec_serv_ti %>
   <% if @requisicoes.count >= 1 %>
     <table id="data-table" class="table table-bordered table-hover">
       <thead>
         <tr>
-          <th>Data/Hora</th>
+          <th>Data/Hora criação</th>
           <th>Problema</th>
           <th>Usuário</th>
           <th>Unidade</th>
@@ -26,7 +25,7 @@
         </tr>
       </thead>
       <tbody id="data-table-body">
-        <% @requisicoes.where("status = ? or status = ?", 2, 3).order("created_at ASC").each do |requisicao_ti| %>
+        <% @requisicoes.each do |requisicao_ti| %>
           <tr>
             <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
             <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
@@ -44,24 +43,6 @@
       </tbody>
     </table>
   <% end %>
+<% end %>  
 
-  <hr/>
-
-
-  <div class="card-header">
-    <h3 class="card-title">Atendimentos (<%= @requisicoes.where("status = ? or status = ? or status = ?", 2, 3, 5).count >= 1 ? @requisicoes.where("status = ? or status = ? or status = ?", 2, 3, 5).count : 0  %>)</h3>
-  </div>
-  <br/>
-  <% total_requisicoes = @requisicoes.count %>
-  <% @tecnicos.each do |tecnico| %>
-    <% total = @requisicoes.do_tecnico(tecnico).where("status = ? or status = ? or status = ?", 2, 3, 5).count %>
-    <% if total and total > 0 and total_requisicoes and total_requisicoes >= 1 %>
-      <span><%= tecnico.nome.split.first %> (<%= total %>)</span>
-      <div class="progress mb-3">
-        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= total_requisicoes %>" style="width: <%= ((total * 100) / total_requisicoes).to_i %>%">
-          <span class=""><%= ((total * 100) / total_requisicoes).to_i %>%</span>
-        </div>
-      </div>
-    <% end %>
-  <% end %>
-<% end %>
+  

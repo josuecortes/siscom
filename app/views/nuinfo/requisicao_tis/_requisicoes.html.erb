@@ -44,7 +44,6 @@
   </thead>
   <tbody id="data-table-body">
     <% requisicoes.each do |requisicao_ti| %>
-      <%= status.to_i %>
       <tr>
         <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
         <% if status.to_i >= 2 and status.to_i != 4 %>
@@ -54,7 +53,7 @@
           <td><%= requisicao_ti.data_hora_concluida.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_concluida %></td>
         <% end %>
         <% if status.to_i > 4  %>
-          <td><%= requisicao_ti.data_hora_finalizado.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_finalizado %></td>
+          <td><%= requisicao_ti.data_hora_finalizada.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_finalizada %></td>
         <% end %>
         <td><%= requisicao_ti.problema_ti.nome if requisicao_ti.problema_ti %></td>
         <td><%= requisicao_ti.user.nome if requisicao_ti.user %></td>
@@ -80,7 +79,7 @@
             <% end %>
           <% end %>
           <% if [2,3,5].include? status.to_i %>
-            <%= link_to concluir_nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-danger", title: "Trocar técnico", remote: true  do %>
+            <%= link_to trocar_tecnico_nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-danger", title: "Trocar técnico", remote: true  do %>
               <i class="fas fa-users">&nbsp;Trocar</i>
             <% end %>
           <% end %>

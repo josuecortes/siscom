@@ -34,7 +34,9 @@ Rails.application.routes.draw do
       end
       member do
         get 'concluir'
+        get 'trocar_tecnico'
         put 'salvar'
+        put 'salvar_troca_tecnico'
       end
     end
   end
