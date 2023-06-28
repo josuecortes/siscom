@@ -1,0 +1,32 @@
+<% content_for :title do %>
+  <i class="fa fa-info"></i> Incidentes
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= incidentes_url %>">Incidentes</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de incidentes
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_incidente_path, class: "btn btn-sm btn-success", title: "Novo Incidente", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Descricao</th>
+      <th>Texto explicativo</th>
+      <th>Previsão de retorno</th>
+      <th>Data/hora início</th>
+      <th>Data/hora fim</th>
+      <th>Ativo</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <%= render @incidentes %>
+  </tbody>
+</table>
+

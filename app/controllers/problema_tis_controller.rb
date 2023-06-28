@@ -1,5 +1,6 @@
 class ProblemaTisController < ApplicationController
   before_action :set_problema_ti, only: %i[ show edit update destroy ]
+  before_action :load_problemas, only: %i[ new edit update create ]
 
   # GET /problema_tis or /problema_tis.json
   def index
@@ -25,11 +26,11 @@ class ProblemaTisController < ApplicationController
 
     respond_to do |format|
       if @problema_ti.save
-        format.html { redirect_to @problema_ti, notice: "Problema ti was successfully created." }
-        format.json { render :show, status: :created, location: @problema_ti }
+        flash[:success] = "Problema criado."
+        format.js {render :create, status: :created  }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @problema_ti.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :new, status: :unprocessable_entity }
       end
     end
   end
@@ -38,22 +39,26 @@ class ProblemaTisController < ApplicationController
   def update
     respond_to do |format|
       if @problema_ti.update(problema_ti_params)
-        format.html { redirect_to @problema_ti, notice: "Problema ti was successfully updated." }
-        format.json { render :show, status: :ok, location: @problema_ti }
+        flash[:success] = "Problema atualizado."
+        format.js {render :update, status: :created  }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @problema_ti.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :edit, status: :unprocessable_entity }
       end
     end
   end
 
   # DELETE /problema_tis/1 or /problema_tis/1.json
   def destroy
-    @problema_ti.destroy
-    respond_to do |format|
-      format.html { redirect_to problema_tis_url, notice: "Problema ti was successfully destroyed." }
-      format.json { head :no_content }
+    if @problema_ti.destroy
+      flash[:success] = "Problema excluido"
+    else
+      flash[:error] = "Opss! Algo deu errado."
     end
+    respond_to do |format|
+      format.html { redirect_to problema_tis_url }
+    end  
+
   end
 
   private
@@ -65,5 +70,9 @@ class ProblemaTisController < ApplicationController
     # Only allow a list of trusted parameters through.
     def problema_ti_params
       params.require(:problema_ti).permit(:nome, :descricao, :tipo_problema_ti_id)
+    end
+
+    def load_problemas
+      @tipo_problemas = TipoProblemaTi.order(nome: :asc).map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }
     end
 end

@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Descricao:</strong>
+  <%= @incidente.descricao %>
+</p>
+
+<p>
+  <strong>Texto explicativo:</strong>
+  <%= @incidente.texto_explicativo %>
+</p>
+
+<p>
+  <strong>Previsao de retorno:</strong>
+  <%= @incidente.previsao_de_retorno %>
+</p>
+
+<p>
+  <strong>Data hora inicio:</strong>
+  <%= @incidente.data_hora_inicio %>
+</p>
+
+<p>
+  <strong>Data hora fim:</strong>
+  <%= @incidente.data_hora_fim %>
+</p>
+
+<p>
+  <strong>Ativo:</strong>
+  <%= @incidente.ativo %>
+</p>
+
+<%= link_to 'Edit', edit_incidente_path(@incidente) %> |
+<%= link_to 'Back', incidentes_path %>

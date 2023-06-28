@@ -1,0 +1,45 @@
+<div class="modal-body">
+
+  <%= form_for @incidente, remote: true do |f| %>
+
+    <%= f.hidden_field :ativo, value: true %>
+    
+    <% if @incidente.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :descricao, "Descrição" %>
+      <%= f.text_field :descricao, autofocus: true, autocomplete: "Nome", placeholder: "Título do incidente", class: "form-control", required: true %>
+      <%= has_error(@incidente, :descricao) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :texto_explicativo, 'Texto Explicativo.' %>
+      <%= f.text_area :texto_explicativo, class: "form-control", placeholder: 'Descreva sucintamente o incidente. ** Isto aparecerá para o usuário.' %>
+      <%= has_error(@incidente, :texto_explicativo) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :previsao_de_retorno, "Previsão de Retorno" %>
+      <%= f.text_field :previsao_de_retorno, autocomplete: "Previsão retorno", placeholder: "Adicione uma data/hora ou um texto.", class: "form-control", required: true %>
+      <%= has_error(@incidente, :previsao_de_retorno) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :data_hora_inicio, "Data/Hora que o incidente começou" %>
+      <%= f.datetime_field :data_hora_inicio, class: "form-control", required: true %>
+      <%= has_error(@incidente, :data_hora_inicio) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+
+</div>

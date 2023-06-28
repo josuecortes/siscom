@@ -1,0 +1,11 @@
+<% Incidente.where(ativo: true).order(created_at: :asc).all.each do |incidente| %>
+  <div class="alert alert-danger" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    <i class="icon fas fa-info"></i><br/>
+    <h4 class="alert-heading"><%= incidente.descricao %></h4>
+    <p><%= incidente.texto_explicativo %></p>
+    <hr>
+    <p class="mb-0"><b>Previsão de retorno:</b> <%= incidente.previsao_de_retorno %></p>
+  </div>
+  <br/>
+<% end %>

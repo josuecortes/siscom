@@ -1,27 +1,35 @@
-<%= form_with(model: tipo_problema_ti, local: true) do |form| %>
-  <% if tipo_problema_ti.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(tipo_problema_ti.errors.count, "error") %> prohibited this tipo_problema_ti from being saved:</h2>
+<div class="modal-body">
 
-      <ul>
-        <% tipo_problema_ti.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+  <%= form_for @tipo_problema_ti, remote: true do |f| %>
+    
+    <% if @tipo_problema_ti.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, autocomplete: "Nome", placeholder: "Digite o nome", class: "form-control", required: true %>
+      <%= has_error(@tipo_problema_ti, :nome) %>
     </div>
-  <% end %>
 
-  <div class="field">
-    <%= form.label :nome %>
-    <%= form.text_field :nome %>
-  </div>
+    <div class="form-group">
+      <%= f.label :descricao %>
+      <%= f.text_field :descricao, autocomplete: "Sigla", placeholder: "Digite a descrição", class: "form-control", required: true %>
+      <%= has_error(@tipo_problema_ti, :descricao) %>
+    </div>
 
-  <div class="field">
-    <%= form.label :descricao %>
-    <%= form.text_area :descricao %>
-  </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
 
-  <div class="actions">
-    <%= form.submit %>
-  </div>
-<% end %>
+  <% end %>    
+
+</div>
+
+
+
+

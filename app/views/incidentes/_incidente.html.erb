@@ -1,0 +1,21 @@
+<tr>
+  <td><%= incidente.descricao %></td>
+  <td><%= incidente.texto_explicativo %></td>
+  <td><%= incidente.previsao_de_retorno %></td>
+  <td><%= incidente.data_hora_inicio&.strftime("%d/%m/%Y %H:%M") %></td>
+  <td><%= incidente.data_hora_fim&.strftime("%d/%m/%Y %H:%M") %></td>
+  <td><%= incidente.ativo ? "SIM" : "NÃO" %></td>
+  <td>
+    <% if incidente.ativo %>
+      <%= link_to edit_incidente_path(incidente), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+        <i class="fas fa-edit"></i>
+      <% end %>
+      <%= link_to finalizar_incidente_path(incidente), class: "btn btn-sm btn-success", title: "Finalizar", remote: true  do %>
+        <i class="fas fa-check"></i>
+      <% end %>
+      <%= link_to incidente, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+        <i class="fas fa-trash"></i>
+      <% end %>
+    <% end %>
+  </td>
+</tr>

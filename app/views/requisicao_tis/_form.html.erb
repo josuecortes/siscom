@@ -15,6 +15,8 @@
         </div>
     <% end %>
 
+    <%= render 'incidentes' %>
+
     <div class="form-group">
       <%= f.label :problema_ti_id, "Requisição" %>
       <%= f.select :problema_ti_id, @problemas, { include_blank: true }, { class: "form-control js-searchable select2-problema", required: true } %>

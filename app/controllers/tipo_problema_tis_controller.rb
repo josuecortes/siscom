@@ -25,11 +25,11 @@ class TipoProblemaTisController < ApplicationController
 
     respond_to do |format|
       if @tipo_problema_ti.save
-        format.html { redirect_to @tipo_problema_ti, notice: "Tipo problema ti was successfully created." }
-        format.json { render :show, status: :created, location: @tipo_problema_ti }
+        flash[:success] = "Tipo problema criado."
+        format.js {render :create, status: :created  }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @tipo_problema_ti.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :new, status: :unprocessable_entity }
       end
     end
   end
@@ -38,21 +38,24 @@ class TipoProblemaTisController < ApplicationController
   def update
     respond_to do |format|
       if @tipo_problema_ti.update(tipo_problema_ti_params)
-        format.html { redirect_to @tipo_problema_ti, notice: "Tipo problema ti was successfully updated." }
-        format.json { render :show, status: :ok, location: @tipo_problema_ti }
+        flash[:success] = "Tipo problema atualizado."
+        format.js {render :update, status: :created  }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @tipo_problema_ti.errors, status: :unprocessable_entity }
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :edit, status: :unprocessable_entity }
       end
     end
   end
 
   # DELETE /tipo_problema_tis/1 or /tipo_problema_tis/1.json
   def destroy
-    @tipo_problema_ti.destroy
+    if @tipo_problema_ti.destroy
+      flash[:success] = "Unidade excluida"
+    else
+      flash[:error] = "Opss! Algo deu errado."
+    end
     respond_to do |format|
-      format.html { redirect_to tipo_problema_tis_url, notice: "Tipo problema ti was successfully destroyed." }
-      format.json { head :no_content }
+      format.html { redirect_to tipo_problema_tis_url }
     end
   end
 

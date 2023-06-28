@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
 
+  resources :incidentes do
+    member do
+      get 'finalizar'
+      put 'salvar'
+    end
+  end
+
   resources :mensagens do
     get 'mensagens_diretas', on: :collection
     get 'refresh', on: :collection
