@@ -20,6 +20,7 @@
 <table id="data-table" class="table table-bordered table-hover">
   <thead>
     <tr>
+      <th>Código</th>
       <th>Data/Hora criação</th>
       <% if status.to_i >= 2 and status.to_i != 4 %>
         <th>Data/Hora em atendimento</th>
@@ -45,6 +46,7 @@
   <tbody id="data-table-body">
     <% requisicoes.each do |requisicao_ti| %>
       <tr>
+        <td><%= requisicao_ti.id %></td>
         <td><%= requisicao_ti.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_ti.created_at %></td>
         <% if status.to_i >= 2 and status.to_i != 4 %>
           <td><%= requisicao_ti.data_hora_em_atendimento.strftime("%d/%m/%Y %H:%M") if requisicao_ti.data_hora_em_atendimento %></td>
