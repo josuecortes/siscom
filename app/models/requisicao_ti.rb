@@ -7,6 +7,9 @@ class RequisicaoTi < ApplicationRecord
   belongs_to :cargo, optional: true
   belongs_to :funcao, optional: true
 
+  has_one_attached :carta
+  has_one_attached :decreto
+
   has_many :mensagens
 
   validates_presence_of :user_id, :problema_ti_id
@@ -17,6 +20,7 @@ class RequisicaoTi < ApplicationRecord
   validates_presence_of :comentario, if: Proc.new{ |r| r.avaliacao.in? ['Péssimo', 'Ruim'] }
   validate :verificar_requisicao_sistemas
   validate :verificar_requisicao_sistemas_problemas, on: :create
+  validate :carta_ou_decreto, on: :create
 
   enum status: { "Solicitada": 1,  "Em atendimento": 2, "Concluída": 3, "Cancelada": 4, "Finalizada": 5 }
   enum avaliacao: { "Muito Bom": 5,  "Bom": 4, "Normal": 3, "Ruim": 2, "Péssimo": 1 }
@@ -55,8 +59,10 @@ class RequisicaoTi < ApplicationRecord
     return true unless problema_ti.tipo_problema_ti_id == 3
 
     case problema_ti.nome
-      when 'PRODOC - CADASTRO'
+      when 'PRODOC - CADASTRO' then
         validates_presence_of :nome, :email, :cpf, :rg, :data_nascimento, :celular, :cargo_id, :funcao_id, :estado, :municipio, :perfil
+        # validates_presence_of :carta, on: :create, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.', unless: self.decreto.present?
+        # validates_presence_of :decreto, on: :create, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.', unless: self.carta.present?
       when 'PRODOC - SUBSTITUIÇÃO'
         validates_presence_of :nome, :email, :periodo_inicio, :periodo_fim
       when 'PRODOC - RETIRADA'
@@ -75,8 +81,10 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :nome, :email
       when 'WEBMAIL - PROBLEMAS'
         validates_presence_of :observacoes
-      when 'SISCOM - CADASTRO'
+      when 'SISCOM - CADASTRO' 
         validates_presence_of :nome, :funcao_id, :unidade_id, :email
+        # validates_presence_of :carta, on: :create, if: Proc.new { |r| r.carta.blank? and r.decreto.blank? }, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.'
+        # validates_presence_of :decreto, on: :create, if: Proc.new { |r| r.carta.blank? and r.decreto.blank? }, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.'
       when 'SISCOM - TROCAR SENHA'
         validates_presence_of :nome, :email
       when 'SISCOM - PROBLEMAS'
@@ -94,6 +102,16 @@ class RequisicaoTi < ApplicationRecord
 
     end
 
+  end
+
+  def carta_ou_decreto
+    problema_ti = ProblemaTi.find(self.problema_ti_id)
+    if problema_ti&.nome == "PRODOC - CADASTRO" or problema_ti&.nome == "SISCOM - CADASTRO"
+      if self.carta.present? and self.decreto.present?
+        self.errors.add(:carta, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.decreto.present?
+        self.errors.add(:decreto, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.carta.present?
+      end
+    end
   end
 
   def pode_ser_editada

@@ -133,7 +133,8 @@ class RequisicaoTisController < ApplicationController
       params.require(:requisicao_ti).permit(:status, :user_id, :unidade_id, :problema_ti_id, :observacoes, :solucao, 
                                             :comentario, :avaliacao, :data_hora_finalizada,
                                             :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
-                                            :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id)
+                                            :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id,
+                                            :carta, :decreto, :authenticity_token)
     end
 
     def verify_permission

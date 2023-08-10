@@ -1,12 +1,14 @@
 <div class="modal-body">
 
-  <%= form_for @requisicao_ti, remote: true do |f| %>
+  <%= form_for @requisicao_ti, html: { multipart: true, remote: true } do |f| %>
     <% if @requisicao_ti.errors.any? %>
       <div class="alert alert-danger alert-dismissible">
           <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
           <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
         </div>
     <% end %>
+
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 
     <% if @aviso_requisicao_normal %>
       <div class="alert alert-info alert-dismissible">
@@ -25,13 +27,13 @@
 
     <div class="row d-none" id="nome-email">
       <div class="form-group col-md-6">
-        <%= f.label :nome, 'Nome completo' %>
+        <%= f.label :nome, 'Nome completo (* Nome do servidor que será cadastrado.)' %>
         <%= f.text_field :nome, class: "form-control", placeholder: 'Maria Jose dos Santos', required: false %>
         <%= has_error(@requisicao_ti, :nome) %>
       </div>
 
       <div class="form-group col-md-6">
-        <%= f.label :email %>
+        <%= f.label :email, 'E-mail (* E-mail ou sugestão de e-mail para o servidor.)' %>
         <%= f.email_field :email, class: "form-control", placeholder: 'maria.santos@seed.ap.gov.br', required: false %>
         <%= has_error(@requisicao_ti, :email) %>
       </div>
@@ -120,6 +122,18 @@
       <%= has_error(@requisicao_ti, :perfil) %>
     </div>
 
+    <div class="form-group" id="carta">
+      <%= f.label :carta, 'Carta de apresentação' %>
+      <%= f.file_field :carta, { class: "", required: false, direct_upload: true } %>
+      <%= has_error(@requisicao_ti, :carta) %>
+    </div>
+
+    <div class="form-group" id="decreto">
+      <%= f.label :decreto, 'Decreto de nomeação' %>
+      <%= f.file_field :decreto, { class: "", required: false, direct_upload: true } %>
+      <%= has_error(@requisicao_ti, :decreto) %>
+    </div>
+    
     <div class="form-group">
       <%= f.label :observacoes, 'Observações' %>
       <%= f.text_area :observacoes, class: "form-control", placeholder: 'Descreva sucintamente o tipo de requisição' %>

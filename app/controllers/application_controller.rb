@@ -1,7 +1,9 @@
 class ApplicationController < ActionController::Base
   include Pundit
 
+  # protect_from_forgery prepend: true
   protect_from_forgery with: :exception
+  
   before_action :authenticate_user!
   before_action :verificar_senha_padrao
 
