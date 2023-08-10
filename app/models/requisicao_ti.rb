@@ -61,8 +61,6 @@ class RequisicaoTi < ApplicationRecord
     case problema_ti.nome
       when 'PRODOC - CADASTRO' then
         validates_presence_of :nome, :email, :cpf, :rg, :data_nascimento, :celular, :cargo_id, :funcao_id, :estado, :municipio, :perfil
-        # validates_presence_of :carta, on: :create, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.', unless: self.decreto.present?
-        # validates_presence_of :decreto, on: :create, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.', unless: self.carta.present?
       when 'PRODOC - SUBSTITUIÇÃO'
         validates_presence_of :nome, :email, :periodo_inicio, :periodo_fim
       when 'PRODOC - RETIRADA'
@@ -83,8 +81,6 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :observacoes
       when 'SISCOM - CADASTRO' 
         validates_presence_of :nome, :funcao_id, :unidade_id, :email
-        # validates_presence_of :carta, on: :create, if: Proc.new { |r| r.carta.blank? and r.decreto.blank? }, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.'
-        # validates_presence_of :decreto, on: :create, if: Proc.new { |r| r.carta.blank? and r.decreto.blank? }, message: 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.'
       when 'SISCOM - TROCAR SENHA'
         validates_presence_of :nome, :email
       when 'SISCOM - PROBLEMAS'

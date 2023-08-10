@@ -122,13 +122,13 @@
       <%= has_error(@requisicao_ti, :perfil) %>
     </div>
 
-    <div class="form-group" id="carta">
+    <div class="form-group d-none" id="carta">
       <%= f.label :carta, 'Carta de apresentação' %>
       <%= f.file_field :carta, { class: "", required: false, direct_upload: true } %>
       <%= has_error(@requisicao_ti, :carta) %>
     </div>
 
-    <div class="form-group" id="decreto">
+    <div class="form-group d-none" id="decreto">
       <%= f.label :decreto, 'Decreto de nomeação' %>
       <%= f.file_field :decreto, { class: "", required: false, direct_upload: true } %>
       <%= has_error(@requisicao_ti, :decreto) %>
@@ -166,6 +166,8 @@
       $('#inicio-fim').addClass('d-none')
       $('#unidade').addClass('d-none')
       $('#perfil').addClass('d-none')
+      $('#carta').addClass('d-none')
+      $('#decreto').addClass('d-none')
     }
 
     function carregar_area(nome){
@@ -178,6 +180,8 @@
           $('#cargo-funcao').removeClass('d-none')
           $('#estado-municipio').removeClass('d-none')
           $('#perfil').removeClass('d-none')
+          $('#carta').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
           break
         case 'PRODOC - SUBSTITUIÇÃO':
           $('#nome-email').removeClass('d-none')
@@ -211,6 +215,8 @@
           $('#nome-email').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#unidade').removeClass('d-none')
+          $('#carta').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
           break
         case 'SISCOM - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
