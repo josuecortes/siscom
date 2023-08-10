@@ -103,7 +103,7 @@ class RequisicaoTi < ApplicationRecord
   def carta_ou_decreto
     problema_ti = ProblemaTi.find(self.problema_ti_id)
     if problema_ti&.nome == "PRODOC - CADASTRO" or problema_ti&.nome == "SISCOM - CADASTRO"
-      if self.carta.present? and self.decreto.present?
+      if self.carta.blank? and self.decreto.blank?
         self.errors.add(:carta, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.decreto.present?
         self.errors.add(:decreto, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.carta.present?
       end
