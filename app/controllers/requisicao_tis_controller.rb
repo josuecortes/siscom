@@ -185,7 +185,7 @@ class RequisicaoTisController < ApplicationController
     end
 
     def load_perfis
-      @perfis = ['RESPONSÁVEL POR UNIDADE', 'AUXILIAR DO RESPONSÁVEL', 'CONSULTA/RASCUNHO', 'ANALISTA']    
+      @perfis = ['RESPONSÁVEL POR UNIDADE - usuário chefe de unidade: cria, faz envio, distribuições de documentos e recebe e envia documentos sigilosos. Acesso a aba de Documentos e Processo.', 'AUXILIAR DO RESPONSÁVEL - auxilia o chefe dentro da unidade: possui as mesmas funções do Reponsável de unidade com exceção de envio de documentos restritos. Acesso a aba de documentos.', 'CONSULTA/RASCUNHO - Usuários que tem a opção apenas de criar rascunho, visualizam e recebe documentos distribuídos pelo chefe, usuário mais utilizado apenas para consulta de documentos dentro da unidade. Acesso a aba de documentos', 'ANALISTA - Usuários responsáveis por apenas responder as solicitações do coordenador, não fazem envio de documento, receber distribuições da coordenação e pode devolver a distribuição (cadastra despacho quando solicitado por distribuição) pode fazer a criação de documentos. Acesso a aba de documentos.']    
     end
 
     def load_municipios
