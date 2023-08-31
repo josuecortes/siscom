@@ -86,7 +86,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def em_atendimento
-    @requisicoes = RequisicaoTi.where("created_at >= ?", Time.now - 30.days)
+    @requisicoes = RequisicaoTi.where("created_at >= ?", Time.now - 60.days)
   end
 
   def estatisticas
@@ -106,7 +106,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @data_final = params[:data_final].to_time if params[:data_final]
     @tipo_problemas = params[:tipo_problemas]
 
-    @requisicoes = RequisicaoTi.all
+    @requisicoes = RequisicaoTi.order("created_at ASC").all
 
     if @tecnico
       @requisicoes = @requisicoes.do_tecnico(@tecnico_id)
