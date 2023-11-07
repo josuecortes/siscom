@@ -116,6 +116,12 @@
       <%= has_error(@requisicao_ti, :unidade_id) %>
     </div>
 
+    <div class="form-group d-none" id="destino">
+      <%= f.label :unidade_destino, 'Informe a unidade de destino' %>
+      <%= f.text_field :unidade_destino, class: "form-control", placeholder: 'SIGLA - Nome da Unidade', required: false %>
+      <%= has_error(@requisicao_ti, :unidade_destino) %>
+    </div>
+
     <div class="form-group d-none" id="perfil">
       <%= f.label :perfil %>
       <%= f.select :perfil, @perfis, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
@@ -182,6 +188,7 @@
           $('#perfil').removeClass('d-none')
           $('#carta').removeClass('d-none')
           $('#decreto').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break
         case 'PRODOC - SUBSTITUIÇÃO':
           $('#nome-email').removeClass('d-none')
@@ -233,9 +240,11 @@
           $('#nome-email').removeClass('d-none')
           $('#carta').removeClass('d-none')
           $('#decreto').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break
         case 'ACESSO A PASTA COMPARTILHADA':
           $('#nome-email').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break
       }
     }

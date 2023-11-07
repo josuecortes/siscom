@@ -102,6 +102,11 @@
     <%= text_field_tag '', (@requisicao_ti.unidade.nome), class: "form-control", readonly: true %>
   </div>
 
+  <div class="form-group d-none" id="destino">
+    <%= label_tag 'Unidade destino' %>
+    <%= text_field_tag '', (@requisicao_ti.unidade_destino), class: "form-control", readonly: true %>
+  </div> 
+
   <div class="form-group d-none" id="perfil">
     <%= label_tag 'perfil' %>
     <%= text_field_tag '', (@requisicao_ti.perfil), class: "form-control", readonly: true %>
@@ -175,6 +180,7 @@
       $('#perfil').addClass('d-none')
       $('#carta').addClass('d-none')
       $('#decreto').addClass('d-none')
+      $('#destino').addClass('d-none')
     }
     
     function carregar_area(nome){
@@ -189,6 +195,7 @@
           $('#perfil').removeClass('d-none')
           $('#carta').removeClass('d-none')
           $('#decreto').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break
         case 'PRODOC - SUBSTITUIÇÃO':
           $('#nome-email').removeClass('d-none')
@@ -240,9 +247,11 @@
           $('#nome-email').removeClass('d-none')
           $('#carta').removeClass('d-none')
           $('#decreto').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break  
         case 'ACESSO A PASTA COMPARTILHADA':
           $('#nome-email').removeClass('d-none')
+          $('#destino').removeClass('d-none')
           break      
       }
     }

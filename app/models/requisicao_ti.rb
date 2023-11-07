@@ -61,40 +61,43 @@ class RequisicaoTi < ApplicationRecord
     case problema_ti.nome
       when 'PRODOC - CADASTRO' then
         validates_presence_of :nome, :email, :cpf, :rg, :data_nascimento, :celular, :cargo_id, :funcao_id, :estado, :municipio, :perfil
-      when 'PRODOC - SUBSTITUIÇÃO'
+        validates_presence_of :unidade_destino, on: :create
+      when 'PRODOC - SUBSTITUIÇÃO' then
         validates_presence_of :nome, :email, :periodo_inicio, :periodo_fim
-      when 'PRODOC - RETIRADA'
+      when 'PRODOC - RETIRADA' then
         validates_presence_of :nome, :email
-      when 'PRODOC - TROCAR SENHA'
+      when 'PRODOC - TROCAR SENHA' then
         validates_presence_of :nome, :email
-      when 'PRODOC - ALTERAR PERFIL'
+      when 'PRODOC - ALTERAR PERFIL' then
         validates_presence_of :nome, :email, :perfil
-      when 'PRODOC - LIBERAR ACESSO'
+      when 'PRODOC - LIBERAR ACESSO' then
         validates_presence_of :nome, :email, :funcao_id, :perfil, :periodo_inicio, :periodo_fim
-      when 'PRODOC - PROBLEMAS'
+      when 'PRODOC - PROBLEMAS' then
         validates_presence_of :observacoes
-      when 'WEBMAIL - CADASTRO'
+      when 'WEBMAIL - CADASTRO' then
         validates_presence_of :nome, :funcao_id, :email, :unidade_id
-      when 'WEBMAIL - TROCAR SENHA'
+      when 'WEBMAIL - TROCAR SENHA' then
         validates_presence_of :nome, :email
-      when 'WEBMAIL - PROBLEMAS'
+      when 'WEBMAIL - PROBLEMAS' then
         validates_presence_of :observacoes
-      when 'SISCOM - CADASTRO' 
+      when 'SISCOM - CADASTRO'  then
         validates_presence_of :nome, :funcao_id, :unidade_id, :email
-      when 'SISCOM - TROCAR SENHA'
+      when 'SISCOM - TROCAR SENHA' then
         validates_presence_of :nome, :email
-      when 'SISCOM - PROBLEMAS'
+      when 'SISCOM - PROBLEMAS' then
         validates_presence_of :observacoes
-      when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO'
+      when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO' then
         validates_presence_of :nome, :email, :unidade
-      when 'SIGDOC - DESABILITAR PERMISSÃO'
+      when 'SIGDOC - DESABILITAR PERMISSÃO' then
         validates_presence_of :nome, :email
-      when 'SIGDOC - PROBLEMAS'
+      when 'SIGDOC - PROBLEMAS' then
         validates_presence_of :observacoes
-      when 'ADICIONAR USUARIO NO DOMINIO'
+      when 'ADICIONAR USUARIO NO DOMINIO' then
         validates_presence_of :nome, :unidade_id, on: :create
-      when 'ACESSO A PASTA COMPARTILHADA'
+        validates_presence_of :unidade_destino, on: :create
+      when 'ACESSO A PASTA COMPARTILHADA' then
         validates_presence_of :nome, :unidade_id, on: :create
+        validates_presence_of :unidade_destino, on: :create
 
     end
 
