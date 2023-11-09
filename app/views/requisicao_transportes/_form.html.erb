@@ -30,9 +30,10 @@
 
     <% if @requisicao_transporte.tipo == "viagem" %>
       <div class="form-group">
-        <%= f.label :documento_viagem, "Documento autorizando a viagem" %>
-        <%= f.text_field :documento_viagem, class: "form-control", required: true %>
-        <%= has_error(@requisicao_transporte, :documento_viagem) %>
+        <%= f.label :documento, 'Documento autorizando a viagem (Ofício ou Portaria)' %>
+        <%= @requisicao_transporte.documento.blob.filename if @requisicao_transporte.documento.present? %> 
+        <%= f.file_field :documento, { class: "", required: false, direct_upload: true} %>
+        <%= has_error(@requisicao_transporte, :documento) %>
       </div>
       <div class="form-group">
         <%= f.label :data_hora_ida, "Data/Hora da saída" %>
@@ -66,7 +67,7 @@
         <%= render 'passageiro_fields', f: passageiro  %>
       <% end %>
       <div class="links">
-        <%= link_to_add_association 'Adicionar Passageiros', f, :passageiros, class: 'btn btn-primary float-right' %>
+        <%= link_to_add_association 'Adicionar Passageiro', f, :passageiros, class: 'btn btn-primary float-right' %>
         <br><br>
       </div>
     </div>
@@ -80,7 +81,7 @@
         <%= render 'destino_fields', f: destino  %>
       <% end %>
       <div class="links">
-        <%= link_to_add_association 'Adicionar Destinos', f, :destinos, class: 'btn btn-warning float-right' %>
+        <%= link_to_add_association 'Adicionar Destino', f, :destinos, class: 'btn btn-warning float-right' %>
         <br><br>
       </div>
     </div>    

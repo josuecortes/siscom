@@ -2,7 +2,7 @@
   
   <div class="row">
     <div class="col-md-4">
-      <span class="float-right"><strong>Número</strong></span><br/>
+      <span class="float-right"><strong>Código</strong></span><br/>
     </div>
     <div class="col-md-8">
       <%= @requisicao_transporte.id %><br/>
@@ -20,10 +20,52 @@
 
   <div class="row">
     <div class="col-md-4">
+      <span class="float-right"><strong>Requisitante</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.user.nome %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Unidade</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.unidade.nome %><br/>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
       <span class="float-right"><strong>Tipo</strong></span><br/>
     </div>
     <div class="col-md-8">
       <%= @requisicao_transporte.tipo %><br/>
+    </div>
+  </div>
+
+  <% if @requisicao_transporte.tipo == "viagem" %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Documento</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <% if !@requisicao_transporte.documento.blank? %>
+          <%= link_to 'Clique aqui', rails_blob_path(@requisicao_transporte.documento, disposition: "inline"), target: '_blank' %>
+        <% else %>
+          Sem documento
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Motivo</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <%= @requisicao_transporte.motivo %><br/>
     </div>
   </div>
 
@@ -44,6 +86,17 @@
       <%= @requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") %><br/>
     </div>
   </div>
+
+  <% if @requisicao_transporte.data_hora_retorno %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Data/Hora Retorno</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.data_hora_retorno.strftime("%d/%m/%Y %H:%M") %><br/>
+      </div>
+    </div>
+  <% end %>
 
   <hr/>
   <div class="row">
@@ -66,13 +119,56 @@
     </div>
     <div class="col-md-8">
       <% @requisicao_transporte.destinos.each do |d| %>
-        <%= "<strong>Cep: </strong>#{d.cep}".html_safe() %>
-        <%= "<br/><strong>Nun: </strong>#{d.numero}".html_safe() %>
-        <%= "puxar os outros campos" %>
+        <%= "<strong>Descrição: </strong>#{d.descricao}".html_safe() %>
+        <%= "<br/><strong>Cep: </strong>#{d.cep}".html_safe() %>
+        <%= "<br/><strong>Número: </strong>#{d.numero}".html_safe() %>
         <hr/>
       <% end %>
     </div>
   </div>  
+
+  <% if @requisicao_transporte.status == 'negada'%>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Motivo Negação</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.motivo_negada %><br/>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Historico</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <% if @requisicao_transporte.created_at.present? %>
+        <%= "<strong>Criada em: </strong>#{@requisicao_transporte.created_at.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.user.nome}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_aprovada.present? %>
+        <%= "<strong>Aprovada em: </strong>#{@requisicao_transporte.data_hora_aprovada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_aprovou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_em_servico.present? %>
+        <%= "<strong>Em serviço em: </strong>#{@requisicao_transporte.data_hora_em_servico.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_em_servico}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_finalizada.present? %>
+        <%= "<strong>Finalizada em: </strong>#{@requisicao_transporte.data_hora_finalizada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_finalizou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_negada.present? %>
+        <%= "<strong>Negada em: </strong>#{@requisicao_transporte.data_hora_negada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_negou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.status == "cancelada" %>
+        <%= "<strong>Cancelada em: </strong>#{@requisicao_transporte.updated_at.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.user.nome}".html_safe() %>
+        <br/>
+      <% end %>
+    </div>
+  </div>
     
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>

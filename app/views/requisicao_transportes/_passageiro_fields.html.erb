@@ -2,16 +2,18 @@
   
   <%= f.hidden_field :user_id, value: current_user.id %>
   
-  <div class="form-group">
-    <%= f.label :nome %>
-    <%= f.text_field :nome, class: "form-control", required: true %>
+  <div class="row">
+    <div class="form-group col-lg-7">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, class: "form-control", required: true %>
+    </div>
+    <div class="form-group col-lg-3">
+      <%= f.label :cpf %>
+      <%= f.text_field :cpf, class: "form-control cpf", required: true %>
+    </div>
+
+    <div class="col-lg-2">
+      <%= link_to_remove_association "Remover Passageiro", f, class: "btn btn-danger", style: "margin-top: 30px;" %>
+    </div>
   </div>
-  <div class="form-group">
-    <%= f.label :cpf %>
-    <%= f.text_field :cpf, class: "form-control", required: true %>
-  </div>
-  
-  <%= link_to_remove_association "Remover Passageiro", f, class: "btn btn-danger" %>
- 
-  <hr/>
 </div>

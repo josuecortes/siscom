@@ -16,6 +16,11 @@
 </p>
 
 <p>
+  <strong>Nome:</strong>
+  <%= @veiculo.modelo %>
+</p>
+
+<p>
   <strong>Combustivel:</strong>
   <%= @veiculo.combustivel %>
 </p>
@@ -28,6 +33,11 @@
 <p>
   <strong>Carga:</strong>
   <%= @veiculo.carga %>
+</p>
+
+<p>
+  <strong>Quantidade de serviços:</strong>
+  <%= @veiculo.servico_transportes.count %>
 </p>
 
 <p>

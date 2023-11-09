@@ -1,0 +1,112 @@
+
+
+<% abertas = requisicoes[0] if requisicoes and requisicoes[0] %>
+<% aprovadas = requisicoes[1] if requisicoes and requisicoes[1] %>
+<% em_servico = requisicoes[2] if requisicoes and requisicoes[2] %>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card card-danger">
+      <div class="card-header">
+        <h3 class="card-title">Aguardando...</h3>
+      </div>
+
+      <div class="card-body">
+        <% if abertas and abertas.count >= 1 %>    
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Criação</th>
+                <th>Saída</th>
+                <th>Tipo</th>
+                <th>Unidade</th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body">
+              <% abertas.each do |requisicao_transporte| %>
+                <tr>
+                  <td><%= requisicao_transporte.id %></td>
+                  <td><%= requisicao_transporte.created_at.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.created_at %></td>
+                  <td><%= requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_ida %></td>
+                  <td><%= requisicao_transporte.tipo %></td>
+                  <td><%= requisicao_transporte.unidade.sigla if requisicao_transporte.unidade %></td>
+                </tr> 
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-warning">
+      <div class="card-header">
+        <h3 class="card-title">Aprovadas...</h3>
+      </div>
+
+      <div class="card-body">
+        <% if aprovadas and aprovadas.count >= 1 %>    
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Saída</th>
+                <th>Aprovada em:</th>
+                <th>Tipo</th>
+                <th>Unidade</th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body">
+              <% aprovadas.each do |requisicao_transporte| %>
+                <tr>
+                  <td><%= requisicao_transporte.id %></td>
+                  <td><%= requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_ida %></td>
+                  <td><%= requisicao_transporte.data_hora_aprovada.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_aprovada %></td>
+                  <td><%= requisicao_transporte.tipo %></td>
+                  <td><%= requisicao_transporte.unidade.sigla if requisicao_transporte.unidade %></td>
+                </tr> 
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-success">
+      <div class="card-header">
+        <h3 class="card-title">Em serviço...</h3>
+      </div>
+
+      <div class="card-body">
+        <% if em_servico and em_servico.count >= 1 %>    
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Serviço iniciado em:</th>
+                <th>Veículo</th>
+                <th>Tipo</th>
+                <th>Unidade</th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body">
+              <% em_servico.each do |requisicao_transporte| %>
+                <tr>
+                  <td><%= requisicao_transporte.id %></td>
+                  <td><%= requisicao_transporte.data_hora_em_servico.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_em_servico %></td>
+                  <td><%= requisicao_transporte.servico_transporte.veiculo.placa if (requisicao_transporte.servico_transporte and requisicao_transporte.servico_transporte.veiculo) %></td>
+                  <td><%= requisicao_transporte.tipo %></td>
+                  <td><%= requisicao_transporte.unidade.sigla if requisicao_transporte.unidade %></td>
+                </tr> 
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

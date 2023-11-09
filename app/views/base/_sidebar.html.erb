@@ -117,13 +117,22 @@
               <p>Motoristas</p>
             </a>
           </li>
+
+          <li class="nav-item">
+            <a href="<%= acompanhamento_useget_requisicao_transportes_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'useget_requisicao_transportes' and params[:action] == 'acompanhamento') %>">
+              <i class="nav-icon far fa-bell"></i>
+              <p>
+                Acompanhamento
+              </p>
+            </a>
+          </li>
         <% end %>
 
         <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
           <li class="nav-header">NUINFO</li>
 
           <li class="nav-item">
-            <a href="<%= nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'index') %>">
+            <a href="<%= nuinfo_requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'index') %>">
               <i class="nav-icon fa fa-desktop"></i>
               <p>
                 Requisições
@@ -187,7 +196,7 @@
         <% end %>
 
 
-        <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
+        <% if current_user.has_any_role? :tec_serv_ti, :admin, :master, :tec_serv_tp %>
           <li class="nav-header">ADMINISTRAÇÃO</li>
 
           <li class="nav-item">
@@ -197,19 +206,21 @@
             </a>
           </li>
 
-          <li class="nav-item">
-            <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-sitemap"></i>
-              <p>Unidades</p>
-            </a>
-          </li>
+          <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
+            <li class="nav-item">
+              <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
+                <i class="nav-icon fa fa-sitemap"></i>
+                <p>Unidades</p>
+              </a>
+            </li>
 
-          <li class="nav-item">
-            <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-address-card"></i>
-              <p>Funções</p>
-            </a>
-          </li>
+            <li class="nav-item">
+              <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
+                <i class="nav-icon fa fa-address-card"></i>
+                <p>Funções</p>
+              </a>
+            </li>
+          <% end %>
         <% end %>
 
 

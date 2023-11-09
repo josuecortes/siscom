@@ -23,23 +23,26 @@
 <table id="data-table" class="table table-bordered table-hover">
   <thead>
     <tr>
+      <th>Código</th>
+      <th>Status</th>
       <th>Tipo</th>
-      <th>Data/Hora</th>
-      <th>Destino</th>
+      <th>Data/Hora Criação</th>
+      <th>Data/Hora Saída</th>
+      <th>Destinos</th>
+      <th>Passageiros</th>
       <th>Ações</th>
     </tr>
   </thead>
   <tbody id="data-table-body">
     <% requisicoes.each do |requisicao_transporte| %>
       <tr>
+        <td><%= requisicao_transporte.id %></td>
+        <td><%= requisicao_transporte.status %></td>
         <td><%= requisicao_transporte.tipo %></td>
+        <td><%= requisicao_transporte.created_at.strftime("%d/%m/%Y %H:%M") %></td>
         <td><%= requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") if requisicao_transporte.data_hora_ida %></td>
-        <td>
-          <% requisicao_transporte.destinos.each do |d| %>
-            <%= "<strong>Cep: </strong>#{d.cep}".html_safe() %>
-            <%= "<br/><strong>Nun: </strong>#{d.numero}".html_safe() %>
-            <%= "puxar os outros campos" %>
-          <% end %>
+        <td><%= requisicao_transporte.destinos.count %></td>
+        <td><%= requisicao_transporte.passageiros.count %></td>
         </td>
         <td>
           <%= link_to requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>

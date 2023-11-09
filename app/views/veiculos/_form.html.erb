@@ -9,7 +9,7 @@
     <% end %> 
         <div class="form-group">
           <%= f.label :placa %>
-          <%= f.text_field :placa, autocomplete: "Placa", placeholder: "Digite a placa", class: "form-control", required: true  %>
+          <%= f.text_field :placa, autocomplete: "Placa", placeholder: "Digite a placa", class: "form-control placa", required: true  %>
           <%= has_error(@veiculo, :placa) %>
         </div>
 
@@ -21,25 +21,31 @@
 
         <div class="form-group">
           <%= f.label :modelo %>
-          <%= f.text_field :modelo, autocomplete: "Sigla", placeholder: "Digite o modelo do veículo", class: "form-control", required: true  %>
+          <%= f.text_field :modelo, autocomplete: "Modelo", placeholder: "Digite o modelo do veículo", class: "form-control", required: true  %>
           <%= has_error(@veiculo, :modelo) %>
         </div>
 
         <div class="form-group">
+          <%= f.label :nome %>
+          <%= f.text_field :nome, autocomplete: "Nome", placeholder: "Digite o nome do veículo", class: "form-control", required: true  %>
+          <%= has_error(@veiculo, :nome) %>
+        </div>
+
+        <div class="form-group">
           <%= f.label :combustivel %>
-          <%= f.number_field :combustivel, class: "form-control", required: true  %>
+          <%= f.select :combustivel, ['Gasolina', 'Álcool', 'Diesel', 'Gasolina/Álcool', 'Elétrico'], { include_blank: true }, { class: "form-control", required: true } %>
           <%= has_error(@veiculo, :combustivel) %>
         </div>
 
         <div class="form-group">
-          <%= f.label :capacidade %>
-          <%= f.number_field :capacidade, class: "form-control", required: true  %>
+          <%= f.label :capacidade, 'Número de lugares' %>
+          <%= f.select :capacidade, ['1 Lugar', '5 Lugares', '7 Lugares', 'Mais de 7 lugares'], { include_blank: true }, { class: "form-control", required: true } %>
           <%= has_error(@veiculo, :capacidade) %>
         </div>
 
         <div class="form-group">
-          <%= f.label :carga %>
-          <%= f.number_field :carga, class: "form-control", required: true  %>
+          <%= f.label :carga, 'Leva carga?' %>
+          <%= f.select :carga, ['Sim', 'Não'], { include_blank: true }, { class: "form-control", required: true } %>
           <%= has_error(@veiculo, :carga) %>
         </div>
 

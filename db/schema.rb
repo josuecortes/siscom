@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_07_125107) do
+ActiveRecord::Schema.define(version: 2023_11_09_102209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -167,6 +167,15 @@ ActiveRecord::Schema.define(version: 2023_11_07_125107) do
     t.text "motivo"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.datetime "data_hora_aprovada"
+    t.datetime "data_hora_em_servico"
+    t.datetime "data_hora_negada"
+    t.datetime "data_hora_finalizada"
+    t.text "motivo_negada"
+    t.string "usuario_aprovou"
+    t.string "usuario_negou"
+    t.string "usuario_em_servico"
+    t.string "usuario_finalizou"
     t.index ["unidade_id"], name: "index_requisicao_transportes_on_unidade_id"
     t.index ["user_id"], name: "index_requisicao_transportes_on_user_id"
   end
@@ -186,8 +195,8 @@ ActiveRecord::Schema.define(version: 2023_11_07_125107) do
     t.bigint "veiculo_id", null: false
     t.bigint "motorista_id", null: false
     t.integer "status"
-    t.integer "km_inicial"
-    t.integer "km_final"
+    t.bigint "km_inicial"
+    t.bigint "km_final"
     t.text "observacoes"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -257,6 +266,7 @@ ActiveRecord::Schema.define(version: 2023_11_07_125107) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "motorista_id"
+    t.string "nome"
     t.index ["motorista_id"], name: "index_veiculos_on_motorista_id"
   end
 

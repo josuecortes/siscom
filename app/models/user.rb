@@ -19,6 +19,11 @@ class User < ApplicationRecord
   validate :verificar_roles_padrao
 
   before_validation :senha_padrao, on: :create
+  before_save :upcase_fields
+
+   def upcase_fields
+      self.nome.upcase!
+   end
 
   def verificar_roles_padrao
     unless self.has_role? :user
@@ -46,7 +51,7 @@ class User < ApplicationRecord
   # :req_serv_md      => Requisitante de servico de Midia
 
   def self.autorizado(u)
-    if u.has_role?(:master)
+    if u.has_role?(:master) or u.has_role?(:tec_serv_tp)
       all
     elsif u.has_role?(:admin)
       where.not(id: User.with_role(:master))

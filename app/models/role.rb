@@ -45,6 +45,8 @@ class Role < ApplicationRecord
       all
     elsif u.has_role?(:admin)
       where('name != ?', 'master')
+    elsif u.has_role?(:tec_serv_tp)
+      where('name = ? or name = ?', 'tec_serv_tp', 'req_serv_tp')  
     else
       where('name != ? and name != ?', 'master', 'admin')
     end

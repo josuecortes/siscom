@@ -23,7 +23,7 @@ class ServicoTransportesController < ApplicationController
     respond_to do |format|
       if @servico_transporte.save!
         @servico_transporte.veiculo.mudar_status('em_servico')
-        @servico_transporte.requisicao_transporte.mudar_status('em_servico')
+        @servico_transporte.requisicao_transporte.mudar_status('em_servico', current_user.nome)
         flash[:success] = "Servico Criado."
         format.js {render :create, status: :created  }
       else
@@ -38,7 +38,7 @@ class ServicoTransportesController < ApplicationController
     respond_to do |format|
       if @servico_transporte.update(servico_transporte_params)
         @servico_transporte.veiculo.mudar_status('patio')
-        @servico_transporte.requisicao_transporte.mudar_status('finalizada')
+        @servico_transporte.requisicao_transporte.mudar_status('finalizada', current_user.nome)
         flash[:success] = "Operação concluida com sucesso."
         format.js {render :update, status: :created  }
       else
@@ -73,6 +73,7 @@ class ServicoTransportesController < ApplicationController
 
     def set_servico_transporte
       @servico_transporte = ServicoTransporte.find(params[:id])
+      @requisicao_transporte = @servico_transporte.requisicao_transporte if @servico_transporte
     end
 
     def servico_transporte_params

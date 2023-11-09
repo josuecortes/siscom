@@ -8,4 +8,10 @@ class Funcao < ApplicationRecord
   scope :search, -> (term) { where('LOWER(nome) LIKE ?', "%#{term.downcase}%") if term.present? }
 
   validates_presence_of :nome
+
+  before_save :upcase_fields
+
+  def upcase_fields
+    self.nome.upcase!
+  end
 end

@@ -6,38 +6,71 @@
         <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
       </div>
     <% end %>
-    <div class="form-group">
-      <%= f.label :nome %>
-      <%= f.text_field :nome, autofocus: true, class: "form-control", required: true %>
-      <%= has_error(@usuario, :nome) %>
-    </div>
-    <div class="form-group">
-      <%= f.label :email %>
-      <%= f.text_field :email, class: "form-control", required: true %>
-      <%= has_error(@usuario, :email) %>
-    </div>
-    <div class="form-group">
-      <%= f.label :funcao_id, "Função" %>
-      <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: true } %>
-      <%= has_error(@usuario, :funcao_id) %>
-    </div>
-    <div class="form-group">
-      <%= f.label :unidade_id %>
-      <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
-      <%= has_error(@usuario, :unidade_id) %>
-    </div>
-    <div class="form-group">
-      <%= f.label :role_ids, "Permissões" %>
-      <%= f.collection_check_boxes(:role_ids, Role.autorizado(current_user).all, :id, :exibition_name) do |b| %>
-        <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-          <%= b.check_box class: "custom-control-input" %>
-          <%= b.label class: "custom-control-label" do %>
-            <%= b.label %>
-          <% end %>
-        </div>
-      <% end %>
-      <%= has_error(@usuario, :role) %>
-    </div>
+
+    <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %> 
+      <div class="form-group">
+        <%= f.label :nome %>
+        <%= f.text_field :nome, autofocus: true, class: "form-control", required: true %>
+        <%= has_error(@usuario, :nome) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :email %>
+        <%= f.text_field :email, class: "form-control", required: true %>
+        <%= has_error(@usuario, :email) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :funcao_id, "Função" %>
+        <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: true } %>
+        <%= has_error(@usuario, :funcao_id) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :unidade_id %>
+        <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+        <%= has_error(@usuario, :unidade_id) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :role_ids, "Permissões" %>
+        <%= f.collection_check_boxes(:role_ids, Role.autorizado(current_user).all, :id, :exibition_name) do |b| %>
+          <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+            <%= b.check_box class: "custom-control-input" %>
+            <%= b.label class: "custom-control-label" do %>
+              <%= b.label %>
+            <% end %>
+          </div>
+        <% end %>
+        <%= has_error(@usuario, :role) %>
+      </div>
+    <% else %>
+      <div class="form-group">
+        <%= label_tag "Nome" %>
+        <%= text_field_tag '',(@usuario.nome if @usuario.nome), class: "form-control", readonly: true %>
+      </div>
+      <div class="form-group">
+        <%= label_tag "E-mail" %>
+        <%= text_field_tag '',(@usuario.email if @usuario.email), class: "form-control", readonly: true %>
+      </div>
+      <div class="form-group">
+        <%= label_tag "Função" %>
+        <%= text_field_tag '',(@usuario.funcao.nome if @usuario.funcao), class: "form-control", readonly: true %>
+      </div>
+      <div class="form-group">
+        <%= label_tag "Unidade" %>
+        <%= text_field_tag '',(@usuario.unidade.nome if @usuario.unidade), class: "form-control", readonly: true %>
+      </div>
+      <div class="form-group">
+        <%= f.label :role_ids, "Permissões" %>
+        <%= f.collection_check_boxes(:role_ids, Role.autorizado(current_user).all, :id, :exibition_name) do |b| %>
+          <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+            <%= b.check_box class: "custom-control-input", disabled: "disabled" %>
+            <%= b.label class: "custom-control-label" do %>
+              <%= b.label %>
+            <% end %>
+          </div>
+        <% end %>
+        <%= has_error(@usuario, :role) %>
+      </div>
+    <% end %>
+
     <div class="modal-footer">
       <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
       <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>

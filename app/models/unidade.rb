@@ -8,6 +8,12 @@ class Unidade < ApplicationRecord
 
   before_validation :verificar_tipo_de_unidade
   before_validation :verificar_sigla_de_unidade
+  before_save :upcase_fields
+
+  def upcase_fields
+    self.nome.upcase!
+    self.sigla.upcase!
+  end
 
   def verificar_tipo_de_unidade
     unless self.tipo_unidade

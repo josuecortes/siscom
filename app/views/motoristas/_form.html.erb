@@ -18,7 +18,7 @@
     </div>
     <div class="form-group">
       <%= f.label :data_nascimento %>
-      <%= f.text_field :data_nascimento, class: "form-control", required: true %>
+      <%= f.text_field :data_nascimento, class: "form-control data", required: true, value: (@motorista.data_nascimento.strftime('%d/%m/%Y') if @motorista.data_nascimento) %>
       <%= has_error(@motorista, :data_nascimento) %>
     </div>
     <div class="form-group">
@@ -28,7 +28,7 @@
     </div>
     <div class="form-group">
       <%= f.label :validade_cnh %>
-      <%= f.text_field :validade_cnh, class: "form-control", required: true %>
+      <%= f.text_field :validade_cnh, class: "form-control data", required: true, value: (@motorista.validade_cnh.strftime('%d/%m/%Y') if @motorista.validade_cnh) %>
       <%= has_error(@motorista, :validade_cnh) %>
     </div>
     <div class="modal-footer">

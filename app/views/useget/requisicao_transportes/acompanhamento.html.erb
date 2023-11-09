@@ -1,0 +1,44 @@
+<% content_for :title do %>
+  USEGET
+<% end %>
+
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= home_index_path %>">Voltar para início</a></li>
+<% end %>
+
+<% content_for :sub_title do %>
+  Acompanhamento de Requisições
+<% end %>
+
+<% if current_user.has_role? :tec_serv_tp or current_user.has_role? :admin %>
+  <div class="requisicoes">
+    <%= render "requisicoes_real_time", requisicoes: [@requisicoes_transporte_abertas, @requisicoes_transporte_aprovadas, @requisicoes_transporte_em_servico] %>  
+  </div>
+<% end %>
+
+<% content_for :javascripts do %>
+  <script>
+    var tempo_de_refresh = 60000
+
+    $( document ).ready(function() {
+      requisitar_refresh()
+      loop()
+    })
+
+    function requisitar_refresh(){
+      $.get( '<%= refresh_acompanhamento_useget_requisicao_transportes_url %>', function( data ) {
+        $( ".result" ).html( data );
+      });
+    }
+
+    function loop() {
+      if(document.hidden){
+        tempo_de_refresh = 60000
+      }
+      setTimeout(() => {
+        requisitar_refresh()
+        loop();
+      }, tempo_de_refresh);
+    }
+  </script>
+<% end %>

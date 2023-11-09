@@ -2,7 +2,7 @@
   
   <div class="row">
     <div class="col-md-4">
-      <span class="float-right"><strong>Número</strong></span><br/>
+      <span class="float-right"><strong>Código</strong></span><br/>
     </div>
     <div class="col-md-8">
       <%= @requisicao_transporte.id %><br/>
@@ -27,6 +27,30 @@
     </div>
   </div>
 
+   <% if @requisicao_transporte.tipo == "viagem" %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Documento</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <% if !@requisicao_transporte.documento.blank? %>
+          <%= link_to 'Clique aqui', rails_blob_path(@requisicao_transporte.documento, disposition: "inline"), target: '_blank' %>
+        <% else %>
+          Sem documento
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Motivo</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.motivo %><br/>
+      </div>
+    </div>
+
   <div class="row">
     <div class="col-md-4">
       <span class="float-right"><strong>Data/Hora Criação</strong></span><br/>
@@ -44,6 +68,28 @@
       <%= @requisicao_transporte.data_hora_ida.strftime("%d/%m/%Y %H:%M") %><br/>
     </div>
   </div>
+
+  <% if @requisicao_transporte.data_hora_retorno %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Data/Hora Retorno</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.data_hora_retorno.strftime("%d/%m/%Y %H:%M") %><br/>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @requisicao_transporte.status == "negada" %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Motivo Negação</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.motivo_negada %><br/>
+      </div>
+    </div>
+  <% end %>
 
   <hr/>
   <div class="row">
@@ -66,9 +112,9 @@
     </div>
     <div class="col-md-8">
       <% @requisicao_transporte.destinos.each do |d| %>
+        <%= "<strong>Descrição: </strong>#{d.descricao}".html_safe() %>
         <%= "<strong>Cep: </strong>#{d.cep}".html_safe() %>
-        <%= "<br/><strong>Nun: </strong>#{d.numero}".html_safe() %>
-        <%= "puxar os outros campos" %>
+        <%= "<br/><strong>Número: </strong>#{d.numero}".html_safe() %>
         <hr/>
       <% end %>
     </div>

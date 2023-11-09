@@ -3,5 +3,10 @@ class Passageiro < ApplicationRecord
   belongs_to :user, optional: true
 
   validates_presence_of :nome, :cpf
-  # validates_uniqueness_of :cpf
+  
+  before_save :upcase_fields
+
+  def upcase_fields
+    self.nome.upcase!
+  end
 end

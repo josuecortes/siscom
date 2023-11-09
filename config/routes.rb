@@ -55,7 +55,14 @@ Rails.application.routes.draw do
   namespace :useget do
     resources :requisicao_transportes, only: [:index, :show] do
       get 'aprovar'
-      get 'negar'
+      collection do
+        get 'acompanhamento'
+        get 'refresh_acompanhamento'
+      end
+      member do
+        get 'negar'
+        put 'salvar_negacao'
+      end
     end
   end
 
@@ -76,6 +83,8 @@ Rails.application.routes.draw do
   resources :usuarios do
     member do
       get 'resetar_senha'
+      get 'tornar_requisitante_transporte'
+      get 'tornar_tecnico_transporte'
     end
   end
 

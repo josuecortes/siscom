@@ -1,6 +1,8 @@
 class Useget::RequisicaoTransportesController < ApplicationController
   before_action :verificar_permissao
-  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar ]
+  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar salvar_negacao ]
+
+  layout "acompanhamento", only: [:acompanhamento]
 
   # GET /requisicao_transportes or /requisicao_transportes.json
   def index
@@ -22,12 +24,40 @@ class Useget::RequisicaoTransportesController < ApplicationController
 
   def aprovar
     @requisicao_transporte.status = 'aprovada'
+    @requisicao_transporte.data_hora_aprovada = Time.now
+    @requisicao_transporte.usuario_aprovou = current_user.nome
     salvar_requisicao  
   end
 
   def negar
-    @requisicao_transporte.status = 'negada'
-    salvar_requisicao
+    if @requisicao_transporte.status != 'aguardando'
+      flash[:error] = "Opss! Você não pode negar essa requisição."
+      @erro_padrao = true
+    end
+  end
+
+  def salvar_negacao
+    respond_to do |format|
+      if @requisicao_transporte.update(requisicao_transporte_params)
+        flash[:success] = "Requisição negada com sucesso."
+        format.js {render :salvar_negacao, status: :ok  }
+      else
+        flash.now[:error] = "Opss! Algo deu errado."
+        format.js { render :negar, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def acompanhamento
+    @requisicoes_transporte_abertas = RequisicaoTransporte.where(status: 1).order("created_at ASC").all
+    @requisicoes_transporte_aprovadas = RequisicaoTransporte.where(status: 2).order("data_hora_ida ASC").all
+    @requisicoes_transporte_em_servico = RequisicaoTransporte.where(status: 3).order("data_hora_em_servico DESC").all
+  end
+
+  def refresh_acompanhamento
+    @requisicoes_transporte_abertas = RequisicaoTransporte.where(status: 1).order("created_at ASC").all
+    @requisicoes_transporte_aprovadas = RequisicaoTransporte.where(status: 2).order("data_hora_ida ASC").all
+    @requisicoes_transporte_em_servico = RequisicaoTransporte.where(status: 3).order("data_hora_em_servico DESC").all
   end
 
   private
@@ -43,7 +73,8 @@ class Useget::RequisicaoTransportesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def requisicao_transporte_params
       params.require(:requisicao_transporte).permit(:status, :user_id, :unidade_id, :tipo, :documento_viagem, :data_hora_ida, :data_hora_retorno, 
-                                                    :motivo, :dia_requisicao_normal_urgente, :hora_requisicao_normal_urgente, 
+                                                    :motivo, :dia_requisicao_normal_urgente, :hora_requisicao_normal_urgente,
+                                                    :motivo_negada, :data_hora_negada, :usuario_negou, 
                                                     passageiros_attributes: [:id, :nome, :cpf, :user_id, :_destroy],
                                                     destinos_attributes: [:id, :descricao, :cep, :numero, :user_id, :_destroy])
     end

@@ -11,6 +11,11 @@ class Motorista < ApplicationRecord
   scope :com_status, ->(status) { where("status = ?", status) }
 
   before_validation :novo_motorista, on: :create
+  before_save :upcase_fields
+
+  def upcase_fields
+    self.nome.upcase!
+  end
 
   def novo_motorista
     self.status = 1

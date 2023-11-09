@@ -1,5 +1,5 @@
 class UsuariosController < ApplicationController
-  before_action :set_usuario, only: %i[ show edit update destroy resetar_senha ]
+  before_action :set_usuario, only: %i[ show edit update destroy resetar_senha tornar_requisitante_transporte tornar_tecnico_transporte ]
   before_action :set_post_url, only: %i[ new create ]
   before_action :set_put_url, only: %i[ edit update ]
   before_action :load_unidade, :load_funcoes, only: %i[ new edit update create ]
@@ -80,6 +80,50 @@ class UsuariosController < ApplicationController
     end
   end
 
+  def tornar_requisitante_transporte
+    role = Role.where('name = ?', 'req_serv_tp').first
+    if params['remove']
+      if @usuario.has_role? :req_serv_tp
+        @usuario.roles.delete(role)  
+      end
+    else
+      unless @usuario.has_role? :req_serv_tp
+        @usuario.roles << role
+      end
+    end  
+    if @usuario.save
+      flash[:success] = "Permissão de requisitante de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
+    else
+      flash[:error] = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to usuarios_url }
+    end
+  end
+
+  def tornar_tecnico_transporte
+    role = Role.where('name = ?', 'tec_serv_tp').first
+    if params['remove']
+      if @usuario.has_role? :tec_serv_tp
+        @usuario.roles.delete(role)  
+      end
+    else
+      unless @usuario.has_role? :tec_serv_tp
+        @usuario.roles << role
+      end
+    end 
+    if @usuario.save
+      flash[:success] = "Permissão de técnico de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
+    else
+      flash[:error] = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
+    end
+
+    respond_to do |format|
+      format.html { redirect_to usuarios_url }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_usuario
@@ -106,7 +150,7 @@ class UsuariosController < ApplicationController
         @funcoes = Funcao.order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
       elsif current_user.has_role? :admin
         @funcoes = Funcao.where("nome <> ?", 'Master').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
-      elsif current_user.has_role? :tec_serv_ti
+      elsif current_user.has_role? :tec_serv_ti  or current_user.has_role? :tec_serv_tp
         @funcoes = Funcao.where("nome <> ? and nome <> ?", 'master', 'admin').order(nome: :asc).all.map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
       else
         @funcoes = Funcao.order(nome: :asc).where(id: current_user.funcao_id).map{ |f| [f.nome, f.id, {:nome => f.nome.downcase}] }
@@ -114,7 +158,7 @@ class UsuariosController < ApplicationController
     end
 
     def load_unidade
-      if current_user.has_role? :admin or current_user.has_role? :master
+      if current_user.has_role? :admin or current_user.has_role? :master or current_user.has_role? :tec_serv_tp
         @unidades = Unidade.order(nome: :asc).all.map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }
       else
         @unidades = Unidade.order(nome: :asc).where(id: current_user.unidade_id).map{ |d| [d.nome, d.id, {:nome => d.nome.downcase}] }

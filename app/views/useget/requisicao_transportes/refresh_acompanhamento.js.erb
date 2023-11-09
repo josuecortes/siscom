@@ -1,0 +1,8 @@
+
+$('.requisicoes').html('')
+$('.requisicoes').html('<%= j render("requisicoes_real_time", requisicoes: [@requisicoes_transporte_abertas, @requisicoes_transporte_aprovadas, @requisicoes_transporte_em_servico]) %>')
+
+
+$('.carousel').carousel({
+  interval: 3000
+})

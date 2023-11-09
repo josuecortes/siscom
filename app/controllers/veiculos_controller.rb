@@ -48,10 +48,14 @@ class VeiculosController < ApplicationController
 
   # DELETE /Veiculos/1 or /Veiculos/1.json
   def destroy
-    if @veiculo.destroy
-      flash[:success] = "Veiculo excluido"
+    if @veiculo.servico_transportes.any?
+      flash[:error] = "Opss! Esse veículo não pode ser apagado."
     else
-      flash[:error] = "Opss! Algo deu errado."
+      if @veiculo.destroy
+        flash[:success] = "Veiculo excluido"
+      else
+        flash[:error] = "Opss! Algo deu errado."
+      end
     end
     respond_to do |format|
       format.html { redirect_to veiculos_url }
@@ -66,6 +70,6 @@ class VeiculosController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def veiculo_params
-      params.require(:veiculo).permit(:placa, :marca, :modelo, :combustivel, :capacidade, :carga, :status)
+      params.require(:veiculo).permit(:placa, :marca, :modelo, :combustivel, :capacidade, :carga, :status, :nome)
     end
 end
