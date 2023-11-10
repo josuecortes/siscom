@@ -50,7 +50,6 @@ class RequisicaoTransporte < ApplicationRecord
   end
 
   def mudar_status(status, usuario = nil)
-    byebug
     self.status = status
     if status == "em_servico"
       self.usuario_em_servico = usuario if usuario
