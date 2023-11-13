@@ -63,7 +63,6 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def salvar_troca_tecnico
-    byebug
     respond_to do |format|
       if @requisicao_ti.update(requisicao_ti_params)
         flash[:success] = "Técnico alterado."

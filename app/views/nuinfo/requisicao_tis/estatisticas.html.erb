@@ -208,7 +208,7 @@
     <% begin %>
       
       <% mes_ano_nome[cont] = data_atual.strftime("%m/%Y") %>
-      <% mes_ano_quantidade[cont] = @requisicoes.where("created_at >= ? and created_at <= ?", data_atual, data_atual.end_of_month).count %>
+      <% mes_ano_quantidade[cont] = @requisicoes.where("requisicao_tis.created_at >= ? and requisicao_tis.created_at <= ?", data_atual, data_atual.end_of_month).count %>
     
       <% data_atual = data_atual + 1.month %>
       
