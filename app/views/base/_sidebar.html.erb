@@ -64,7 +64,11 @@
           <li class="nav-item">
             <a href="<%= requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_tis' and params[:action] == 'index') %>">
               <i class="nav-icon fa fa-desktop"></i>
-              <p>Requisições TI</p>
+              <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
+                <p>Requisições Escola</p>
+              <% else %>  
+                <p>Requisições TI</p>
+              <% end %>
             </a>
           </li>
         <% end %>

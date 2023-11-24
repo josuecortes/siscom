@@ -1,6 +1,8 @@
 class Veiculo < ApplicationRecord
-  validates_presence_of :placa, :marca, :modelo, :combustivel, :capacidade, :carga, :status, :nome
+  validates_presence_of :placa, :marca, :modelo, :combustivel, :capacidade, :carga, :status, :nome, :consumo
   validates_uniqueness_of :placa
+  # validates :consumo, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality =>{:greater_than => 0}
+  validates :consumo, presence:true, numericality: {only_float: true, greater_than: 0}
 
   belongs_to :motorista, optional: true
 

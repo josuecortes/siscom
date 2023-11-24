@@ -21,6 +21,10 @@
 
     <div class="form-group">
       <%= f.label :problema_ti_id, "Requisição" %>
+      <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
+        <% @problemas.delete_at(0) %>
+        <% @problemas.delete_at(0) %>
+      <% end %>
       <%= f.select :problema_ti_id, @problemas, { include_blank: true }, { class: "form-control js-searchable select2-problema", required: true } %>
       <%= has_error(@requisicao_ti, :problema_ti_id) %>
     </div>

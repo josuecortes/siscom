@@ -38,6 +38,12 @@
         </div>
 
         <div class="form-group">
+          <%= f.label :consumo, 'Consumo Km/L' %>
+          <%= f.text_field :consumo, autocomplete: "Consumo", placeholder: "Digite o consumo aproximado do veículo", class: "form-control", required: true  %>
+          <%= has_error(@veiculo, :consumo) %>
+        </div>
+
+        <div class="form-group">
           <%= f.label :capacidade, 'Número de lugares' %>
           <%= f.select :capacidade, ['1 Lugar', '5 Lugares', '7 Lugares', 'Mais de 7 lugares'], { include_blank: true }, { class: "form-control", required: true } %>
           <%= has_error(@veiculo, :capacidade) %>
