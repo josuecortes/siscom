@@ -45,6 +45,12 @@
         <%= f.datetime_field :data_hora_retorno, class: "form-control", required: true %>
         <%= has_error(@requisicao_transporte, :data_hora_retorno) %>
       </div>
+    <% elsif @requisicao_transporte.tipo == "normal" %>
+      <div class="form-group">
+        <%= f.label :data_hora_ida, "Data/Hora da saída" %>
+        <%= f.datetime_field :data_hora_ida, class: "form-control", required: true %>
+        <%= has_error(@requisicao_transporte, :data_hora_ida) %>
+      </div>
     <% else %>
       <div class="form-group">
         <%= f.label :dia_requisicao_normal_urgente, "Dia da saída" %>

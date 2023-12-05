@@ -15,7 +15,7 @@ class RequisicaoTransporte < ApplicationRecord
   accepts_nested_attributes_for :passageiros, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :destinos, reject_if: :all_blank, allow_destroy: true
 
-  validates_presence_of :passageiros, :destinos
+  validates_presence_of :motivo, :passageiros, :destinos
 
   scope :do_usuario, ->(id) { where("user_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
@@ -24,6 +24,7 @@ class RequisicaoTransporte < ApplicationRecord
   enum tipo: { urgente: 1, normal: 2, viagem: 3 }
 
   before_validation :ajustar_datahora_saida, on: :create
+  before_validation :validar_data_normal, on: :create
   before_validation :validar_data_viagem, on: :create
   
   def ajustar_datahora_saida
@@ -39,11 +40,24 @@ class RequisicaoTransporte < ApplicationRecord
     if self.tipo == "viagem"
       validates_presence_of :documento
       if self.data_hora_ida.present? and self.data_hora_retorno.present?
-        if self.data_hora_ida < Time.now + 1.day
-          self.errors.add(:data_hora_ida, "Data de ida não pode ser menor que #{(Time.now + 1.day).strftime('%d/%m/%Y %H:%M')}.")
+        data_viagem = (Time.now + 3.days).beginning_of_day
+        if self.data_hora_ida < data_viagem
+          self.errors.add(:data_hora_ida, "Data de ida não pode ser menor que #{data_viagem.strftime('%d/%m/%Y %H:%M')}.")
         end
         if self.data_hora_ida >= self.data_hora_retorno
           self.errors.add(:data_hora_ida, "Data de ida não pode ser menor que a data de volta.")
+        end
+      end
+    end
+  end
+
+  def validar_data_normal
+    if self.tipo == "normal"
+      validates_presence_of :data_hora_ida
+      if self.data_hora_ida.present?
+        data = (Time.now + 1.day).beginning_of_day
+        if self.data_hora_ida < data
+          self.errors.add(:data_hora_ida, "Data de ida não pode ser menor que #{data.strftime('%d/%m/%Y %H:%M')}.")
         end
       end
     end
