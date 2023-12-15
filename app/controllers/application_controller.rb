@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   
   before_action :authenticate_user!
+  before_action :verificar_ativado
   before_action :verificar_senha_padrao
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized  
@@ -13,6 +14,16 @@ class ApplicationController < ActionController::Base
     def user_not_authorized
       flash[:info] = "Você não tem permissão para esta ação!! -_-"
       redirect_to home_index_path
+    end
+
+    def verificar_ativado
+      if current_user
+        if current_user.status == false
+          flash[:warning] = "Usuário desativado, solicite reativação através da chefia imediata!"
+          sign_out(current_user)
+          redirect_to new_user_session_path
+        end
+      end
     end
 
     def verificar_senha_padrao

@@ -38,8 +38,14 @@
             <%= link_to resetar_senha_usuario_path(usuario), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha"  do %>
               <i class="fas fa-sync-alt"></i>
             <% end %>
-            <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
-              <i class="fas fa-trash"></i>
+            <% if usuario.status == true %>
+              <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar"  do %>
+                <i class="fas fa-close"></i>
+              <% end %>
+            <% else %>
+              <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar"  do %>
+                <i class="fas fa-check"></i>
+              <% end %>
             <% end %>
           <% end %>
           <% if current_user.has_role? :tec_serv_tp %>

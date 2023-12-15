@@ -58,11 +58,18 @@ class UsuariosController < ApplicationController
 
   # DELETE /usuarios/1 or /usuarios/1.json
   def destroy
-    if @usuario.destroy
-      flash[:success] = "Usuário excluido"
+    if @usuario.status == false or @usuario.status == "" or @usuario.status == nil
+      @usuario.status = true
+    else
+      @usuario.status = false
+    end
+   
+    if @usuario.save
+      flash[:success] = "Usuário atualizado."
     else
       flash[:error] = "Opss! Algo deu errado."
     end
+      
     respond_to do |format|
       format.html { redirect_to usuarios_url }
     end
