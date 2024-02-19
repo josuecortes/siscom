@@ -14,4 +14,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'tipo_problema_ti', 'tipo_problema_tis'
   inflect.irregular 'mensagem', 'mensagens'
   inflect.irregular 'incidente', 'incidentes'
+  inflect.irregular 'transportador', 'transportadores'
+  inflect.irregular 'condutor', 'condutores'  
+  inflect.irregular 'servico', 'servicos'  
 end

@@ -1,0 +1,19 @@
+<!-- app/views/transporte_escolar/transportadores/_transportador.html.erb -->
+
+<tr>
+  <td><%= transportador.tipo %></td>
+  <td><%= transportador.tipo == 'Pessoa Física' ? transportador.nome : transportador.razao_social %></td>
+  <td><%= transportador.tipo == 'Pessoa Física' ? transportador.cpf : transportador.cnpj %></td>
+  <td><%= transportador.municipio&.nome_tipo %></td>
+  <td>
+    <%= link_to transportador, class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+      <i class="fas fa-eye"></i>
+    <% end %>
+    <%= link_to edit_transporte_escolar_transportador_path(transportador), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+      <i class="fas fa-edit"></i>
+    <% end %>
+    <%= link_to transportador, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr> 

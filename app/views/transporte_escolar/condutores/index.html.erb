@@ -1,0 +1,28 @@
+<% content_for :title do %>
+  <i class="fa fa-info"></i> Condutores
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= transporte_escolar_condutores_url %>">Condutores</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de condutores
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_transporte_escolar_condutor_path, class: "btn btn-sm btn-success", title: "Novo Condutor", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>CPF</th>
+      <th>Tipo</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <%= render @condutores %>
+  </tbody>
+</table>

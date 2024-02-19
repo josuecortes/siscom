@@ -118,3 +118,46 @@ mudar para null: true
   add_reference :users, :funcao, null: true, foreign_key: true
 
 
+---- transporte_escolar.......
+
+contrato
+
+  id, 
+  numero, 
+  data_inicio, 
+  data_termino,
+  valor,
+  observacao,
+  codigo_rota,
+
+
+escola
+  nome,
+  codigo,
+  tipo,
+  
+
+transportador
+  nome,
+  cpf,
+  rg,
+  data_nascimento,
+
+
+motorista
+  nome,
+  cpf,
+  rg,
+  data_nascimento,
+  cnh,
+  validade_cnh,
+
+veiculo 
+  tipo,
+  identificador,
+  placa,
+  marca,
+  modelo,
+  cor,
+  capacidade,
+  

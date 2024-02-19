@@ -297,6 +297,7 @@ master.add_role(:master)
 master.add_role(:user)
 master.add_role(:req_serv_ti)
 master.save
+# fantasma
 
 
 puts "Criando o Administrador"

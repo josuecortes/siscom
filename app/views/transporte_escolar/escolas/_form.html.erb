@@ -1,0 +1,62 @@
+<div class="modal-body">
+
+  <%= form_for @escola, remote: true do |f| %>
+    
+    <% if @escola.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :codigo, 'Codigo INEP' %>
+      <%= f.text_field :codigo, autofocus: true, autocomplete: "Código INEP", placeholder: "Digite o código do INEP", class: "form-control" %>
+      <%= has_error(@escola, :codigo) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, autocomplete: "Nome", placeholder: "Digite o nome da escola", class: "form-control", required: true %>
+      <%= has_error(@escola, :nome) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :municipio_id %>
+      <%= f.select :municipio_id, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+      <%= has_error(@escola, :municipio_id) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :bairro %>
+      <%= f.text_field :bairro, autofocus: true, autocomplete: "Bairro", placeholder: "Digite o nome do bairro", class: "form-control", required: true %>
+      <%= has_error(@escola, :bairro) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :logradouro %>
+      <%= f.text_field :logradouro, autofocus: true, autocomplete: "Logradouro", placeholder: "Digite o logradouro", class: "form-control", required: true %>
+      <%= has_error(@escola, :logradouro) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :numero %>
+      <%= f.text_field :numero, autofocus: true, autocomplete: "Número", placeholder: "Digite o número", class: "form-control", required: true %>
+      <%= has_error(@escola, :numero) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :cep %>
+      <%= f.text_field :cep, autofocus: true, autocomplete: "Cep", placeholder: "Digite o cep", class: "form-control cep", required: true %>
+      <%= has_error(@escola, :cep) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+
+</div>
+

@@ -1,0 +1,74 @@
+<!-- app/views/transporte_escolar/transportadores/_show.html.erb -->
+
+<div class="modal-body">
+  
+  <p>
+    <strong>Tipo:</strong>
+    <%= @transportador.tipo %>
+  </p>
+
+  <p>
+    <strong><%= @transportador.tipo == 'Pessoa Física' ? "Nome:" : "Razão Social:" %></strong>
+    <%= @transportador.tipo == 'Pessoa Física' ? @transportador.nome : @transportador.razao_social %>
+  </p>
+
+  <p>
+    <strong><%= @transportador.tipo == 'Pessoa Física' ? "CPF:" : "CNPJ:" %></strong>
+    <%= @transportador.tipo == 'Pessoa Física' ? @transportador.cpf : @transportador.cnpj %>
+  </p>
+
+  <p>
+    <strong>Código do Banco:</strong>
+    <%= @transportador.codigo %>
+  </p>
+
+  <p>
+    <strong>Nome do Banco:</strong>
+    <%= @transportador.banco %>
+  </p>
+
+  <p>
+    <strong>Agência:</strong>
+    <%= @transportador.agencia %>
+  </p>
+
+  <p>
+    <strong>Tipo de Conta:</strong>
+    <%= @transportador.tipo_de_conta %>
+  </p>
+
+  <p>
+    <strong>Conta:</strong>
+    <%= @transportador.conta %>
+  </p>
+
+  <p>
+    <strong>Município:</strong>
+    <%= @transportador.municipio&.nome_tipo %>
+  </p>
+
+  <p>
+    <strong>Bairro:</strong>
+    <%= @transportador.bairro %>
+  </p>
+
+  <p>
+    <strong>Logradouro:</strong>
+    <%= @transportador.logradouro %>
+  </p>
+
+  <p>
+    <strong>Número:</strong>
+    <%= @transportador.numero %>
+  </p>
+
+  <p>
+    <strong>CEP:</strong>
+    <%= @transportador.cep %>
+  </p>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+
+</div>

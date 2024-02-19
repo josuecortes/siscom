@@ -1,0 +1,18 @@
+class CreateTransporteEscolarCondutores < ActiveRecord::Migration[6.0]
+  def change
+    create_table :transporte_escolar_condutores do |t|
+      t.string :nome
+      t.string :cpf
+      t.string :tipo
+      t.string :permissao
+      t.string :vencimento
+      t.references :municipio, null: false, foreign_key: { to_table: :transporte_escolar_municipios }
+      t.string :bairro
+      t.string :logradouro
+      t.string :numero
+      t.string :cep
+
+      t.timestamps
+    end
+  end
+end

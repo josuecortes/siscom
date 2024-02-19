@@ -1,0 +1,97 @@
+<!-- app/views/transporte_escolar/servicoes/index.html.erb -->
+
+<% content_for :title do %>
+  <i class="fa fa-info"></i> Serviços
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= transporte_escolar_servicos_url %>">Serviços</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de servicoes
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_transporte_escolar_servico_path, class: "btn btn-sm btn-success", title: "Novo Serviço", remote: true do %>
+    <i class="fas fa-plus"></i> Novo
+  <% end %>
+<% end %>
+
+<%= render "search_form", servicos: @servicos, ano_mes: @ano_mes %>
+
+<div class="row">
+  <div class="info-box col-lg">
+    <span class="info-box-icon bg-primary"><i class="fa fa-calendar"></i></span>
+    <div class="info-box-content">
+      <span class="info-box-number"><%= @ano_mes.to_date.strftime("%B") %></span>
+      <span class="info-box-number"><%=  @ano_mes.to_date.year %></span>
+    </div>
+  </div>
+  
+  <div class="info-box col-lg">
+    <span class="info-box-icon bg-primary"><i class="fa fa-map"></i></span>
+    <div class="info-box-content">
+      <span class="info-box-number"><%= @escola ? TransporteEscolar::Escola.find(@escola)&.nome : 'Escola: Todas' %></span>
+      <span class="info-box-number"><%= @municipio ? TransporteEscolar::Municipio.find(@municipio)&.nome : 'Municipio: Todos' %></span>
+    </div>
+  </div>
+
+  <div class="info-box col-lg">
+    <span class="info-box-icon bg-primary"><i class="fa fa-car"></i></span>
+    <div class="info-box-content">
+      <span class="info-box-number"><%= @transportador ? TransporteEscolar::Transportador.find(@transportador)&.nome_ou_razao_social : 'Transportador: Todos' %></span>
+      <span class="info-box-number"><%= @transportador ? TransporteEscolar::Transportador.find(@transportador)&.cpf_ou_cnpj : '' %></span>
+    </div>
+  </div>
+
+  <div class="info-box col-lg">
+    <span class="info-box-icon bg-warning"><i class="fa fa-money"></i></span>
+    <div class="info-box-content">
+      <span class="info-box-number">Valor Estimado</span>
+      <span class="info-box-number"><%= @servicos_valor_estimado.real_contabil  %></span>
+    </div>
+  </div>
+
+  <div class="info-box col-lg">
+    <span class="info-box-icon bg-danger"><i class="fa fa-money"></i></span>
+    <div class="info-box-content">
+      <span class="info-box-number">Valor Trabalhado</span>
+      <span class="info-box-number"><%= @servicos_com_valor.sum(&:valor_total_diarias).real_contabil %></span>
+    </div>
+  </div>
+</div>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Contrato</th>
+      <th>Escola</th>
+      <th>Município</th>
+      <th>Veículo</th>
+      <th>Transportador</th>
+      <th>Valor Integral</th>
+      <th>Valor Diárias</th>
+      <th>Dias TB</th>
+      <th>Valor</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <% @servicos.each_with_index do |servico, index| %>
+      <%= render 'servico', servico: servico, index: index %>
+    <% end %>
+  </tbody>
+</table>
+
+<% content_for :javascripts do %>
+  <script>
+    $(document).ready(function() {
+      $('.js-searchable').select2({
+        placeholder: "Selecione uma opção",
+        allowClear: true,
+        theme: 'bootstrap',
+        width: '100%'
+      });
+    });
+  </script>
+<% end %>

@@ -1,0 +1,55 @@
+<div class="modal-body">
+  <p>
+    <strong>Código:</strong>
+    <%= @contrato.codigo %>
+  </p>
+
+  <p>
+    <strong>Rota:</strong>
+    <%= @contrato.rota %>
+  </p>
+
+  <p>
+    <strong>Descrição:</strong>
+    <%= @contrato.descricao %>
+  </p>
+
+  <p>
+    <strong>Início:</strong>
+    <%= @contrato.inicio.strftime("%d/%m/%Y") %>
+  </p>
+
+  <p>
+    <strong>Fim:</strong>
+    <%= @contrato.fim.strftime("%d/%m/%Y") %>
+  </p>
+
+  <p>
+    <strong>Valor Total:</strong>
+    <%= number_to_currency(@contrato.valor_total, unit: "R$", separator: ",", delimiter: ".") %>
+  </p>
+
+  <p>
+    <strong>Valor Diária:</strong>
+    <%= number_to_currency(@contrato.valor_diaria, unit: "R$", separator: ",", delimiter: ".") %>
+  </p>
+
+  <p>
+    <strong>Transportador:</strong>
+    <%= @contrato.transportador.nome_ou_razao_social %>
+  </p>
+
+  <p>
+    <strong>Escola:</strong>
+    <%= @contrato.escola.nome %>
+  </p>
+
+  <p>
+    <strong>Veículo:</strong>
+    <%= @contrato.veiculo.identificacao %>
+  </p>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+</div>

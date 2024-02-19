@@ -1,0 +1,181 @@
+<!-- app/views/transporte_escolar/transportadores/_form.html.erb -->
+
+<div class="modal-body">
+
+  <%= form_for @transportador, remote: true do |f| %>
+    
+    <% if @transportador.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="mt-4 p-3 border rounded shadow-sm">
+      <div class="p-2 mb-3 bg-default text-black rounded">
+        <h4 class="mb-0">Dados</h4>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :tipo, "Tipo Pessoa" %>
+        <%= f.select :tipo, @tipos, { include_blank: true }, { class: "form-control js-searchable select2-tipo", required: true } %>
+        <%= has_error(@transportador, :tipo) %>
+      </div>
+
+      
+      <!-- Campos de Pessoa Física -->
+      <div id="nome-field" style="display: none;">
+        <div class="form-group">
+          <%= f.label :nome, "Nome" %>
+          <%= f.text_field :nome, class: "form-control" %>
+          <%= has_error(@transportador, :nome) %>
+        </div>
+      </div>
+
+      <div id="cpf-field" style="display: none;">
+        <div class="form-group">
+          <%= f.label :cpf, "CPF" %>
+          <%= f.text_field :cpf, class: "form-control cpf" %>
+          <%= has_error(@transportador, :cpf) %>
+        </div>
+      </div>
+
+      <!-- Campos de Pessoa Jurídica -->
+      <div id="razao-social-field" style="display: none;">
+        <div class="form-group">
+          <%= f.label :razao_social, "Razão Social" %>
+          <%= f.text_field :razao_social, class: "form-control" %>
+          <%= has_error(@transportador, :razao_social) %>
+        </div>
+      </div>
+
+      <div id="cnpj-field" style="display: none;">
+        <div class="form-group">
+          <%= f.label :cnpj, "CNPJ" %>
+          <%= f.text_field :cnpj, class: "form-control cnpj" %>
+          <%= has_error(@transportador, :cnpj) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 border rounded shadow-sm">
+      <div class="p-2 mb-3 bg-default text-black rounded">
+        <h4 class="mb-0">Informações Bancárias</h4>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :codigo, "Código ou Número do Banco" %>
+        <%= f.text_field :codigo, class: "form-control", required: true %>
+        <%= has_error(@transportador, :codigo) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :banco, "Nome de Banco" %>
+        <%= f.text_field :banco, class: "form-control", required: true %>
+        <%= has_error(@transportador, :banco) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :agencia %>
+        <%= f.text_field :agencia, class: "form-control", required: true %>
+        <%= has_error(@transportador, :agencia) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :tipo_de_conta, "Tipo Conta" %>
+        <%= f.select :tipo_de_conta, @tipos_de_contas, { include_blank: true }, { class: "form-control js-searchable select2-tipo_de_conta", required: true } %>
+        <%= has_error(@transportador, :tipo_de_conta) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :conta %>
+        <%= f.text_field :conta, class: "form-control", required: true %>
+        <%= has_error(@transportador, :conta) %>
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 border rounded shadow-sm">
+      <div class="p-2 mb-3 bg-default text-black rounded">
+        <h4 class="mb-0">Informações de Endereço</h4>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :municipio_id, "Município" %>
+        <%= f.select :municipio_id, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+        <%= has_error(@transportador, :municipio_id) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :bairro %>
+        <%= f.text_field :bairro, class: "form-control" %>
+        <%= has_error(@transportador, :bairro) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :logradouro, "Logradouro" %>
+        <%= f.text_field :logradouro, class: "form-control" %>
+        <%= has_error(@transportador, :logradouro) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :numero, "Número" %>
+        <%= f.text_field :numero, class: "form-control" %>
+        <%= has_error(@transportador, :numero) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :cep, "CEP" %>
+        <%= f.text_field :cep, class: "form-control cep" %>
+        <%= has_error(@transportador, :cep) %>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+
+  <script>
+    $(document).ready(function() {
+      
+      $('.js-searchable').select2({
+        placeholder: "Selecione",
+        allowClear: true,
+        theme: 'bootstrap',
+        width: '100%'
+      });
+      
+      function limpar_area(){
+        $("#razao-social-field").hide();
+        $("#cnpj-field").hide();
+        $("#nome-field").hide();
+        $("#cpf-field").hide();
+      }
+
+      function carregar_area(nome){
+        limpar_area()
+        switch (nome){
+          case 'Pessoa Física':
+            $("#nome-field").show();
+            $("#cpf-field").show();
+            break;
+          case 'Pessoa Jurídica': 
+            $("#razao-social-field").show();
+            $("#cnpj-field").show();
+            break;    
+        }
+      }
+      
+      let tipoSelecionado = $('.select2-tipo :selected').text()
+      carregar_area(tipoSelecionado)
+
+      $('.select2-tipo').change(function(){
+        let tipoSelecionado = $('.select2-tipo :selected').text()
+        carregar_area(tipoSelecionado)
+      })
+    });
+  </script>
+
+</div>

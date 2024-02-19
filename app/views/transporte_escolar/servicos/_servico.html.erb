@@ -1,0 +1,34 @@
+<!-- app/views/transporte_escolar/servicoes/_servico.html.erb -->
+<%
+  tr_class = if servico.pendencias.present?
+               "table-warning"
+             elsif servico.status == "Pago" && !servico.pendencias.present?
+               "table-success"
+             else
+               ""
+             end
+%>
+<tr class="<%= tr_class %>">
+  <td><%= index + 1 %></td> 
+  <td><%= link_to servico.contrato&.codigo, servico.contrato ? servico.contrato : '#', remote: true %></td>
+  <td><%= link_to servico.contrato&.escola&.nome, servico.contrato&.escola ? servico.contrato&.escola : '#', remote: true %></td>
+  <td><%= servico.contrato&.escola&.municipio&.nome_tipo %></td>
+  <td><%= link_to servico.contrato&.veiculo&.tipo_identificacao, servico.contrato&.veiculo ? servico.contrato&.veiculo : '#', remote: true %></td>
+  <td><%= link_to servico.contrato&.transportador&.nome_ou_razao_social, servico.contrato&.transportador ? servico.contrato&.transportador : '#', remote: true %></td>
+  <td><%= servico.contrato&.valor_total&.real_contabil %></td>
+  <td><%= servico.contrato&.valor_diaria&.real_contabil %></td>
+  <td><%= servico.diarias ? servico.diarias : 0 %></td>
+  <td><%= servico.calcular_valor.real_contabil %></td>
+  <td><%= servico.status %></td>
+  <td>
+    <%= link_to servico, class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+      <i class="fas fa-eye"></i>
+    <% end %>
+    <%= link_to edit_transporte_escolar_servico_path(servico), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+      <i class="fas fa-edit"></i>
+    <% end %>
+    <%= link_to servico, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr> 

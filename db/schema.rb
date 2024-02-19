@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_15_124224) do
+ActiveRecord::Schema.define(version: 2024_02_05_144446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -218,6 +218,112 @@ ActiveRecord::Schema.define(version: 2023_12_15_124224) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "transporte_escolar_condutores", force: :cascade do |t|
+    t.string "nome"
+    t.string "cpf"
+    t.integer "tipo"
+    t.string "permissao"
+    t.string "vencimento"
+    t.bigint "municipio_id", null: false
+    t.string "bairro"
+    t.string "logradouro"
+    t.string "numero"
+    t.string "cep"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["municipio_id"], name: "index_transporte_escolar_condutores_on_municipio_id"
+  end
+
+  create_table "transporte_escolar_contratos", force: :cascade do |t|
+    t.string "codigo"
+    t.string "rota"
+    t.text "descricao"
+    t.date "inicio"
+    t.date "fim"
+    t.float "valor_total"
+    t.float "valor_diaria"
+    t.string "bigint"
+    t.bigint "transportador_id", null: false
+    t.bigint "escola_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "veiculo_id", null: false
+    t.index ["escola_id"], name: "index_transporte_escolar_contratos_on_escola_id"
+    t.index ["transportador_id"], name: "index_transporte_escolar_contratos_on_transportador_id"
+    t.index ["veiculo_id"], name: "index_transporte_escolar_contratos_on_veiculo_id"
+  end
+
+  create_table "transporte_escolar_escolas", force: :cascade do |t|
+    t.string "codigo"
+    t.string "nome"
+    t.bigint "municipio_id", null: false
+    t.string "bairro"
+    t.string "logradouro"
+    t.string "numero"
+    t.string "cep"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["municipio_id"], name: "index_transporte_escolar_escolas_on_municipio_id"
+  end
+
+  create_table "transporte_escolar_municipios", force: :cascade do |t|
+    t.string "nome"
+    t.integer "tipo"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "transporte_escolar_servicos", force: :cascade do |t|
+    t.string "numero"
+    t.integer "diarias"
+    t.bigint "contrato_id", null: false
+    t.integer "status"
+    t.string "ano_mes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.boolean "nota", default: false
+    t.boolean "boletim", default: false
+    t.index ["contrato_id"], name: "index_transporte_escolar_servicos_on_contrato_id"
+  end
+
+  create_table "transporte_escolar_transportadores", force: :cascade do |t|
+    t.integer "tipo"
+    t.string "nome"
+    t.string "cpf"
+    t.string "razao_social"
+    t.string "cnpj"
+    t.bigint "municipio_id", null: false
+    t.string "bairro"
+    t.string "logradouro"
+    t.string "numero"
+    t.string "cep"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "codigo"
+    t.string "banco"
+    t.string "agencia"
+    t.integer "tipo_de_conta"
+    t.string "conta"
+    t.index ["municipio_id"], name: "index_transporte_escolar_transportadores_on_municipio_id"
+  end
+
+  create_table "transporte_escolar_veiculos", force: :cascade do |t|
+    t.integer "tipo"
+    t.string "identificacao"
+    t.string "ano"
+    t.string "modelo"
+    t.string "marca"
+    t.integer "capacidade_pessoas"
+    t.integer "capacidade_carga"
+    t.bigint "transportador_id", null: false
+    t.bigint "condutor_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "procedencia"
+    t.index ["condutor_id"], name: "index_transporte_escolar_veiculos_on_condutor_id"
+    t.index ["transportador_id"], name: "index_transporte_escolar_veiculos_on_transportador_id"
+  end
+
   create_table "unidades", force: :cascade do |t|
     t.string "nome"
     t.string "sigla"
@@ -291,6 +397,15 @@ ActiveRecord::Schema.define(version: 2023_12_15_124224) do
   add_foreign_key "servico_transportes", "motoristas"
   add_foreign_key "servico_transportes", "requisicao_transportes"
   add_foreign_key "servico_transportes", "veiculos"
+  add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
+  add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
+  add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"
+  add_foreign_key "transporte_escolar_contratos", "transporte_escolar_transportadores", column: "transportador_id"
+  add_foreign_key "transporte_escolar_escolas", "transporte_escolar_municipios", column: "municipio_id"
+  add_foreign_key "transporte_escolar_servicos", "transporte_escolar_contratos", column: "contrato_id"
+  add_foreign_key "transporte_escolar_transportadores", "transporte_escolar_municipios", column: "municipio_id"
+  add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_condutores", column: "condutor_id"
+  add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_transportadores", column: "transportador_id"
   add_foreign_key "unidades", "tipo_unidades"
   add_foreign_key "users", "funcoes"
   add_foreign_key "users", "unidades"

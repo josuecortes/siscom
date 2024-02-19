@@ -132,6 +132,52 @@
           </li>
         <% end %>
 
+        <% if current_user.has_any_role? :ges_tp_es, :tec_tp_es, :master, :admin %>
+          <li class="nav-header">TRANSPORTE ESCOLAR</li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_servicos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/servicos" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Serviços</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_contratos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/contratos" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Contratos</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_escolas_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/escolas" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Escolas</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_transportadores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/transportadores" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Transportadores</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_condutores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/condutores" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Condutores</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= transporte_escolar_veiculos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/veiculos" and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-info"></i>
+              <p>Veiculos</p>
+            </a>
+          </li>
+        <% end %>
+
         <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
           <li class="nav-header">NUINFO</li>
 

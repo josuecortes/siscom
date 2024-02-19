@@ -1,0 +1,88 @@
+<!-- app/views/transporte_escolar/servicoes/_form.html.erb -->
+
+<div class="modal-body">
+
+  <%= form_for @servico, remote: true do |f| %>
+    
+    <% if @servico.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= label_tag "Contrato (Número ou Código)" %>
+      <%= text_field_tag '',(@servico.contrato&.codigo if @servico.contrato&.codigo), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Serviço (Número ou Código)" %>
+      <%= text_field_tag '',(@servico.numero), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Referência (Mês/Ano)" %>
+      <%= text_field_tag '',(@servico.ano_mes if @servico.ano_mes), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Valor Integral" %>
+      <%= text_field_tag '',(@servico.contrato&.valor_total&.real_contabil if @servico.contrato&.valor_total&.real_contabil), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= label_tag "Valor Diária" %>
+      <%= text_field_tag '',(@servico.contrato&.valor_diaria&.real_contabil if @servico.contrato&.valor_diaria&.real_contabil), class: "form-control", readonly: true %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :diarias, "Número de diárias" %>
+      <%= f.number_field :diarias, class: "form-control", required: true, min: 0, max: 31 %>
+      <%= has_error(@servico, :diarias) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :status, "Status do Serviço" %>
+      <%= f.select :status, @status, { include_blank: true }, { class: "form-control js-searchable select2-status", required: true } %>
+      <%= has_error(@servico, :status) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :nota, "Enviou Nota?" %>
+      <div class="custom-control custom-switch">
+        <%= f.check_box :nota, class: "custom-control-input", id: "customSwitchNota" %>
+        <%= f.label :nota, "", class: "custom-control-label", for: "customSwitchNota" %>
+      </div>
+      <%= has_error(@servico, :nota) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :boletim, "Enviou Boletim?" %>
+      <div class="custom-control custom-switch">
+        <%= f.check_box :boletim, class: "custom-control-input", id: "customSwitchBoletim" %>
+        <%= f.label :boletim, "", class: "custom-control-label", for: "customSwitchBoletim" %>
+      </div>
+      <%= has_error(@servico, :boletim) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+
+  <script>
+    $(document).ready(function() {
+      
+      $('.js-searchable').select2({
+        placeholder: "Selecione",
+        allowClear: true,
+        theme: 'bootstrap',
+        width: '100%'
+      }); 
+    });
+  </script>
+
+</div>

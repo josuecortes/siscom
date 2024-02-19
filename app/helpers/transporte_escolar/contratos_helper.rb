@@ -1,0 +1,2 @@
+module TransporteEscolar::ContratosHelper
+end

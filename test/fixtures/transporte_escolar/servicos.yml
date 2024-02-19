@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  numero: MyString
+  diarias: 1
+  contrato: one
+  status: 1
+  ano_mes: MyString
+
+two:
+  numero: MyString
+  diarias: 1
+  contrato: two
+  status: 1
+  ano_mes: MyString

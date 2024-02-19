@@ -110,6 +110,15 @@ class RequisicaoTi < ApplicationRecord
         self.errors.add(:carta, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.decreto.present?
         self.errors.add(:decreto, 'Você precisa adicionar uma carta de apresentação ou um decreto de nomeação.') unless self.carta.present?
       end
+      
+      if carta.attached? && carta.blob.byte_size > 1.megabyte
+        errors.add(:carta, "O tamanho é muito grande. O arquivo deve ser menor que 1MB.")
+      end
+
+      if decreto.attached? && decreto.blob.byte_size > 1.megabyte
+        errors.add(:decreto, "O tamanho é muito grande. O arquivo deve ser menor que 1MB.")
+      end
+
     end
   end
 

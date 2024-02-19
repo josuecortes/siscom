@@ -1,0 +1,42 @@
+<div class="modal-body">
+  
+  <p>
+    <strong>Codigo:</strong>
+    <%= @escola.codigo %>
+  </p>
+
+  <p>
+    <strong>Nome:</strong>
+    <%= @escola.nome %>
+  </p>
+
+  <p>
+    <strong>Municipio:</strong>
+    <%= @escola.municipio&.nome_tipo %>
+  </p>
+
+  <p>
+    <strong>Bairro:</strong>
+    <%= @escola.bairro %>
+  </p>
+
+  <p>
+    <strong>Logradouro:</strong>
+    <%= @escola.logradouro %>
+  </p>
+
+  <p>
+    <strong>Numero:</strong>
+    <%= @escola.numero %>
+  </p>
+
+  <p>
+    <strong>Cep:</strong>
+    <%= @escola.cep %>
+  </p>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+
+</div>

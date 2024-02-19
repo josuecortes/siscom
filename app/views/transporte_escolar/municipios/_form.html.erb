@@ -1,0 +1,27 @@
+<%= form_with(model: transporte_escolar_municipio, local: true) do |form| %>
+  <% if transporte_escolar_municipio.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(transporte_escolar_municipio.errors.count, "error") %> prohibited this transporte_escolar_municipio from being saved:</h2>
+
+      <ul>
+        <% transporte_escolar_municipio.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :nome %>
+    <%= form.text_field :nome %>
+  </div>
+
+  <div class="field">
+    <%= form.label :tipo %>
+    <%= form.number_field :tipo %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,5 +1,30 @@
 Rails.application.routes.draw do
 
+  namespace :transporte_escolar do
+    resources :servicos do
+      collection do
+        post :search
+      end
+    end
+  end
+  namespace :transporte_escolar do
+    resources :contratos
+  end
+  namespace :transporte_escolar do
+    resources :veiculos
+  end
+  namespace :transporte_escolar do
+    resources :condutores
+  end
+  namespace :transporte_escolar do
+    resources :transportadores
+  end
+  namespace :transporte_escolar do
+    resources :escolas
+  end
+  namespace :transporte_escolar do
+    resources :municipios
+  end
   resources :incidentes do
     member do
       get 'finalizar'

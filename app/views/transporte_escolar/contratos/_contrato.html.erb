@@ -1,0 +1,24 @@
+<!-- app/views/transporte_escolar/contratos/_contrato.html.erb -->
+<tr>
+  <td><%= index + 1 %></td>
+  <td><%= contrato.codigo %></td>
+  <td><%= contrato.inicio&.to_s_br %></td>
+  <td><%= contrato.fim&.to_s_br %></td>
+  <td><%= contrato.valor_total&.real_contabil %></td>
+  <td><%= contrato.valor_diaria&.real_contabil %></td>
+  <td><%= link_to contrato.transportador&.nome_ou_razao_social, contrato.transportador ? contrato.transportador : '#', remote: true %></td>
+  <td><%= link_to contrato.escola&.nome, contrato.escola ? contrato.escola : '#', remote: true %></td>
+  <td><%= contrato.escola&.municipio&.nome_tipo %></td>
+  <td><%= link_to contrato.veiculo&.identificacao, contrato.veiculo ? contrato.veiculo : '#', remote: true %></td>
+  <td>
+    <%= link_to contrato, class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
+      <i class="fas fa-eye"></i>
+    <% end %>
+    <%= link_to edit_transporte_escolar_contrato_path(contrato), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
+      <i class="fas fa-edit"></i>
+    <% end %>
+    <%= link_to contrato, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
+      <i class="fas fa-trash"></i>
+    <% end %>
+  </td>
+</tr>

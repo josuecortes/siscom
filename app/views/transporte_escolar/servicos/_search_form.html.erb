@@ -1,0 +1,34 @@
+<div class="card card-default">
+  <div class="card-header">
+    <h3 class="card-title">Formulário de pesquisa</h3>
+  </div>
+
+  <%= form_tag search_transporte_escolar_servicos_path, class: 'form-horizontal' do %>
+    <div class="card-body">
+      <div class="form-row">
+        
+        <div class="col-md-2">          
+          <%= select_tag(:ano_mes, options_for_select(@datas, (@ano_mes ? @ano_mes : '')), prompt: "Selecione uma opção", class: 'form-control js-searchable') %>
+        </div>
+
+        <div class="col-md-3">
+          <%= select_tag(:municipio, options_for_select(@municipios, (@municipio ? @municipio : '')), prompt: "Selecione uma opção", class: 'form-control js-searchable') %>
+        </div>
+        
+        <div class="col-md-3">
+          <%= select_tag(:escola, options_for_select(@escolas, (@escola ? @escola : '')), prompt: "Selecione uma opção", class: 'form-control js-searchable') %>
+        </div>
+
+        <div class="col-md-3">
+          <%= select_tag(:transportador, options_for_select(@transportadores, (@transportador ? @transportador : '')), prompt: "Selecione uma opção", class: 'form-control js-searchable') %>
+        </div>
+
+        <div class="col-md-1">
+          <button type="submit" class="btn btn-info">Buscar</button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</div>
+

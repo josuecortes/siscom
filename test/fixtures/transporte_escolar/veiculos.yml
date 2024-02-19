@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tipo: 1
+  identificacao: MyString
+  ano: MyString
+  modelo: MyString
+  marca: MyString
+  capacidade_pessoas: 1
+  capacidade_carga: 1
+  transportador: one
+  condutor: one
+
+two:
+  tipo: 1
+  identificacao: MyString
+  ano: MyString
+  modelo: MyString
+  marca: MyString
+  capacidade_pessoas: 1
+  capacidade_carga: 1
+  transportador: two
+  condutor: two

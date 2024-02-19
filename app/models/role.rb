@@ -37,6 +37,10 @@ class Role < ApplicationRecord
       "Requisitante de serviços de Transporte"
     when 'req_serv_md'
       "Requisitante de serviços de Mídia"
+    when 'ges_tp_es'
+      "Gestor de Transporte Escolar"
+    when 'tec_tp_es'
+      "Tecnico de Transporte Escolar"  
     end
   end
 
@@ -44,7 +48,7 @@ class Role < ApplicationRecord
     if u.has_role?(:master)
       all
     elsif u.has_role?(:admin)
-      where('name != ?', 'master')
+      where('name != ? and name != ? and name != ?', 'master', 'ges_tp_es', 'tec_tp_es')
     elsif u.has_role?(:tec_serv_tp)
       where('name = ? or name = ?', 'tec_serv_tp', 'req_serv_tp')  
     else

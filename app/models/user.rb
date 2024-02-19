@@ -49,6 +49,9 @@ class User < ApplicationRecord
   # :req_serv_ti_sis  => Requisitante de servico de Tecnologia da Informacao
   # :req_serv_tp      => Requisitante de servico de Transporte
   # :req_serv_md      => Requisitante de servico de Midia
+  # :ges_tp_es        => Gestor de transporte escolar
+  # :tec_tp_es        => Tecnico de transporte escolar
+
 
   def self.autorizado(u)
     if u.has_role?(:master) or u.has_role?(:tec_serv_tp)

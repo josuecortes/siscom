@@ -1,0 +1,58 @@
+<!-- app/views/transporte_escolar/transportadores/_show.html.erb -->
+
+<div class="modal-body">
+
+  <% if @servico.pendencias.present? %>
+    <ul>
+      <% @servico.pendencias.each do |pendencia| %>
+        <li><%= pendencia %></li>
+      <% end %>
+    </ul>
+    <hr>
+  <% end %>
+  
+  <p>
+    <strong>Contrato:</strong>
+    <%= @servico.contrato&.codigo %>
+  </p>
+
+  <p>
+    <strong>Serviço:</strong>
+    <%= @servico.numero %>
+  </p>
+
+  <p>
+    <strong>Referência:</strong>
+    <%= @servico.ano_mes %>
+  </p>
+
+  <p>
+    <strong>Dias Trabalhados:</strong>
+    <%= @servico.diarias %>
+  </p>
+
+  <p>
+    <strong>Valor:</strong>
+    <%= @servico.calcular_valor.real_contabil %>
+  </p>
+
+  <p>
+    <strong>Status:</strong>
+    <%= @servico.status %>
+  </p>
+
+  <p>
+    <strong>Nota:</strong>
+    <%= @servico.nota ? "ENTREGOU" : "NÃO" %>
+  </p>
+
+  <p>
+    <strong>Boletim:</strong>
+    <%= @servico.boletim ? "ENTREGOU" : "NÃO" %>
+  </p>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+
+</div>

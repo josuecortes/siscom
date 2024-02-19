@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  codigo: MyString
+  rota: MyString
+  descricao: MyText
+  inicio: 2024-01-21
+  fim: 2024-01-21
+  valor_total: 
+  valor_diaria: MyString
+  bigint: MyString
+  transportador: one
+  escola: one
+
+two:
+  codigo: MyString
+  rota: MyString
+  descricao: MyText
+  inicio: 2024-01-21
+  fim: 2024-01-21
+  valor_total: 
+  valor_diaria: MyString
+  bigint: MyString
+  transportador: two
+  escola: two

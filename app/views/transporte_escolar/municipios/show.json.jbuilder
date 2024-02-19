@@ -1,0 +1,1 @@
+json.partial! "transporte_escolar_municipios/transporte_escolar_municipio", transporte_escolar_municipio: @transporte_escolar_municipio

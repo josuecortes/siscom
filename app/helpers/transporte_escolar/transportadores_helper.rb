@@ -1,0 +1,2 @@
+module TransporteEscolar::TransportadoresHelper
+end

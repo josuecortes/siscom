@@ -1,0 +1,78 @@
+<!-- app/views/transporte_escolar/condutores/_form.html.erb -->
+
+<div class="modal-body">
+
+  <%= form_for @condutor, remote: true do |f| %>
+    
+    <% if @condutor.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :nome %>
+      <%= f.text_field :nome, autofocus: true, autocomplete: "Nome", placeholder: "Digite o nome do condutor", class: "form-control", required: true %>
+      <%= has_error(@condutor, :nome) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :cpf %>
+      <%= f.text_field :cpf, autofocus: true, autocomplete: "CPF", placeholder: "Digite o CPF", class: "form-control cpf", required: true %>
+      <%= has_error(@condutor, :cpf) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :tipo %>
+      <%= f.select :tipo, @tipos, { include_blank: "Selecione um tipo" }, { class: "form-control", required: true } %>
+      <%= has_error(@condutor, :tipo) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :permissao %>
+      <%= f.text_field :permissao, autofocus: true, autocomplete: "Permissão", placeholder: "Digite a permissão", class: "form-control", required: true %>
+      <%= has_error(@condutor, :permissao) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :vencimento %>
+      <%= f.text_field :vencimento, autofocus: true, autocomplete: "Vencimento", placeholder: "Digite o vencimento", class: "form-control data", required: true %>
+      <%= has_error(@condutor, :vencimento) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :municipio_id %>
+      <%= f.select :municipio_id, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+      <%= has_error(@condutor, :municipio_id) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :bairro %>
+      <%= f.text_field :bairro, class: "form-control" %>
+      <%= has_error(@condutor, :bairro) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :logradouro, "Logradouro" %>
+      <%= f.text_field :logradouro, class: "form-control" %>
+      <%= has_error(@condutor, :logradouro) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :numero, "Número" %>
+      <%= f.text_field :numero, class: "form-control" %>
+      <%= has_error(@condutor, :numero) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :cep, "CEP" %>
+      <%= f.text_field :cep, class: "form-control cep" %>
+      <%= has_error(@condutor, :cep) %>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+<% end %>

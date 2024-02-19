@@ -1,0 +1,57 @@
+<!-- app/views/transporte_escolar/veiculos/show.html.erb -->
+
+<div class="modal-body">
+  <p>
+    <strong>Procedencia:</strong>
+    <%= @veiculo.procedencia %>
+  </p>
+
+  <p>
+    <strong>Tipo:</strong>
+    <%= @veiculo.tipo %>
+  </p>
+
+  <p>
+    <strong>Identificação:</strong>
+    <%= @veiculo.identificacao %>
+  </p>
+
+  <p>
+    <strong>Ano:</strong>
+    <%= @veiculo.ano %>
+  </p>
+
+  <p>
+    <strong>Modelo:</strong>
+    <%= @veiculo.modelo %>
+  </p>
+
+  <p>
+    <strong>Marca:</strong>
+    <%= @veiculo.marca %>
+  </p>
+
+  <p>
+    <strong>Capacidade de Pessoas:</strong>
+    <%= @veiculo.capacidade_pessoas %>
+  </p>
+
+  <p>
+    <strong>Capacidade de Carga:</strong>
+    <%= @veiculo.capacidade_carga %>
+  </p>
+
+  <p>
+    <strong>Transportador:</strong>
+    <%= @veiculo.transportador.nome_ou_razao_social if @veiculo.transportador %>
+  </p>
+
+  <p>
+    <strong>Condutor:</strong>
+    <%= @veiculo.condutor.nome if @veiculo.condutor %>
+  </p>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>
+  </div>
+</div>
