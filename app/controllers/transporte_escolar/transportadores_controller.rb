@@ -71,7 +71,11 @@ class TransporteEscolar::TransportadoresController < ApplicationController
 
     def transportador_params
       params.require(:transporte_escolar_transportador).permit(:tipo, :nome, :cpf, :razao_social, :cnpj, :municipio_id, :bairro, :logradouro,
-                     :numero, :cep, :codigo, :banco, :agencia, :tipo_de_conta, :conta)
+                     :numero, :cep, :codigo, :banco, :agencia, :tipo_de_conta, :conta,
+                     :doc_rg, :doc_cpf, :doc_carteira_maritima, :doc_dpen, :doc_tie, :doc_comprovante_endereco_contrato,
+                     :doc_certidao_negativa_estadual, :doc_certidao_negativa_federal, :doc_fotos_atualizadas,
+                     :doc_relacao_dos_alunos_por_rota, :doc_comprovante_conta_bancaria, :doc_cnh_categoria_d,
+                     :doc_auto_de_trafego, :doc_crlv, :doc_certificado_curso_de_condutor_escolar)
     end
 
     def verify_permission

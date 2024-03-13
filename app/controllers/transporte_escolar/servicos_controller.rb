@@ -107,8 +107,16 @@ class TransporteEscolar::ServicosController < ApplicationController
     end
 
     def load_ano_meses 
-      inicio = TransporteEscolar::Contrato.order(inicio: :asc).first.inicio.beginning_of_month
-      fim = TransporteEscolar::Contrato.order(fim: :asc).last.fim
+      inicio = TransporteEscolar::Contrato.order(inicio: :asc).first&.inicio&.beginning_of_month
+      fim = TransporteEscolar::Contrato.order(fim: :asc).last&.fim
+
+      unless inicio
+        inicio = Time.now.beginning_of_month
+      end
+      
+      unless fim
+        fim = Time.now
+      end
 
       @datas = []
 

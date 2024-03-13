@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_02_05_144446) do
+ActiveRecord::Schema.define(version: 2024_03_12_220434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -304,6 +304,21 @@ ActiveRecord::Schema.define(version: 2024_02_05_144446) do
     t.string "agencia"
     t.integer "tipo_de_conta"
     t.string "conta"
+    t.boolean "doc_rg", default: false
+    t.boolean "doc_cpf", default: false
+    t.boolean "doc_carteira_maritima", default: false
+    t.boolean "doc_dpen", default: false
+    t.boolean "doc_tie", default: false
+    t.boolean "doc_comprovante_endereco_contrato", default: false
+    t.boolean "doc_certidao_negativa_estadual", default: false
+    t.boolean "doc_certidao_negativa_federal", default: false
+    t.boolean "doc_fotos_atualizadas", default: false
+    t.boolean "doc_relacao_dos_alunos_por_rota", default: false
+    t.boolean "doc_comprovante_conta_bancaria", default: false
+    t.boolean "doc_cnh_categoria_d", default: false
+    t.boolean "doc_auto_de_trafego", default: false
+    t.boolean "doc_crlv", default: false
+    t.boolean "doc_certificado_curso_de_condutor_escolar", default: false
     t.index ["municipio_id"], name: "index_transporte_escolar_transportadores_on_municipio_id"
   end
 
