@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nome:</strong>
+  <%= @acao.nome %>
+</p>
+
+<p>
+  <strong>Descricao:</strong>
+  <%= @acao.descricao %>
+</p>
+
+<p>
+  <strong>Inicio:</strong>
+  <%= @acao.inicio %>
+</p>
+
+<p>
+  <strong>Fim:</strong>
+  <%= @acao.fim %>
+</p>
+
+<p>
+  <strong>Motivacao:</strong>
+  <%= @acao.motivacao %>
+</p>
+
+<p>
+  <strong>Orcamento:</strong>
+  <%= @acao.orcamento %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @acao.status %>
+</p>
+
+<p>
+  <strong>Mostrar no site:</strong>
+  <%= @acao.mostrar_no_site %>
+</p>
+
+<%= link_to 'Edit', edit_acao_path(@acao) %> |
+<%= link_to 'Back', acoes_path %>

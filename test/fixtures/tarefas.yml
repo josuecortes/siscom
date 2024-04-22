@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  titulo: MyString
+  descricao: MyString
+  inicio: 2024-04-18 14:46:23
+  fim: 2024-04-18 14:46:23
+  tipo: 1
+  status: 1
+  etapa: one
+  user: one
+
+two:
+  titulo: MyString
+  descricao: MyString
+  inicio: 2024-04-18 14:46:23
+  fim: 2024-04-18 14:46:23
+  tipo: 1
+  status: 1
+  etapa: two
+  user: two

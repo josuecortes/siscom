@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  nivel: 1
+  status: 1
+  inicio: 2024-04-18
+  fim: 2024-04-18
+  user: one
+  acao: one
+
+two:
+  nivel: 1
+  status: 1
+  inicio: 2024-04-18
+  fim: 2024-04-18
+  user: two
+  acao: two

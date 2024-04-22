@@ -1,0 +1,9 @@
+let etapa_id = <%= @etapa.id %>;
+let mensagem = '<%= j @mensagem %>';
+let erro = '<%= j @erro %>';
+$('#row_etapa_' + etapa_id).remove();
+if(erro === 'true') {
+  toastr.error(mensagem);
+} else {
+  toastr.success(mensagem);
+}

@@ -1,0 +1,15 @@
+<% passed = false %>
+
+<% if @tarefa.user == current_user || 
+      (current_user.has_role?(:ges_tf_un) && @tarefa.user.unidade == current_user.unidade) || 
+      (current_user.has_role?(:ges_acao) && (@tarefa.tipo == "Ação/Etapa" || @tarefa.tipo == 2)) %>
+  <% passed = true %>
+<% end %>
+
+<% if passed %>
+  $('#form-modal-title').html("<i class='fa fa-edit'></i> Editar Tarefa");
+  $('#form-modal-body').html('<%= j render("form") %>');
+  $('#form-modal').modal('show');
+<% else %>
+  toastr.error('Sem permissão para editar essa tarefa.');
+<% end %>

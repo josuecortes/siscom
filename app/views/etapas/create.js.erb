@@ -1,0 +1,3 @@
+$('#data-table-body').prepend('<%= j render partial: "etapa", locals: { etapa: @etapa } %>');
+$('#form-modal').modal('hide');
+toastr.success('Etapa Criada.');

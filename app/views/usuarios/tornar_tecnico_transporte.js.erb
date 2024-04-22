@@ -1,0 +1,11 @@
+let usuario_id = <%= @usuario.id %>;
+let mensagem = '<%= j @mensagem %>';
+let erro = '<%= j @erro %>';
+$('#row_usuario_' + usuario_id).replaceWith('<%= j render partial: "usuario", locals: { usuario: @usuario } %>');
+if(erro === 'true') {
+  toastr.error(mensagem);
+} else {
+  toastr.success(mensagem);
+}
+
+

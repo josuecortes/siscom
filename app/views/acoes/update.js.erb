@@ -1,0 +1,7 @@
+
+let acao_id = <%= @acao.id %>;
+$('#row_acao_' + acao_id).replaceWith('<%= j render partial: "acao", locals: { acao: @acao } %>');
+$('#form-modal').modal('hide');
+toastr.success('Ação Atualizada.');
+
+

@@ -1,0 +1,9 @@
+let erro = '<%= j @erro %>';
+if(erro === 'true') {
+  toastr.error('Erro ao atualizar tarefa, a página será recarregada.');
+  setTimeout(() => {
+    window.location.reload();
+  }, 3000); 
+} else {
+  toastr.success("Tarefa #<%= @tarefa.id %> atualizada");
+}

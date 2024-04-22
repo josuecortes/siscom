@@ -48,7 +48,7 @@ class UsuariosController < ApplicationController
     respond_to do |format|
       if @usuario.update(user_params)
         flash[:success] = "Usuário atualizado."
-        format.js {render :update, status: :created  }
+        format.js { render :update  }
       else
         flash.now[:error] = "Opss! Algo deu errado."
         format.js { render :edit }
@@ -65,25 +65,32 @@ class UsuariosController < ApplicationController
     end
    
     if @usuario.save
-      flash[:success] = "Usuário atualizado."
+      @erro = false
+      @mensagem = "Usuário atualizado."
     else
-      flash[:error] = "Opss! Algo deu errado."
+      @erro = true
+      @mensagem = "Opss! Algo deu errado."
     end
       
     respond_to do |format|
       format.html { redirect_to usuarios_url }
+      format.js {}
     end
   end
 
   def resetar_senha
-    if @usuario.resetar_senha
-      flash[:success] = "A senha foi resetada com sucesso - (Seed@123)."
-    else
-      flash[:error] = "Erro ao resetar a senha."
-    end
-
     respond_to do |format|
-      format.html { redirect_to usuarios_url }
+      if @usuario.resetar_senha
+        @erro = false
+        @mensagem = "A senha foi resetada com sucesso - (Seed@123)."
+        format.html { redirect_to usuarios_url }
+        format.js { }
+      else
+        @erro = true
+        @mensagem = "Erro ao resetar a senha."
+        format.html { redirect_to usuarios_url }
+        format.js {}
+      end
     end
   end
 
@@ -99,13 +106,16 @@ class UsuariosController < ApplicationController
       end
     end  
     if @usuario.save
-      flash[:success] = "Permissão de requisitante de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
+      @erro = false
+      @mensagem = "Permissão de requisitante de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
     else
-      flash[:error] = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
+      @erro = true
+      @mensagem = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
     end
 
     respond_to do |format|
       format.html { redirect_to usuarios_url }
+      format.js {}
     end
   end
 
@@ -121,13 +131,16 @@ class UsuariosController < ApplicationController
       end
     end 
     if @usuario.save
-      flash[:success] = "Permissão de técnico de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
+      @erro = false
+      @mensagem = "Permissão de técnico de transporte #{params['remove'] ? 'removida' : 'adicionada'}."
     else
-      flash[:error] = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
+      @erro = true
+      @mensagem = "Erro ao #{params['remove'] ? 'remover' : 'adicionar'} permissão."
     end
 
     respond_to do |format|
       format.html { redirect_to usuarios_url }
+      format.js {}
     end
   end
 

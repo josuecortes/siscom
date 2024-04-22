@@ -13,6 +13,11 @@ class User < ApplicationRecord
   has_many :requisicao_tis
   has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
   has_many :mensagens
+  has_many :acao_users
+  has_many :acoes, through: :acao_users
+  has_many :etapas, through: :acoes
+  has_many :tarefas
+  
 
   validates_presence_of :nome, :unidade_id, :funcao_id
   validates_uniqueness_of :nome
@@ -131,6 +136,27 @@ class User < ApplicationRecord
     return true if self.has_role? :tec_serv_ti
 
     false
+  end
+
+  def nome_ultimo_nome
+    if self.nome and self.nome.split.count >= 2
+      "#{self.nome&.split&.first&.downcase&.camelize} #{self.nome&.split&.last&.downcase&.camelize}"
+    elsif self.nome
+      self.nome&.downcase&.camelize
+    else
+      ""
+    end
+  end
+
+  def nome_ulitmo_nome_sigla
+    sigla = self.unidade&.sigla
+    if self.nome and self.nome.split.count >= 2
+      "#{self.nome.split.first} #{self.nome.split.last} | #{sigla if sigla}"
+    elsif self.nome
+      "#{self.nome} | #{sigla if sigla}"
+    else
+      ""
+    end
   end
 
   def mensagens_nao_lidas

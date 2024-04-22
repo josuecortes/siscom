@@ -1,0 +1,10 @@
+let erro = '<%= j @erro %>';
+if(erro === 'true') {
+  let tarefa = '<%= j @tarefa.id %>';
+  toastr.error(`Erro ao tentar excluir a tarefa #${tarefa}.`);
+} else {
+  let id = '<%= j @id %>';
+  $('#tarefa_' + id).remove();
+  toastr.success(`Tarefa #${id} excluída.`);
+  adjustPageHeight()
+}

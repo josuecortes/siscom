@@ -1,1 +1,6 @@
-location.reload();
+let usuario_id = <%= @usuario.id %>;
+$('#row_usuario_' + usuario_id).replaceWith('<%= j render partial: "usuario", locals: { usuario: @usuario } %>');
+$('#form-modal').modal('hide');
+toastr.success('Usuário Atualizado.');
+
+

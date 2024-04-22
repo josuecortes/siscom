@@ -1,0 +1,225 @@
+<style>
+  .badge-kanban {
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+
+
+<% content_for :title do %>
+  <i class="fa fa-check"></i> Tarefas
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= tarefas_url %>">Tarefas</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Tarefas
+<% end %>
+<% content_for :buttons do %>
+  <div class="btn-group" role="group" aria-label="Filtrar tarefas">
+    <button type="button" class="btn btn-sm btn-success" id="btn-tarefaP" onclick="toggleTaskVisibility('tarefaP', 'btn-tarefaP')">Pessoais</button>
+    <button type="button" class="btn btn-sm btn-success" id="btn-tarefaU" onclick="toggleTaskVisibility('tarefaU', 'btn-tarefaU')">Unidade</button>
+    <button type="button" class="btn btn-sm btn-success" id="btn-tarefaA" onclick="toggleTaskVisibility('tarefaA', 'btn-tarefaA')">Ação/Tarefa</button>
+  </div>
+  <%= link_to new_tarefa_path, class: "btn btn-sm btn-success", title: "Nova Tarefa", remote: true do %>
+    <i class="fas fa-plus"></i> Nova
+  <% end %>
+
+<% end %>
+
+<div class="content pb-3">
+  <div class="container-fluid h-100">
+    <div class="card card-row card-secondary container-on" id="container-1" ondragover="dragOver(event)" ondrop="drop(event)">      
+      <div class="card-header">
+        <h3 class="card-title">
+          Não Iniciada
+        </h3>
+      </div>
+      <div class="tasks">
+        <% @nao_iniciadas.each do |tarefa| %>
+          <%= render partial: 'tarefa', locals: { tarefa: tarefa, card_color: 'card-secondary' } %>
+        <% end %>
+      </div>
+    </div>
+    <div class="card card-row card-primary container-on" id="container-2" ondragover="dragOver(event)" ondrop="drop(event)">
+      <div class="card-header">
+        <h3 class="card-title">
+          Em andamento
+        </h3>
+      </div>  
+      <div class="tasks">
+        <% @em_andamento.each do |tarefa| %>
+          <%= render partial: 'tarefa', locals: { tarefa: tarefa, card_color: 'card-primary' } %>
+        <% end %>
+      </div>  
+    </div>
+    <div class="card card-row card-warning container-on" id="container-3" ondragover="dragOver(event)" ondrop="drop(event)">
+      <div class="card-header">
+        <h3 class="card-title">
+          Impedimento
+        </h3>
+      </div>
+      <div class="tasks">
+        <% @impedidas.each do |tarefa| %>
+          <%= render partial: 'tarefa', locals: { tarefa: tarefa, card_color: 'card-warning' } %>
+        <% end %>
+      </div>
+    </div>
+    <div class="card card-row card-success container-on" id="container-4" ondragover="dragOver(event)" ondrop="drop(event)">
+      <div class="card-header">
+        <h3 class="card-title">
+          Concluída
+        </h3>
+      </div>
+      <div class="tasks">
+        <% @concluidas.each do |tarefa| %>
+          <%= render partial: 'tarefa', locals: { tarefa: tarefa, card_color: 'card-success' } %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function toggleTaskVisibilityById(taskId, btnId) {
+    const task = document.getElementById(taskId);
+    const btn = document.getElementById(btnId);
+    
+    // Verifica se a tarefa existe
+    if (task) {
+      // Verifica se o botão tem a classe 'btn-danger'
+      const isDanger = btn.classList.contains('btn-danger');
+      
+      // Se o botão tiver a classe 'btn-danger', oculta a tarefa, caso contrário, exibe
+      if (isDanger) {
+        task.classList.add('hidden');
+      } else {
+        task.classList.remove('hidden');
+      }
+    }
+
+    adjustPageHeight()
+  }
+
+  function toggleTaskVisibility(className, buttonId) {
+    const tasks = document.querySelectorAll('.tarefa');
+    const button = document.getElementById(buttonId);
+
+    // Verifica se os elementos estão visíveis ou ocultos
+    let isVisible = true;
+    tasks.forEach(task => {
+      if (task.classList.contains(className) && !task.classList.contains('hidden')) {
+        isVisible = false;
+      }
+    });
+
+    // Alterna a visibilidade dos elementos e atualiza a classe do botão
+    tasks.forEach(task => {
+      if (task.classList.contains(className)) {
+        task.classList.toggle('hidden');
+      }
+    });
+
+    // Atualiza a classe do botão com base na visibilidade dos elementos
+    if (isVisible) {
+      button.classList.remove('btn-danger');
+      button.classList.add('btn-success');
+    } else {
+      button.classList.remove('btn-success');
+      button.classList.add('btn-danger');
+    }
+
+    adjustPageHeight()
+  }
+
+  function atualizarStatusTarefa(tarefaId, containerID) {
+    fetch(`/tarefas/atualizar_status?tarefa_id=${tarefaId}&container_id=${containerID}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erro ao carregar os dados');
+        }
+        return response.text();
+      })
+      .then(data => {
+        eval(data);
+      })
+      .catch(error => {
+        console.error('Ocorreu um erro:', error);
+        toastr.error('Erro na execução, a página será recarregada.');
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      });
+  }
+
+
+  function adjustPageHeight() {
+    const containers = document.querySelectorAll('.container-on');
+    let maxHeight = 0;
+    containers.forEach(container => {
+      const containerHeight = container.offsetHeight;
+      if (containerHeight > maxHeight) {
+        maxHeight = containerHeight;
+      }
+    });
+    const content = document.querySelector('.content');
+    content.style.height = maxHeight + 170 + 'px';
+  }
+
+  function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.id);
+  }
+
+  function dragOver(event) {
+    event.preventDefault();
+  }
+
+  function drop(event) {
+    event.preventDefault();
+    const tarefaId = event.dataTransfer.getData('text/plain');
+    const tarefa = document.getElementById(tarefaId);
+    const container = event.target.closest('.container-on');
+
+    // Verificar se o elemento .card-header existe dentro do container
+    const cardHeader = container.querySelector('.card-header');
+    if (cardHeader) {
+      // Mover a tarefa para dentro do container, logo abaixo do elemento .card-header
+      cardHeader.parentNode.insertBefore(tarefa, cardHeader.nextSibling);
+      
+      // Atualizar a classe do elemento .card para refletir a classe do container-on
+      const card = tarefa.querySelector('.card-outline');
+      if (card) {
+        // Remover todas as classes do elemento .card
+        card.classList.remove('card-primary', 'card-secondary', 'card-warning', 'card-success');
+        // Adicionar a classe do container-on ao elemento .card
+        card.classList.add(container.classList[2]); // A classe desejada é a quarta classe do container-on
+      }
+      
+      // Mostrar no console os IDs da tarefa, do container de destino e a classe do elemento .card
+      console.log("ID da tarefa:", tarefaId);
+      console.log("ID do container de destino:", container.id);
+      console.log("Classe do elemento .card:", card.classList);
+
+      
+      const boundingBox = tarefa.getBoundingClientRect();
+      if (boundingBox.bottom > window.innerHeight) {
+        window.scrollBy(0, boundingBox.bottom - window.innerHeight);
+      }
+    } else {
+      console.error("Elemento .card-header não encontrado dentro do container.");
+    }
+    
+    adjustPageHeight();
+
+    atualizarStatusTarefa(tarefaId, container.id);
+  }
+
+  adjustPageHeight();
+
+</script>

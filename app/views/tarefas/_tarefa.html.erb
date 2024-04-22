@@ -1,0 +1,57 @@
+<% draggable = 
+  (current_user.has_role?(:ges_acao) && tarefa.tipo == "Ação/Etapa") ||
+  (current_user.has_role?(:ges_tf_un) && tarefa.tipo == "Unidade") ||
+  (tarefa.user == current_user) %>
+
+<div class="tarefa tarefa<%= tarefa.tipo&.first %>" id="tarefa_<%= tarefa.id %>" draggable="<%= draggable %>" ondragstart="dragStart(event)">
+  <div class="card-body">
+    <div class="card <%= card_color %> card-outline">
+      <div class="card-header">
+        <h5 class="card-title"><span><%= truncate_sentence(tarefa.titulo, 20) %></span></h5>
+        <div class="card-tools">
+          <%= link_to edit_tarefa_path(tarefa), class: 'btn btn-tool', remote: true do %>
+            <i class="fas fa-pen"></i>
+          <% end %>
+          <%= link_to tarefa_path(tarefa), method: :delete, data: { confirm: 'Tem certeza?' }, class: 'btn btn-tool', remote: true do %>
+            <i class="fas fa-trash"></i>
+          <% end %>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          <%= tarefa.descricao %>
+        </p>
+        <br>
+        <div>
+          <span class="badge badge-info"><%= tarefa.tipo&.first %></span>
+          <span class="badge badge-<%= cor_tarefa_prioridade(tarefa.prioridade) %>"><%= tarefa.prioridade %></span>
+          <% if tarefa.prazo && tarefa.prazo&.beginning_of_day > Time.now %>
+            <span class="badge badge-danger"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>
+            <span class="badge badge-danger">Atrasada</span>
+          <% else %>
+            <span class="badge badge-info"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>  
+          <% end %>
+        </div>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center rounded" style="max-height: 40px;">
+        <div class="d-flex align-items-center">
+          <% if tarefa.user.avatar.present? %>
+            <% if image_tag tarefa.user.avatar.variant(resize_to_fill: [20, 20]) %>
+              <%= image_tag tarefa.user.avatar.variant(resize_to_fill: [20, 20]), class: "img-circle elevation-2 mr-2" %>
+            <% else %>
+              <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2 mr-2" alt="User Image" style="max-height: 20px; max-width: 20px;" >
+            <% end %>
+          <% else %>
+            <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2 mr-2" alt="User Image" style="max-height: 20px; max-width: 20px;" >
+          <% end %>
+
+          <span class="mr-2" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><%= tarefa&.user&.nome_ultimo_nome %></span>
+        </div>
+
+        <span class="ml-auto mr-2" style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+          <a href="#" class="btn btn-tool btn-link">#<%= tarefa.id %></a>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,3 @@
-location.reload();
+$('#data-table-body').prepend('<%= j render partial: "usuario", locals: { usuario: @usuario } %>');
+$('#form-modal').modal('hide');
+toastr.success('Usuário Criado.');

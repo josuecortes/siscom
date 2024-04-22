@@ -1,15 +1,44 @@
-<tr>
+<tr id="row_usuario_<%= usuario.id %>">
   <td><%= usuario.nome %></td>
   <td><%= usuario.email %></td>
+  <td><%= usuario.unidade.sigla ||= "SEM UNIDADE." %></td>
   <td>
-    <%= link_to usuario, class: "btn btn-sm btn-default", title: "Ver"  do %>
-      <i class="fas fa-eye"></i>
-    <% end %>
     <%= link_to edit_usuario_path(usuario), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
       <i class="fas fa-edit"></i>
     <% end %>
-    <%= link_to usuario, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Excluir"  do %>
-      <i class="fas fa-trash"></i>
+    <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
+      <%= link_to resetar_senha_usuario_path(usuario), data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha", remote: true  do %>
+        <i class="fas fa-sync-alt"></i>
+      <% end %>
+      <% if usuario.status == true %>
+        <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar", remote: true  do %>
+          <i class="fas fa-close"></i>
+        <% end %>
+      <% else %>
+        <%= link_to usuario_path(usuario), method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar", remote: true  do %>
+          <i class="fas fa-check"></i>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% if current_user.has_role? :tec_serv_tp %>
+      <% unless usuario.has_role? :req_serv_tp %>
+        <%= link_to tornar_requisitante_transporte_usuario_path(usuario), data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar requisitante de serviço de transporte", remote: true  do %>
+          <i class="fas fa-car"></i> Requisitante
+        <% end %>
+      <% else %>
+        <%= link_to tornar_requisitante_transporte_usuario_path(usuario, remove: true), data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão requisitante de serviço de transporte", remote: true  do %>
+          <i class="fas fa-car"></i> Remover Requisitante
+        <% end %>
+      <% end %>
+      <% unless usuario.has_role? :tec_serv_tp %>
+        <%= link_to tornar_tecnico_transporte_usuario_path(usuario), data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar técnico de serviço de transporte", remote: true  do %>
+          <i class="fas fa-user"></i> Técnico
+        <% end %>
+      <% else %>
+        <%= link_to tornar_tecnico_transporte_usuario_path(usuario, remove: true), data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão técnico de serviço de transporte", remote: true  do %>
+          <i class="fas fa-user"></i> Remover Técnico
+        <% end %>
+      <% end %>
     <% end %>
   </td>
-</tr> 
+</tr>

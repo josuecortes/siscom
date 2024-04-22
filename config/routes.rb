@@ -1,5 +1,15 @@
 Rails.application.routes.draw do
 
+  resources :tarefas do
+    collection do
+      get :atualizar_status
+    end
+  end
+
+  resources :acoes do
+    resources :etapas
+  end
+  
   namespace :transporte_escolar do
     resources :servicos do
       collection do

@@ -16,6 +16,7 @@ class RequisicaoTransporte < ApplicationRecord
   accepts_nested_attributes_for :destinos, reject_if: :all_blank, allow_destroy: true
 
   validates_presence_of :motivo, :passageiros, :destinos
+  validate :validar_documento, on: :create
 
   scope :do_usuario, ->(id) { where("user_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
@@ -26,6 +27,12 @@ class RequisicaoTransporte < ApplicationRecord
   before_validation :ajustar_datahora_saida, on: :create
   before_validation :validar_data_normal, on: :create
   before_validation :validar_data_viagem, on: :create
+
+  def validar_documento
+    if documento.attached? && documento.blob.byte_size > 1.megabyte
+      errors.add(:documento, "O tamanho é muito grande. O arquivo deve ser menor que 1MB.")
+    end
+  end
   
   def ajustar_datahora_saida
     if self.dia_requisicao_normal_urgente and self.hora_requisicao_normal_urgente

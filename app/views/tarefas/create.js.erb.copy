@@ -1,0 +1,86 @@
+
+
+$('#form-modal').modal('hide');
+
+
+var status = <%= Tarefa.statuses[@tarefa.status] %>;
+console.log(status);
+var containerId;
+var cardColor;
+
+switch (status) {
+  case "1":
+    containerId = 'container-1';
+    cardColor = 'card-secondary';
+    break;
+  case "2":
+    containerId = 'container-2';
+    cardColor = 'card-primary';
+    break;
+  case "3":
+    containerId = 'container-3';
+    cardColor = 'card-warning';
+    break;
+  case "4":
+    containerId = 'container-4';
+    cardColor = 'card-success';
+    break;
+  default:
+    containerId = 'container-1';
+    cardColor = 'card-secondary';
+}
+
+var container = document.getElementById(containerId);
+
+var tarefaHTML = `
+<div class="tarefa tarefa<%= @tarefa.tipo&.first %>" id="tarefa_<%= @tarefa.id %>" draggable="true" ondragstart="dragStart(event)">
+  <div class="card-body">
+    <div class="card ${cardColor} card-outline">
+      <div class="card-header">
+        <h5 class="card-title"><span class="badge badge-danger badge-kanban"> </span> <span><%= truncate_sentence(@tarefa.titulo, 20) %></span></h5><div class="card-tools">
+          <a href="#" class="btn btn-tool btn-link">#<%= @tarefa.id %></a>
+          <%= link_to edit_tarefa_path(@tarefa), class: 'btn btn-tool', remote: true do %>
+            <i class="fas fa-pen"></i>
+          <% end %>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          <%= @tarefa.descricao %>
+        </p>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center rounded" style="max-height: 40px;">
+        <div class="d-flex align-items-center">
+          
+          <% if @tarefa.user.avatar.present? %>
+            <% if image_tag @tarefa.user.avatar.variant(resize_to_fill: [20, 20]) %>
+              <%= image_tag @tarefa.user.avatar.variant(resize_to_fill: [20, 20]), class: "img-circle elevation-2 mr-2" %>
+            <% else %>
+              <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2 mr-2" alt="User Image" style="max-height: 20px; max-width: 20px;" >
+            <% end %>
+          <% else %>
+            <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2 mr-2" alt="User Image" style="max-height: 20px; max-width: 20px;" >
+          <% end %>
+          
+          <span class="mr-2" style="max-width: 100px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"><%= @tarefa.user.nome_ultimo_nome %></span>
+        </div>
+        <div>
+          <span class="badge badge-info"><%= @tarefa.tipo&.first %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+var tasks = container.querySelector('.tasks');
+
+tasks.insertAdjacentHTML('afterbegin', tarefaHTML);
+
+toastr.success('Tarefa Criada.');
+
+let tarefa_id = <%= @tarefa.id %>;
+let tarefa_tipo = '<%= @tarefa.tipo&.first %>';
+toggleTaskVisibilityById(`tarefa_${tarefa_id}`, `btn-tarefa${tarefa_tipo}`);
+
+adjustPageHeight()

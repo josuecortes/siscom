@@ -1,0 +1,48 @@
+$('#form-modal').modal('hide');
+let mensagem = '<%= j @mensagem %>';
+let erro = '<%= j @erro %>';
+const tarefaElement = document.getElementById('tarefa_<%= @tarefa.id %>');
+let status_antigo = '<%= j @status_antigo %>';
+let status_atual = '<%= j @status_atual %>';
+let containerId;  
+let cardColor;
+switch (status_atual) {
+  case "Não Iniciada":
+    containerId = 'container-1';
+    cardColor = 'card-secondary';
+    break;
+  case "Em andamento":
+    containerId = 'container-2';
+    cardColor = 'card-primary';
+    break;
+  case "Impedimento":
+    containerId = 'container-3';
+    cardColor = 'card-warning';
+    break;
+  case "Concluída":
+    containerId = 'container-4';
+    cardColor = 'card-success';
+    break;
+  default:
+    containerId = 'container-1';
+    cardColor = 'card-secondary';
+}
+
+if (tarefaElement) {
+  if(status_antigo !== status_atual){
+    let containerNovo = document.getElementById(containerId);
+    tarefaElement.remove();
+    let tasks = containerNovo.querySelector('.tasks');
+    tasks.insertAdjacentHTML('afterbegin', '<%= j render(partial: "tarefa", locals: { tarefa: @tarefa, card_color: "card-secondary" }) %>');
+  } else {
+    tarefaElement.innerHTML = '<%= j render partial: "tarefa", locals: { tarefa: @tarefa, card_color: "card-secondary" } %>';
+  }
+} else {
+  console.error("Elemento da tarefa não encontrado na página.");
+}
+
+if(erro === 'true') {
+  toastr.error(mensagem);
+} else {
+  toastr.success(mensagem);
+}

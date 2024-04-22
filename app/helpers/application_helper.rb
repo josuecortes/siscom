@@ -46,5 +46,35 @@ module ApplicationHelper
     end
   end
 
+  def truncate_sentence(sentence, length)
+    if sentence.length > length
+      if sentence[length] == ' '
+        new_length = length - 1
+        "#{sentence[0..new_length]}..."
+      else
+        "#{sentence[0..length]}..."
+      end
+    else
+      sentence
+    end
+  end
+
+  def cor_tarefa_prioridade(prioridade)
+    case prioridade
+    when "Muito Alta"
+      'danger'
+    when "Alta"
+      'danger'
+    when "Normal"
+      'info'
+    when "Baixa"
+      'secondary'
+    when "Muito Baixa"
+      'secondary'
+    else
+      'info'
+    end
+  end
+
 end
 

@@ -17,4 +17,8 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'transportador', 'transportadores'
   inflect.irregular 'condutor', 'condutores'  
   inflect.irregular 'servico', 'servicos'  
+
+  inflect.irregular 'acao', 'acoes'  
+  inflect.irregular 'acao_user', 'acao_users'  
+  inflect.irregular 'acao_unidade', 'acao_unidades'  
 end

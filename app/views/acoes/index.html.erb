@@ -1,0 +1,33 @@
+<% content_for :title do %>
+  <i class="fa fa-copy"></i> Ações
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= acoes_url %>">Ações</a></li>
+<% end %>
+<% content_for :sub_title do %>
+  Lista de ações
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to new_acao_path, class: "btn btn-sm btn-success", title: "Nova Ação", remote: true do %>
+    <i class="fas fa-plus"></i> Nova
+  <% end %>
+<% end %>
+
+<table id="data-table" class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Inicio</th>
+      <th>Fim</th>
+      <th>Status</th>
+      <th>Gerente</th>
+      <th>Unidade</th>
+      <th>Mostrar no site</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="data-table-body">
+    <%= render @acoes %>
+  </tbody>
+</table>
+ 

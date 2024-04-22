@@ -82,10 +82,26 @@
           </li>
         <% end %>
 
+        <li class="nav-item">
+          <a href="<%= tarefas_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tarefa' and params[:action] == 'index') %>">
+            <i class="nav-icon fa fa-check"></i>
+            <p>Tarefas</p>
+          </a>
+        </li>
+
+        <% if current_user.has_role? :ges_acao %>
+          <li class="nav-item">
+            <a href="<%= acoes_path %>" class="nav-link">
+              <i class="nav-icon fa fa-copy"></i>
+              <p>Ações</p>
+            </a>
+          </li>
+        <% end %>
+        
         <% if current_user.has_role? :req_serv_midia %>
           <li class="nav-item">
-            <a href="../calendar.html" class="nav-link">
-              <i class="nav-icon fa fa-image"></i>
+            <a href="#" class="nav-link">
+              <i class="nav-icon fa fa-copy"></i>
               <p>Requisições Mídia</p>
             </a>
           </li>

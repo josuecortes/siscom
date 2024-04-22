@@ -41,6 +41,14 @@ class Role < ApplicationRecord
       "Gestor de Transporte Escolar"
     when 'tec_tp_es'
       "Tecnico de Transporte Escolar"  
+    when 'ges_acao'
+      "Gestor de ações" 
+    when 'vis_acao_un'
+      "Visualizador de ações da unidade"
+    when 'part_acao'
+      "Participante de ações"
+    when 'ges_tf_un'
+      "Gestor de tarefas da unidade"        
     end
   end
 

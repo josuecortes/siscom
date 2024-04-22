@@ -1,0 +1,7 @@
+
+let etapa_id = <%= @etapa.id %>;
+$('#row_etapa_' + etapa_id).replaceWith('<%= j render partial: "etapa", locals: { etapa: @etapa } %>');
+$('#form-modal').modal('hide');
+toastr.success('Etapa Atualizada.');
+
+

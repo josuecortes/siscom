@@ -1,0 +1,127 @@
+<div class="modal-body">
+  <%= form_for @tarefa, remote: true do |f| %>
+    
+    <% if @tarefa.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <%= f.hidden_field :user_id, value: current_user.id %>
+    <%= f.hidden_field :usuario_logado_id, value: current_user.id %>
+    <%= f.hidden_field :status, value: 1 %>
+    
+    <div class="form-group">
+      <%= f.label :titulo %>
+      <%= f.text_field :titulo, autocomplete: "Título", placeholder: "Digite o título da tarefa", class: "form-control", required: true %>
+      <%= has_error(@tarefa, :titulo) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :descricao %>
+      <%= f.text_area :descricao, class: "form-control", required: true %>
+      <%= has_error(@tarefa, :descricao) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :prazo, "Prazo" %>
+      <%= f.date_field :prazo, class: "form-control", required: false %>
+      <%= has_error(@tarefa, :prazo) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :prioridade %>
+      <%= f.select :prioridade, @prioridades, { include_blank: "Selecione uma prioridade" }, { class: "form-control", required: true } %>
+      <%= has_error(@tarefa, :prioridade) %>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :status %>
+      <%= f.select :status, @status, { include_blank: "Selecione um status" }, { class: "form-control", required: true } %>
+      <%= has_error(@tarefa, :status) %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :tipo %>
+      <%= f.select :tipo, @tipos, { include_blank: "Selecione um tipo" }, { class: "form-control js-searchable", required: true } %>
+      <%= has_error(@tarefa, :tipo) %>
+    </div>
+
+    <div class="form-group group-user" style="display: none;">
+      <%= f.label :user_id, 'Responsável' %>
+      <%= f.select :user_id, @users, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+      <%= has_error(@tarefa, :user_id) %>
+    </div>
+
+    <div class="form-group group-etapa" style="display: none;">
+      <%= f.label :etapa_id, 'Etapa de uma ação' %>
+      <%= f.select :etapa_id, @etapas, { include_blank: true }, { class: "form-control js-searchable", required: false } %>  
+      <%= has_error(@tarefa, :etapa_id) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+
+  <% end %>    
+</div>
+
+<script>
+  $(document).ready(function() {
+    
+    let tipoSelect = $('#tarefa_tipo');
+    let userSelect = $('#tarefa_user_id');
+    let etapaSelect = $('#tarefa_etapa_id');
+    let hiddenUserId = $('#hidden_user_id');
+    let groupUser = $('.group-user');
+    let groupEtapa = $('.group-etapa');
+
+
+    function controlSelectVisibility() {
+      console.log('estou no controlSelectVisibility')
+      
+      
+
+      if (tipoSelect && tipoSelect.val() == 'Pessoal') {
+        groupUser.hide();
+        groupEtapa.hide();
+      } else if (tipoSelect && tipoSelect.val() == 'Unidade') {
+        groupUser.show();
+        groupEtapa.hide();
+      } else if (tipoSelect && tipoSelect.val() == 'Ação/Etapa') {
+        groupUser.show();
+        groupEtapa.show();
+      }
+    }
+
+    // Adicionar evento para alteração no select tipo
+    $('#tarefa_tipo').change(function() {
+      console.log('vou pro controlSelectVisibility')
+      controlSelectVisibility();
+    });
+
+   
+
+    // Inicializar o plugin select2
+    $('.js-searchable').select2({
+      placeholder: "Selecione",
+      allowClear: true,
+      theme: 'bootstrap',
+      width: '100%'    
+    });
+
+
+    // Chamar a função ao abrir a página ou modal
+    controlSelectVisibility();
+
+    $('#form-modal').on('hidden.bs.modal', function () {
+      console.log('vou zerar tudo.')
+      tipoSelect.val(null).trigger('change');
+      userSelect.val(null).trigger('change');
+      etapaSelect.val(null).trigger('change');
+    });
+
+  }); 
+</script>
