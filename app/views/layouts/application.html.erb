@@ -33,8 +33,11 @@
 
         <%= render "base/header" %>
         <%= render "base/sidebar" %>
-
-        <div class="content-wrapper kanban">
+        <% if params[:controller] == 'tarefas'%>
+          <div class="content-wrapper kanban">
+        <% else %>
+          <div class="content-wrapper">
+        <% end %>
           <section class="content-header">
             <div class="container-fluid">
               <div class="row mb-2">

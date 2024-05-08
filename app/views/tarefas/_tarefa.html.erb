@@ -25,7 +25,7 @@
         <div>
           <span class="badge badge-info"><%= tarefa.tipo&.first %></span>
           <span class="badge badge-<%= cor_tarefa_prioridade(tarefa.prioridade) %>"><%= tarefa.prioridade %></span>
-          <% if tarefa.prazo && tarefa.prazo&.beginning_of_day > Time.now %>
+          <% if tarefa.prazo && (tarefa.prazo > Time.now) %>
             <span class="badge badge-danger"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>
             <span class="badge badge-danger">Atrasada</span>
           <% else %>
