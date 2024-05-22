@@ -134,7 +134,7 @@ class RequisicaoTisController < ApplicationController
                                             :comentario, :avaliacao, :data_hora_finalizada,
                                             :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
                                             :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id,
-                                            :unidade_destino, :carta, :decreto, :authenticity_token)
+                                            :unidade_destino, :carta, :decreto, :nae, :authenticity_token)
     end
 
     def verify_permission

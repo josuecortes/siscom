@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_21_233444) do
+ActiveRecord::Schema.define(version: 2024_05_22_181214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -197,6 +197,7 @@ ActiveRecord::Schema.define(version: 2024_04_21_233444) do
     t.datetime "data_hora_concluida"
     t.datetime "data_hora_finalizada"
     t.text "unidade_destino"
+    t.string "nae"
     t.index ["cargo_id"], name: "index_requisicao_tis_on_cargo_id"
     t.index ["funcao_id"], name: "index_requisicao_tis_on_funcao_id"
     t.index ["problema_ti_id"], name: "index_requisicao_tis_on_problema_ti_id"

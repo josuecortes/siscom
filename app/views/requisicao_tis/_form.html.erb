@@ -57,14 +57,14 @@
       </div>
     </div>
 
-    <div class="row d-none" id="nascimento-celular">
-      <div class="form-group col-md-6">
+    <div>
+      <div class="form-group d-none col-md-6" id="nascimento">
         <%= f.label :data_nascimento %>
         <%= f.text_field :data_nascimento, class: "form-control data", placeholder: 'dd/mm/aaaa', required: false %>
         <%= has_error(@requisicao_ti, :data_nascimento) %>
       </div>
 
-      <div class="form-group col-md-6">
+      <div class="form-group d-none col-md-6" id="celular">
         <%= f.label :celular %>
         <%= f.text_field :celular, class: "form-control celular", placeholder: '(99) 9999-9999', required: false %>
         <%= has_error(@requisicao_ti, :celular) %>
@@ -114,10 +114,20 @@
       </div>
     </div>
 
-    <div class="form-group d-none" id="unidade">
-      <%= f.label :unidade_id %>
-      <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
-      <%= has_error(@requisicao_ti, :unidade_id) %>
+    <div class="row">
+      <div class="form-group d-none col-md-6" id="unidade">
+        <%= f.label :unidade_id %>
+        <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= has_error(@requisicao_ti, :unidade_id) %>
+      </div>
+
+      <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
+        <div class="form-group d-none col-md-6" id="nae">
+          <%= f.label :nae, "NAE da escola" %>
+          <%= f.text_field :nae, class: "form-control", placeholder: 'NAE da escola', required: false %>
+          <%= has_error(@requisicao_ti, :nae) %>
+        </div>
+      <% end %>
     </div>
 
     <div class="form-group d-none" id="destino">
@@ -170,7 +180,8 @@
     function limpar_area(){
       $('#nome-email').addClass('d-none')
       $('#cpf-rg').addClass('d-none')
-      $('#nascimento-celular').addClass('d-none')
+      $('#nascimento').addClass('d-none')
+      $('#celular').addClass('d-none')
       $('#cargo-funcao').addClass('d-none')
       $('#estado-municipio').addClass('d-none')
       $('#inicio-fim').addClass('d-none')
@@ -178,6 +189,7 @@
       $('#perfil').addClass('d-none')
       $('#carta').addClass('d-none')
       $('#decreto').addClass('d-none')
+      $('#nae').addClass('d-none')
     }
 
     function carregar_area(nome){
@@ -186,7 +198,8 @@
         case 'PRODOC - CADASTRO':
           $('#nome-email').removeClass('d-none')
           $('#cpf-rg').removeClass('d-none')
-          $('#nascimento-celular').removeClass('d-none')
+          $('#nascimento').removeClass('d-none')
+          $('#celular').removeClass('d-none')
           $('#cargo-funcao').removeClass('d-none')
           $('#estado-municipio').removeClass('d-none')
           $('#perfil').removeClass('d-none')
@@ -235,6 +248,8 @@
         case 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO':
           $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
+          $('#celular').removeClass('d-none')
+          $('#nae').removeClass('d-none')
           break
         case 'SIGDOC - DESABILITAR PERMISSÃO':
           $('#nome-email').removeClass('d-none')

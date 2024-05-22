@@ -87,7 +87,12 @@ class RequisicaoTi < ApplicationRecord
       when 'SISCOM - PROBLEMAS' then
         validates_presence_of :observacoes
       when 'SIGDOC - SOLICITAR PERMISSÃO DE ACESSO' then
+        if self.user&.unidade&.tipo_unidade&.nome == "ESCOLA"
+          validates_presence_of :nae, on: :create
+        end
         validates_presence_of :nome, :email, :unidade
+        validates_presence_of :celular, on: :create
+        
       when 'SIGDOC - DESABILITAR PERMISSÃO' then
         validates_presence_of :nome, :email
       when 'SIGDOC - PROBLEMAS' then
@@ -119,6 +124,19 @@ class RequisicaoTi < ApplicationRecord
         errors.add(:decreto, "O tamanho é muito grande. O arquivo deve ser menor que 1MB.")
       end
 
+    end
+  end
+
+  def verificar_tipo_de_unidade
+    user = self.user if self.user.present?
+    if user
+      if user.unidade.tipo_unidade.nome == "ESCOLA"
+        return true
+      else
+        return false
+      end
+    else
+      return false
     end
   end
 
