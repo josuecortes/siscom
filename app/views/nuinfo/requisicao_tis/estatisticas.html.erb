@@ -78,8 +78,25 @@
             <span class="float-right"><%= v %></span>
           </div>
           <div class="col-lg-9">
+            <%# Determine a classe CSS com base no nome do tipo de problema %>
+            <% progress_bar_class = case k
+              when 'SISTEMAS WEB'
+                'bg-success'   # Verde
+              when 'REDE'
+                'bg-danger'    # Vermelho
+              when 'HARDWARE'
+                'bg-warning'   # Amarelo
+              when 'S.O.'
+                'bg-info'      # Azul claro
+              when 'SISTEMAS WEB (NÃO RESPONSÁVEL)'
+                'bg-secondary' # Cinza
+              when 'CONECTIVIDADE - ESCOLA'
+                'bg-dark'      # Preto
+              else
+                'bg-primary'   # Azul padrão
+            end %>
             <div class="progress mb-3">
-              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
+              <div class="progress-bar <%= progress_bar_class %>" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
                 <span class=""><%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%</span>
               </div>
             </div>
@@ -87,7 +104,6 @@
         </div>
       <% end %>
     <% end %>
-
 
     <hr/>
 
@@ -99,20 +115,36 @@
 
     <% ProblemaTi.all.order(:nome).each do |p| %>
       <% total = @requisicoes.joins(:problema_ti).where("problema_ti_id = ?", p.id).count %>
-      <% array_problemas << [p.nome, total] %>
+      <% array_problemas << [p.nome, total, p.tipo_problema_ti.nome] %> 
     <% end %>
 
-    <% (array_problemas.sort_by(&:last)).reverse.each do |k,v| %>
-      <% if v > 0 %>
+    <% (array_problemas.sort_by { |_, total, _| -total }).each do |nome, total, tipo_problema_nome| %> 
+      <% if total > 0 %>
         <div class="row">
           <div class="col-lg-3">
-            <%= k %>
-            <span class="float-right"><%= v %></span>
+            <%= nome %>
+            <span class="float-right"><%= total %></span>
           </div>
           <div class="col-lg-9">
+            <% progress_bar_class = case tipo_problema_nome
+              when 'SISTEMAS WEB'
+                'bg-success'   # Verde
+              when 'REDE'
+                'bg-danger'    # Vermelho
+              when 'HARDWARE'
+                'bg-warning'   # Amarelo
+              when 'S.O.'
+                'bg-info'      # Azul claro
+              when 'SISTEMAS WEB (NÃO RESPONSÁVEL)'
+                'bg-secondary' # Cinza
+              when 'CONECTIVIDADE - ESCOLA'
+                'bg-dark'      # Preto
+              else
+                'bg-primary'   # Azul padrão
+            end %>
             <div class="progress mb-3">
-              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%">
-                <span class=""><%= v > 0 ? (((v * 100) / @requisicoes.count).to_i) : 0 %>%</span>
+              <div class="progress-bar <%= progress_bar_class %>" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="<%= @requisicoes.count %>" style="width: <%= total > 0 ? (((total * 100) / @requisicoes.count).to_i) : 0 %>%">
+                <span class=""><%= total > 0 ? (((total * 100) / @requisicoes.count).to_i) : 0 %>%</span>
               </div>
             </div>
           </div>
