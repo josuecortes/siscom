@@ -69,7 +69,7 @@ class ProblemaTisController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def problema_ti_params
-      params.require(:problema_ti).permit(:nome, :descricao, :tipo_problema_ti_id)
+      params.require(:problema_ti).permit(:nome, :descricao, :status, :tipo_problema_ti_id)
     end
 
     def load_problemas

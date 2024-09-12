@@ -146,19 +146,27 @@ class RequisicaoTisController < ApplicationController
 
     def load_problemas
       @aviso_requisicao_normal = nil
-      if current_user.has_role? :req_serv_ti_sis
+      if current_user.has_role?(:req_serv_ti_sis)
         if current_user.pode_solicitar_requisicao_ti_normal
           if current_user.unidade.tipo_unidade.nome == 'ESCOLA'
-            @problemas = ProblemaTi.where("tipo_problema_ti_id = ? or tipo_problema_ti_id = ?", 3, 6).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }    
-          else  
-            @problemas = ProblemaTi.where("tipo_problema_ti_id <> ?", 6).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }
+            @problemas = ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 6, false)
+                                  .order(nome: :asc)
+                                  .map { |p| [p.nome, p.id, { nome: p.nome.downcase }] }
+          else
+            @problemas = ProblemaTi.where("tipo_problema_ti_id <> ? AND status != ?", 6, false)
+                                  .order(nome: :asc)
+                                  .map { |p| [p.nome, p.id, { nome: p.nome.downcase }] }
           end
         else
           @aviso_requisicao_normal = "Você pode solicitar mais de 1 requisições para sistemas web ao mesmo tempo! <br/> Você só pode solicitar uma requisição normal por vez!"
-          @problemas = ProblemaTi.where("tipo_problema_ti_id = ? or tipo_problema_ti_id = ?", 3, 5).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }  
+          @problemas = ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 5, false)
+                                .order(nome: :asc)
+                                .map { |p| [p.nome, p.id, { nome: p.nome.downcase }] }
         end
-      elsif current_user.has_role? :req_serv_ti
-        @problemas = ProblemaTi.where("tipo_problema_ti_id <> ? and tipo_problema_ti_id <> ?", 3, 6).order(nome: :asc).all.map{ |p| [p.nome, p.id, {:nome => p.nome.downcase}] }
+      elsif current_user.has_role?(:req_serv_ti)
+        @problemas = ProblemaTi.where("tipo_problema_ti_id <> ? AND tipo_problema_ti_id <> ? AND status != ?", 3, 6, false)
+                              .order(nome: :asc)
+                              .map { |p| [p.nome, p.id, { nome: p.nome.downcase }] }
       end
     end
 

@@ -27,6 +27,17 @@
       <%= f.select :tipo_problema_ti_id, @tipo_problemas, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
       <%= has_error(@problema_ti, :tipo_problema_ti_id) %>
     </div>
+
+    <div class="form-group">
+      <%= f.label :status, "Ativo?" %>
+      <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+        <%= f.hidden_field :status, value: false %>
+        <%= f.check_box :status, class: "custom-control-input", id: "customSwitchStatus", unchecked_value: false, checked_value: true %>
+        <%= f.label :status, "", class: "custom-control-label", for: "customSwitchStatus" %>
+      </div>
+      <%= has_error(@problema_ti, :status) %>
+    </div>
+
     
     <div class="modal-footer">
       <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>

@@ -1,6 +1,7 @@
 <tr>
   <td><%= problema_ti.nome %></td>
   <td><%= problema_ti.tipo_problema_ti.nome if problema_ti.tipo_problema_ti %></td>
+  <td><%= problema_ti.status ? 'SIM' : 'NÃO' %></td>
   <td>
     <%= link_to problema_ti, class: "btn btn-sm btn-default", title: "Ver"  do %>
       <i class="fas fa-eye"></i>
