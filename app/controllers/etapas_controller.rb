@@ -77,7 +77,10 @@ class EtapasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def etapa_params
-      params.require(:etapa).permit(:indice, :nome, :descricao, :inicio, :fim, :status, :acao_id)
+      params.require(:etapa).permit(
+        :nome, :descricao, :inicio, :termino, :status, :acao_id,
+        etapa_users_attributes: [:user_id, :id, :_destroy],
+      )
     end
 
     def load_status

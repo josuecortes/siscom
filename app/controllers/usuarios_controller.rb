@@ -58,12 +58,8 @@ class UsuariosController < ApplicationController
 
   # DELETE /usuarios/1 or /usuarios/1.json
   def destroy
-    if @usuario.status == false or @usuario.status == "" or @usuario.status == nil
-      @usuario.status = true
-    else
-      @usuario.status = false
-    end
-   
+    @usuario.status = !@usuario.status.presence
+
     if @usuario.save
       @erro = false
       @mensagem = "Usuário atualizado."
@@ -71,7 +67,7 @@ class UsuariosController < ApplicationController
       @erro = true
       @mensagem = "Opss! Algo deu errado."
     end
-      
+
     respond_to do |format|
       format.html { redirect_to usuarios_url }
       format.js {}

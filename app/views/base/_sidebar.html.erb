@@ -75,15 +75,24 @@
 
         <% if current_user.has_role? :req_serv_tp %>
           <li class="nav-item">
-            <a href="<%= requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_transporte' and params[:action] == 'index') %>">
+            <a href="<%= requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_transportes' and params[:action] == 'index') %>">
               <i class="nav-icon fa fa-car"></i>
               <p>Requisições Transporte</p>
             </a>
           </li>
         <% end %>
 
+        <% if current_user.has_role? :tec_serv_ti %>
+          <li class="nav-item">
+            <a href="<%= acoes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'acoes' and params[:action] == 'index') %>">
+              <i class="nav-icon fa fa-copy"></i>
+              <p>Ações</p>
+            </a>
+          </li>
+        <% end %>
+
         <li class="nav-item">
-          <a href="<%= tarefas_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tarefa' and params[:action] == 'index') %>">
+          <a href="<%= tarefas_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tarefas' and params[:action] == 'index') %>">
             <i class="nav-icon fa fa-check"></i>
             <p>Tarefas</p>
           </a>

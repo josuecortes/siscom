@@ -1,0 +1,24 @@
+<div class="nested-fields">
+  <div class="form-group group-user d-flex align-items-center">
+    <%= f.label :user_id, 'Participante', class: 'mr-2' %>
+    
+    <%= f.select :user_id, 
+                 options_from_collection_for_select(User.all, :id, :nome, f.object.user_id), 
+                 { include_blank: true }, 
+                 { class: "form-control js-searchable", required: false, style: 'width: auto; flex-grow: 1;' } %>
+    
+    <%= link_to_remove_association "Remover", f, class: "btn btn-danger ml-2" %>
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function() {
+    $('.js-searchable').select2({
+      placeholder: "Selecione",
+      allowClear: true,
+      theme: 'bootstrap',
+      width: '100%'
+    });
+  });
+</script>

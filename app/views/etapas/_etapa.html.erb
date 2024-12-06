@@ -1,8 +1,12 @@
 <tr id="row_etapa_<%= etapa.id %>">
-  <td><%= etapa.indice %></td>
   <td><%= etapa.nome %></td>
-  <td><%= etapa.inicio %></td>
-  <td><%= etapa.fim %></td>
+  <td><%= etapa.inicio&.strftime("%d/%m/%Y") %></td>
+  <td><%= etapa.termino&.strftime("%d/%m/%Y") %></td>
+  <td>
+    <% etapa.etapa_users.each do |eu| %>
+      <%= eu.user&.nome&.split&.first %> |
+    <% end %>
+  </td>
   <td><%= etapa.status %></td>
   <td>
     <%= link_to acao_etapa_path(@acao, etapa), class: "btn btn-sm btn-default", title: "Ver"  do %>

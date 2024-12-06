@@ -1,7 +1,7 @@
+
 <div class="modal-body">
 
   <%= form_for [@acao, @etapa], remote: true do |f| %>
-    
     <% if @etapa.errors.any? %>
       <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -10,33 +10,27 @@
     <% end %>
 
     <div class="form-group">
-      <%= f.label :indice %>
-      <%= f.text_field :indice, autofocus: true, placeholder: "Digite o indice", class: "form-control", required: true %>
-      <%= has_error(@etapa, :indice) %>
-    </div>
-    
-    <div class="form-group">
       <%= f.label :nome %>
       <%= f.text_field :nome, autocomplete: "Nome", placeholder: "Digite o nome da função", class: "form-control", required: true %>
       <%= has_error(@etapa, :nome) %>
     </div>
 
     <div class="form-group">
-      <%= f.label :descricao %>
+      <%= f.label :descricao, "Descrição" %>
       <%= f.text_area :descricao, class: "form-control", required: true %>
       <%= has_error(@etapa, :descricao) %>
     </div>
 
     <div class="form-group">
       <%= f.label :inicio, "Data Início" %>
-      <%= f.datetime_field :inicio, class: "form-control", required: true %>
+      <%= f.date_field :inicio, class: "form-control", required: true %>
       <%= has_error(@etapa, :inicio) %>
     </div>
 
     <div class="form-group">
-      <%= f.label :fim, "Data Fim" %>
-      <%= f.datetime_field :fim, class: "form-control", required: true %>
-      <%= has_error(@etapa, :fim) %>
+      <%= f.label :termino, "Data Término" %>
+      <%= f.date_field :termino, class: "form-control", required: true %>
+      <%= has_error(@etapa, :termino) %>
     </div>
 
     <div class="form-group">
@@ -45,12 +39,34 @@
       <%= has_error(@etapa, :status) %>
     </div>
 
+    <br/>
+    
+    <h4>Participantes</h4>
+    
+    <br/>
+
+    <div class="form-group">
+      <div id="users-fields">
+        <%= f.fields_for :etapa_users do |etapa_user_fields| %>
+          <%= render 'etapa_user_fields', f: etapa_user_fields %>
+        <% end %>
+      </div>
+    </div>
+
+    
+    <div class="d-flex justify-content-between">
+      <h4> </h4>
+      <%= link_to_add_association 'Adicionar Participante', f, :etapa_users, class: 'btn btn-success' %>
+    </div>
+
+    <br/>
+
     <div class="modal-footer">
       <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
       <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
     </div>
 
-  <% end %>    
+  <% end %>
 
 </div>
 

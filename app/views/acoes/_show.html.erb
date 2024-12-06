@@ -1,0 +1,81 @@
+<div class="modal-body">
+  <p id="notice"><%= notice %></p>
+
+  <p>
+    <strong>Nome:</strong>
+    <%= @acao.nome %>
+  </p>
+
+  <p>
+    <strong>Motivacao:</strong>
+    <%= @acao.motivacao %>
+  </p>
+
+  <p>
+    <strong>Inicio:</strong>
+    <%= @acao.inicio&.strftime("%d/%m/%Y") %>
+  </p>
+
+  <p>
+    <strong>Término:</strong>
+    <%= @acao.termino&.strftime("%d/%m/%Y") %>
+  </p>
+
+  <p>
+    <strong>Status:</strong>
+    <%= @acao.status %>
+  </p>
+
+  <p>
+    <strong>Criado por:</strong>
+    <%= @acao.user&.nome %>
+  </p>
+
+  <hr>
+  <h5>Etapas</h5>
+
+  <% @acao.etapas.each do |etapa| %>
+    <p>
+      <strong>Nome:</strong>
+      <%= etapa.nome %>
+    </p>
+
+    <p>
+      <strong>Descrição:</strong>
+      <%= etapa.descricao %>
+    </p>
+
+    <p>
+      <strong>Início:</strong>
+      <%= etapa.inicio&.strftime("%d/%m/%Y") %>
+    </p>
+
+    <p>
+      <strong>Termino:</strong>
+      <%= etapa.termino&.strftime("%d/%m/%Y") %>
+    </p>
+
+    <p>
+      <strong>Status:</strong>
+      <%= etapa.status %>
+    </p>
+
+    <h5>Participantes</h5>
+
+    <% etapa.etapa_users.each do |eu| %>
+      <p>
+        <strong>Nome:</strong>
+        <%= eu.user&.nome %>
+      </p>
+    <% end %>
+
+    <hr>
+
+  <% end %>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-close"></i> Fechar</button>
+  </div>
+
+</div>
+

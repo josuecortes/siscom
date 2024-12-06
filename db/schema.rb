@@ -10,45 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_12_132417) do
+ActiveRecord::Schema.define(version: 2024_12_02_021523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "acao_unidades", force: :cascade do |t|
-    t.integer "nivel"
-    t.bigint "acao_id", null: false
-    t.bigint "unidade_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["acao_id"], name: "index_acao_unidades_on_acao_id"
-    t.index ["unidade_id"], name: "index_acao_unidades_on_unidade_id"
-  end
-
-  create_table "acao_users", force: :cascade do |t|
-    t.integer "nivel"
-    t.integer "status"
-    t.date "inicio"
-    t.date "fim"
-    t.bigint "user_id", null: false
-    t.bigint "acao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["acao_id"], name: "index_acao_users_on_acao_id"
-    t.index ["user_id"], name: "index_acao_users_on_user_id"
-  end
-
   create_table "acoes", force: :cascade do |t|
     t.string "nome"
-    t.string "descricao"
     t.date "inicio"
-    t.date "fim"
+    t.date "termino"
     t.string "motivacao"
     t.string "orcamento"
     t.integer "status"
     t.boolean "mostrar_no_site"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id"
+    t.string "documento_externo"
+    t.index ["user_id"], name: "index_acoes_on_user_id"
   end
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -94,17 +73,34 @@ ActiveRecord::Schema.define(version: 2024_09_12_132417) do
     t.index ["user_id"], name: "index_destinos_on_user_id"
   end
 
+  create_table "etapa_users", force: :cascade do |t|
+    t.bigint "etapa_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["etapa_id"], name: "index_etapa_users_on_etapa_id"
+    t.index ["user_id"], name: "index_etapa_users_on_user_id"
+  end
+
   create_table "etapas", force: :cascade do |t|
-    t.float "indice"
     t.string "nome"
     t.string "descricao"
     t.date "inicio"
-    t.date "fim"
+    t.date "termino"
     t.integer "status"
     t.bigint "acao_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["acao_id"], name: "index_etapas_on_acao_id"
+  end
+
+  create_table "etapas_users", force: :cascade do |t|
+    t.bigint "etapa_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["etapa_id"], name: "index_etapas_users_on_etapa_id"
+    t.index ["user_id"], name: "index_etapas_users_on_user_id"
   end
 
   create_table "funcoes", force: :cascade do |t|
@@ -461,14 +457,15 @@ ActiveRecord::Schema.define(version: 2024_09_12_132417) do
     t.index ["motorista_id"], name: "index_veiculos_on_motorista_id"
   end
 
-  add_foreign_key "acao_unidades", "acoes"
-  add_foreign_key "acao_unidades", "unidades"
-  add_foreign_key "acao_users", "acoes"
-  add_foreign_key "acao_users", "users"
+  add_foreign_key "acoes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
+  add_foreign_key "etapa_users", "etapas"
+  add_foreign_key "etapa_users", "users"
   add_foreign_key "etapas", "acoes"
+  add_foreign_key "etapas_users", "etapas"
+  add_foreign_key "etapas_users", "users"
   add_foreign_key "mensagens", "requisicao_tis"
   add_foreign_key "mensagens", "users"
   add_foreign_key "passageiros", "requisicao_transportes"

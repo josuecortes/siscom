@@ -76,5 +76,9 @@ module ApplicationHelper
     end
   end
 
+  def unique_id(prefix)
+    "#{prefix}#{SecureRandom.uuid}"
+  end
+
 end
 

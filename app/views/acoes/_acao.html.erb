@@ -1,13 +1,11 @@
 <tr id="row_acao_<%= acao.id %>">
   <td><%= acao.nome %></td>
-  <td><%= acao.inicio %></td>
-  <td><%= acao.fim %></td>
+  <td><%= acao.inicio&.strftime("%d/%m/%Y") %></td>
+  <td><%= acao.termino&.strftime("%d/%m/%Y") %></td>
   <td><%= acao.status %></td>
-  <td><%= acao.acao_users&.first&.user&.nome&.split&.first %></td>
-  <td><%= acao.acao_users&.first&.user&.unidade&.sigla %></td>
-  <td><%= acao.mostrar_no_site ? 'SIM' : 'NÃO' %></td>
+  <td><%= acao.user&.nome %></td>
   <td>
-    <%= link_to acao, class: "btn btn-sm btn-default", title: "Ver"  do %>
+    <%= link_to acao, class: "btn btn-sm btn-default", title: "Ver", remote: true  do %>
       <i class="fas fa-eye"></i>
     <% end %>
     <%= link_to edit_acao_path(acao), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>
@@ -18,6 +16,9 @@
     <% end %>
     <%= link_to acao_etapas_path(acao), class: "btn btn-sm btn-success", title: "Etapas"  do %>
       <i class="fa fa-chart-pie"></i> Etapas (<%= acao.etapas.count %>)
+    <% end %>
+    <%= link_to relatorio_acao_path(acao), class: "btn btn-sm btn-default", title: "Rélatorio", target: "_blank"  do %>
+      <i class="fas fa-file"></i>
     <% end %>
   </td>
 </tr>

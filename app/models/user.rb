@@ -13,11 +13,14 @@ class User < ApplicationRecord
   has_many :requisicao_tis
   has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
   has_many :mensagens
-  has_many :acao_users
-  has_many :acoes, through: :acao_users
-  has_many :etapas, through: :acoes
+  # has_many :acao_users
+  # has_many :acoes, through: :acao_users
+  # has_many :etapas, through: :acoes
   has_many :tarefas
-  
+  has_many :acoes
+  has_many :etapas_users, dependent: :destroy
+  has_many :etapas, through: :etapas_users
+
 
   validates_presence_of :nome, :unidade_id, :funcao_id
   validates_uniqueness_of :nome

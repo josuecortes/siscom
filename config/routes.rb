@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
   resources :acoes do
     resources :etapas
+    get 'relatorio', on: :member, defaults: { format: :pdf }
   end
   
   namespace :transporte_escolar do

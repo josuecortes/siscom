@@ -32,7 +32,7 @@ class Role < ApplicationRecord
     when 'req_serv_ti'
       "Requisitante de serviços de TI"
     when 'req_serv_ti_sis'
-      "Requisitante de serviços de TI - SISTEMAS"  
+      "Requisitante de serviços de TI - SISTEMAS"
     when 'req_serv_tp'
       "Requisitante de serviços de Transporte"
     when 'req_serv_md'
@@ -40,15 +40,15 @@ class Role < ApplicationRecord
     when 'ges_tp_es'
       "Gestor de Transporte Escolar"
     when 'tec_tp_es'
-      "Tecnico de Transporte Escolar"  
-    when 'ges_acao'
-      "Gestor de ações" 
-    when 'vis_acao_un'
-      "Visualizador de ações da unidade"
-    when 'part_acao'
-      "Participante de ações"
+      "Tecnico de Transporte Escolar"
+    # when 'ges_acao'
+    #   "Gestor de ações"
+    # when 'vis_acao_un'
+    #   "Visualizador de ações da unidade"
+    # when 'part_acao'
+    #   "Participante de ações"
     when 'ges_tf_un'
-      "Gestor de tarefas da unidade"        
+      "Gestor de tarefas da unidade"
     end
   end
 
@@ -58,7 +58,7 @@ class Role < ApplicationRecord
     elsif u.has_role?(:admin)
       where('name != ? and name != ? and name != ?', 'master', 'ges_tp_es', 'tec_tp_es')
     elsif u.has_role?(:tec_serv_tp)
-      where('name = ? or name = ?', 'tec_serv_tp', 'req_serv_tp')  
+      where('name = ? or name = ?', 'tec_serv_tp', 'req_serv_tp')
     else
       where('name != ? and name != ?', 'master', 'admin')
     end
