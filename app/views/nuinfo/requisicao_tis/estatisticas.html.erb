@@ -267,6 +267,76 @@
       <% end %>
     <% end %>
 
-   
+    <hr>
+
+    <h3>Ações</h3>
+
+    <% if @acoes.present? %>
+      <table class="table">
+        <tr>
+          <th>Nome</th>
+          <th>Período</th>
+          <th>Local</th>
+          <th>Participantes</th>
+          <th>Status</th>
+        </tr>
+        <% @acoes.each do |acao| %>
+          <tr>
+            <td><%= acao.nome %></td>
+            <td><%= acao.inicio.strftime('%d/%m/%Y') %> à <%= acao.termino.strftime('%d/%m/%Y') %></td>
+            <td><%= acao.local.present? ? acao.local : 'Não informado' %></td>
+            <%
+              usuarios = []
+              acao.etapas.each do |etapa|
+                etapa.etapa_users.each do |eu|
+                  usuarios << eu.user
+                end
+              end
+            %>
+            <td>
+              <% usuarios.each do |user| %>
+                <div><%= user.nome %></div>
+              <% end %>
+            </td>
+            <td><%= acao.status %></td>
+          </tr>
+        <% end %>
+      </table>
+
+      <hr>
+
+      <h3><%= link_to "Ações com Etapas", relatorio_geral_acoes_path, target: '_blank' %></h3>
+
+      <table class="table">
+        <% @acoes.each do |acao| %>
+          <tr>
+            <th><%= acao.nome %></th>
+            <th><%= acao.inicio.strftime('%d/%m/%Y') %> à <%= acao.termino.strftime('%d/%m/%Y') %></th>
+            <th><%= acao.local.present? ? acao.local : 'Não informado' %></th>
+            <th><%= acao.status %></th>
+          </tr>
+          <% acao.etapas.each do |etapa| %>
+            <tr>
+              <td><%= etapa.nome %></td>
+              <td><%= etapa.inicio.strftime('%d/%m/%Y') %> à <%= etapa.termino.strftime('%d/%m/%Y') %></td>
+              <%
+                usuarios = []
+                etapa.etapa_users.each do |eu|
+                  usuarios << eu.user
+                end
+              %>
+              <td>
+                <% usuarios.each do |user| %>
+                  <div><%= user.nome %></div>
+                <% end %>
+              </td>
+              <td><%= etapa.status %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      </table>
+    <% end %>
+
   <% end %>
 <% end %>
+

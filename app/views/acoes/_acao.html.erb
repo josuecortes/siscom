@@ -1,7 +1,9 @@
 <tr id="row_acao_<%= acao.id %>">
   <td><%= acao.nome %></td>
+  <td><%= acao.local %></td>
   <td><%= acao.inicio&.strftime("%d/%m/%Y") %></td>
   <td><%= acao.termino&.strftime("%d/%m/%Y") %></td>
+  <td><%= acao.complexidade %></td>
   <td><%= acao.status %></td>
   <td><%= acao.user&.nome %></td>
   <td>

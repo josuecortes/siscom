@@ -106,15 +106,18 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @tipo_problemas = params[:tipo_problemas]
 
     @requisicoes = RequisicaoTi.order("created_at ASC").all
+    @acoes = Acao.order("created_at ASC").all
 
     if @tecnico
       @requisicoes = @requisicoes.do_tecnico(@tecnico_id)
     end
     if @data_inicial
       @requisicoes = @requisicoes.where("requisicao_tis.created_at >= ?", @data_inicial)
+      @acoes = @acoes.where("created_at >= ?", @data_inicial)
     end
     if @data_final
-     @requisicoes = @requisicoes.where("requisicao_tis.created_at <= ?", @data_final)
+      @requisicoes = @requisicoes.where("requisicao_tis.created_at <= ?", @data_final)
+      @acoes = @acoes.where("created_at <= ?", @data_final)
     end
     if @tipo_problemas and @tipo_problemas.count >= 1
       @requisicoes = @requisicoes.joins(:problema_ti).where("problema_tis.tipo_problema_ti_id in (?)", @tipo_problemas.map{|tp| tp.to_i}.to_a)

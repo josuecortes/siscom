@@ -70,17 +70,37 @@ class AcoesController < ApplicationController
         pdf.text "#{@acao.nome}", size: 24, style: :bold, align: :center
         pdf.move_down 20
 
+        pdf.text "<b>Local:</b>", inline_format: true, size: 14, style: :bold
+        pdf.indent(20) do
+          pdf.text @acao.local, size: 12, align: :justify, leading: 5
+        end
+        pdf.move_down 10
+
+        if @acao.documento.present?
+          pdf.text "<b>Documento:</b>", inline_format: true, size: 14, style: :bold
+          pdf.indent(20) do
+            pdf.text @acao.documento, size: 12, align: :justify, leading: 5
+          end
+          pdf.move_down 10
+        end
+
         pdf.text "<b>Motivação:</b>", inline_format: true, size: 14, style: :bold
         pdf.indent(20) do
           pdf.text @acao.motivacao, size: 12, align: :justify, leading: 5
         end
         pdf.move_down 10
 
-        pdf.text "<b>Prazo:</b>", inline_format: true, size: 14, style: :bold
+        pdf.text "<b>Complexidade:</b>", inline_format: true, size: 14, style: :bold
+        pdf.indent(20) do
+          pdf.text @acao.complexidade, size: 12, align: :justify, leading: 5
+        end
+        pdf.move_down 10
+
+        pdf.text "<b>Período:</b>", inline_format: true, size: 14, style: :bold
         pdf.indent(20) do
           pdf.text "Início: #{@acao.inicio.strftime('%d/%m/%Y')}", size: 12
           if @acao.status != "Finalizada" && @acao.status != "Cancelada"
-            pdf.text "Previsão de Término: #{@acao.termino.strftime('%d/%m/%Y')}", size: 12
+            pdf.text "Término: #{@acao.termino.strftime('%d/%m/%Y')}", size: 12
           end
         end
         pdf.move_down 10
@@ -103,14 +123,14 @@ class AcoesController < ApplicationController
             pdf.text etapa.descricao, size: 12, align: :justify, leading: 5
 
             pdf.move_down 5
-            pdf.text "<b>Prazo:</b>", inline_format: true, size: 12, style: :bold
+            pdf.text "<b>Período:</b>", inline_format: true, size: 12, style: :bold
             pdf.text "Início: #{etapa.inicio.strftime('%d/%m/%Y')}", size: 12
-            pdf.text "Previsão de Término: #{etapa.termino.strftime('%d/%m/%Y')}" if etapa.termino
+            pdf.text "Término: #{etapa.termino.strftime('%d/%m/%Y')}" if etapa.termino
 
             pdf.move_down 5
             pdf.text "<b>Participantes:</b>", inline_format: true, size: 12, style: :bold
-            etapa.users.each do |user|
-              pdf.text "- #{user.nome}", size: 12, leading: 2
+            etapa.etapa_users.each do |eu|
+              pdf.text "- #{eu.user.nome}", size: 12, leading: 2
             end
           end
 
@@ -128,6 +148,59 @@ class AcoesController < ApplicationController
     end
   end
 
+  def relatorio_geral
+    @acoes = Acao.includes(etapas: { etapa_users: :user })
+  
+    respond_to do |format|
+      format.pdf do
+        pdf = Prawn::Document.new(page_size: 'A4', margin: 50, page_layout: :landscape)
+  
+        # Título Principal
+        pdf.text "Relatório Geral de Ações", size: 28, style: :bold, align: :center, color: "0070C0"
+        pdf.move_down 10
+        pdf.text "Gerado em: #{Time.now.strftime('%d/%m/%Y %H:%M')}", size: 10, align: :right, color: "555555"
+        pdf.move_down 20
+  
+        @acoes.each do |acao|
+          # Cabeçalho da Ação
+          pdf.text "<b>Ação:</b> #{acao.nome}", inline_format: true, size: 16, style: :bold, color: "333333"
+          pdf.text "<b>Período:</b> #{acao.inicio.strftime('%d/%m/%Y')} à #{acao.termino.strftime('%d/%m/%Y')}", inline_format: true, size: 12
+          pdf.text "<b>Local:</b> #{acao.local.present? ? acao.local : 'Não informado'}", inline_format: true, size: 12
+          pdf.text "<b>Status:</b> #{acao.status}", inline_format: true, size: 12
+          pdf.move_down 10
+  
+          # Tabela de Etapas
+          etapa_data = [["Etapa", "Período", "Participantes", "Status"]]
+          acao.etapas.each do |etapa|
+            participantes = etapa.etapa_users.map { |eu| eu.user.nome }.uniq.join("\n") # Quebra linha entre participantes
+            periodo = etapa.termino ? "#{etapa.inicio.strftime('%d/%m/%Y')} à #{etapa.termino.strftime('%d/%m/%Y')}" : "Sem término"
+            etapa_data << [etapa.nome, periodo, participantes, etapa.status]
+          end
+  
+          # Renderização da Tabela
+          pdf.table(etapa_data, header: true, row_colors: ["F8F8F8", "FFFFFF"], cell_style: { size: 10, inline_format: true, border_width: 1 }, width: pdf.bounds.width) do
+            row(0).font_style = :bold
+            row(0).background_color = "D9EDF7"
+            column(0).width = 150 # Coluna "Etapa"
+            column(2).width = 200 # Coluna "Participantes"
+          end
+  
+          pdf.move_down 20
+        end
+  
+        # Rodapé
+        pdf.number_pages "Página <page> de <total>", at: [pdf.bounds.right - 100, 0], align: :right, size: 10
+        
+        send_data pdf.render,
+                  filename: "relatorio_geral_acoes.pdf",
+                  type: 'application/pdf',
+                  disposition: 'inline'
+      end
+    end
+  end
+  
+
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_acao
@@ -136,7 +209,20 @@ class AcoesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def acao_params
-      params.require(:acao).permit(:nome, :descricao, :inicio, :termino, :motivacao, :orcamento, :status, :mostrar_no_site, :user_id)
+      params.require(:acao).permit(
+        :nome,
+        :descricao,
+        :inicio,
+        :termino,
+        :motivacao,
+        :orcamento,
+        :status,
+        :mostrar_no_site,
+        :user_id,
+        :complexidade,
+        :local,
+        :documento
+      )
     end
 
     def load_status
