@@ -106,7 +106,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @tipo_problemas = params[:tipo_problemas]
 
     @requisicoes = RequisicaoTi.order("created_at ASC").all
-    @acoes = Acao.order("created_at ASC").all
+    @acoes = Acao.order(inicio: :asc, termino: :asc).all
 
     if @tecnico
       @requisicoes = @requisicoes.do_tecnico(@tecnico_id)

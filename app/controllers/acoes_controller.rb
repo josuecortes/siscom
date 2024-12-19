@@ -149,7 +149,9 @@ class AcoesController < ApplicationController
   end
 
   def relatorio_geral
+    # @acoes = Acao.includes(etapas: { etapa_users: :user })
     @acoes = Acao.includes(etapas: { etapa_users: :user })
+             .order(inicio: :asc, termino: :asc)
   
     respond_to do |format|
       format.pdf do
@@ -171,7 +173,7 @@ class AcoesController < ApplicationController
   
           # Tabela de Etapas
           etapa_data = [["Etapa", "Período", "Participantes", "Status"]]
-          acao.etapas.each do |etapa|
+          acao.etapas.order(inicio: :asc, termino: :asc).each do |etapa|
             participantes = etapa.etapa_users.map { |eu| eu.user.nome }.uniq.join("\n") # Quebra linha entre participantes
             periodo = etapa.termino ? "#{etapa.inicio.strftime('%d/%m/%Y')} à #{etapa.termino.strftime('%d/%m/%Y')}" : "Sem término"
             etapa_data << [etapa.nome, periodo, participantes, etapa.status]
@@ -204,7 +206,7 @@ class AcoesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_acao
-      @acao = current_user.acoes.find(params[:id])
+      @acao = Acao.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

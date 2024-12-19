@@ -315,7 +315,7 @@
             <th><%= acao.local.present? ? acao.local : 'Não informado' %></th>
             <th><%= acao.status %></th>
           </tr>
-          <% acao.etapas.each do |etapa| %>
+          <% acao.etapas.order(inicio: :asc, termino: :asc).each do |etapa| %>
             <tr>
               <td><%= etapa.nome %></td>
               <td><%= etapa.inicio.strftime('%d/%m/%Y') %> à <%= etapa.termino.strftime('%d/%m/%Y') %></td>
