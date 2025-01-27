@@ -101,8 +101,19 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users.map{ |u| [u.nome, u.id] }
     @tecnico_id = params[:tecnico_id] if params[:tecnico_id] != 'Todos' and !params[:tecnico_id].blank?
     @tecnico = User.find @tecnico_id if @tecnico_id
-    @data_inicial = params[:data_inicial].to_time if params[:data_inicial]
-    @data_final = params[:data_final].to_time if params[:data_final]
+    
+    if params[:data_inicial]
+      @data_inicial = params[:data_inicial].to_time
+    else
+      @data_inicial = "01/01/2020".to_time
+    end
+    
+    if params[:data_final]
+      @data_final = params[:data_final].to_time 
+    else
+      @data_final = (Time.now + 1.day).beginning_of_day  
+    end
+
     @tipo_problemas = params[:tipo_problemas]
 
     @requisicoes = RequisicaoTi.order("created_at ASC").all

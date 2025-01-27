@@ -231,7 +231,7 @@ class AcoesController < ApplicationController
           # Formatar os dados com quebras de linha
           data = "#{acao.inicio.strftime('%d/%m/%Y')}\nà\n#{acao.termino.strftime('%d/%m/%Y')}"
           local = acao.local.present? ? acao.local : "Não informado"
-          nome_acao = acao.nome
+          nome_acao = "#{acao.nome} \n #{acao.motivacao}"
           participantes = acao.etapas.flat_map { |etapa| etapa.etapa_users.map { |eu| eu.user.nome } }.uniq.join("\n") # Quebra linha entre os participantes
         
           # Adicionar ao corpo da tabela
