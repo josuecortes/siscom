@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     resources :etapas
     get 'relatorio', on: :member, defaults: { format: :pdf }
     get 'relatorio_geral', on: :collection, defaults: { format: :pdf }
+    get 'relatorio_geral_simplificado', on: :collection, defaults: { format: :pdf }
   end
   
   namespace :transporte_escolar do

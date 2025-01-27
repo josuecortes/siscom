@@ -305,7 +305,7 @@
 
       <hr>
 
-      <h3><%= link_to "Ações com Etapas", relatorio_geral_acoes_path, target: '_blank' %></h3>
+      <h3>Ações com Etapas | <%= link_to "Geral", relatorio_geral_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %> | <%= link_to "Simplificado", relatorio_geral_simplificado_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %></h3>
 
       <table class="table">
         <% @acoes.each do |acao| %>
