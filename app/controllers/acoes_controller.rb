@@ -208,69 +208,55 @@ class AcoesController < ApplicationController
 
 
   def relatorio_geral_simplificado
-    puts params
-    inicio = params[:inicio].to_date
-    fim = params[:fim].to_date
-    @acoes = Acao.where("inicio >= ? and termino <= ?", inicio, fim).includes(etapas: { etapa_users: :user })
-              .order(inicio: :asc, termino: :asc)
+    return render json: { error: "Parâmetros de data inválidos" }, status: :unprocessable_entity unless params[:inicio].present? && params[:fim].present?
+  
+    begin
+      inicio = params[:inicio].to_date
+      fim = params[:fim].to_date
+    rescue ArgumentError
+      return render json: { error: "Formato de data inválido" }, status: :unprocessable_entity
+    end
+  
+    @acoes = Acao.where("inicio >= ? AND termino <= ?", inicio, fim).includes(etapas: { etapa_users: :user })
+                .order(inicio: :asc, termino: :asc)
   
     respond_to do |format|
       format.pdf do
         pdf = Prawn::Document.new(page_size: 'A4', margin: 50, page_layout: :landscape)
-  
-        # Título Principal
         pdf.text "Relatório Geral de Ações", size: 28, style: :bold, align: :center, color: "0070C0"
         pdf.move_down 10
         pdf.text "Gerado em: #{Time.now.strftime('%d/%m/%Y %H:%M')}", size: 10, align: :right, color: "555555"
         pdf.move_down 20
   
-        # Tabela Geral
-        table_data = [["Data", "Local", "Ação", "Participantes"]] # Cabeçalho da tabela
-  
+        # Cabeçalho e Dados da Tabela
+        table_data = [["Data", "Local", "Ação", "Participantes"]]
         @acoes.each do |acao|
-          # Formatar os dados com quebras de linha
           data = "#{acao.inicio.strftime('%d/%m/%Y')}\nà\n#{acao.termino.strftime('%d/%m/%Y')}"
           local = acao.local.present? ? acao.local : "Não informado"
           nome_acao = "#{acao.nome} \n #{acao.motivacao}"
-          participantes = acao.etapas.flat_map { |etapa| etapa.etapa_users.map { |eu| eu.user.nome } }.uniq.join("\n") # Quebra linha entre os participantes
-        
-          # Adicionar ao corpo da tabela
+          participantes = acao.etapas.flat_map { |etapa| etapa.etapa_users.map { |eu| eu.user.nome } }.uniq.join("\n")
           table_data << [data, local, nome_acao, participantes]
         end
-        
-        # Renderizar a tabela com texto centralizado verticalmente
-        pdf.table(table_data, 
-          header: true, 
-          row_colors: ["F8F8F8", "FFFFFF"], 
-          cell_style: { 
-            size: 10, 
-            inline_format: true, 
-            borders: [], 
-            overflow: :shrink_to_fit, 
-            min_font_size: 8, 
-            padding: [5, 5, 5, 5], 
-            align: :center,        # Centralizar horizontalmente
-            valign: :center        # Centralizar verticalmente
-          }, 
-          width: pdf.bounds.width) do
+  
+        # Tabela com Linhas
+        pdf.table(table_data,
+          header: true,
+          row_colors: ["F8F8F8", "FFFFFF"],
+          cell_style: { size: 10, inline_format: true, borders: [:top, :bottom, :left, :right], overflow: :shrink_to_fit, min_font_size: 8, padding: [5, 5, 5, 5], align: :center, valign: :center },
+          width: pdf.bounds.width
+        ) do
           row(0).font_style = :bold
           row(0).background_color = "D9EDF7"
         end
-        
-
   
         pdf.move_down 20
+        pdf.number_pages "Relatório Geral de Ações - Página <page> de <total>", at: [pdf.bounds.right - 150, 0], align: :right, size: 10
   
-        # Rodapé
-        pdf.number_pages "Página <page> de <total>", at: [pdf.bounds.right - 100, 0], align: :right, size: 10
-  
-        send_data pdf.render,
-                  filename: "relatorio_geral_acoes.pdf",
-                  type: 'application/pdf',
-                  disposition: 'inline'
+        send_data pdf.render, filename: "relatorio_geral_acoes.pdf", type: 'application/pdf', disposition: 'inline'
       end
     end
   end
+  
 
   private
     # Use callbacks to share common setup or constraints between actions.
