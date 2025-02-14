@@ -138,6 +138,16 @@
     <%= text_field_tag '', (@requisicao_ti.nae), class: "form-control", readonly: true %>
   </div>
 
+  <div class="form-group d-none" id="permissao_drive">
+    <%= label_tag 'Permissão no Google Drive' %>
+    <%= text_field_tag '', (@requisicao_ti.permissao_drive), class: "form-control", readonly: true %>
+  </div> 
+
+  <div class="form-group d-none" id="nome_arquivo">
+    <%= label_tag 'Nome arquivo' %>
+    <%= text_field_tag '', (@requisicao_ti.nome_arquivo), class: "form-control", readonly: true %>
+  </div>
+
   <div class="form-group d-none" id="perfil">
     <%= label_tag 'perfil' %>
     <%= text_field_tag '', (@requisicao_ti.perfil), class: "form-control", readonly: true %>
@@ -159,7 +169,16 @@
     <% else %>
       <span class='form-control' readonly='readonly'>Sem documento</span>
     <% end %>
-  </div>   
+  </div>
+
+  <div class="form-group d-none" id="prodoc">
+    <%= label_tag 'Prodoc da Requisição' %>
+    <% if !@requisicao_ti.prodoc.blank? %>
+      <%= link_to 'Clique aqui', rails_blob_path(@requisicao_ti.prodoc, disposition: "inline"), target: '_blank', class: 'form-control', readonly: true %>
+    <% else %>
+      <span class='form-control' readonly='readonly'>Sem documento</span>
+    <% end %>
+  </div> 
 
   <div class="form-group">
     <%= label_tag "Observações" %>
@@ -214,6 +233,10 @@
       $('#decreto').addClass('d-none')
       $('#destino').addClass('d-none')
       $('#nae').addClass('d-none')
+
+      $('#prodoc').addClass('d-none')
+      $('#nome_arquivo').addClass('d-none')
+      $('#permissao_drive').addClass('d-none')
     }
 
     function carregar_area(nome){
@@ -289,6 +312,17 @@
           $('#nome-email').removeClass('d-none')
           $('#destino').removeClass('d-none')
           break    
+        case 'GOOGLE DRIVE - Solicitar Permissão de Acesso':
+          $('#nome-email').removeClass('d-none')
+          $('#destino').removeClass('d-none')
+          $('#prodoc').removeClass('d-none')
+          $('#permissao_drive').removeClass('d-none')
+          break
+        case 'GOOGLE DRIVE – Solicitar Exclusão de Documentos':
+          $('#destino').removeClass('d-none')
+          $('#prodoc').removeClass('d-none')
+          $('#nome_arquivo').removeClass('d-none')
+          break
       }
     }
 

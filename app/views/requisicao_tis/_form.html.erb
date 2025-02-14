@@ -130,10 +130,22 @@
       <% end %>
     </div>
 
+    <div class="form-group d-none" id="permissao_drive">
+      <%= f.label :permissao_drive, 'Permissão na Pasta do Google Drive' %>
+      <%= f.select :permissao_drive, @permissoes_drive, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+      <%= has_error(@requisicao_ti, :permissao_drive) %>
+    </div>
+
     <div class="form-group d-none" id="destino">
-      <%= f.label :unidade_destino, 'Informe a unidade de destino' %>
+      <%= f.label :unidade_destino, 'Informe a unidade/pasta de destino' %>
       <%= f.text_field :unidade_destino, class: "form-control", placeholder: 'SIGLA - Nome da Unidade', required: false %>
       <%= has_error(@requisicao_ti, :unidade_destino) %>
+    </div>
+
+    <div class="form-group d-none" id="nome_arquivo">
+      <%= f.label :nome_arquivo, 'Informe o nome do arquivo a ser excluído' %>
+      <%= f.text_field :nome_arquivo, class: "form-control", placeholder: 'Nome do arquivo', required: false %>
+      <%= has_error(@requisicao_ti, :nome_arquivo) %>
     </div>
 
     <div class="form-group d-none" id="perfil">
@@ -152,6 +164,12 @@
       <%= f.label :decreto, 'Decreto de nomeação' %>
       <%= f.file_field :decreto, { class: "", required: false, direct_upload: true } %>
       <%= has_error(@requisicao_ti, :decreto) %>
+    </div>
+
+    <div class="form-group d-none" id="prodoc">
+      <%= f.label :prodoc, 'Prodoc' %>
+      <%= f.file_field :prodoc, { class: "", required: false, direct_upload: true } %>
+      <%= has_error(@requisicao_ti, :prodoc) %>
     </div>
     
     <div class="form-group">
@@ -190,6 +208,12 @@
       $('#carta').addClass('d-none')
       $('#decreto').addClass('d-none')
       $('#nae').addClass('d-none')
+
+      $('#prodoc').addClass('d-none')
+      $('#nome_arquivo').addClass('d-none')
+      $('#permissao_drive').addClass('d-none')
+
+
     }
 
     function carregar_area(nome){
@@ -264,6 +288,17 @@
         case 'ACESSO A PASTA COMPARTILHADA':
           $('#nome-email').removeClass('d-none')
           $('#destino').removeClass('d-none')
+          break
+        case 'GOOGLE DRIVE - Solicitar Permissão de Acesso':
+          $('#nome-email').removeClass('d-none')
+          $('#destino').removeClass('d-none')
+          $('#prodoc').removeClass('d-none')
+          $('#permissao_drive').removeClass('d-none')
+          break
+        case 'GOOGLE DRIVE – Solicitar Exclusão de Documentos':
+          $('#destino').removeClass('d-none')
+          $('#prodoc').removeClass('d-none')
+          $('#nome_arquivo').removeClass('d-none')
           break
       }
     }

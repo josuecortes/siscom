@@ -8,6 +8,7 @@ class RequisicaoTisController < ApplicationController
   before_action :load_perfis, only: %i[ new create edit update ]
   before_action :load_municipios, only: %i[ new create edit update ]
   before_action :load_estados, only: %i[ new create edit update ]
+  before_action :load_permissoes_drive, only: %i[ new create edit update ]
 
   # GET /requisicao_tis or /requisicao_tis.json
   def index
@@ -134,7 +135,8 @@ class RequisicaoTisController < ApplicationController
                                             :comentario, :avaliacao, :data_hora_finalizada,
                                             :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
                                             :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id,
-                                            :unidade_destino, :carta, :decreto, :nae, :authenticity_token)
+                                            :unidade_destino, :carta, :decreto, :nae, :authenticity_token,
+                                            :permissao_drive, :nome_arquivo, :prodoc)
     end
 
     def verify_permission
@@ -203,5 +205,8 @@ class RequisicaoTisController < ApplicationController
     def load_estados
       @estados = ['Amapá']
     end
-    
+
+    def load_permissoes_drive
+      @permissoes_drive = ['Leitor: Pode apenas visualizar documentos e pastas.', 'Comentador: Pode visualizar e comentar em documentos já existentes.', 'Colaborador: Pode criar novas pastas, realizar uploads de pastas e arquivos, criar novos documentos, renomear documentos e pastas.']
+    end
 end

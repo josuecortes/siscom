@@ -9,7 +9,8 @@ class RequisicaoTi < ApplicationRecord
 
   has_one_attached :carta
   has_one_attached :decreto
-  
+  has_one_attached :prodoc
+
   has_many :mensagens
 
   validates_presence_of :user_id, :problema_ti_id
@@ -21,7 +22,7 @@ class RequisicaoTi < ApplicationRecord
   validate :verificar_requisicao_sistemas
   validate :verificar_requisicao_sistemas_problemas, on: :create
   validate :carta_ou_decreto, on: :create
-  
+
   enum status: { "Solicitada": 1,  "Em atendimento": 2, "Concluída": 3, "Cancelada": 4, "Finalizada": 5 }
   enum avaliacao: { "Muito Bom": 5,  "Bom": 4, "Normal": 3, "Ruim": 2, "Péssimo": 1 }
 
@@ -92,7 +93,6 @@ class RequisicaoTi < ApplicationRecord
         end
         validates_presence_of :nome, :email, :unidade
         validates_presence_of :celular, on: :create
-        
       when 'SIGDOC - DESABILITAR PERMISSÃO' then
         validates_presence_of :nome, :email
       when 'SIGDOC - PROBLEMAS' then
@@ -103,7 +103,10 @@ class RequisicaoTi < ApplicationRecord
       when 'ACESSO A PASTA COMPARTILHADA' then
         validates_presence_of :nome, :unidade_id, on: :create
         validates_presence_of :unidade_destino, on: :create
-
+      when 'GOOGLE DRIVE - Solicitar Permissão de Acesso'
+        validates_presence_of :nome, :email, :unidade_destino, :permissao_drive, :prodoc
+      when 'GOOGLE DRIVE – Solicitar Exclusão de Documentos'
+        validates_presence_of :nome_arquivo, :unidade_destino, :prodoc
     end
 
   end
