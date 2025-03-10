@@ -240,9 +240,27 @@
 
   <div class="col-lg-3">
     <div class="card card-primary card-outline">
-      <div class="card-body box-profile">        
+      <div class="card-body box-profile">
         <h4>&nbsp;&nbsp;Manuais e Vídeos</h4>
         <div class="col-12" id="accordion">
+
+          <div class="card card-primary card-outline">
+              <a class="d-block w-100" data-toggle="collapse" href="#collapse5">
+                  <div class="card-header">
+                      <h4 class="card-title w-100">
+                        <%= link_to 'Manual PRODOC', asset_path('manual-prodoc.pdf'), target: '_blank', class: '' %>
+                      </h4>
+                  </div>
+              </a>
+              <div id="collapse5" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <%= link_to asset_path('manual-prodoc.pdf'), target: '_blank' do %>
+                    <%= image_tag('manual-pdf', style: "height:auto;width:100%;") %>
+                  <% end %>
+                  </div>
+              </div>
+          </div>
+
           <div class="card card-primary card-outline">
             <a class="d-block w-100" data-toggle="collapse" href="#collapseOne">
                 <div class="card-header">
