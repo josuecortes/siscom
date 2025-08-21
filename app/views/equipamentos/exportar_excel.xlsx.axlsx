@@ -1,0 +1,129 @@
+wb = xlsx_package.workbook
+
+# Estilos
+header_style = wb.styles.add_style(
+  bg_color: "366092",
+  fg_color: "FFFFFF",
+  b: true,
+  alignment: { horizontal: :center, vertical: :center }
+)
+
+kit_header_style = wb.styles.add_style(
+  bg_color: "C5D9F1",
+  fg_color: "000000",
+  b: true,
+  alignment: { horizontal: :center, vertical: :center }
+)
+
+border_style = wb.styles.add_style(
+  border: { style: :thin, color: "000000" },
+  alignment: { vertical: :center }
+)
+
+info_style = wb.styles.add_style(
+  border: { style: :thin, color: "000000" },
+  alignment: { vertical: :center },
+  b: true
+)
+
+# Criar planilha
+wb.add_worksheet(name: "Equipamentos") do |sheet|
+  
+  # Informações do cabeçalho
+  sheet.add_row ["RELATÓRIO DE EQUIPAMENTOS"], style: header_style
+  sheet.add_row [""]
+  sheet.add_row ["Usuário que gerou:", current_user.nome || current_user.email], style: info_style
+  sheet.add_row ["Data/Hora da requisição:", Time.current.strftime("%d/%m/%Y %H:%M:%S")], style: info_style
+  sheet.add_row ["Total de equipamentos:", @equipamentos.count], style: info_style
+  sheet.add_row [""]
+  
+  # Cabeçalho das colunas
+  headers = [
+    "Kit/Identificação",
+    "Tipo",
+    "Tipo de Equipamento",
+    "Descrição",
+    "Marca",
+    "Modelo",
+    "Número Serial",
+    "Patrimônio",
+    "Outra Identificação",
+    "Garantia (meses)",
+    "Status",
+    "Unidade",
+    "Contrato/Referência",
+    "Host",
+    "IP",
+    "Usuário que Cadastrou",
+    "Data de Cadastro"
+  ]
+  
+  sheet.add_row headers, style: header_style
+  
+  # Agrupar equipamentos por kit
+  equipamentos_por_kit = @equipamentos.group_by(&:codigo_kit)
+  
+  equipamentos_por_kit.each do |codigo_kit, equipamentos_do_kit|
+    if codigo_kit.present?
+      # Equipamentos que pertencem a um kit
+      primeiro_equipamento = equipamentos_do_kit.first
+      
+      # Cabeçalho do kit
+      kit_info = "KIT: #{primeiro_equipamento.identificacao_kit} (Código: #{codigo_kit})"
+      kit_row = [kit_info] + Array.new(headers.length - 1, "") # Preencher com células vazias
+      sheet.add_row kit_row, style: kit_header_style
+      
+      # Adicionar cada equipamento do kit
+      equipamentos_do_kit.each do |equipamento|
+        sheet.add_row [
+          "", # Kit já informado no cabeçalho
+          equipamento.tipo.humanize,
+          equipamento.tipo_equipamento,
+          equipamento.descricao,
+          equipamento.marca,
+          equipamento.modelo,
+          equipamento.numero_serial,
+          equipamento.numero_patrimonio,
+          equipamento.outra_identificacao,
+          equipamento.garantia,
+          equipamento.status.humanize,
+          equipamento.unidade&.sigla_nome,
+          equipamento.contrato,
+          equipamento.host,
+          equipamento.ip,
+          equipamento.user&.nome || equipamento.user&.email,
+          equipamento.created_at&.strftime("%d/%m/%Y %H:%M")
+        ], style: border_style
+      end
+      
+      # Linha em branco após cada kit
+      sheet.add_row [""]
+    else
+      # Equipamentos individuais (sem kit)
+      equipamentos_do_kit.each do |equipamento|
+        sheet.add_row [
+          "INDIVIDUAL",
+          equipamento.tipo.humanize,
+          equipamento.tipo_equipamento,
+          equipamento.descricao,
+          equipamento.marca,
+          equipamento.modelo,
+          equipamento.numero_serial,
+          equipamento.numero_patrimonio,
+          equipamento.outra_identificacao,
+          equipamento.garantia,
+          equipamento.status.humanize,
+          equipamento.unidade&.sigla_nome,
+          equipamento.contrato,
+          equipamento.host,
+          equipamento.ip,
+          equipamento.user&.nome || equipamento.user&.email,
+          equipamento.created_at&.strftime("%d/%m/%Y %H:%M")
+        ], style: border_style
+      end
+    end
+  end
+  
+  # Ajustar largura das colunas
+  sheet.column_widths 20, 12, 18, 25, 15, 20, 20, 15, 20, 15, 12, 25, 20, 15, 15, 25, 20
+end

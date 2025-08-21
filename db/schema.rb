@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_14_143218) do
+ActiveRecord::Schema.define(version: 2025_08_21_170928) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,6 +54,26 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "base_permissoes", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "descricao", null: false
+    t.boolean "status", default: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nome"], name: "index_base_permissoes_on_nome", unique: true
+  end
+
+  create_table "base_user_permissoes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "permissao_id", null: false
+    t.boolean "status", default: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["permissao_id"], name: "index_base_user_permissoes_on_permissao_id"
+    t.index ["user_id", "permissao_id"], name: "index_base_user_permissoes_on_user_id_and_permissao_id", unique: true
+    t.index ["user_id"], name: "index_base_user_permissoes_on_user_id"
+  end
+
   create_table "cargos", force: :cascade do |t|
     t.string "nome"
     t.datetime "created_at", precision: 6, null: false
@@ -74,6 +94,43 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["requisicao_transporte_id"], name: "index_destinos_on_requisicao_transporte_id"
     t.index ["user_id"], name: "index_destinos_on_user_id"
+  end
+
+  create_table "equipamentos", force: :cascade do |t|
+    t.string "tipo", null: false
+    t.text "descricao"
+    t.string "marca"
+    t.string "modelo"
+    t.string "numero_serial"
+    t.string "numero_patrimonio"
+    t.string "outra_identificacao"
+    t.integer "status", default: 0
+    t.datetime "data_cadastro"
+    t.bigint "unidade_id", null: false
+    t.bigint "user_id", null: false
+    t.jsonb "itens_kit", default: []
+    t.jsonb "historico_movimentacoes", default: []
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "tipo_equipamento"
+    t.string "identificacao_kit"
+    t.string "host"
+    t.string "ip"
+    t.string "codigo_kit"
+    t.string "contrato"
+    t.integer "garantia"
+    t.index ["codigo_kit"], name: "index_equipamentos_on_codigo_kit"
+    t.index ["contrato"], name: "index_equipamentos_on_contrato"
+    t.index ["historico_movimentacoes"], name: "index_equipamentos_on_historico_movimentacoes", using: :gin
+    t.index ["identificacao_kit"], name: "index_equipamentos_on_identificacao_kit"
+    t.index ["itens_kit"], name: "index_equipamentos_on_itens_kit", using: :gin
+    t.index ["numero_patrimonio"], name: "index_equipamentos_on_numero_patrimonio"
+    t.index ["numero_serial"], name: "index_equipamentos_on_numero_serial"
+    t.index ["status"], name: "index_equipamentos_on_status"
+    t.index ["tipo"], name: "index_equipamentos_on_tipo"
+    t.index ["tipo_equipamento"], name: "index_equipamentos_on_tipo_equipamento"
+    t.index ["unidade_id"], name: "index_equipamentos_on_unidade_id"
+    t.index ["user_id"], name: "index_equipamentos_on_user_id"
   end
 
   create_table "etapa_users", force: :cascade do |t|
@@ -112,6 +169,88 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "hd_campo_requisicaos", force: :cascade do |t|
+    t.string "nome", null: false
+    t.integer "tipo", null: false
+    t.boolean "obrigatorio", default: false
+    t.jsonb "opcoes"
+    t.bigint "requisicao_id", null: false
+    t.integer "ordem"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["requisicao_id", "nome"], name: "index_hd_campo_requisicaos_on_requisicao_id_and_nome", unique: true
+    t.index ["requisicao_id"], name: "index_hd_campo_requisicaos_on_requisicao_id"
+  end
+
+  create_table "hd_campo_requisicoes", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "tipo", null: false
+    t.boolean "obrigatorio", default: false, null: false
+    t.jsonb "opcoes", default: {}, null: false
+    t.bigint "requisicao_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "mascara"
+    t.string "tabela"
+    t.index ["requisicao_id", "nome"], name: "index_hd_campo_requisicoes_on_requisicao_id_and_nome", unique: true
+    t.index ["requisicao_id"], name: "index_hd_campo_requisicoes_on_requisicao_id"
+  end
+
+  create_table "hd_chamados", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unidade_id", null: false
+    t.bigint "requisicao_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.jsonb "campos"
+    t.index ["requisicao_id"], name: "index_hd_chamados_on_requisicao_id"
+    t.index ["unidade_id"], name: "index_hd_chamados_on_unidade_id"
+    t.index ["user_id"], name: "index_hd_chamados_on_user_id"
+  end
+
+  create_table "hd_requisicao_permissoes", force: :cascade do |t|
+    t.bigint "requisicao_id", null: false
+    t.bigint "permissao_id", null: false
+    t.boolean "status", default: true
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["permissao_id"], name: "index_hd_requisicao_permissoes_on_permissao_id"
+    t.index ["requisicao_id", "permissao_id"], name: "index_hd_req_perm_on_req_id_and_perm_id", unique: true
+    t.index ["requisicao_id"], name: "index_hd_requisicao_permissoes_on_requisicao_id"
+  end
+
+  create_table "hd_requisicaos", force: :cascade do |t|
+    t.string "nome", null: false
+    t.bigint "tipo_requisicao_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nome"], name: "index_hd_requisicaos_on_nome", unique: true
+    t.index ["tipo_requisicao_id"], name: "index_hd_requisicaos_on_tipo_requisicao_id"
+  end
+
+  create_table "hd_requisicoes", force: :cascade do |t|
+    t.string "nome", null: false
+    t.bigint "tipo_requisicao_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nome"], name: "index_hd_requisicoes_on_nome", unique: true
+    t.index ["tipo_requisicao_id"], name: "index_hd_requisicoes_on_tipo_requisicao_id"
+  end
+
+  create_table "hd_tipo_requisicaos", force: :cascade do |t|
+    t.string "nome", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nome"], name: "index_hd_tipo_requisicaos_on_nome", unique: true
+  end
+
+  create_table "hd_tipo_requisicoes", force: :cascade do |t|
+    t.string "nome", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["nome"], name: "index_hd_tipo_requisicoes_on_nome", unique: true
+  end
+
   create_table "incidentes", force: :cascade do |t|
     t.string "descricao"
     t.string "texto_explicativo"
@@ -121,6 +260,33 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.boolean "ativo"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "item_movimentacoes", force: :cascade do |t|
+    t.bigint "movimentacao_equipamento_id", null: false
+    t.bigint "equipamento_id", null: false
+    t.boolean "recebido", default: false
+    t.datetime "data_recebimento"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pendente"
+    t.index ["equipamento_id"], name: "index_item_movimentacoes_on_equipamento_id"
+    t.index ["movimentacao_equipamento_id"], name: "index_item_movimentacoes_on_movimentacao_equipamento_id"
+  end
+
+  create_table "lotacoes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "unidade_id", null: false
+    t.bigint "funcao_id", null: false
+    t.boolean "status", default: true
+    t.date "data_inicio", null: false
+    t.date "data_fim"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.text "observacoes"
+    t.index ["funcao_id"], name: "index_lotacoes_on_funcao_id"
+    t.index ["unidade_id"], name: "index_lotacoes_on_unidade_id"
+    t.index ["user_id"], name: "index_lotacoes_on_user_id"
   end
 
   create_table "mensagens", force: :cascade do |t|
@@ -144,6 +310,22 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "status"
+  end
+
+  create_table "movimentacao_equipamentos", force: :cascade do |t|
+    t.bigint "unidade_origem_id", null: false
+    t.bigint "unidade_destino_id", null: false
+    t.bigint "responsavel_id", null: false
+    t.string "status", default: "em_andamento"
+    t.text "descricao"
+    t.datetime "data_movimentacao", default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
+    t.index ["responsavel_id"], name: "index_movimentacao_equipamentos_on_responsavel_id"
+    t.index ["unidade_destino_id"], name: "index_movimentacao_equipamentos_on_unidade_destino_id"
+    t.index ["unidade_origem_id"], name: "index_movimentacao_equipamentos_on_unidade_origem_id"
+    t.index ["user_id"], name: "index_movimentacao_equipamentos_on_user_id"
   end
 
   create_table "passageiros", force: :cascade do |t|
@@ -432,6 +614,7 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
     t.bigint "unidade_id"
     t.bigint "funcao_id"
     t.boolean "status", default: true
+    t.string "vinculo"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["funcao_id"], name: "index_users_on_funcao_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -464,15 +647,37 @@ ActiveRecord::Schema.define(version: 2025_02_14_143218) do
 
   add_foreign_key "acoes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "base_user_permissoes", "base_permissoes", column: "permissao_id"
+  add_foreign_key "base_user_permissoes", "users"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
+  add_foreign_key "equipamentos", "unidades"
+  add_foreign_key "equipamentos", "users"
   add_foreign_key "etapa_users", "etapas"
   add_foreign_key "etapa_users", "users"
   add_foreign_key "etapas", "acoes"
   add_foreign_key "etapas_users", "etapas"
   add_foreign_key "etapas_users", "users"
+  add_foreign_key "hd_campo_requisicaos", "hd_requisicaos", column: "requisicao_id"
+  add_foreign_key "hd_campo_requisicoes", "hd_requisicoes", column: "requisicao_id"
+  add_foreign_key "hd_chamados", "hd_requisicoes", column: "requisicao_id"
+  add_foreign_key "hd_chamados", "unidades"
+  add_foreign_key "hd_chamados", "users"
+  add_foreign_key "hd_requisicao_permissoes", "base_permissoes", column: "permissao_id"
+  add_foreign_key "hd_requisicao_permissoes", "hd_requisicoes", column: "requisicao_id"
+  add_foreign_key "hd_requisicaos", "hd_tipo_requisicaos", column: "tipo_requisicao_id"
+  add_foreign_key "hd_requisicoes", "hd_tipo_requisicoes", column: "tipo_requisicao_id"
+  add_foreign_key "item_movimentacoes", "equipamentos"
+  add_foreign_key "item_movimentacoes", "movimentacao_equipamentos"
+  add_foreign_key "lotacoes", "funcoes"
+  add_foreign_key "lotacoes", "unidades"
+  add_foreign_key "lotacoes", "users"
   add_foreign_key "mensagens", "requisicao_tis"
   add_foreign_key "mensagens", "users"
+  add_foreign_key "movimentacao_equipamentos", "unidades", column: "unidade_destino_id"
+  add_foreign_key "movimentacao_equipamentos", "unidades", column: "unidade_origem_id"
+  add_foreign_key "movimentacao_equipamentos", "users"
+  add_foreign_key "movimentacao_equipamentos", "users", column: "responsavel_id"
   add_foreign_key "passageiros", "requisicao_transportes"
   add_foreign_key "passageiros", "users"
   add_foreign_key "problema_tis", "tipo_problema_tis"

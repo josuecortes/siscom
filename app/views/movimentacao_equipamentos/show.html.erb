@@ -1,0 +1,211 @@
+<% content_for :title do %>
+  <i class="fas fa-eye"></i> Detalhes da Movimentação
+<% end %>
+
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item"><a href="<%= movimentacao_equipamentos_url %>">Movimentações</a></li>
+  <li class="breadcrumb-item active">Detalhes</li>
+<% end %>
+
+<% content_for :sub_title do %>
+  Detalhes da movimentação #<%= @movimentacao.id %>
+<% end %>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Informações da Movimentação</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <tr>
+            <td><strong>ID:</strong></td>
+            <td><%= @movimentacao.id %></td>
+          </tr>
+          <tr>
+            <td><strong>Status:</strong></td>
+            <td>
+              <% status_class = case @movimentacao.status
+                 when 'em_andamento' then 'warning'
+                 when 'concluida' then 'success'
+                 when 'cancelada' then 'danger'
+                 end %>
+              <span class="badge badge-<%= status_class %>">
+                <%= @movimentacao.status.humanize %>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Unidade de Origem:</strong></td>
+            <td><%= @movimentacao.unidade_origem.sigla_nome %></td>
+          </tr>
+          <tr>
+            <td><strong>Unidade de Destino:</strong></td>
+            <td><%= @movimentacao.unidade_destino.sigla_nome %></td>
+          </tr>
+          <tr>
+            <td><strong>Responsável:</strong></td>
+            <td><%= @movimentacao.responsavel.nome %></td>
+          </tr>
+          <% if current_user.has_role?(:tec_serv_ti) %>
+            <tr>
+              <td><strong>Criador:</strong></td>
+              <td><%= @movimentacao.user&.nome || 'N/A' %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td><strong>Data da Movimentação:</strong></td>
+            <td><%= @movimentacao.data_movimentacao&.strftime("%d/%m/%Y %H:%M") %></td>
+          </tr>
+          <tr>
+            <td><strong>Descrição:</strong></td>
+            <td><%= @movimentacao.descricao.presence || 'Não informada' %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Resumo dos Equipamentos</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-4">
+            <div class="info-box">
+              <span class="info-box-icon bg-info"><i class="fas fa-desktop"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Total</span>
+                <span class="info-box-number"><%= @movimentacao.total_equipamentos %></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-box">
+              <span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Recebidos</span>
+                <span class="info-box-number"><%= @movimentacao.equipamentos_recebidos_count %></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="info-box">
+              <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text">Pendentes</span>
+                <span class="info-box-number"><%= @movimentacao.equipamentos_pendentes_count %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">Equipamentos da Movimentação</h5>
+  </div>
+  <div class="card-body">
+    <% if @item_movimentacoes.any? %>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Equipamento</th>
+              <th>Tipo</th>
+              <th>Marca/Modelo</th>
+              <th>Status Item</th>
+              <th>Status Movimentação</th>
+              <th>Data Recebimento</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @item_movimentacoes.each do |item| %>
+              <tr>
+                <td><%= item.equipamento.nome_completo %></td>
+                <td><%= item.equipamento.tipo_equipamento %></td>
+                <td>
+                  <% if item.equipamento.marca.present? %>
+                    <%= item.equipamento.marca %>
+                    <% if item.equipamento.modelo.present? %>
+                      - <%= item.equipamento.modelo %>
+                    <% end %>
+                  <% else %>
+                    -
+                  <% end %>
+                </td>
+                <td>
+                  <% if item.status == 'recebido' %>
+                    <span class="badge badge-success">Recebido</span>
+                  <% elsif item.status == 'cancelada' %>
+                    <span class="badge badge-danger">Cancelado</span>
+                  <% else %>
+                    <span class="badge badge-warning">Pendente</span>
+                  <% end %>
+                </td>
+                <td>
+                  <% status_class = case @movimentacao.status
+                     when 'em_andamento' then 'warning'
+                     when 'concluida' then 'success'
+                     when 'cancelada' then 'danger'
+                     end %>
+                  <span class="badge badge-<%= status_class %>">
+                    <%= @movimentacao.status.humanize %>
+                  </span>
+                </td>
+                <td>
+                  <% if item.recebido? %>
+                    <%= item.data_recebimento&.strftime("%d/%m/%Y %H:%M") %>
+                  <% else %>
+                    -
+                  <% end %>
+                </td>
+                <td>
+                  <% if item.status == 'pendente' && @movimentacao.em_andamento? && current_user.has_role?(:req_serv_ti) && current_user.id == @movimentacao.responsavel_id %>
+                    <%= link_to receber_equipamento_movimentacao_equipamento_path(@movimentacao, equipamento_id: item.equipamento.id), 
+                        method: :patch, 
+                        class: "btn btn-sm btn-success", 
+                        data: { confirm: "Confirmar recebimento do equipamento?" },
+                        title: "Receber Equipamento" do %>
+                      <i class="fas fa-check"></i> Receber
+                    <% end %>
+                  <% elsif item.status == 'recebido' %>
+                    <span class="text-success"><i class="fas fa-check-circle"></i> Recebido</span>
+                  <% elsif item.status == 'cancelada' %>
+                    <span class="text-danger"><i class="fas fa-times-circle"></i> Cancelado</span>
+                  <% else %>
+                    <span class="text-muted">Aguardando responsável</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Nenhum equipamento nesta movimentação.
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-3">
+  <%= link_to "Voltar", movimentacao_equipamentos_path, class: "btn btn-secondary" %>
+  
+  <% if @movimentacao.pode_ser_cancelada? && current_user.has_role?(:tec_serv_ti) && current_user.id == @movimentacao.user_id %>
+    <%= link_to cancelar_movimentacao_equipamento_path(@movimentacao), 
+        method: :patch, 
+        class: "btn btn-danger float-right", 
+        data: { confirm: "Tem certeza que deseja cancelar esta movimentação? Esta ação não pode ser desfeita." } do %>
+      <i class="fas fa-times"></i> Cancelar Movimentação
+    <% end %>
+  <% end %>
+</div>

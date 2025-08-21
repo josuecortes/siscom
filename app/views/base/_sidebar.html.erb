@@ -98,6 +98,15 @@
           </a>
         </li>
 
+        <% if current_user.has_role?(:req_serv_ti) %>
+          <li class="nav-item">
+            <a href="<%= movimentacao_equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'movimentacao_equipamentos') %>">
+              <i class="nav-icon fas fa-exchange-alt"></i>
+              <p>Movimentações</p>
+            </a>
+          </li>
+        <% end %>
+
         <% if current_user.has_role? :ges_acao %>
           <li class="nav-item">
             <a href="<%= acoes_path %>" class="nav-link">
@@ -238,6 +247,15 @@
               <i class="nav-icon far fa-edit"></i>
               <p>
                 Tipos de Problemas
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="<%= equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'equipamentos' and params[:action] == 'index') %>">
+              <i class="nav-icon fas fa-desktop"></i>
+              <p>
+                Equipamentos
               </p>
             </a>
           </li>

@@ -21,11 +21,8 @@
 
     <div class="form-group">
       <%= f.label :problema_ti_id, "Requisição" %>
-      <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
-        <% @problemas.delete_at(0) %>
-        <% @problemas.delete_at(0) %>
-      <% end %>
-      <%= f.select :problema_ti_id, @problemas, { include_blank: true }, { class: "form-control js-searchable select2-problema", required: true } %>
+      <%= f.hidden_field :problema_ti_id, id: 'requisicao_ti_problema_ti_id' %>
+      <%= text_field_tag :problema_ti_nome, (@requisicao_ti.problema_ti&.nome), class: "form-control js-autocomplete-problema", placeholder: 'Digite para buscar a requisição', required: true, autocomplete: 'off' %>
       <%= has_error(@requisicao_ti, :problema_ti_id) %>
     </div>
 
@@ -74,13 +71,15 @@
     <div class="row d-none" id="cargo-funcao">
       <div class="form-group col-md-6">
         <%= f.label :cargo_id %>
-        <%= f.select :cargo_id, @cargos, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= f.hidden_field :cargo_id, id: 'requisicao_ti_cargo_id' %>
+        <%= text_field_tag :cargo_nome, (@requisicao_ti.cargo&.nome), class: "form-control js-autocomplete-cargo", required: false, autocomplete: 'off' %>
         <%= has_error(@requisicao_ti, :cargo_id) %>
       </div>
 
       <div class="form-group col-md-6">
         <%= f.label :funcao_id %>
-        <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= f.hidden_field :funcao_id, id: 'requisicao_ti_funcao_id' %>
+        <%= text_field_tag :funcao_nome, (@requisicao_ti.funcao&.nome), class: "form-control js-autocomplete-funcao", required: false, autocomplete: 'off' %>
         <%= has_error(@requisicao_ti, :funcao_id) %>
       </div>
     </div>
@@ -88,13 +87,13 @@
     <div class="row d-none" id="estado-municipio">
       <div class="form-group col-md-6">
         <%= f.label :estado %>
-        <%= f.select :estado, @estados, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= f.text_field :estado, class: "form-control js-autocomplete-estado", required: false, autocomplete: 'off' %>
         <%= has_error(@requisicao_ti, :estado) %>
       </div>
 
       <div class="form-group col-md-6">
         <%= f.label :municipio %>
-        <%= f.select :municipio, @municipios, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= f.text_field :municipio, class: "form-control js-autocomplete-municipio", required: false, autocomplete: 'off' %>
         <%= has_error(@requisicao_ti, :municipio) %>
       </div>
 
@@ -117,7 +116,8 @@
     <div class="row">
       <div class="form-group d-none col-md-6" id="unidade">
         <%= f.label :unidade_id %>
-        <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+        <%= f.hidden_field :unidade_id, id: 'requisicao_ti_unidade_id' %>
+        <%= text_field_tag :unidade_nome, (@requisicao_ti.unidade&.nome), class: "form-control js-autocomplete-unidade", required: false, autocomplete: 'off' %>
         <%= has_error(@requisicao_ti, :unidade_id) %>
       </div>
 
@@ -132,7 +132,7 @@
 
     <div class="form-group d-none" id="permissao_drive">
       <%= f.label :permissao_drive, 'Permissão na Pasta do Google Drive' %>
-      <%= f.select :permissao_drive, @permissoes_drive, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+      <%= f.text_field :permissao_drive, class: "form-control js-autocomplete-permissao-drive", required: false, autocomplete: 'off' %>
       <%= has_error(@requisicao_ti, :permissao_drive) %>
     </div>
 
@@ -150,7 +150,7 @@
 
     <div class="form-group d-none" id="perfil">
       <%= f.label :perfil %>
-      <%= f.select :perfil, @perfis, { include_blank: true }, { class: "form-control js-searchable", required: false } %>
+      <%= f.text_field :perfil, class: "form-control js-autocomplete-perfil", required: false, autocomplete: 'off' %>
       <%= has_error(@requisicao_ti, :perfil) %>
     </div>
 
@@ -188,12 +188,61 @@
 
 <script>
   $(document).ready(function() {
-    $('.js-searchable').select2({
-      placeholder: "Selecione",
-      allowClear: true,
-      theme: 'bootstrap',
-      width: '100%'
-    });
+    function bindAutocompleteWithHidden(inputSelector, hiddenSelector, url){
+      $(inputSelector).autocomplete({
+        minLength: 0,
+        appendTo: $(inputSelector).closest('.modal-body'),
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+          });
+        },
+        select: function(event, ui){
+          $(hiddenSelector).val(ui.item.id);
+          $(inputSelector).val(ui.item.value).trigger('change');
+          return false;
+        },
+        change: function(event, ui){
+          if(!ui.item){ $(hiddenSelector).val(''); }
+        }
+      }).autocomplete("widget").addClass("ui-autocomplete-modal");
+      
+      // Mostrar todas as opções quando o campo recebe foco
+      $(inputSelector).on('focus', function(){
+        $(this).autocomplete("search", "");
+      });
+      
+      $(inputSelector).on('input', function(){ if($(this).val() === '') { $(hiddenSelector).val(''); } });
+    }
+
+    function bindAutocompleteSimple(inputSelector, url){
+      $(inputSelector).autocomplete({
+        minLength: 0,
+        appendTo: $(inputSelector).closest('.modal-body'),
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return item.value; }));
+          });
+        }
+      }).autocomplete("widget").addClass("ui-autocomplete-modal");
+      
+      // Mostrar todas as opções quando o campo recebe foco
+      $(inputSelector).on('focus', function(){
+        $(this).autocomplete("search", "");
+      });
+    }
+
+    // Bind autocompletes
+    bindAutocompleteWithHidden('.js-autocomplete-problema', '#requisicao_ti_problema_ti_id', '/autocompletes/problemas_ti');
+    bindAutocompleteWithHidden('.js-autocomplete-cargo', '#requisicao_ti_cargo_id', '/autocompletes/cargos');
+    bindAutocompleteWithHidden('.js-autocomplete-funcao', '#requisicao_ti_funcao_id', '/autocompletes/funcoes');
+    bindAutocompleteWithHidden('.js-autocomplete-unidade', '#requisicao_ti_unidade_id', '/autocompletes/unidades');
+    bindAutocompleteSimple('.js-autocomplete-estado', '/autocompletes/estados');
+    bindAutocompleteSimple('.js-autocomplete-municipio', '/autocompletes/municipios');
+    bindAutocompleteSimple('.js-autocomplete-permissao-drive', '/autocompletes/permissoes_drive');
+    bindAutocompleteSimple('.js-autocomplete-perfil', '/autocompletes/perfis');
 
     function limpar_area(){
       $('#nome-email').addClass('d-none')
@@ -303,13 +352,37 @@
       }
     }
 
-    let problemaSelecionado = $('.select2-problema :selected').text()
+    let problemaSelecionado = $('.js-autocomplete-problema').val()
     carregar_area(problemaSelecionado)
 
-    $('.select2-problema').change(function(){
-      let problemaSelecionado = $('.select2-problema :selected').text()
+    $('.js-autocomplete-problema').on('autocompleteselect change', function(){
+      let problemaSelecionado = $('.js-autocomplete-problema').val()
       carregar_area(problemaSelecionado)
     })
+
+    // Adicionar CSS para garantir que o autocomplete apareça acima do modal
+    $('<style>')
+      .prop('type', 'text/css')
+      .html(`
+        .ui-autocomplete-modal {
+          z-index: 9999 !important;
+          max-height: 200px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .ui-autocomplete-modal .ui-menu-item {
+          padding: 8px 12px;
+          border-bottom: 1px solid #eee;
+          cursor: pointer;
+        }
+        .ui-autocomplete-modal .ui-menu-item:hover {
+          background-color: #f8f9fa;
+        }
+        .ui-autocomplete-modal .ui-menu-item:last-child {
+          border-bottom: none;
+        }
+      `)
+      .appendTo('head');
 
   });
 

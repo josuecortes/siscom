@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  movimentacao_equipamento: one
+  equipamento: one
+  recebido: false
+  data_recebimento: 2025-08-20 16:50:40
+
+two:
+  movimentacao_equipamento: two
+  equipamento: two
+  recebido: false
+  data_recebimento: 2025-08-20 16:50:40

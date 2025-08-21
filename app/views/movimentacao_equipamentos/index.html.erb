@@ -1,0 +1,114 @@
+<% content_for :title do %>
+  <i class="fas fa-exchange-alt"></i> Movimentações de Equipamentos
+<% end %>
+
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item active"><a href="<%= movimentacao_equipamentos_url %>">Movimentações</a></li>
+<% end %>
+
+<% content_for :sub_title do %>
+  Lista de movimentações de equipamentos
+<% end %>
+
+<% content_for :buttons do %>
+  <% if current_user.has_role?(:tec_serv_ti) %>
+    <%= link_to new_movimentacao_equipamento_path, class: "btn btn-sm btn-success", title: "Nova Movimentação" do %>
+      <i class="fas fa-plus"></i> Nova Movimentação
+    <% end %>
+  <% end %>
+<% end %>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">
+      <% if current_user.has_role?(:tec_serv_ti) %>
+        Todas as Movimentações
+      <% elsif current_user.has_role?(:req_serv_ti) %>
+        Minhas Movimentações Pendentes
+      <% end %>
+    </h5>
+  </div>
+  <div class="card-body">
+    <% if @movimentacoes.any? %>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Origem</th>
+              <th>Destino</th>
+              <th>Responsável</th>
+              <% if current_user.has_role?(:tec_serv_ti) %>
+                <th>Criador</th>
+              <% end %>
+              <th>Status</th>
+              <th>Equipamentos</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @movimentacoes.each do |movimentacao| %>
+              <tr>
+                <td><%= movimentacao.id %></td>
+                <td><%= movimentacao.unidade_origem.sigla_nome %></td>
+                <td><%= movimentacao.unidade_destino.sigla_nome %></td>
+                <td><%= movimentacao.responsavel.nome %></td>
+                <% if current_user.has_role?(:tec_serv_ti) %>
+                  <td><%= movimentacao.user&.nome || 'N/A' %></td>
+                <% end %>
+                <td>
+                  <% status_class = case movimentacao.status
+                     when 'em_andamento' then 'warning'
+                     when 'concluida' then 'success'
+                     when 'cancelada' then 'danger'
+                     end %>
+                  <span class="badge badge-<%= status_class %>">
+                    <%= movimentacao.status.humanize %>
+                  </span>
+                </td>
+                <td>
+                  <%= movimentacao.equipamentos_recebidos_count %> / <%= movimentacao.total_equipamentos %>
+                  <% if movimentacao.equipamentos_pendentes_count > 0 %>
+                    <span class="badge badge-warning">
+                      <%= movimentacao.equipamentos_pendentes_count %> pendente(s)
+                    </span>
+                  <% end %>
+                </td>
+                <td><%= movimentacao.data_movimentacao&.strftime("%d/%m/%Y %H:%M") %></td>
+                <td>
+                  <%= link_to movimentacao_equipamento_path(movimentacao), class: "btn btn-sm btn-info", title: "Ver Detalhes" do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  
+                  <% if movimentacao.pode_ser_cancelada? && current_user.has_role?(:tec_serv_ti) && current_user.id == movimentacao.user_id %>
+                    <%= link_to cancelar_movimentacao_equipamento_path(movimentacao), 
+                        method: :patch, 
+                        class: "btn btn-sm btn-danger", 
+                        title: "Cancelar Movimentação",
+                        data: { confirm: "Tem certeza que deseja cancelar esta movimentação? Esta ação não pode ser desfeita." } do %>
+                      <i class="fas fa-times"></i>
+                    <% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="d-flex justify-content-center">
+        <%= paginate @movimentacoes %>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <% if current_user.has_role?(:tec_serv_ti) %>
+          Nenhuma movimentação encontrada.
+        <% elsif current_user.has_role?(:req_serv_ti) %>
+          Você não possui movimentações pendentes.
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

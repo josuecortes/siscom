@@ -1,0 +1,930 @@
+<div class="modal-body">
+  <%= form_for @equipamento, remote: true do |f| %>
+    <% if @equipamento.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+      </div>
+    <% end %>
+
+    <!-- Tipo de Equipamento -->
+    <div class="form-group">
+      <%= f.label :tipo, "Tipo" %>
+      <% if @equipamento.persisted? %>
+        <%= f.select :tipo, 
+            options_for_select([['Kit', 'kit'], ['Individual', 'individual']], @equipamento.tipo), 
+            {}, { class: "form-control", required: true, disabled: true } %>
+        <%= f.hidden_field :tipo %>
+      <% else %>
+        <%= f.select :tipo, 
+            options_for_select([['Selecione...', ''], ['Kit', 'kit'], ['Individual', 'individual']], @equipamento.tipo), 
+            {}, { class: "form-control", required: true } %>
+      <% end %>
+      <%= has_error(@equipamento, :tipo) %>
+    </div>
+
+    <!-- Campos específicos para Individual -->
+    <div id="campos_individual" style="display: none;">
+      <div class="form-group">
+        <%= f.label :tipo_equipamento, "Tipo de Equipamento" %>
+        <%= f.select :tipo_equipamento, 
+            options_for_select([['Selecione...', '']] + @tipos_equipamento.map { |t| [t, t] }, @equipamento.tipo_equipamento), 
+            {}, { class: "form-control", id: "tipo_equipamento_individual", required: true } %>
+        <%= has_error(@equipamento, :tipo_equipamento) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :marca, "Marca" %>
+        <%= f.text_field :marca, class: "form-control", required: true %>
+        <%= has_error(@equipamento, :marca) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :modelo, "Modelo" %>
+        <%= f.text_field :modelo, class: "form-control", required: true %>
+        <%= has_error(@equipamento, :modelo) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :numero_serial, "Número Serial" %>
+        <%= f.text_field :numero_serial, class: "form-control" %>
+        <%= has_error(@equipamento, :numero_serial) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :numero_patrimonio, "Número do Patrimônio" %>
+        <%= f.text_field :numero_patrimonio, class: "form-control" %>
+        <%= has_error(@equipamento, :numero_patrimonio) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :outra_identificacao, "Outra Identificação" %>
+        <%= f.text_field :outra_identificacao, class: "form-control" %>
+        <%= has_error(@equipamento, :outra_identificacao) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :garantia, "Garantia (meses)" %>
+        <%= f.number_field :garantia, class: "form-control", min: 0, placeholder: "Ex: 12, 24, 36" %>
+        <small class="form-text text-muted">Número de meses de garantia (opcional)</small>
+        <%= has_error(@equipamento, :garantia) %>
+      </div>
+
+      <!-- Campos específicos para equipamentos de rede -->
+      <div id="campos_rede" style="display: none;">
+        <div class="form-group">
+          <%= f.label :host, "Host" %>
+          <%= f.text_field :host, class: "form-control" %>
+          <%= has_error(@equipamento, :host) %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :ip, "IP" %>
+          <%= f.text_field :ip, class: "form-control" %>
+          <%= has_error(@equipamento, :ip) %>
+        </div>
+      </div>
+
+      <!-- Campo específico para Gabinete -->
+      <div id="campo_gabinete" style="display: none;">
+        <div class="form-group">
+          <%= f.label :host, "Host" %>
+          <%= f.text_field :host, class: "form-control" %>
+          <%= has_error(@equipamento, :host) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campos específicos para Kit -->
+    <div id="campos_kit" style="display: none;">
+      <div class="form-group">
+        <%= f.label :identificacao_kit, "Identificação do Kit" %>
+        <%= f.text_field :identificacao_kit, class: "form-control", placeholder: "Ex: KIT001, LAB01, etc." %>
+        <%= has_error(@equipamento, :identificacao_kit) %>
+      </div>
+
+      <!-- Itens do Kit -->
+      <div class="form-group">
+        <label>Itens do Kit</label>
+        <div id="itens_kit">
+          <div class="row mb-3 item-kit">
+            <!-- Primeira linha: campos principais -->
+            <div class="col-md-3 mb-2">
+              <select name="equipamento[itens_kit][][tipo_equipamento]" class="form-control tipo-equipamento-kit" required>
+                <option value="">Tipo</option>
+                <% @tipos_equipamento.each do |tipo| %>
+                  <option value="<%= tipo %>"><%= tipo %></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="col-md-3 mb-2">
+              <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
+            </div>
+            <div class="col-md-3 mb-2">
+              <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
+            </div>
+            <div class="col-md-3 mb-2">
+              <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
+            </div>
+            
+            <!-- Segunda linha: campos adicionais -->
+            <div class="col-md-3 mb-2">
+              <input type="text" name="equipamento[itens_kit][][numero_patrimonio]" class="form-control" placeholder="Patrimônio">
+            </div>
+            <div class="col-md-3 mb-2">
+              <input type="text" name="equipamento[itens_kit][][outra_identificacao]" class="form-control" placeholder="Outra Identificação">
+            </div>
+            <div class="col-md-3 mb-2">
+              <input type="number" name="equipamento[itens_kit][][garantia]" class="form-control" placeholder="Garantia (meses)" min="0">
+            </div>
+            <div class="col-md-3 mb-2">
+              <select name="equipamento[itens_kit][][status]" class="form-control" required>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+                <option value="em_manutencao">Em Manutenção</option>
+                <option value="descartado">Descartado</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-2">
+              <button type="button" class="btn btn-danger btn-sm w-100" onclick="removerItemKit(this)">
+                <i class="fas fa-trash"></i> Remover
+              </button>
+            </div>
+            
+            <!-- Terceira linha: campos dinâmicos (sempre ocultos inicialmente) -->
+            <div class="col-md-12 campos-dinamicos-kit" style="display: none;">
+              <div class="row">
+                <div class="col-md-3 campos-rede-kit" style="display: none;">
+                  <div class="form-group">
+                    <label>Host</label>
+                    <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                  </div>
+                </div>
+                <div class="col-md-3 campos-rede-kit" style="display: none;">
+                  <div class="form-group">
+                    <label>IP</label>
+                    <input type="text" name="equipamento[itens_kit][][ip]" class="form-control" placeholder="Endereço IP">
+                  </div>
+                </div>
+                <div class="col-md-3 campo-gabinete-kit" style="display: none;">
+                  <div class="form-group">
+                    <label>Host</label>
+                    <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-success btn-sm" onclick="adicionarItemKit()">
+          <i class="fas fa-plus"></i> Adicionar Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Campos comuns (aparecem após selecionar tipo) -->
+    <div id="campos_comuns" style="display: none;">
+          <div class="form-group">
+      <%= f.label :unidade_id, "Unidade" %>
+      <% if @equipamento.persisted? %>
+        <%= f.hidden_field :unidade_id, id: 'equipamento_unidade_id' %>
+        <%= text_field_tag :unidade_nome, (@equipamento.unidade&.sigla_nome), class: "form-control", readonly: true %>
+        <small class="form-text text-muted">Alteração de unidade deve ser feita através de movimentação</small>
+      <% else %>
+        <%= f.hidden_field :unidade_id, id: 'equipamento_unidade_id' %>
+        <%= text_field_tag :unidade_nome, (@equipamento.unidade&.sigla_nome), class: "form-control js-autocomplete-unidade", placeholder: "Digite para buscar a unidade...", required: true, autocomplete: 'off' %>
+      <% end %>
+      <%= has_error(@equipamento, :unidade_id) %>
+    </div>
+
+      <div class="form-group">
+        <%= f.label :contrato, "Contrato ou Referência" %>
+        <%= f.text_field :contrato, class: "form-control", placeholder: "Digite o contrato ou referência" %>
+        <%= has_error(@equipamento, :contrato) %>
+      </div>
+
+      <!-- Seção de Gerenciamento de Kit (apenas para equipamentos individuais) -->
+      <div id="gerenciamento_kit" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h6><i class="fas fa-box"></i> Gerenciamento de Kit</h6>
+          </div>
+          <div class="card-body">
+            <% if @equipamento.persisted? && @equipamento.pertence_a_kit? %>
+              <!-- Remover de Kit -->
+              <div class="form-group">
+                <label>Kit Atual</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" value="<%= @equipamento.nome_do_kit %> (Código: <%= @equipamento.codigo_do_kit %>)" readonly>
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-warning" onclick="removerDeKit()">
+                      <i class="fas fa-unlink"></i> Remover do Kit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <!-- Incluir em Kit -->
+              <div class="form-group">
+                <label>Código do Kit (opcional)</label>
+                <div class="input-group">
+                  <input type="text" id="codigo_kit_input" name="equipamento[codigo_kit]" class="form-control" 
+                         placeholder="Digite o código do kit para incluir este equipamento" 
+                         value="<%= @equipamento.codigo_kit %>">
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-info" onclick="verificarKit()">
+                      <i class="fas fa-search"></i> Verificar
+                    </button>
+                  </div>
+                </div>
+                <small class="form-text text-muted">Deixe em branco para equipamento independente</small>
+              </div>
+              
+              <!-- Informações do Kit (aparece após verificar) -->
+              <div id="info_kit" style="display: none;">
+                <div class="alert alert-info">
+                  <strong>Kit encontrado:</strong> <span id="nome_kit"></span><br>
+                  <strong>Descrição:</strong> <span id="descricao_kit"></span><br>
+                  <strong>Unidade:</strong> <span id="unidade_kit"></span><br>
+                  <strong>Equipamentos no kit:</strong> <span id="total_equipamentos_kit"></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="status_geral" style="display: none;">
+        <%= f.label :status, "Status" %>
+        <%= f.select :status, 
+            options_for_select(Equipamento.statuses.keys.map { |s| [s.humanize, s] }, @equipamento.status), 
+            {}, { class: "form-control", required: true } %>
+        <%= has_error(@equipamento, :status) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :descricao, "Descrição" %>
+        <%= f.text_area :descricao, class: "form-control", rows: 3 %>
+        <%= has_error(@equipamento, :descricao) %>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar">
+        <i class="icon fa fa-check"></i> Salvar
+      </button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal">
+        <i class="icon fas fa-ban"></i> Cancelar
+      </button>
+    </div>
+  <% end %>
+
+  <!-- Seção para equipamentos que pertencem a um kit -->
+  <% if @equipamento.persisted? && @equipamento.pertence_a_kit? %>
+    <div class="modal-body" style="border-top: 1px solid #dee2e6; margin-top: 15px; padding-top: 15px;">
+      <h6><i class="fas fa-box"></i> Informações do Kit</h6>
+      <div class="row">
+        <div class="col-md-6">
+          <strong>Nome do Kit:</strong> <%= @equipamento.nome_do_kit %>
+        </div>
+        <div class="col-md-6">
+          <strong>Código do Kit:</strong> <%= @equipamento.codigo_do_kit %>
+        </div>
+      </div>
+      
+      <% if @equipamento.equipamentos_do_mesmo_kit.any? %>
+        <div class="mt-3">
+          <h6><i class="fas fa-link"></i> Outros Equipamentos do Kit</h6>
+          <div class="list-group">
+            <% @equipamento.equipamentos_do_mesmo_kit.each do |equip| %>
+              <%= link_to edit_equipamento_path(equip), class: "list-group-item list-group-item-action", remote: true do %>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong><%= equip.tipo_equipamento %></strong>
+                    <% if equip.marca.present? %>
+                      - <%= equip.marca %>
+                    <% end %>
+                    <% if equip.modelo.present? %>
+                      <%= equip.modelo %>
+                    <% end %>
+                  </div>
+                  <span class="badge badge-<%= equip.status == 'ativo' ? 'success' : 'secondary' %>">
+                    <%= equip.status.humanize %>
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+console.log('Script carregado no _form.html.erb');
+
+// Função para controlar a exibição dos campos
+function toggleCampos() {
+  console.log('toggleCampos chamado');
+  
+  // Usar jQuery para pegar o elemento e valor
+  const $tipoSelect = $('select[name="equipamento[tipo]"]');
+  const $camposIndividual = $('#campos_individual');
+  const $camposKit = $('#campos_kit');
+  const $camposComuns = $('#campos_comuns');
+  const $statusGeral = $('#status_geral');
+  const $gerenciamentoKit = $('#gerenciamento_kit');
+  
+  console.log('Elementos encontrados:', {
+    tipoSelect: $tipoSelect.length > 0,
+    camposIndividual: $camposIndividual.length > 0,
+    camposKit: $camposKit.length > 0,
+    camposComuns: $camposComuns.length > 0,
+    statusGeral: $statusGeral.length > 0,
+    gerenciamentoKit: $gerenciamentoKit.length > 0
+  });
+  
+  if ($tipoSelect.length === 0 || $camposIndividual.length === 0 || $camposKit.length === 0 || $camposComuns.length === 0) {
+    console.log('ERRO: Elementos não encontrados!');
+    return;
+  }
+  
+  const valorSelecionado = $tipoSelect.val();
+  console.log('Tipo selecionado (jQuery):', valorSelecionado);
+  console.log('Tipo selecionado (DOM):', $tipoSelect[0].value);
+  console.log('Tipo selecionado (selected):', $tipoSelect.find('option:selected').val());
+  
+  // Esconder todos os campos primeiro
+  $camposIndividual.hide();
+  $camposKit.hide();
+  $camposComuns.hide();
+  $statusGeral.hide();
+  $gerenciamentoKit.hide();
+  
+  if (valorSelecionado === 'individual') {
+    console.log('Mostrando campos individuais');
+    $camposIndividual.show();
+    $camposComuns.show();
+    $statusGeral.show(); // Mostrar status geral apenas para equipamentos individuais
+    $gerenciamentoKit.show(); // Mostrar gerenciamento de kit para equipamentos individuais
+    
+    // Adicionar required aos campos individuais (exceto identificadores)
+    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]), #campos_individual select').attr('required', true);
+    $('#status_geral select').attr('required', true);
+    
+    // Remover required dos campos de kit
+    $('#campos_kit input, #campos_kit select').removeAttr('required');
+    
+    // Remover required dos campos dinâmicos até que o tipo de equipamento seja selecionado
+    $('#campos_rede input, #campo_gabinete input').removeAttr('required');
+    
+  } else if (valorSelecionado === 'kit') {
+    console.log('Mostrando campos de kit');
+    $camposKit.show();
+    $camposComuns.show();
+    // Status geral permanece oculto para kits
+    
+    // Adicionar required aos campos de kit
+    $('#campos_kit input, #campos_kit select').attr('required', true);
+    
+    // Remover required dos campos individuais
+    $('#campos_individual input, #campos_individual select').removeAttr('required');
+    $('#status_geral select').removeAttr('required');
+    
+  } else {
+    console.log('Nenhum tipo selecionado ou valor inválido');
+    
+    // Remover required de todos os campos quando nenhum tipo está selecionado
+    $('#campos_individual input, #campos_individual select').removeAttr('required');
+    $('#campos_kit input, #campos_kit select').removeAttr('required');
+    $('#status_geral select').removeAttr('required');
+  }
+}
+
+// Função para controlar campos específicos baseados no tipo de equipamento (individual)
+function toggleCamposEquipamento() {
+  console.log('toggleCamposEquipamento chamado');
+  
+  const $tipoEquipamentoSelect = $('#tipo_equipamento_individual');
+  const $camposRede = $('#campos_rede');
+  const $campoGabinete = $('#campo_gabinete');
+  
+  console.log('Elementos encontrados:', {
+    tipoEquipamentoSelect: $tipoEquipamentoSelect.length > 0,
+    camposRede: $camposRede.length > 0,
+    campoGabinete: $campoGabinete.length > 0
+  });
+  
+  if ($tipoEquipamentoSelect.length === 0) {
+    console.log('ERRO: tipo_equipamento_individual não encontrado!');
+    return;
+  }
+  
+  const tipoEquipamento = $tipoEquipamentoSelect.val();
+  console.log('Tipo de equipamento selecionado:', tipoEquipamento);
+  
+  // Esconder todos os campos específicos primeiro
+  $camposRede.hide();
+  $campoGabinete.hide();
+  
+  // Remover required de todos os campos dinâmicos primeiro
+  $camposRede.find('input').removeAttr('required');
+  $campoGabinete.find('input').removeAttr('required');
+  
+  // Mostrar campos baseados no tipo
+  if (tipoEquipamento === 'Impressora' || tipoEquipamento === 'Roteador' || tipoEquipamento === 'Switch') {
+    console.log('Mostrando campos de rede (Host + IP) para:', tipoEquipamento);
+    $camposRede.show();
+    // Adicionar required aos campos de rede
+    $camposRede.find('input[name="equipamento[host]"]').attr('required', false);
+    $camposRede.find('input[name="equipamento[ip]"]').attr('required', false);
+  } else if (tipoEquipamento === 'Gabinete') {
+    console.log('Mostrando campo de gabinete (Host) para:', tipoEquipamento);
+    $campoGabinete.show();
+    // Adicionar required ao campo de host do gabinete
+    $campoGabinete.find('input[name="equipamento[host]"]').attr('required', false);
+  } else {
+    console.log('Nenhum campo específico para:', tipoEquipamento);
+    // Garantir que os campos dinâmicos não sejam required para outros tipos
+    $camposRede.find('input').removeAttr('required');
+    $campoGabinete.find('input').removeAttr('required');
+  }
+}
+
+// Função para controlar campos específicos dos itens do kit
+function toggleCamposEquipamentoKit(selectElement) {
+  console.log('toggleCamposEquipamentoKit chamado');
+  
+  const $itemKit = $(selectElement).closest('.item-kit');
+  const $camposDinamicos = $itemKit.find('.campos-dinamicos-kit');
+  const $camposRede = $itemKit.find('.campos-rede-kit');
+  const $campoGabinete = $itemKit.find('.campo-gabinete-kit');
+  
+  const tipoEquipamento = $(selectElement).val();
+  console.log('Tipo de equipamento do kit selecionado:', tipoEquipamento);
+  
+  // Esconder todos os campos específicos primeiro
+  $camposDinamicos.hide();
+  $camposRede.hide();
+  $campoGabinete.hide();
+  
+  // Mostrar campos baseados no tipo
+  if (tipoEquipamento === 'Impressora' || tipoEquipamento === 'Roteador' || tipoEquipamento === 'Switch') {
+    console.log('Mostrando campos de rede (Host + IP) para item do kit:', tipoEquipamento);
+    $camposDinamicos.show();
+    $camposRede.show();
+  } else if (tipoEquipamento === 'Gabinete') {
+    console.log('Mostrando campo de gabinete (Host) para item do kit:', tipoEquipamento);
+    $camposDinamicos.show();
+    $campoGabinete.show();
+  } else {
+    console.log('Nenhum campo específico para item do kit:', tipoEquipamento);
+  }
+}
+
+function adicionarItemKit() {
+  const container = document.getElementById('itens_kit');
+  const novoItem = document.createElement('div');
+  novoItem.className = 'row mb-3 item-kit';
+  novoItem.innerHTML = `
+    <!-- Primeira linha: campos principais -->
+    <div class="col-md-3 mb-2">
+      <select name="equipamento[itens_kit][][tipo_equipamento]" class="form-control tipo-equipamento-kit" required>
+        <option value="">Tipo</option>
+        <% @tipos_equipamento.each do |tipo| %>
+          <option value="<%= tipo %>"><%= tipo %></option>
+        <% end %>
+      </select>
+    </div>
+    <div class="col-md-3 mb-2">
+      <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
+    </div>
+    <div class="col-md-3 mb-2">
+      <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
+    </div>
+    <div class="col-md-3 mb-2">
+      <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
+    </div>
+    
+    <!-- Segunda linha: campos adicionais -->
+    <div class="col-md-3 mb-2">
+      <input type="text" name="equipamento[itens_kit][][numero_patrimonio]" class="form-control" placeholder="Patrimônio">
+    </div>
+    <div class="col-md-3 mb-2">
+      <input type="text" name="equipamento[itens_kit][][outra_identificacao]" class="form-control" placeholder="Outra Identificação">
+    </div>
+    <div class="col-md-3 mb-2">
+      <input type="number" name="equipamento[itens_kit][][garantia]" class="form-control" placeholder="Garantia (meses)" min="0">
+    </div>
+    <div class="col-md-3 mb-2">
+      <select name="equipamento[itens_kit][][status]" class="form-control" required>
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+        <option value="em_manutencao">Em Manutenção</option>
+        <option value="descartado">Descartado</option>
+      </select>
+    </div>
+    <div class="col-md-3 mb-2">
+      <button type="button" class="btn btn-danger btn-sm w-100" onclick="removerItemKit(this)">
+        <i class="fas fa-trash"></i> Remover
+      </button>
+    </div>
+    
+    <!-- Terceira linha: campos dinâmicos (sempre ocultos inicialmente) -->
+    <div class="col-md-12 campos-dinamicos-kit" style="display: none;">
+      <div class="row">
+        <div class="col-md-3 campos-rede-kit" style="display: none;">
+          <div class="form-group">
+            <label>Host</label>
+            <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+          </div>
+        </div>
+        <div class="col-md-3 campos-rede-kit" style="display: none;">
+          <div class="form-group">
+            <label>IP</label>
+            <input type="text" name="equipamento[itens_kit][][ip]" class="form-control" placeholder="Endereço IP">
+          </div>
+        </div>
+        <div class="col-md-3 campo-gabinete-kit" style="display: none;">
+          <div class="form-group">
+            <label>Host</label>
+            <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(novoItem);
+  
+  // Verificar se estamos no modo kit e adicionar required aos novos campos
+  const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
+  if (tipoSelecionado === 'kit') {
+    novoItem.querySelectorAll('input, select').forEach(function(element) {
+      element.setAttribute('required', 'required');
+    });
+  }
+}
+
+function removerItemKit(button) {
+  const $item = $(button).closest('.item-kit');
+  
+  // Remover required dos campos antes de remover o item
+  $item.find('input[required], select[required]').removeAttr('required');
+  
+  $item.remove();
+}
+
+// Função para limpar itens vazios antes do envio
+function limparItensVazios() {
+  if ($('select[name="equipamento[tipo]"]').val() === 'kit') {
+    $('.item-kit').each(function() {
+      const $item = $(this);
+      const tipoEquipamento = $item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]').val();
+      
+      // Se o tipo de equipamento está vazio, remover o item
+      if (!tipoEquipamento || tipoEquipamento === '') {
+        $item.remove();
+      }
+    });
+  }
+}
+
+// Função para limpar itens vazios antes do envio (chamada manualmente quando necessário)
+function limparItensVazios() {
+  $('.item-kit').each(function() {
+    const $item = $(this);
+    const tipoEquipamento = $item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]').val();
+    
+    // Se o tipo de equipamento está vazio, remover required de todos os campos do item
+    if (!tipoEquipamento || tipoEquipamento === '') {
+      $item.find('input[required], select[required]').removeAttr('required');
+    }
+  });
+}
+
+// Função para verificar se um código de kit existe
+function verificarKit() {
+  const codigoKit = $('#codigo_kit_input').val();
+  
+  if (!codigoKit) {
+    alert('Digite um código de kit para verificar.');
+    return;
+  }
+  
+  // Fazer requisição AJAX para verificar o kit
+  $.ajax({
+    url: '/equipamentos/verificar_kit',
+    method: 'GET',
+    data: { codigo_kit: codigoKit },
+    success: function(response) {
+      if (response.encontrado) {
+        $('#nome_kit').text(response.nome_kit);
+        $('#descricao_kit').text(response.descricao || 'Não informada');
+        $('#unidade_kit').text(response.unidade);
+        $('#total_equipamentos_kit').text(response.total_equipamentos);
+        $('#info_kit').show();
+      } else {
+        alert('Kit não encontrado com o código: ' + codigoKit);
+        $('#info_kit').hide();
+      }
+    },
+    error: function() {
+      alert('Erro ao verificar o kit. Tente novamente.');
+    }
+  });
+}
+
+// Função para remover equipamento de um kit
+function removerDeKit() {
+  // Prevenir o submit do formulário principal
+  event.preventDefault();
+  event.stopPropagation();
+  
+  if (confirm('Tem certeza que deseja remover este equipamento do kit?')) {
+    const equipamentoId = <%= @equipamento.id || 'null' %>;
+    
+    if (!equipamentoId) {
+      alert('Erro: ID do equipamento não encontrado.');
+      return;
+    }
+    
+    // Fazer requisição AJAX para remover do kit
+    $.ajax({
+      url: '/equipamentos/' + equipamentoId + '/remover_de_kit',
+      method: 'PATCH',
+      dataType: 'json',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      success: function(response) {
+        if (response.success) {
+          alert(response.message || 'Equipamento removido do kit com sucesso!');
+          // Redirecionar para a URL especificada ou recarregar a página
+          if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          } else {
+            location.reload();
+          }
+        } else {
+          alert('Erro ao remover do kit: ' + (response.error || 'Erro desconhecido'));
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Erro na requisição:', xhr.responseText);
+        if (xhr.responseJSON && xhr.responseJSON.error) {
+          alert('Erro ao remover do kit: ' + xhr.responseJSON.error);
+        } else {
+          alert('Erro ao remover do kit. Tente novamente.');
+        }
+      }
+    });
+  }
+}
+
+// Função para inicializar atributos required corretamente
+function inicializarRequired() {
+  const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
+  
+  if (tipoSelecionado === 'individual') {
+    // Para equipamentos individuais, apenas os campos individuais devem ser required (exceto identificadores)
+    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]), #campos_individual select').attr('required', true);
+    $('#status_geral select').attr('required', true);
+    $('#campos_kit input, #campos_kit select').removeAttr('required');
+    
+    // Gerenciar campos dinâmicos baseado no tipo de equipamento
+    const tipoEquipamento = $('#tipo_equipamento_individual').val();
+    if (tipoEquipamento) {
+      toggleCamposEquipamento();
+    }
+    
+    // Ajustar required dos identificadores
+    ajustarRequiredIdentificadores();
+  } else if (tipoSelecionado === 'kit') {
+    // Para kits, apenas os campos de kit devem ser required
+    $('#campos_kit input, #campos_kit select').attr('required', true);
+    $('#campos_individual input, #campos_individual select').removeAttr('required');
+    $('#status_geral select').removeAttr('required');
+    
+    // Remover required dos campos dinâmicos individuais
+    $('#campos_rede input, #campo_gabinete input').removeAttr('required');
+  } else {
+    // Se nenhum tipo está selecionado, remover required de todos
+    $('#campos_individual input, #campos_individual select').removeAttr('required');
+    $('#campos_kit input, #campos_kit select').removeAttr('required');
+    $('#status_geral select').removeAttr('required');
+    $('#campos_rede input, #campo_gabinete input').removeAttr('required');
+  }
+}
+
+// Função para ajustar required dos campos de identificação
+function ajustarRequiredIdentificadores() {
+  const numeroSerial = $('input[name="equipamento[numero_serial]"]').val();
+  const numeroPatrimonio = $('input[name="equipamento[numero_patrimonio]"]').val();
+  const outraIdentificacao = $('input[name="equipamento[outra_identificacao]"]').val();
+  
+  // Contar quantos campos estão preenchidos
+  const camposPreenchidos = [numeroSerial, numeroPatrimonio, outraIdentificacao].filter(valor => valor && valor.trim() !== '').length;
+  
+  if (camposPreenchidos > 0) {
+    // Se pelo menos um campo está preenchido, remover required de todos
+    $('input[name="equipamento[numero_serial]"]').removeAttr('required');
+    $('input[name="equipamento[numero_patrimonio]"]').removeAttr('required');
+    $('input[name="equipamento[outra_identificacao]"]').removeAttr('required');
+  } else {
+    // Se nenhum campo está preenchido, adicionar required a todos
+    $('input[name="equipamento[numero_serial]"]').attr('required', true);
+    $('input[name="equipamento[numero_patrimonio]"]').attr('required', true);
+    $('input[name="equipamento[outra_identificacao]"]').attr('required', true);
+  }
+}
+
+// ABORDAGEM SIMPLIFICADA E DIRETA
+$(document).ready(function() {
+  console.log('jQuery ready disparado');
+  
+  // Aguardar um pouco e depois configurar
+  setTimeout(function() {
+    console.log('Configurando listeners após delay');
+    
+    // Debug: verificar todos os selects na página
+    console.log('Todos os selects encontrados:');
+    $('select').each(function(index) {
+      console.log('Select #' + index + ':', {
+        id: $(this).attr('id'),
+        name: $(this).attr('name'),
+        value: $(this).val()
+      });
+    });
+    
+    // Usar jQuery para adicionar o listener
+    $('select[name="equipamento[tipo]"]').off('change').on('change', function() {
+      console.log('jQuery change event capturado:', $(this).val());
+      toggleCampos();
+    });
+    
+    // Listener para tipo de equipamento individual
+    $('#tipo_equipamento_individual').off('change').on('change', function() {
+      console.log('Tipo equipamento individual change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Listener adicional usando seletor por nome
+    $('select[name="equipamento[tipo_equipamento]"]').off('change').on('change', function() {
+      console.log('Tipo equipamento por nome change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Listener para tipos de equipamento nos kits
+    $(document).off('change', '.tipo-equipamento-kit').on('change', '.tipo-equipamento-kit', function() {
+      console.log('Tipo equipamento kit change:', $(this).val());
+      toggleCamposEquipamentoKit(this);
+    });
+    
+    // Listeners para campos de identificação
+    $(document).off('input', 'input[name="equipamento[numero_serial]"]').on('input', 'input[name="equipamento[numero_serial]"]', function() {
+      ajustarRequiredIdentificadores();
+    });
+    
+    $(document).off('input', 'input[name="equipamento[numero_patrimonio]"]').on('input', 'input[name="equipamento[numero_patrimonio]"]', function() {
+      ajustarRequiredIdentificadores();
+    });
+    
+    $(document).off('input', 'input[name="equipamento[outra_identificacao]"]').on('input', 'input[name="equipamento[outra_identificacao]"]', function() {
+      ajustarRequiredIdentificadores();
+    });
+    
+    // Executar na carga inicial
+    toggleCampos();
+    toggleCamposEquipamento();
+    
+    // Inicializar atributos required corretamente
+    inicializarRequired();
+  }, 200);
+});
+
+// Listener global como backup
+$(document).off('change', 'select[name="equipamento[tipo]"]').on('change', 'select[name="equipamento[tipo]"]', function() {
+  console.log('Listener global capturado:', $(this).val());
+  toggleCampos();
+});
+
+// Listener global para tipo de equipamento individual
+$(document).off('change', '#tipo_equipamento_individual').on('change', '#tipo_equipamento_individual', function() {
+  console.log('Listener global tipo equipamento:', $(this).val());
+  toggleCamposEquipamento();
+});
+
+// Listener global adicional para tipo de equipamento por nome
+$(document).off('change', 'select[name="equipamento[tipo_equipamento]"]').on('change', 'select[name="equipamento[tipo_equipamento]"]', function() {
+  console.log('Listener global tipo equipamento por nome:', $(this).val());
+  toggleCamposEquipamento();
+});
+
+// Executar quando o modal for carregado via AJAX
+$(document).off('shown.bs.modal', '#form-modal').on('shown.bs.modal', '#form-modal', function() {
+  console.log('Modal shown disparado');
+  
+  setTimeout(function() {
+    console.log('Configurando listeners no modal');
+    
+    // Configurar listener diretamente no elemento
+    $('select[name="equipamento[tipo]"]').off('change').on('change', function() {
+      console.log('Modal change event capturado:', $(this).val());
+      toggleCampos();
+    });
+    
+    // Listener para tipo de equipamento individual
+    $('#tipo_equipamento_individual').off('change').on('change', function() {
+      console.log('Modal tipo equipamento change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Listener adicional para tipo de equipamento por nome
+    $('select[name="equipamento[tipo_equipamento]"]').off('change').on('change', function() {
+      console.log('Modal tipo equipamento por nome change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Executar na carga inicial
+    toggleCampos();
+    toggleCamposEquipamento();
+  }, 300);
+});
+
+// Verificação periódica como último recurso
+let tentativas = 0;
+const maxTentativas = 20;
+const verificarElemento = setInterval(function() {
+  tentativas++;
+  console.log('Verificação #' + tentativas + ' - Procurando tipoSelect');
+  
+  const $tipoSelect = $('select[name="equipamento[tipo]"]');
+  if ($tipoSelect.length > 0) {
+    console.log('tipoSelect encontrado na verificação #' + tentativas);
+    clearInterval(verificarElemento);
+    
+    // Configurar listener
+    $tipoSelect.off('change').on('change', function() {
+      console.log('Verificação change event capturado:', $(this).val());
+      toggleCampos();
+    });
+    
+    // Listener para tipo de equipamento individual
+    $('#tipo_equipamento_individual').off('change').on('change', function() {
+      console.log('Verificação tipo equipamento change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Listener adicional para tipo de equipamento por nome
+    $('select[name="equipamento[tipo_equipamento]"]').off('change').on('change', function() {
+      console.log('Verificação tipo equipamento por nome change:', $(this).val());
+      toggleCamposEquipamento();
+    });
+    
+    // Executar na carga inicial
+    toggleCampos();
+    toggleCamposEquipamento();
+  } else if (tentativas >= maxTentativas) {
+    console.log('ERRO: tipoSelect não encontrado após ' + maxTentativas + ' tentativas');
+    clearInterval(verificarElemento);
+  }
+}, 250);
+
+// Configurar autocomplete para unidade
+$(document).ready(function() {
+  function bindAutocompleteWithHidden(inputSelector, hiddenSelector, url){
+    $(inputSelector).autocomplete({
+      minLength: 0,
+      appendTo: $(inputSelector).closest('.modal-body'),
+      position: { my: "left top", at: "left bottom", collision: "none" },
+      source: function(request, response){
+        $.getJSON(url, { term: request.term }, function(data){
+          response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+        });
+      },
+      select: function(event, ui){
+        $(hiddenSelector).val(ui.item.id);
+        $(inputSelector).val(ui.item.value).trigger('change');
+        return false;
+      },
+      change: function(event, ui){
+        if(!ui.item){ $(hiddenSelector).val(''); }
+      }
+    }).autocomplete("widget").addClass("ui-autocomplete-modal");
+    
+    // Mostrar todas as opções quando o campo recebe foco
+    $(inputSelector).on('focus', function(){
+      $(this).autocomplete("search", "");
+    });
+    
+    $(inputSelector).on('input', function(){ if($(this).val() === '') { $(hiddenSelector).val(''); } });
+  }
+
+  // Bind autocomplete para unidade
+  bindAutocompleteWithHidden('.js-autocomplete-unidade', '#equipamento_unidade_id', '/autocompletes/unidades');
+});
+</script>
+
+

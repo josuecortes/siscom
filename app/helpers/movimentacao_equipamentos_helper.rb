@@ -1,0 +1,2 @@
+module MovimentacaoEquipamentosHelper
+end

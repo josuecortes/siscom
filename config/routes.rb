@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-
   resources :tarefas do
     collection do
       get :atualizar_status
@@ -56,10 +55,47 @@ Rails.application.routes.draw do
     get 'imagem', on: :collection
   end
 
+  resources :autocompletes, only: [] do
+    collection do
+      get :problemas_ti
+      get :cargos
+      get :funcoes
+      get :unidades
+      get :estados
+      get :municipios
+      get :permissoes_drive
+      get :perfis
+    end
+  end
+
   resources :cargos
   resources :tipo_unidades
   resources :problema_tis
   resources :tipo_problema_tis
+  resources :equipamentos do
+    member do
+      patch :transferir
+      patch :alterar_status
+      patch :remover_de_kit
+    end
+    collection do
+      get :buscar
+      get :relatorio
+      get :verificar_kit
+      get :exportar_excel
+    end
+  end
+
+  resources :movimentacao_equipamentos do
+    member do
+      patch :receber_equipamento
+      patch :cancelar
+    end
+    collection do
+      get :buscar_equipamentos
+      get :buscar_usuarios_unidade
+    end
+  end
   resources :requisicao_tis do
     member do
       get 'finalizar'

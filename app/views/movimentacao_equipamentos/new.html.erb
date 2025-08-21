@@ -1,0 +1,173 @@
+<% content_for :title do %>
+  <i class="fas fa-plus"></i> Nova Movimentação
+<% end %>
+
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item"><a href="<%= movimentacao_equipamentos_url %>">Movimentações</a></li>
+  <li class="breadcrumb-item active">Nova Movimentação</li>
+<% end %>
+
+<% content_for :sub_title do %>
+  Criar nova movimentação de equipamentos
+<% end %>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">Nova Movimentação</h5>
+  </div>
+  <div class="card-body">
+    <%= form_with model: @movimentacao, local: true do |f| %>
+      <% if @movimentacao.errors.any? %>
+        <div class="alert alert-danger">
+          <h6>Erro ao criar movimentação:</h6>
+          <ul>
+            <% @movimentacao.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <%= f.label :unidade_origem_id, "Unidade de Origem" %>
+            <%= f.select :unidade_origem_id, 
+                options_from_collection_for_select(@unidades, :id, :sigla_nome, @movimentacao.unidade_origem_id), 
+                { prompt: "Selecione a unidade de origem..." }, 
+                { class: "form-control", required: true, id: "unidade_origem" } %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <%= f.label :unidade_destino_id, "Unidade de Destino" %>
+            <%= f.select :unidade_destino_id, 
+                options_from_collection_for_select(@unidades, :id, :sigla_nome, @movimentacao.unidade_destino_id), 
+                { prompt: "Selecione a unidade de destino..." }, 
+                { class: "form-control", required: true, id: "unidade_destino" } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="responsavel_unidade">Responsável (Unidade de Destino)</label>
+            <select id="responsavel_unidade" class="form-control" required>
+              <option value="">Primeiro selecione a unidade de destino...</option>
+            </select>
+            <%= f.hidden_field :responsavel_id, id: "movimentacao_responsavel_id" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <%= f.label :descricao, "Descrição" %>
+            <%= f.text_area :descricao, class: "form-control", rows: 3, placeholder: "Descreva a movimentação..." %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Equipamentos da Unidade de Origem</label>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          <strong>Nota:</strong> Apenas equipamentos que não estão em movimentações pendentes serão exibidos. Equipamentos de movimentações canceladas podem ser incluídos em novas movimentações.
+        </div>
+        <div id="equipamentos_container">
+          <div class="alert alert-info">
+            Selecione a unidade de origem para ver os equipamentos disponíveis.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.submit "Criar Movimentação", class: "btn btn-success" %>
+        <%= link_to "Cancelar", movimentacao_equipamentos_path, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Carregar usuários quando unidade de destino for selecionada
+  document.getElementById('unidade_destino').addEventListener('change', function() {
+    const unidadeId = this.value;
+    const responsavelSelect = document.getElementById('responsavel_unidade');
+    
+    if (unidadeId) {
+      fetch('/movimentacao_equipamentos/buscar_usuarios_unidade?unidade_id=' + unidadeId)
+        .then(response => response.json())
+        .then(data => {
+          responsavelSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
+          
+          data.forEach(function(usuario) {
+            const option = document.createElement('option');
+            option.value = usuario.id;
+            option.textContent = usuario.nome;
+            responsavelSelect.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error('Erro ao carregar usuários:', error);
+          responsavelSelect.innerHTML = '<option value="">Erro ao carregar usuários...</option>';
+        });
+    } else {
+      responsavelSelect.innerHTML = '<option value="">Primeiro selecione a unidade de destino...</option>';
+    }
+  });
+
+  // Carregar equipamentos quando unidade de origem for selecionada
+  document.getElementById('unidade_origem').addEventListener('change', function() {
+    const unidadeId = this.value;
+    const container = document.getElementById('equipamentos_container');
+    
+    if (unidadeId) {
+      fetch('/movimentacao_equipamentos/buscar_equipamentos?unidade_id=' + unidadeId)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            let html = '<div class="table-responsive"><table class="table table-bordered">';
+            html += '<thead><tr><th><input type="checkbox" id="selecionar_todos"></th><th>Equipamento</th><th>Tipo</th><th>Marca/Modelo</th><th>Status</th></tr></thead><tbody>';
+            
+            data.forEach(function(equipamento) {
+              html += `<tr>
+                <td><input type="checkbox" name="equipamento_ids[]" value="${equipamento.id}" class="equipamento-checkbox"></td>
+                <td>${equipamento.nome}</td>
+                <td>${equipamento.tipo_equipamento || ''}</td>
+                <td>${equipamento.marca || ''} ${equipamento.modelo ? '- ' + equipamento.modelo : ''}</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            
+            // Selecionar todos
+            document.getElementById('selecionar_todos').addEventListener('change', function() {
+              const checkboxes = document.querySelectorAll('.equipamento-checkbox');
+              checkboxes.forEach(function(checkbox) {
+                checkbox.checked = this.checked;
+              });
+            });
+          } else {
+            container.innerHTML = '<div class="alert alert-warning">Nenhum equipamento encontrado nesta unidade.</div>';
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao carregar equipamentos:', error);
+          container.innerHTML = '<div class="alert alert-danger">Erro ao carregar equipamentos.</div>';
+        });
+    } else {
+      container.innerHTML = '<div class="alert alert-info">Selecione a unidade de origem para ver os equipamentos disponíveis.</div>';
+    }
+  });
+
+  // Atualizar campo hidden do responsável
+  document.getElementById('responsavel_unidade').addEventListener('change', function() {
+    document.getElementById('movimentacao_responsavel_id').value = this.value;
+  });
+});
+</script>

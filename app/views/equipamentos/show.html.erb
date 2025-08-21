@@ -1,0 +1,362 @@
+<% content_for :title do %>
+  <i class="fas fa-desktop"></i> Detalhes do Equipamento
+<% end %>
+<% content_for :breadcrumb do %>
+  <li class="breadcrumb-item"><a href="<%= equipamentos_url %>">Equipamentos</a></li>
+  <li class="breadcrumb-item active">Detalhes</li>
+<% end %>
+<% content_for :sub_title do %>
+  Informações do equipamento
+<% end %>
+<% content_for :buttons do %>
+  <%= link_to equipamentos_path, class: "btn btn-sm btn-secondary" do %>
+    <i class="fas fa-arrow-left"></i> Voltar
+  <% end %>
+  <%= link_to edit_equipamento_path(@equipamento), class: "btn btn-sm btn-warning", remote: true do %>
+    <i class="fas fa-edit"></i> Editar
+  <% end %>
+<% end %>
+
+<div class="row">
+  <!-- Informações Básicas -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Informações Básicas</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <tr>
+            <td><strong>Identificação:</strong></td>
+            <td><%= @equipamento.nome_completo %></td>
+          </tr>
+          <tr>
+            <td><strong>Tipo:</strong></td>
+            <td>
+              <span class="badge badge-<%= @equipamento.kit? ? 'primary' : 'info' %>">
+                <%= @equipamento.tipo.humanize %>
+              </span>
+            </td>
+          </tr>
+          <% if @equipamento.individual? && @equipamento.tipo_equipamento.present? %>
+            <tr>
+              <td><strong>Tipo de Equipamento:</strong></td>
+              <td><%= @equipamento.tipo_equipamento %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.kit? && @equipamento.identificacao_kit.present? %>
+            <tr>
+              <td><strong>Identificação do Kit:</strong></td>
+              <td><%= @equipamento.identificacao_kit %></td>
+            </tr>
+          <% end %>
+          <tr>
+            <td><strong>Status:</strong></td>
+            <td>
+              <% status_class = case @equipamento.status
+                 when 'ativo' then 'success'
+                 when 'inativo' then 'secondary'
+                 when 'em_manutencao' then 'warning'
+                 when 'descartado' then 'danger'
+                 end %>
+              <span class="badge badge-<%= status_class %>">
+                <%= @equipamento.status.humanize %>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Unidade:</strong></td>
+            <td><%= @equipamento.unidade.sigla_nome %></td>
+          </tr>
+          <tr>
+            <td><strong>Data de Cadastro:</strong></td>
+            <td><%= @equipamento.created_at&.strftime("%d/%m/%Y %H:%M") %></td>
+          </tr>
+          <tr>
+            <td><strong>Cadastrado por:</strong></td>
+            <td><%= @equipamento.user.nome %></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações Técnicas -->
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Informações Técnicas</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-borderless">
+          <% if @equipamento.marca.present? %>
+            <tr>
+              <td><strong>Marca:</strong></td>
+              <td><%= @equipamento.marca %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.modelo.present? %>
+            <tr>
+              <td><strong>Modelo:</strong></td>
+              <td><%= @equipamento.modelo %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.numero_serial.present? %>
+            <tr>
+              <td><strong>Número Serial:</strong></td>
+              <td><%= @equipamento.numero_serial %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.numero_patrimonio.present? %>
+            <tr>
+              <td><strong>Patrimônio:</strong></td>
+              <td><%= @equipamento.numero_patrimonio %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.outra_identificacao.present? %>
+            <tr>
+              <td><strong>Outra Identificação:</strong></td>
+              <td><%= @equipamento.outra_identificacao %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.garantia.present? %>
+            <tr>
+              <td><strong>Garantia:</strong></td>
+              <td><%= @equipamento.garantia %> meses</td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Descrição -->
+<% if @equipamento.descricao.present? %>
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Descrição</h5>
+        </div>
+        <div class="card-body">
+          <%= simple_format(@equipamento.descricao) %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Equipamentos do Kit -->
+<% if @equipamento.kit? && @equipamento.equipamentos_do_kit.any? %>
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Equipamentos do Kit</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Serial</th>
+                  <th>Patrimônio</th>
+                  <th>Garantia</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @equipamento.equipamentos_do_kit.each do |equipamento_kit| %>
+                  <tr>
+                    <td><%= equipamento_kit.nome_completo %></td>
+                    <td><%= equipamento_kit.tipo_equipamento %></td>
+                    <td><%= equipamento_kit.marca %></td>
+                    <td><%= equipamento_kit.modelo %></td>
+                    <td><%= equipamento_kit.numero_serial %></td>
+                    <td><%= equipamento_kit.numero_patrimonio %></td>
+                    <td><%= equipamento_kit.garantia.present? ? "#{equipamento_kit.garantia} meses" : "-" %></td>
+                    <td>
+                      <%= link_to equipamento_path(equipamento_kit), class: "btn btn-sm btn-info" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Kit Principal (para equipamentos individuais que fazem parte de um kit) -->
+<% if @equipamento.individual? && @equipamento.kit_principal.present? %>
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Kit Principal</h5>
+        </div>
+        <div class="card-body">
+          <p>Este equipamento faz parte do kit: <strong><%= @equipamento.kit_principal.nome_completo %></strong></p>
+          <%= link_to equipamento_path(@equipamento.kit_principal), class: "btn btn-sm btn-primary" do %>
+            <i class="fas fa-eye"></i> Ver Kit
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Histórico de Movimentações -->
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Histórico de Movimentações</h5>
+      </div>
+      <div class="card-body">
+        <% movimentacoes = @equipamento.historico_movimentacoes_entre_unidades %>
+        <% if movimentacoes.present? %>
+          <div class="timeline">
+            <% movimentacoes.reverse.each do |movimentacao| %>
+              <div>
+                <% case movimentacao['acao'] %>
+                <% when 'cadastro' %>
+                  <i class="fas fa-plus-circle bg-success"></i>
+                <% when 'movimentacao' %>
+                  <i class="fas fa-exchange-alt bg-info"></i>
+                <% else %>
+                  <i class="fas fa-circle bg-secondary"></i>
+                <% end %>
+                <div class="timeline-item">
+                  <span class="time">
+                    <%= Time.parse(movimentacao['data']).strftime("%d/%m/%Y %H:%M") %>
+                  </span>
+                  <h3 class="timeline-header">
+                    <% case movimentacao['acao'] %>
+                    <% when 'cadastro' %>
+                      Cadastro Inicial
+                    <% when 'movimentacao' %>
+                      Movimentação
+                    <% else %>
+                      <%= movimentacao['acao'].humanize %>
+                    <% end %>
+                  </h3>
+                  <div class="timeline-body">
+                    <%= movimentacao['detalhes'] %>
+                    <br>
+                    <small class="text-muted">
+                      <% if movimentacao['acao'] == 'cadastro' %>
+                        <i class="fas fa-user-plus"></i> Criado por: <%= movimentacao['usuario'] %>
+                        <% if movimentacao['campos_especificos']&.dig('unidade').present? %>
+                          <br><i class="fas fa-building"></i> Unidade: <%= movimentacao['campos_especificos']['unidade'] %>
+                        <% end %>
+                      <% elsif movimentacao['acao'] == 'movimentacao' %>
+                        <i class="fas fa-user"></i> Criado por: <%= movimentacao['usuario'] %>
+                        <% if movimentacao['campos_especificos']&.dig('usuario_receptor').present? %>
+                          <br><i class="fas fa-user-check"></i> Recebido por: <%= movimentacao['campos_especificos']['usuario_receptor'] %>
+                        <% end %>
+                      <% else %>
+                        <i class="fas fa-user"></i> <%= movimentacao['usuario'] %>
+                      <% end %>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted">Nenhuma movimentação registrada.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ações -->
+<%# <div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Ações</h5>
+      </div>
+      <div class="card-body">
+        <div class="btn-group">
+          <!-- Transferir -->
+          <button type="button" class="btn btn-info" data-toggle="modal" data-target="#transferirModal">
+            <i class="fas fa-exchange-alt"></i> Transferir
+          </button>
+          
+          <!-- Alterar Status -->
+          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#statusModal">
+            <i class="fas fa-cog"></i> Alterar Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> %>
+
+<!-- Modal Transferir -->
+<div class="modal fade" id="transferirModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Transferir Equipamento</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <%= form_with url: transferir_equipamento_path(@equipamento), method: :patch, local: true do |f| %>
+        <div class="modal-body">
+          <div class="form-group">
+            <%= f.label :nova_unidade_id, "Nova Unidade", class: "form-label" %>
+            <%= f.select :nova_unidade_id, 
+                options_from_collection_for_select(Unidade.order(:nome), :id, :sigla_nome), 
+                {}, class: "form-control" %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <%= f.submit "Transferir", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Status -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Alterar Status</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <%= form_with url: alterar_status_equipamento_path(@equipamento), method: :patch, local: true do |f| %>
+        <div class="modal-body">
+          <div class="form-group">
+            <%= f.label :novo_status, "Novo Status", class: "form-label" %>
+            <%= f.select :novo_status, 
+                options_for_select(Equipamento.statuses.keys.map { |s| [s.humanize, s] }), 
+                {}, class: "form-control" %>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <%= f.submit "Alterar", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
