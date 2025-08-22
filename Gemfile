@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.3'
+ruby '3.2.3'
 
 gem 'rails', '~> 6.0.4', '>= 6.0.4.1'
 
@@ -53,3 +53,4 @@ gem 'brazilian-rails'
 gem 'prawn-rails'
 gem 'axlsx'
 gem 'axlsx_rails'
+gem "concurrent-ruby", "~> 1.3.4"
