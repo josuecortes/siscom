@@ -54,9 +54,30 @@ class EquipamentosController < ApplicationController
           format.js { render :create }
         rescue => e
           @equipamento = Equipamento.new(equipamento_params)
+          # Preservar os itens do kit para repopular o formulário (filtrar itens vazios)
+          @itens_kit = (equipamento_params[:itens_kit] || []).reject do |item|
+            item['tipo_equipamento'].blank? && item['marca'].blank? && item['modelo'].blank?
+          end
+          
+          # Adicionar erro específico ao objeto equipamento
+          if e.message.include?('já está em uso')
+            # Identificar qual campo está duplicado
+            if e.message.include?('Número serial')
+              @equipamento.errors.add(:numero_serial, e.message)
+            elsif e.message.include?('Número de patrimônio')
+              @equipamento.errors.add(:numero_patrimonio, e.message)
+            else
+              @equipamento.errors.add(:base, e.message)
+            end
+          elsif e.message.include?('Item ')
+            # Erro específico de um item do kit
+            @equipamento.errors.add(:base, e.message)
+          else
+            @equipamento.errors.add(:base, e.message)
+          end
+          
           @unidades = Unidade.order(:nome)
           @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
-          flash.now[:error] = "Erro ao criar kit: #{e.message}"
           format.js { render :new }
         end
       else

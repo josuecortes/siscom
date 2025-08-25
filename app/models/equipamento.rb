@@ -381,7 +381,7 @@ class Equipamento < ApplicationRecord
           raise "Pelo menos um item do kit deve ser preenchido com tipo de equipamento."
         end
         
-        itens_validos.each do |item|
+        itens_validos.each_with_index do |item, index|
           # Validar campos obrigatórios do item
           if item[:tipo_equipamento].blank?
             raise "Tipo de equipamento é obrigatório para todos os itens do kit."
@@ -414,7 +414,27 @@ class Equipamento < ApplicationRecord
             equipamento_attrs[:host] = item[:host] if item[:host].present?
           end
 
-          equipamento = create!(equipamento_attrs)
+          equipamento = new(equipamento_attrs)
+          
+          # Validar o equipamento antes de salvar
+          unless equipamento.valid?
+            # Capturar erros específicos
+            equipamento.errors.full_messages.each do |message|
+              if message.include?('já está em uso') || message.include?('already been taken')
+                if message.include?('numero_serial') || message.include?('serial')
+                  raise "Item #{index + 1}: Número serial '#{item[:numero_serial]}' já está em uso"
+                elsif message.include?('numero_patrimonio') || message.include?('patrimonio')
+                  raise "Item #{index + 1}: Número de patrimônio '#{item[:numero_patrimonio]}' já está em uso"
+                else
+                  raise "Item #{index + 1}: #{message}"
+                end
+              else
+                raise "Item #{index + 1}: #{message}"
+              end
+            end
+          end
+          
+          equipamento.save!
           equipamentos_criados << equipamento
         end
       else

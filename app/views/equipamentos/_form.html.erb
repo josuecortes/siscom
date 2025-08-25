@@ -4,6 +4,11 @@
       <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+        <ul>
+          <% @equipamento.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
       </div>
     <% end %>
 
@@ -107,74 +112,156 @@
       <div class="form-group">
         <label>Itens do Kit</label>
         <div id="itens_kit">
-          <div class="row mb-3 item-kit">
-            <!-- Primeira linha: campos principais -->
-            <div class="col-md-3 mb-2">
-              <select name="equipamento[itens_kit][][tipo_equipamento]" class="form-control tipo-equipamento-kit" required>
-                <option value="">Tipo</option>
-                <% @tipos_equipamento.each do |tipo| %>
-                  <option value="<%= tipo %>"><%= tipo %></option>
+          <% if @itens_kit.present? %>
+            <% @itens_kit.each_with_index do |item, index| %>
+              <div class="row mb-3 item-kit <%= 'border border-danger' if @equipamento.errors.any? && @equipamento.errors.full_messages.any? { |msg| msg.include?("Item #{index + 1}") } %>">
+                <% if @equipamento.errors.any? && @equipamento.errors.full_messages.any? { |msg| msg.include?("Item #{index + 1}") } %>
+                  <div class="col-12 mb-2">
+                    <div class="alert alert-danger alert-sm">
+                      <% @equipamento.errors.full_messages.select { |msg| msg.include?("Item #{index + 1}") }.each do |error| %>
+                        <small><%= error %></small><br>
+                      <% end %>
+                    </div>
+                  </div>
                 <% end %>
-              </select>
-            </div>
-            <div class="col-md-3 mb-2">
-              <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
-            </div>
-            <div class="col-md-3 mb-2">
-              <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
-            </div>
-            <div class="col-md-3 mb-2">
-              <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
-            </div>
-            
-            <!-- Segunda linha: campos adicionais -->
-            <div class="col-md-3 mb-2">
-              <input type="text" name="equipamento[itens_kit][][numero_patrimonio]" class="form-control" placeholder="Patrimônio">
-            </div>
-            <div class="col-md-3 mb-2">
-              <input type="text" name="equipamento[itens_kit][][outra_identificacao]" class="form-control" placeholder="Outra Identificação">
-            </div>
-            <div class="col-md-3 mb-2">
-              <input type="number" name="equipamento[itens_kit][][garantia]" class="form-control" placeholder="Garantia (meses)" min="0">
-            </div>
-            <div class="col-md-3 mb-2">
-              <select name="equipamento[itens_kit][][status]" class="form-control" required>
-                <option value="ativo">Ativo</option>
-                <option value="inativo">Inativo</option>
-                <option value="em_manutencao">Em Manutenção</option>
-                <option value="descartado">Descartado</option>
-              </select>
-            </div>
-            <div class="col-md-3 mb-2">
-              <button type="button" class="btn btn-danger btn-sm w-100" onclick="removerItemKit(this)">
-                <i class="fas fa-trash"></i> Remover
-              </button>
-            </div>
-            
-            <!-- Terceira linha: campos dinâmicos (sempre ocultos inicialmente) -->
-            <div class="col-md-12 campos-dinamicos-kit" style="display: none;">
-              <div class="row">
-                <div class="col-md-3 campos-rede-kit" style="display: none;">
-                  <div class="form-group">
-                    <label>Host</label>
-                    <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                <!-- Primeira linha: campos principais -->
+                <div class="col-md-3 mb-2">
+                  <select name="equipamento[itens_kit][][tipo_equipamento]" class="form-control tipo-equipamento-kit" required>
+                    <option value="">Tipo</option>
+                    <% @tipos_equipamento.each do |tipo| %>
+                      <option value="<%= tipo %>" <%= 'selected' if item['tipo_equipamento'] == tipo %>><%= tipo %></option>
+                    <% end %>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required value="<%= item['marca'] %>">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required value="<%= item['modelo'] %>">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial" value="<%= item['numero_serial'] %>">
+                </div>
+                
+                <!-- Segunda linha: campos adicionais -->
+                <div class="col-md-3 mb-2">
+                  <input type="text" name="equipamento[itens_kit][][numero_patrimonio]" class="form-control" placeholder="Patrimônio" value="<%= item['numero_patrimonio'] %>">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <input type="text" name="equipamento[itens_kit][][outra_identificacao]" class="form-control" placeholder="Outra Identificação" value="<%= item['outra_identificacao'] %>">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <input type="number" name="equipamento[itens_kit][][garantia]" class="form-control" placeholder="Garantia (meses)" min="0" value="<%= item['garantia'] %>">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <select name="equipamento[itens_kit][][status]" class="form-control" required>
+                    <option value="ativo" <%= 'selected' if item['status'] == 'ativo' %>>Ativo</option>
+                    <option value="inativo" <%= 'selected' if item['status'] == 'inativo' %>>Inativo</option>
+                    <option value="em_manutencao" <%= 'selected' if item['status'] == 'em_manutencao' %>>Em Manutenção</option>
+                    <option value="descartado" <%= 'selected' if item['status'] == 'descartado' %>>Descartado</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <button type="button" class="btn btn-danger btn-sm w-100" onclick="removerItemKit(this)">
+                    <i class="fas fa-trash"></i> Remover
+                  </button>
+                </div>
+                
+                <!-- Terceira linha: campos dinâmicos (sempre ocultos inicialmente) -->
+                <div class="col-md-12 campos-dinamicos-kit" style="display: none;">
+                  <div class="row">
+                    <div class="col-md-3 campos-rede-kit" style="display: none;">
+                      <div class="form-group">
+                        <label>Host</label>
+                        <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host" value="<%= item['host'] %>">
+                      </div>
+                    </div>
+                    <div class="col-md-3 campos-rede-kit" style="display: none;">
+                      <div class="form-group">
+                        <label>IP</label>
+                        <input type="text" name="equipamento[itens_kit][][ip]" class="form-control" placeholder="Endereço IP" value="<%= item['ip'] %>">
+                      </div>
+                    </div>
+                    <div class="col-md-3 campo-gabinete-kit" style="display: none;">
+                      <div class="form-group">
+                        <label>Host</label>
+                        <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host" value="<%= item['host'] %>">
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-3 campos-rede-kit" style="display: none;">
-                  <div class="form-group">
-                    <label>IP</label>
-                    <input type="text" name="equipamento[itens_kit][][ip]" class="form-control" placeholder="Endereço IP">
+              </div>
+            <% end %>
+          <% else %>
+            <div class="row mb-3 item-kit">
+              <!-- Primeira linha: campos principais -->
+              <div class="col-md-3 mb-2">
+                <select name="equipamento[itens_kit][][tipo_equipamento]" class="form-control tipo-equipamento-kit" required>
+                  <option value="">Tipo</option>
+                  <% @tipos_equipamento.each do |tipo| %>
+                    <option value="<%= tipo %>"><%= tipo %></option>
+                  <% end %>
+                </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
+              </div>
+              <div class="col-md-3 mb-2">
+                <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
+              </div>
+              <div class="col-md-3 mb-2">
+                <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
+              </div>
+              
+              <!-- Segunda linha: campos adicionais -->
+              <div class="col-md-3 mb-2">
+                <input type="text" name="equipamento[itens_kit][][numero_patrimonio]" class="form-control" placeholder="Patrimônio">
+              </div>
+              <div class="col-md-3 mb-2">
+                <input type="text" name="equipamento[itens_kit][][outra_identificacao]" class="form-control" placeholder="Outra Identificação">
+              </div>
+              <div class="col-md-3 mb-2">
+                <input type="number" name="equipamento[itens_kit][][garantia]" class="form-control" placeholder="Garantia (meses)" min="0">
+              </div>
+              <div class="col-md-3 mb-2">
+                <select name="equipamento[itens_kit][][status]" class="form-control" required>
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                  <option value="em_manutencao">Em Manutenção</option>
+                  <option value="descartado">Descartado</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removerItemKit(this)">
+                  <i class="fas fa-trash"></i> Remover
+                </button>
+              </div>
+              
+              <!-- Terceira linha: campos dinâmicos (sempre ocultos inicialmente) -->
+              <div class="col-md-12 campos-dinamicos-kit" style="display: none;">
+                <div class="row">
+                  <div class="col-md-3 campos-rede-kit" style="display: none;">
+                    <div class="form-group">
+                      <label>Host</label>
+                      <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-3 campo-gabinete-kit" style="display: none;">
-                  <div class="form-group">
-                    <label>Host</label>
-                    <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                  <div class="col-md-3 campos-rede-kit" style="display: none;">
+                    <div class="form-group">
+                      <label>IP</label>
+                      <input type="text" name="equipamento[itens_kit][][ip]" class="form-control" placeholder="Endereço IP">
+                    </div>
+                  </div>
+                  <div class="col-md-3 campo-gabinete-kit" style="display: none;">
+                    <div class="form-group">
+                      <label>Host</label>
+                      <input type="text" name="equipamento[itens_kit][][host]" class="form-control" placeholder="Nome do host">
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          <% end %>
         </div>
         <button type="button" class="btn btn-success btn-sm" onclick="adicionarItemKit()">
           <i class="fas fa-plus"></i> Adicionar Item
@@ -369,8 +456,8 @@ function toggleCampos() {
     $statusGeral.show(); // Mostrar status geral apenas para equipamentos individuais
     $gerenciamentoKit.show(); // Mostrar gerenciamento de kit para equipamentos individuais
     
-    // Adicionar required aos campos individuais (exceto identificadores)
-    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]), #campos_individual select').attr('required', true);
+    // Adicionar required aos campos individuais (exceto identificadores e campos de rede)
+    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]):not([name*="host"]):not([name*="ip"]), #campos_individual select').attr('required', true);
     $('#status_geral select').attr('required', true);
     
     // Remover required dos campos de kit
@@ -379,18 +466,30 @@ function toggleCampos() {
     // Remover required dos campos dinâmicos até que o tipo de equipamento seja selecionado
     $('#campos_rede input, #campo_gabinete input').removeAttr('required');
     
+    // Ajustar required dos identificadores para equipamentos individuais
+    ajustarRequiredIdentificadores();
+    
+    // Garantir que campos de rede não sejam required
+    garantirCamposRedeNaoRequired();
+    
   } else if (valorSelecionado === 'kit') {
     console.log('Mostrando campos de kit');
     $camposKit.show();
     $camposComuns.show();
     // Status geral permanece oculto para kits
     
-    // Adicionar required aos campos de kit
-    $('#campos_kit input, #campos_kit select').attr('required', true);
+    // Adicionar required aos campos de kit (exceto identificadores e campos de rede)
+    $('#campos_kit input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]):not([name*="host"]):not([name*="ip"]), #campos_kit select').attr('required', true);
     
     // Remover required dos campos individuais
     $('#campos_individual input, #campos_individual select').removeAttr('required');
     $('#status_geral select').removeAttr('required');
+    
+    // Ajustar required dos identificadores para kits
+    ajustarRequiredIdentificadores();
+    
+    // Garantir que campos de rede não sejam required
+    garantirCamposRedeNaoRequired();
     
   } else {
     console.log('Nenhum tipo selecionado ou valor inválido');
@@ -557,13 +656,39 @@ function adicionarItemKit() {
   `;
   container.appendChild(novoItem);
   
-  // Verificar se estamos no modo kit e adicionar required aos novos campos
+  // Verificar se estamos no modo kit e adicionar required aos novos campos (exceto identificadores)
   const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
   if (tipoSelecionado === 'kit') {
-    novoItem.querySelectorAll('input, select').forEach(function(element) {
+    novoItem.querySelectorAll('input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]):not([name*="host"]):not([name*="ip"]), select').forEach(function(element) {
       element.setAttribute('required', 'required');
     });
   }
+  
+  // Adicionar listeners para os campos de identificação do novo item
+  const $novoItem = $(novoItem);
+  $novoItem.find('input[name="equipamento[itens_kit][][numero_serial]"]').on('input', function() {
+    ajustarRequiredIdentificadoresKit($novoItem);
+    garantirCamposRedeNaoRequired();
+  });
+  
+  $novoItem.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').on('input', function() {
+    ajustarRequiredIdentificadoresKit($novoItem);
+    garantirCamposRedeNaoRequired();
+  });
+  
+  $novoItem.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').on('input', function() {
+    ajustarRequiredIdentificadoresKit($novoItem);
+    garantirCamposRedeNaoRequired();
+  });
+  
+  // Ajustar required dos identificadores para o novo item
+  ajustarRequiredIdentificadoresKit($novoItem);
+  
+  // Garantir que campos de rede não sejam required
+  garantirCamposRedeNaoRequired();
+  
+  // Inicializar campos dinâmicos dos itens do kit existentes
+  inicializarCamposDinamicosItensKit();
 }
 
 function removerItemKit(button) {
@@ -590,18 +715,7 @@ function limparItensVazios() {
   }
 }
 
-// Função para limpar itens vazios antes do envio (chamada manualmente quando necessário)
-function limparItensVazios() {
-  $('.item-kit').each(function() {
-    const $item = $(this);
-    const tipoEquipamento = $item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]').val();
-    
-    // Se o tipo de equipamento está vazio, remover required de todos os campos do item
-    if (!tipoEquipamento || tipoEquipamento === '') {
-      $item.find('input[required], select[required]').removeAttr('required');
-    }
-  });
-}
+
 
 // Função para verificar se um código de kit existe
 function verificarKit() {
@@ -688,8 +802,8 @@ function inicializarRequired() {
   const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
   
   if (tipoSelecionado === 'individual') {
-    // Para equipamentos individuais, apenas os campos individuais devem ser required (exceto identificadores)
-    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]), #campos_individual select').attr('required', true);
+    // Para equipamentos individuais, apenas os campos individuais devem ser required (exceto identificadores e campos de rede)
+    $('#campos_individual input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]):not([name*="host"]):not([name*="ip"]), #campos_individual select').attr('required', false);
     $('#status_geral select').attr('required', true);
     $('#campos_kit input, #campos_kit select').removeAttr('required');
     
@@ -701,14 +815,23 @@ function inicializarRequired() {
     
     // Ajustar required dos identificadores
     ajustarRequiredIdentificadores();
+    
+    // Garantir que campos de rede não sejam required
+    garantirCamposRedeNaoRequired();
   } else if (tipoSelecionado === 'kit') {
-    // Para kits, apenas os campos de kit devem ser required
-    $('#campos_kit input, #campos_kit select').attr('required', true);
+    // Para kits, apenas os campos de kit devem ser required (exceto identificadores e campos de rede)
+    $('#campos_kit input:not([name*="numero_serial"]):not([name*="numero_patrimonio"]):not([name*="outra_identificacao"]):not([name*="host"]):not([name*="ip"]), #campos_kit select').attr('required', true);
     $('#campos_individual input, #campos_individual select').removeAttr('required');
     $('#status_geral select').removeAttr('required');
     
     // Remover required dos campos dinâmicos individuais
     $('#campos_rede input, #campo_gabinete input').removeAttr('required');
+    
+    // Ajustar required dos identificadores para kits
+    ajustarRequiredIdentificadores();
+    
+    // Garantir que campos de rede não sejam required
+    garantirCamposRedeNaoRequired();
   } else {
     // Se nenhum tipo está selecionado, remover required de todos
     $('#campos_individual input, #campos_individual select').removeAttr('required');
@@ -720,24 +843,95 @@ function inicializarRequired() {
 
 // Função para ajustar required dos campos de identificação
 function ajustarRequiredIdentificadores() {
-  const numeroSerial = $('input[name="equipamento[numero_serial]"]').val();
-  const numeroPatrimonio = $('input[name="equipamento[numero_patrimonio]"]').val();
-  const outraIdentificacao = $('input[name="equipamento[outra_identificacao]"]').val();
+  const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
   
-  // Contar quantos campos estão preenchidos
+  if (tipoSelecionado === 'individual') {
+    // Para equipamentos individuais
+    const numeroSerial = $('input[name="equipamento[numero_serial]"]').val();
+    const numeroPatrimonio = $('input[name="equipamento[numero_patrimonio]"]').val();
+    const outraIdentificacao = $('input[name="equipamento[outra_identificacao]"]').val();
+    
+    // Contar quantos campos estão preenchidos
+    const camposPreenchidos = [numeroSerial, numeroPatrimonio, outraIdentificacao].filter(valor => valor && valor.trim() !== '').length;
+    
+    if (camposPreenchidos > 0) {
+      // Se pelo menos um campo está preenchido, remover required de todos
+      $('input[name="equipamento[numero_serial]"]').removeAttr('required');
+      $('input[name="equipamento[numero_patrimonio]"]').removeAttr('required');
+      $('input[name="equipamento[outra_identificacao]"]').removeAttr('required');
+    } else {
+      // Se nenhum campo está preenchido, adicionar required a todos
+      $('input[name="equipamento[numero_serial]"]').attr('required', true);
+      $('input[name="equipamento[numero_patrimonio]"]').attr('required', true);
+      $('input[name="equipamento[outra_identificacao]"]').attr('required', true);
+    }
+  } else if (tipoSelecionado === 'kit') {
+    // Para kits, verificar cada item do kit
+    $('.item-kit').each(function() {
+      const $item = $(this);
+      const numeroSerial = $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').val();
+      const numeroPatrimonio = $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').val();
+      const outraIdentificacao = $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').val();
+      
+      // Contar quantos campos estão preenchidos neste item
+      const camposPreenchidos = [numeroSerial, numeroPatrimonio, outraIdentificacao].filter(valor => valor && valor.trim() !== '').length;
+      
+      if (camposPreenchidos > 0) {
+        // Se pelo menos um campo está preenchido, remover required de todos neste item
+        $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').removeAttr('required');
+        $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').removeAttr('required');
+        $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').removeAttr('required');
+      } else {
+        // Se nenhum campo está preenchido, adicionar required a todos neste item
+        $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').attr('required', true);
+        $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').attr('required', true);
+        $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').attr('required', true);
+      }
+    });
+  }
+}
+
+// Função para ajustar required dos campos de identificação de um item específico do kit
+function ajustarRequiredIdentificadoresKit($item) {
+  const numeroSerial = $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').val();
+  const numeroPatrimonio = $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').val();
+  const outraIdentificacao = $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').val();
+  
+  // Contar quantos campos estão preenchidos neste item
   const camposPreenchidos = [numeroSerial, numeroPatrimonio, outraIdentificacao].filter(valor => valor && valor.trim() !== '').length;
   
   if (camposPreenchidos > 0) {
-    // Se pelo menos um campo está preenchido, remover required de todos
-    $('input[name="equipamento[numero_serial]"]').removeAttr('required');
-    $('input[name="equipamento[numero_patrimonio]"]').removeAttr('required');
-    $('input[name="equipamento[outra_identificacao]"]').removeAttr('required');
+    // Se pelo menos um campo está preenchido, remover required de todos neste item
+    $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').removeAttr('required');
+    $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').removeAttr('required');
+    $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').removeAttr('required');
   } else {
-    // Se nenhum campo está preenchido, adicionar required a todos
-    $('input[name="equipamento[numero_serial]"]').attr('required', true);
-    $('input[name="equipamento[numero_patrimonio]"]').attr('required', true);
-    $('input[name="equipamento[outra_identificacao]"]').attr('required', true);
+    // Se nenhum campo está preenchido, adicionar required a todos neste item
+    $item.find('input[name="equipamento[itens_kit][][numero_serial]"]').attr('required', true);
+    $item.find('input[name="equipamento[itens_kit][][numero_patrimonio]"]').attr('required', true);
+    $item.find('input[name="equipamento[itens_kit][][outra_identificacao]"]').attr('required', true);
   }
+}
+
+// Função para garantir que campos de rede nunca sejam required
+function garantirCamposRedeNaoRequired() {
+  // Para equipamentos individuais
+  $('input[name="equipamento[host]"], input[name="equipamento[ip]"]').removeAttr('required');
+  
+  // Para itens de kit
+  $('input[name="equipamento[itens_kit][][host]"], input[name="equipamento[itens_kit][][ip]"]').removeAttr('required');
+}
+
+// Função para inicializar campos dinâmicos dos itens do kit existentes
+function inicializarCamposDinamicosItensKit() {
+  $('.item-kit').each(function() {
+    const $item = $(this);
+    const tipoEquipamento = $item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]').val();
+    
+    if (tipoEquipamento) {
+      toggleCamposEquipamentoKit($item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]')[0]);
+    }
+  });
 }
 
 // ABORDAGEM SIMPLIFICADA E DIRETA
@@ -783,16 +977,35 @@ $(document).ready(function() {
     });
     
     // Listeners para campos de identificação
-    $(document).off('input', 'input[name="equipamento[numero_serial]"]').on('input', 'input[name="equipamento[numero_serial]"]', function() {
+        $(document).off('input', 'input[name="equipamento[numero_serial]"]').on('input', 'input[name="equipamento[numero_serial]"]', function() {
       ajustarRequiredIdentificadores();
+      garantirCamposRedeNaoRequired();
     });
     
     $(document).off('input', 'input[name="equipamento[numero_patrimonio]"]').on('input', 'input[name="equipamento[numero_patrimonio]"]', function() {
       ajustarRequiredIdentificadores();
+      garantirCamposRedeNaoRequired();
     });
     
     $(document).off('input', 'input[name="equipamento[outra_identificacao]"]').on('input', 'input[name="equipamento[outra_identificacao]"]', function() {
       ajustarRequiredIdentificadores();
+      garantirCamposRedeNaoRequired();
+    });
+    
+    // Listeners para campos de identificação dos itens do kit
+    $(document).off('input', '.item-kit input[name="equipamento[itens_kit][][numero_serial]"]').on('input', '.item-kit input[name="equipamento[itens_kit][][numero_serial]"]', function() {
+      ajustarRequiredIdentificadoresKit($(this).closest('.item-kit'));
+      garantirCamposRedeNaoRequired();
+    });
+    
+    $(document).off('input', '.item-kit input[name="equipamento[itens_kit][][numero_patrimonio]"]').on('input', '.item-kit input[name="equipamento[itens_kit][][numero_patrimonio]"]', function() {
+      ajustarRequiredIdentificadoresKit($(this).closest('.item-kit'));
+      garantirCamposRedeNaoRequired();
+    });
+    
+    $(document).off('input', '.item-kit input[name="equipamento[itens_kit][][outra_identificacao]"]').on('input', '.item-kit input[name="equipamento[itens_kit][][outra_identificacao]"]', function() {
+      ajustarRequiredIdentificadoresKit($(this).closest('.item-kit'));
+      garantirCamposRedeNaoRequired();
     });
     
     // Executar na carga inicial
@@ -801,6 +1014,15 @@ $(document).ready(function() {
     
     // Inicializar atributos required corretamente
     inicializarRequired();
+    
+    // Ajustar required dos identificadores na carga inicial
+    ajustarRequiredIdentificadores();
+    
+    // Garantir que campos de rede não sejam required
+    garantirCamposRedeNaoRequired();
+    
+    // Inicializar campos dinâmicos dos itens do kit existentes
+    inicializarCamposDinamicosItensKit();
   }, 200);
 });
 
@@ -850,6 +1072,9 @@ $(document).off('shown.bs.modal', '#form-modal').on('shown.bs.modal', '#form-mod
     // Executar na carga inicial
     toggleCampos();
     toggleCamposEquipamento();
+    
+    // Ajustar required dos identificadores na carga inicial
+    ajustarRequiredIdentificadores();
   }, 300);
 });
 
@@ -886,6 +1111,9 @@ const verificarElemento = setInterval(function() {
     // Executar na carga inicial
     toggleCampos();
     toggleCamposEquipamento();
+    
+    // Ajustar required dos identificadores na carga inicial
+    ajustarRequiredIdentificadores();
   } else if (tentativas >= maxTentativas) {
     console.log('ERRO: tipoSelect não encontrado após ' + maxTentativas + ' tentativas');
     clearInterval(verificarElemento);
