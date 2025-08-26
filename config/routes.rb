@@ -83,6 +83,11 @@ Rails.application.routes.draw do
       get :relatorio
       get :verificar_kit
       get :exportar_excel
+      get :autocomplete_marcas
+      get :autocomplete_modelos
+      get :autocomplete_identificacoes_kit
+      get :autocomplete_contratos
+      get :autocomplete_processos
     end
   end
 

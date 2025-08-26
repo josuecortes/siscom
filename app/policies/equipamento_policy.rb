@@ -55,6 +55,26 @@ class EquipamentoPolicy < ApplicationPolicy
     user.has_role?(:tec_serv_ti)
   end
 
+  def autocomplete_marcas?
+    user.has_role?(:tec_serv_ti)
+  end
+
+  def autocomplete_modelos?
+    user.has_role?(:tec_serv_ti)
+  end
+
+  def autocomplete_identificacoes_kit?
+    user.has_role?(:tec_serv_ti)
+  end
+
+  def autocomplete_contratos?
+    user.has_role?(:tec_serv_ti)
+  end
+
+  def autocomplete_processos?
+    user.has_role?(:tec_serv_ti)
+  end
+
   class Scope < Scope
     def resolve
       if user.has_role?(:tec_serv_ti)

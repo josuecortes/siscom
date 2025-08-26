@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_21_170928) do
+ActiveRecord::Schema.define(version: 2025_08_26_140610) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 2025_08_21_170928) do
     t.string "codigo_kit"
     t.string "contrato"
     t.integer "garantia"
+    t.string "processo"
     t.index ["codigo_kit"], name: "index_equipamentos_on_codigo_kit"
     t.index ["contrato"], name: "index_equipamentos_on_contrato"
     t.index ["historico_movimentacoes"], name: "index_equipamentos_on_historico_movimentacoes", using: :gin

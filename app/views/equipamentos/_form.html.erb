@@ -40,13 +40,13 @@
 
       <div class="form-group">
         <%= f.label :marca, "Marca" %>
-        <%= f.text_field :marca, class: "form-control", required: true %>
+        <%= f.text_field :marca, class: "form-control js-autocomplete-marca", required: true, autocomplete: 'off' %>
         <%= has_error(@equipamento, :marca) %>
       </div>
 
       <div class="form-group">
         <%= f.label :modelo, "Modelo" %>
-        <%= f.text_field :modelo, class: "form-control", required: true %>
+        <%= f.text_field :modelo, class: "form-control js-autocomplete-modelo", required: true, autocomplete: 'off' %>
         <%= has_error(@equipamento, :modelo) %>
       </div>
 
@@ -104,7 +104,7 @@
     <div id="campos_kit" style="display: none;">
       <div class="form-group">
         <%= f.label :identificacao_kit, "Identificação do Kit" %>
-        <%= f.text_field :identificacao_kit, class: "form-control", placeholder: "Ex: KIT001, LAB01, etc." %>
+        <%= f.text_field :identificacao_kit, class: "form-control js-autocomplete-identificacao-kit", autocomplete: 'off' %>
         <%= has_error(@equipamento, :identificacao_kit) %>
       </div>
 
@@ -134,10 +134,10 @@
                   </select>
                 </div>
                 <div class="col-md-3 mb-2">
-                  <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required value="<%= item['marca'] %>">
+                  <input type="text" name="equipamento[itens_kit][][marca]" class="form-control js-autocomplete-marca-kit" placeholder="Marca" required value="<%= item['marca'] %>" autocomplete="off">
                 </div>
                 <div class="col-md-3 mb-2">
-                  <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required value="<%= item['modelo'] %>">
+                  <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control js-autocomplete-modelo-kit" placeholder="Modelo" required value="<%= item['modelo'] %>" autocomplete="off">
                 </div>
                 <div class="col-md-3 mb-2">
                   <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial" value="<%= item['numero_serial'] %>">
@@ -204,10 +204,10 @@
                 </select>
               </div>
               <div class="col-md-3 mb-2">
-                <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
+                <input type="text" name="equipamento[itens_kit][][marca]" class="form-control js-autocomplete-marca-kit" placeholder="Marca" required autocomplete="off">
               </div>
               <div class="col-md-3 mb-2">
-                <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
+                <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control js-autocomplete-modelo-kit" placeholder="Modelo" required autocomplete="off">
               </div>
               <div class="col-md-3 mb-2">
                 <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
@@ -286,8 +286,14 @@
 
       <div class="form-group">
         <%= f.label :contrato, "Contrato ou Referência" %>
-        <%= f.text_field :contrato, class: "form-control", placeholder: "Digite o contrato ou referência" %>
+        <%= f.text_field :contrato, class: "form-control js-autocomplete-contrato", autocomplete: 'off' %>
         <%= has_error(@equipamento, :contrato) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :processo, "Processo" %>
+        <%= f.text_field :processo, class: "form-control js-autocomplete-processo", autocomplete: 'off' %>
+        <%= has_error(@equipamento, :processo) %>
       </div>
 
       <!-- Seção de Gerenciamento de Kit (apenas para equipamentos individuais) -->
@@ -597,10 +603,10 @@ function adicionarItemKit() {
       </select>
     </div>
     <div class="col-md-3 mb-2">
-      <input type="text" name="equipamento[itens_kit][][marca]" class="form-control" placeholder="Marca" required>
+      <input type="text" name="equipamento[itens_kit][][marca]" class="form-control js-autocomplete-marca-kit" placeholder="Marca" required autocomplete="off">
     </div>
     <div class="col-md-3 mb-2">
-      <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control" placeholder="Modelo" required>
+      <input type="text" name="equipamento[itens_kit][][modelo]" class="form-control js-autocomplete-modelo-kit" placeholder="Modelo" required autocomplete="off">
     </div>
     <div class="col-md-3 mb-2">
       <input type="text" name="equipamento[itens_kit][][numero_serial]" class="form-control" placeholder="Serial">
@@ -656,6 +662,33 @@ function adicionarItemKit() {
   `;
   container.appendChild(novoItem);
   
+  // Inicializar autocomplete para Marca/Modelo dos itens de kit recém-adicionados
+  (function initAutocompleteForNewKitItem(){
+    const $scope = $(novoItem);
+    function init(selector, url){
+      const $input = $scope.find(selector);
+      if($input.length === 0) return;
+      $input.autocomplete({
+        minLength: 0,
+        appendTo: $scope.closest('.modal-body'),
+        position: { my: 'left top', at: 'left bottom', collision: 'none' },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.label || item.value, value: item.value }; }));
+          }).fail(function(){ response([]); });
+        },
+        select: function(event, ui){
+          $(this).val(ui.item.value);
+          return false;
+        }
+      }).autocomplete('widget').addClass('ui-autocomplete-modal');
+      // Abrir todas opções ao focar
+      $input.on('focus', function(){ $(this).autocomplete('search', ''); });
+    }
+    init('.js-autocomplete-marca-kit', '/equipamentos/autocomplete_marcas');
+    init('.js-autocomplete-modelo-kit', '/equipamentos/autocomplete_modelos');
+  })();
+
   // Verificar se estamos no modo kit e adicionar required aos novos campos (exceto identificadores)
   const tipoSelecionado = $('select[name="equipamento[tipo]"]').val();
   if (tipoSelecionado === 'kit') {
@@ -1153,6 +1186,56 @@ $(document).ready(function() {
   // Bind autocomplete para unidade
   bindAutocompleteWithHidden('.js-autocomplete-unidade', '#equipamento_unidade_id', '/autocompletes/unidades');
 });
+
+// Configurar autocomplete para os campos de equipamento
+$(document).ready(function() {
+  function bindAutocomplete(inputSelector, url){
+    $(inputSelector).autocomplete({
+      minLength: 0,
+      appendTo: $(inputSelector).closest('.modal-body'),
+      position: { my: "left top", at: "left bottom", collision: "none" },
+      source: function(request, response){
+        $.getJSON(url, { term: request.term }, function(data){
+          response($.map(data, function(item){ return { label: item.label, value: item.value }; }));
+        }).fail(function() {
+          response([]);
+        });
+      },
+      select: function(event, ui){
+        $(this).val(ui.item.value);
+        return false;
+      }
+    }).autocomplete("widget").addClass("ui-autocomplete-modal");
+    
+    // Mostrar todas as opções quando o campo recebe foco
+    $(inputSelector).on('focus', function(){
+      $(this).autocomplete("search", "");
+    });
+  }
+
+  // Bind autocomplete para os campos
+  bindAutocomplete('.js-autocomplete-marca', '/equipamentos/autocomplete_marcas');
+  bindAutocomplete('.js-autocomplete-modelo', '/equipamentos/autocomplete_modelos');
+  bindAutocomplete('.js-autocomplete-identificacao-kit', '/equipamentos/autocomplete_identificacoes_kit');
+  bindAutocomplete('.js-autocomplete-contrato', '/equipamentos/autocomplete_contratos');
+  bindAutocomplete('.js-autocomplete-processo', '/equipamentos/autocomplete_processos');
+  
+  // Bind autocomplete para os campos dos itens do kit
+  bindAutocomplete('.js-autocomplete-marca-kit', '/equipamentos/autocomplete_marcas');
+  bindAutocomplete('.js-autocomplete-modelo-kit', '/equipamentos/autocomplete_modelos');
+});
+
+// Configurar autocomplete para novos itens do kit dinamicamente
+$(document).on('click', '.btn-success', function() {
+  if ($(this).text().includes('Adicionar Item')) {
+    setTimeout(function() {
+      bindAutocomplete('.js-autocomplete-marca-kit', '/equipamentos/autocomplete_marcas');
+      bindAutocomplete('.js-autocomplete-modelo-kit', '/equipamentos/autocomplete_modelos');
+    }, 100);
+  }
+});
+
+
 </script>
 
 

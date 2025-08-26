@@ -12,6 +12,8 @@ class EquipamentosController < ApplicationController
     @equipamentos = @equipamentos.por_unidade(params[:unidade_id]) if params[:unidade_id].present?
     @equipamentos = @equipamentos.por_tipo_equipamento(params[:tipo_equipamento]) if params[:tipo_equipamento].present?
     @equipamentos = @equipamentos.where("contrato ILIKE ?", "%#{params[:contrato]}%") if params[:contrato].present?
+    @equipamentos = @equipamentos.where("codigo_kit ILIKE ?", "%#{params[:codigo_kit]}%") if params[:codigo_kit].present?
+    @equipamentos = @equipamentos.where("processo ILIKE ?", "%#{params[:processo]}%") if params[:processo].present?
     
     # Busca
     @equipamentos = @equipamentos.buscar(params[:busca]) if params[:busca].present?
@@ -36,8 +38,7 @@ class EquipamentosController < ApplicationController
   def new
     @equipamento = Equipamento.new
     authorize @equipamento
-    @unidades = Unidade.order(:nome)
-    @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+    carregar_dados_para_formulario
   end
 
   def create
@@ -76,8 +77,7 @@ class EquipamentosController < ApplicationController
             @equipamento.errors.add(:base, e.message)
           end
           
-          @unidades = Unidade.order(:nome)
-          @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+          carregar_dados_para_formulario
           format.js { render :new }
         end
       else
@@ -97,8 +97,7 @@ class EquipamentosController < ApplicationController
             @equipamento.unidade_id = primeiro_equipamento.unidade_id
           else
             flash.now[:error] = 'Kit não encontrado com o código informado.'
-            @unidades = Unidade.order(:nome)
-            @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+            carregar_dados_para_formulario
             format.js { render :new }
             return
           end
@@ -112,8 +111,7 @@ class EquipamentosController < ApplicationController
           end
           format.js { render :create }
         else
-          @unidades = Unidade.order(:nome)
-          @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+          carregar_dados_para_formulario
           flash.now[:error] = 'Ops! Algo deu errado.'
           format.js { render :new }
         end
@@ -123,8 +121,7 @@ class EquipamentosController < ApplicationController
 
   def edit
     authorize @equipamento
-    @unidades = Unidade.order(:nome)
-    @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+    carregar_dados_para_formulario
   end
 
   def update
@@ -148,14 +145,12 @@ class EquipamentosController < ApplicationController
             flash[:success] = "Equipamento incluído no kit '#{primeiro_equipamento.identificacao_kit}' com sucesso."
             format.js { render :update }
           else
-            @unidades = Unidade.order(:nome)
-            @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+            carregar_dados_para_formulario
             flash.now[:error] = 'Ops! Algo deu errado.'
             format.js { render :edit }
           end
         else
-          @unidades = Unidade.order(:nome)
-          @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+          carregar_dados_para_formulario
           flash.now[:error] = 'Kit não encontrado com o código informado.'
           format.js { render :edit }
         end
@@ -165,8 +160,7 @@ class EquipamentosController < ApplicationController
           flash[:success] = 'Equipamento atualizado com sucesso.'
           format.js { render :update }
         else
-          @unidades = Unidade.order(:nome)
-          @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+          carregar_dados_para_formulario
           flash.now[:error] = 'Ops! Algo deu errado.'
           format.js { render :edit }
         end
@@ -216,6 +210,56 @@ class EquipamentosController < ApplicationController
     end
   end
 
+  def autocomplete_marcas
+    skip_authorization
+    termo = params[:term]
+    marcas = Equipamento.where.not(marca: [nil, '']).where("marca ILIKE ?", "%#{termo}%").distinct.pluck(:marca).sort
+    
+    respond_to do |format|
+      format.json { render json: marcas.map { |m| { value: m, label: m } } }
+    end
+  end
+
+  def autocomplete_modelos
+    skip_authorization
+    termo = params[:term]
+    modelos = Equipamento.where.not(modelo: [nil, '']).where("modelo ILIKE ?", "%#{termo}%").distinct.pluck(:modelo).sort
+    
+    respond_to do |format|
+      format.json { render json: modelos.map { |m| { value: m, label: m } } }
+    end
+  end
+
+  def autocomplete_identificacoes_kit
+    skip_authorization
+    termo = params[:term]
+    identificacoes = Equipamento.where.not(identificacao_kit: [nil, '']).where("identificacao_kit ILIKE ?", "%#{termo}%").distinct.pluck(:identificacao_kit).sort
+    
+    respond_to do |format|
+      format.json { render json: identificacoes.map { |i| { value: i, label: i } } }
+    end
+  end
+
+  def autocomplete_contratos
+    skip_authorization
+    termo = params[:term]
+    contratos = Equipamento.where.not(contrato: [nil, '']).where("contrato ILIKE ?", "%#{termo}%").distinct.pluck(:contrato).sort
+    
+    respond_to do |format|
+      format.json { render json: contratos.map { |c| { value: c, label: c } } }
+    end
+  end
+
+  def autocomplete_processos
+    skip_authorization
+    termo = params[:term]
+    processos = Equipamento.where.not(processo: [nil, '']).where("processo ILIKE ?", "%#{termo}%").distinct.pluck(:processo).sort
+    
+    respond_to do |format|
+      format.json { render json: processos.map { |p| { value: p, label: p } } }
+    end
+  end
+
   def relatorio
     authorize Equipamento
     @equipamentos = policy_scope(Equipamento)
@@ -226,6 +270,8 @@ class EquipamentosController < ApplicationController
     @equipamentos = @equipamentos.por_unidade(params[:unidade_id]) if params[:unidade_id].present?
     @equipamentos = @equipamentos.por_tipo_equipamento(params[:tipo_equipamento]) if params[:tipo_equipamento].present?
     @equipamentos = @equipamentos.where("contrato ILIKE ?", "%#{params[:contrato]}%") if params[:contrato].present?
+    @equipamentos = @equipamentos.where("codigo_kit ILIKE ?", "%#{params[:codigo_kit]}%") if params[:codigo_kit].present?
+    @equipamentos = @equipamentos.where("processo ILIKE ?", "%#{params[:processo]}%") if params[:processo].present?
     
     # Busca
     @equipamentos = @equipamentos.buscar(params[:busca]) if params[:busca].present?
@@ -276,6 +322,8 @@ class EquipamentosController < ApplicationController
     @equipamentos = @equipamentos.por_unidade(params[:unidade_id]) if params[:unidade_id].present?
     @equipamentos = @equipamentos.por_tipo_equipamento(params[:tipo_equipamento]) if params[:tipo_equipamento].present?
     @equipamentos = @equipamentos.where("contrato ILIKE ?", "%#{params[:contrato]}%") if params[:contrato].present?
+    @equipamentos = @equipamentos.where("codigo_kit ILIKE ?", "%#{params[:codigo_kit]}%") if params[:codigo_kit].present?
+    @equipamentos = @equipamentos.where("processo ILIKE ?", "%#{params[:processo]}%") if params[:processo].present?
     
     # Busca
     @equipamentos = @equipamentos.buscar(params[:busca]) if params[:busca].present?
@@ -356,6 +404,11 @@ class EquipamentosController < ApplicationController
 
   private
 
+  def carregar_dados_para_formulario
+    @unidades = Unidade.order(:nome)
+    @tipos_equipamento = Equipamento::TIPOS_EQUIPAMENTO
+  end
+
   def authorize_equipamento
     unless current_user.has_role?(:tec_serv_ti)
       redirect_to root_path, alert: 'Você não tem permissão para acessar esta área.'
@@ -372,7 +425,7 @@ class EquipamentosController < ApplicationController
   def equipamento_params
     params.require(:equipamento).permit(:tipo, :tipo_equipamento, :descricao, :marca, :modelo, 
                                        :numero_serial, :numero_patrimonio, :outra_identificacao, 
-                                       :identificacao_kit, :codigo_kit, :contrato, :status, :unidade_id, :host, :ip,
+                                       :identificacao_kit, :codigo_kit, :contrato, :processo, :status, :unidade_id, :host, :ip,
                                        :garantia, :historico_movimentacoes,
                                        itens_kit: [:tipo_equipamento, :marca, :modelo, :numero_serial, 
                                                   :numero_patrimonio, :outra_identificacao, :status, 

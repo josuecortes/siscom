@@ -60,6 +60,7 @@ class Equipamento < ApplicationRecord
     self.host.upcase! if self.host
     self.ip.upcase! if self.ip
     self.contrato.upcase! if self.contrato
+    self.processo.upcase! if self.processo
   end
 
   def gerar_codigo_kit
@@ -128,6 +129,7 @@ class Equipamento < ApplicationRecord
         status: status,
         unidade_id: unidade_id,
         contrato: contrato,
+        processo: processo,
         host: host,
         ip: ip,
         identificacao_kit: identificacao_kit,
@@ -340,8 +342,8 @@ class Equipamento < ApplicationRecord
   end
 
   def self.buscar(termo)
-    where("marca ILIKE ? OR modelo ILIKE ? OR numero_serial ILIKE ? OR numero_patrimonio ILIKE ? OR identificacao_kit ILIKE ? OR contrato ILIKE ?", 
-          "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%")
+    where("marca ILIKE ? OR modelo ILIKE ? OR numero_serial ILIKE ? OR numero_patrimonio ILIKE ? OR identificacao_kit ILIKE ? OR contrato ILIKE ? OR processo ILIKE ?", 
+          "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%")
   end
 
   def self.criar_equipamentos_do_kit(kit_params, user)
@@ -401,6 +403,7 @@ class Equipamento < ApplicationRecord
             identificacao_kit: kit_params[:identificacao_kit], # Link com o kit
             codigo_kit: codigo_kit, # Mesmo código do kit
             contrato: kit_params[:contrato], # Mesmo contrato do kit
+            processo: kit_params[:processo], # Mesmo processo do kit
             unidade_id: kit_params[:unidade_id], # Mesma unidade do kit
             user: user,
             status: item[:status] || 'ativo'
