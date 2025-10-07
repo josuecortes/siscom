@@ -3,6 +3,9 @@
     <%= link_to "Aguardando (#{contagem_requisicoes[0]})", requisicao_transportes_path(status: 1), class: "nav-link #{'active' if status.to_i == 1}", remote: true %>
   </li>
   <li class="nav-item">
+    <%= link_to "Reagendadas (#{contagem_requisicoes[6].to_i})", requisicao_transportes_path(status: 7), class: "nav-link #{'active' if status.to_i == 7}", remote: true %>
+  </li>
+  <li class="nav-item">
     <%= link_to "Aprovadas (#{contagem_requisicoes[1]})", requisicao_transportes_path(status: 2), class: "nav-link #{'active' if status.to_i == 2}", remote: true %>
   </li>
   <li class="nav-item">
@@ -47,6 +50,11 @@
         <td>
           <%= link_to requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>
             <i class="fas fa-eye"></i>
+          <% end %>
+          <% if requisicao_transporte.status == "reagendada" %>
+            <%= link_to avaliar_reagendamento_requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-info", title: "Avaliar Reagendamento", remote: true do %>
+              <i class="fas fa-calendar-check"></i>
+            <% end %>
           <% end %>
           <% if requisicao_transporte.status == "aguardando" %>
             <%= link_to edit_requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-primary", title: "Editar", remote: true  do %>

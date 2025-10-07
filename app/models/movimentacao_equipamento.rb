@@ -19,6 +19,8 @@ class MovimentacaoEquipamento < ApplicationRecord
   scope :em_andamento, -> { where(status: 'em_andamento') }
   scope :concluidas, -> { where(status: 'concluida') }
   scope :por_responsavel, ->(user_id) { where(responsavel_id: user_id) }
+  # Movimentações iniciais são aquelas criadas no cadastro do equipamento, onde origem = destino
+  scope :sem_iniciais, -> { where.not('unidade_origem_id = unidade_destino_id') }
 
   def equipamentos_pendentes
     item_movimentacoes.where(recebido: false, status: 'pendente')

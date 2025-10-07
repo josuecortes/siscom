@@ -32,20 +32,16 @@
         <div class="col-md-6">
           <div class="form-group">
             <%= f.label :unidade_origem_id, "Unidade de Origem" %>
-            <%= f.select :unidade_origem_id, 
-                options_from_collection_for_select(@unidades, :id, :sigla_nome, @movimentacao.unidade_origem_id), 
-                { prompt: "Selecione a unidade de origem..." }, 
-                { class: "form-control", required: true, id: "unidade_origem" } %>
+            <%= f.hidden_field :unidade_origem_id, id: 'unidade_origem_id' %>
+            <%= text_field_tag :unidade_origem_nome, (@movimentacao.unidade_origem&.sigla_nome), class: "form-control js-autocomplete-unidade-origem", autocomplete: 'off', placeholder: 'Digite para buscar unidade de origem', required: true %>
           </div>
         </div>
 
         <div class="col-md-6">
           <div class="form-group">
             <%= f.label :unidade_destino_id, "Unidade de Destino" %>
-            <%= f.select :unidade_destino_id, 
-                options_from_collection_for_select(@unidades, :id, :sigla_nome, @movimentacao.unidade_destino_id), 
-                { prompt: "Selecione a unidade de destino..." }, 
-                { class: "form-control", required: true, id: "unidade_destino" } %>
+            <%= f.hidden_field :unidade_destino_id, id: 'unidade_destino_id' %>
+            <%= text_field_tag :unidade_destino_nome, (@movimentacao.unidade_destino&.sigla_nome), class: "form-control js-autocomplete-unidade-destino", autocomplete: 'off', placeholder: 'Digite para buscar unidade de destino', required: true %>
           </div>
         </div>
       </div>
@@ -92,23 +88,27 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Carregar usuários quando unidade de destino for selecionada
-  document.getElementById('unidade_destino').addEventListener('change', function() {
-    const unidadeId = this.value;
+  // Função global para carregar usuários da unidade de destino
+  window.carregarUsuariosUnidadeDestino = function(unidadeId, selecionadoId = null){
     const responsavelSelect = document.getElementById('responsavel_unidade');
-    
+    const hiddenResp = document.getElementById('movimentacao_responsavel_id');
+    hiddenResp.value = '';
     if (unidadeId) {
       fetch('/movimentacao_equipamentos/buscar_usuarios_unidade?unidade_id=' + unidadeId)
         .then(response => response.json())
         .then(data => {
           responsavelSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
-          
           data.forEach(function(usuario) {
             const option = document.createElement('option');
             option.value = usuario.id;
             option.textContent = usuario.nome;
             responsavelSelect.appendChild(option);
           });
+          // Selecionar previamente, se fornecido
+          if (selecionadoId) {
+            responsavelSelect.value = String(selecionadoId);
+            hiddenResp.value = String(selecionadoId);
+          }
         })
         .catch(error => {
           console.error('Erro ao carregar usuários:', error);
@@ -117,39 +117,67 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       responsavelSelect.innerHTML = '<option value="">Primeiro selecione a unidade de destino...</option>';
     }
+  }
+
+  // Listener para mudanças no hidden da unidade de destino
+  document.getElementById('unidade_destino_id').addEventListener('change', function() {
+    window.carregarUsuariosUnidadeDestino(this.value);
   });
 
-  // Carregar equipamentos quando unidade de origem for selecionada
-  document.getElementById('unidade_origem').addEventListener('change', function() {
-    const unidadeId = this.value;
+  // Função global para carregar equipamentos da unidade de origem
+  window.carregarEquipamentosUnidadeOrigem = function(unidadeId, selecionados = []){
     const container = document.getElementById('equipamentos_container');
-    
     if (unidadeId) {
       fetch('/movimentacao_equipamentos/buscar_equipamentos?unidade_id=' + unidadeId)
         .then(response => response.json())
         .then(data => {
           if (data.length > 0) {
-            let html = '<div class="table-responsive"><table class="table table-bordered">';
-            html += '<thead><tr><th><input type="checkbox" id="selecionar_todos"></th><th>Equipamento</th><th>Tipo</th><th>Marca/Modelo</th><th>Status</th></tr></thead><tbody>';
-            
+            let html = '';
+            html += '<div class="row mb-2"><div class="col-md-6">';
+            html += '<input type="text" id="filtro_equip_local" class="form-control form-control-sm" placeholder="Filtrar por serial, patrimônio, contrato, modelo, marca ou processo...">';
+            html += '</div></div>';
+            html += '<div class="table-responsive"><table class="table table-bordered" id="tabela_equip_origem">';
+            html += '<thead><tr><th><input type="checkbox" id="selecionar_todos"></th><th>Equipamento</th><th>Tipo</th><th>Marca/Modelo</th><th>Situação</th></tr></thead><tbody>';
             data.forEach(function(equipamento) {
-              html += `<tr>
-                <td><input type="checkbox" name="equipamento_ids[]" value="${equipamento.id}" class="equipamento-checkbox"></td>
+              const disabledAttr = equipamento.bloqueado ? 'disabled' : '';
+              const detalhesBloqueio = equipamento.bloqueado ? ` <small class="text-muted">(${equipamento.unidade_destino_label || '-'}${equipamento.responsavel_curto ? ' - ' + equipamento.responsavel_curto : ''})</small>` : '';
+              const situacao = equipamento.bloqueado ? `<span class=\"badge badge-warning\">Em movimentação</span>${detalhesBloqueio}` : '<span class="badge badge-success">Disponível</span>';
+              html += `<tr data-serial="${(equipamento.numero_serial||'').toString().toLowerCase()}" data-patrimonio="${(equipamento.numero_patrimonio||'').toString().toLowerCase()}" data-contrato="${(equipamento.contrato||'').toString().toLowerCase()}" data-modelo="${(equipamento.modelo||'').toString().toLowerCase()}" data-marca="${(equipamento.marca||'').toString().toLowerCase()}" data-processo="${(equipamento.processo||'').toString().toLowerCase()}">
+                <td>${equipamento.bloqueado ? '' : `<input type=\"checkbox\" name=\"equipamento_ids[]\" value=\"${equipamento.id}\" class=\"equipamento-checkbox\">`}</td>
                 <td>${equipamento.nome}</td>
                 <td>${equipamento.tipo_equipamento || ''}</td>
                 <td>${equipamento.marca || ''} ${equipamento.modelo ? '- ' + equipamento.modelo : ''}</td>
-                <td><span class="badge badge-success">Disponível</span></td>
+                <td>${situacao}</td>
               </tr>`;
             });
-            
             html += '</tbody></table></div>';
             container.innerHTML = html;
-            
-            // Selecionar todos
             document.getElementById('selecionar_todos').addEventListener('change', function() {
               const checkboxes = document.querySelectorAll('.equipamento-checkbox');
-              checkboxes.forEach(function(checkbox) {
-                checkbox.checked = this.checked;
+              const checked = this.checked;
+              checkboxes.forEach(function(checkbox) { checkbox.checked = checked; });
+            });
+            // Re-selecionar itens previamente escolhidos
+            if (selecionados && selecionados.length > 0) {
+              const checkboxes = document.querySelectorAll('.equipamento-checkbox');
+              checkboxes.forEach(function(cb){
+                if (selecionados.map(String).includes(cb.value)) { cb.checked = true; }
+              });
+            }
+            // Filtro local por múltiplos campos
+            var filtroInput = document.getElementById('filtro_equip_local');
+            filtroInput.addEventListener('input', function(){
+              var termo = this.value.trim().toLowerCase();
+              var linhas = document.querySelectorAll('#tabela_equip_origem tbody tr');
+              linhas.forEach(function(tr){
+                if(termo === '') { tr.style.display = ''; return; }
+                var match = tr.dataset.serial.includes(termo) ||
+                            tr.dataset.patrimonio.includes(termo) ||
+                            tr.dataset.contrato.includes(termo) ||
+                            tr.dataset.modelo.includes(termo) ||
+                            tr.dataset.marca.includes(termo) ||
+                            tr.dataset.processo.includes(termo);
+                tr.style.display = match ? '' : 'none';
               });
             });
           } else {
@@ -163,6 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       container.innerHTML = '<div class="alert alert-info">Selecione a unidade de origem para ver os equipamentos disponíveis.</div>';
     }
+  }
+
+  // Listener para mudanças no hidden da unidade de origem
+  document.getElementById('unidade_origem_id').addEventListener('change', function() {
+    window.carregarEquipamentosUnidadeOrigem(this.value);
   });
 
   // Atualizar campo hidden do responsável
@@ -171,3 +204,59 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+
+<% content_for :javascripts do %>
+<script>
+  $(function(){
+    // Itens previamente selecionados ao retornar com erro de validação
+    var equipamentosSelecionados = <%= (params[:equipamento_ids] || []).map(&:to_s).to_json.html_safe %>;
+    var responsavelSelecionado = '<%= (@movimentacao.responsavel_id || params.dig(:movimentacao_equipamento, :responsavel_id) || params[:responsavel_id]).to_s %>';
+
+    function bindAutocompleteWithHidden(inputSelector, hiddenSelector, onSelected){
+      $(inputSelector).autocomplete({
+        minLength: 0,
+        appendTo: 'body',
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON('/autocompletes/unidades', { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+          });
+        },
+        select: function(event, ui){
+          $(hiddenSelector).val(ui.item.id);
+          if (typeof onSelected === 'function') { onSelected(ui.item.id); }
+          $(inputSelector).val(ui.item.value);
+          return false;
+        },
+        change: function(event, ui){ if(!ui.item){ $(hiddenSelector).val(''); } }
+      }).autocomplete('widget').addClass('ui-autocomplete-modal');
+
+      $(inputSelector).on('focus', function(){ $(this).autocomplete('search', ''); });
+      $(inputSelector).on('input', function(){ if($(this).val() === '') { $(hiddenSelector).val(''); } });
+    }
+
+    bindAutocompleteWithHidden('.js-autocomplete-unidade-origem', '#unidade_origem_id', function(id){
+      window.carregarEquipamentosUnidadeOrigem(id, equipamentosSelecionados);
+    });
+    bindAutocompleteWithHidden('.js-autocomplete-unidade-destino', '#unidade_destino_id', function(id){
+      window.carregarUsuariosUnidadeDestino(id, responsavelSelecionado);
+    });
+
+    // Carregar automaticamente se já houver valores (retorno com erro)
+    var origemIdInicial = document.getElementById('unidade_origem_id').value;
+    if (origemIdInicial) { window.carregarEquipamentosUnidadeOrigem(origemIdInicial, equipamentosSelecionados); }
+    var destinoIdInicial = document.getElementById('unidade_destino_id').value;
+    if (destinoIdInicial) { window.carregarUsuariosUnidadeDestino(destinoIdInicial, responsavelSelecionado); }
+
+    $('<style>')
+      .prop('type', 'text/css')
+      .html(`
+        .ui-autocomplete-modal { z-index: 9999 !important; max-height: 200px; overflow-y: auto; overflow-x: hidden; }
+        .ui-autocomplete-modal .ui-menu-item { padding: 8px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .ui-autocomplete-modal .ui-menu-item:hover { background-color: #f8f9fa; }
+        .ui-autocomplete-modal .ui-menu-item:last-child { border-bottom: none; }
+      `)
+      .appendTo('head');
+  })
+</script>
+<% end %>

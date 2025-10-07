@@ -29,6 +29,48 @@
     </h5>
   </div>
   <div class="card-body">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h5 class="card-title">Filtros</h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: movimentacao_equipamentos_path, method: :get, local: true do %>
+          <div class="row">
+            <div class="col-md-3 mb-2">
+              <label class="form-label">Unidade</label>
+              <%= hidden_field_tag :unidade_id, params[:unidade_id], id: 'mov_equip_unidade_id' %>
+              <%= text_field_tag :unidade_nome, params[:unidade_nome], class: 'form-control form-control-sm js-autocomplete-unidade', autocomplete: 'off', placeholder: 'Digite para buscar unidade' %>
+            </div>
+            <div class="col-md-2 mb-2">
+              <label class="form-label">Status</label>
+              <%= select_tag :status, options_for_select([["Todos",""],["Em andamento","em_andamento"],["Concluída","concluida"],["Cancelada","cancelada"]], params[:status]), class: 'form-control form-control-sm' %>
+            </div>
+            <div class="col-md-3 mb-2">
+              <label class="form-label">Criador</label>
+              <%= hidden_field_tag :user_id, params[:user_id], id: 'mov_equip_user_id' %>
+              <%= text_field_tag :user_nome, params[:user_nome], class: 'form-control form-control-sm js-autocomplete-usuario-criador', autocomplete: 'off', placeholder: 'Digite para buscar usuário' %>
+            </div>
+            <div class="col-md-3 mb-2">
+              <label class="form-label">Responsável</label>
+              <%= hidden_field_tag :responsavel_id, params[:responsavel_id], id: 'mov_equip_responsavel_id' %>
+              <%= text_field_tag :responsavel_nome, params[:responsavel_nome], class: 'form-control form-control-sm js-autocomplete-usuario-responsavel', autocomplete: 'off', placeholder: 'Digite para buscar responsável' %>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Buscar Equipamento</label>
+              <%= text_field_tag :q, params[:q], class: 'form-control form-control-sm', placeholder: 'Marca, modelo, tipo, serial, patrimônio, contrato, processo...' %>
+            </div>
+            <div class="col-12">
+              <br>
+              <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-search"></i> Filtrar</button>
+              <%= link_to "Limpar", movimentacao_equipamentos_path, class: "btn btn-secondary btn-sm" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
     <% if @movimentacoes.any? %>
       <div class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -112,3 +154,50 @@
     <% end %>
   </div>
 </div>
+
+<% content_for :javascripts do %>
+<script>
+  $(function(){
+    function bindAutocompleteWithHidden(inputSelector, hiddenSelector, url){
+      $(inputSelector).autocomplete({
+        minLength: 0,
+        appendTo: 'body',
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+          });
+        },
+        select: function(event, ui){
+          $(hiddenSelector).val(ui.item.id);
+          $(inputSelector).val(ui.item.value).trigger('change');
+          return false;
+        },
+        change: function(event, ui){ if(!ui.item){ $(hiddenSelector).val(''); } }
+      }).autocomplete("widget").addClass("ui-autocomplete-modal");
+
+      $(inputSelector).on('focus', function(){ $(this).autocomplete("search", ""); });
+      $(inputSelector).on('input', function(){ if($(this).val() === '') { $(hiddenSelector).val(''); } });
+    }
+
+    bindAutocompleteWithHidden('.js-autocomplete-unidade', '#mov_equip_unidade_id', '/autocompletes/unidades');
+    bindAutocompleteWithHidden('.js-autocomplete-usuario-criador', '#mov_equip_user_id', '/autocompletes/usuarios');
+    bindAutocompleteWithHidden('.js-autocomplete-usuario-responsavel', '#mov_equip_responsavel_id', '/autocompletes/usuarios');
+
+    $('<style>')
+      .prop('type', 'text/css')
+      .html(`
+        .ui-autocomplete-modal {
+          z-index: 9999 !important;
+          max-height: 200px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .ui-autocomplete-modal .ui-menu-item { padding: 8px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .ui-autocomplete-modal .ui-menu-item:hover { background-color: #f8f9fa; }
+        .ui-autocomplete-modal .ui-menu-item:last-child { border-bottom: none; }
+      `)
+      .appendTo('head');
+  })
+</script>
+<% end %>

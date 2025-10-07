@@ -51,6 +51,17 @@
       </div>
     </div>
 
+  <% if @requisicao_transporte.motivo_reagendamento.present? %>
+    <div class="row">
+      <div class="col-md-4">
+        <span class="float-right"><strong>Motivo Reagendamento</strong></span><br/>
+      </div>
+      <div class="col-md-8">
+        <%= @requisicao_transporte.motivo_reagendamento %><br/>
+      </div>
+    </div>
+  <% end %>
+
   <div class="row">
     <div class="col-md-4">
       <span class="float-right"><strong>Data/Hora Criação</strong></span><br/>
@@ -119,6 +130,46 @@
       <% end %>
     </div>
   </div>  
+
+  <div class="row">
+    <div class="col-md-4">
+      <span class="float-right"><strong>Historico</strong></span><br/>
+    </div>
+    <div class="col-md-8">
+      <% if @requisicao_transporte.created_at.present? %>
+        <%= "<strong>Criada em: </strong>#{@requisicao_transporte.created_at.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.user.nome}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_aprovada.present? %>
+        <%= "<strong>Aprovada em: </strong>#{@requisicao_transporte.data_hora_aprovada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_aprovou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_em_servico.present? %>
+        <%= "<strong>Em serviço em: </strong>#{@requisicao_transporte.data_hora_em_servico.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_em_servico}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_finalizada.present? %>
+        <%= "<strong>Finalizada em: </strong>#{@requisicao_transporte.data_hora_finalizada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_finalizou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_negada.present? %>
+        <%= "<strong>Negada em: </strong>#{@requisicao_transporte.data_hora_negada.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_negou}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_reagendou.present? %>
+        <%= "<strong>Reagendada em: </strong>#{@requisicao_transporte.data_hora_reagendou.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_reagendou&.nome}".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.data_hora_aceitou_negou_reagendamento.present? %>
+        <%= "<strong>Reagendamento avaliado em: </strong>#{@requisicao_transporte.data_hora_aceitou_negou_reagendamento.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.usuario_aceitou_negou_reagendamento&.nome} <strong>Resultado: </strong> #{(@requisicao_transporte.status == 'aprovada') ? 'Aprovado' : ((@requisicao_transporte.status == 'cancelada') ? 'Negado' : '-') }".html_safe() %>
+        <br/>
+      <% end %>
+      <% if @requisicao_transporte.status == "cancelada" %>
+        <%= "<strong>Cancelada em: </strong>#{@requisicao_transporte.updated_at.strftime("%d/%m/%Y %H:%M")} <strong>Por: </strong> #{@requisicao_transporte.user.nome}".html_safe() %>
+        <br/>
+      <% end %>
+    </div>
+  </div>
     
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Fechar</button>

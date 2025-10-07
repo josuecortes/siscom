@@ -61,6 +61,7 @@ Rails.application.routes.draw do
       get :cargos
       get :funcoes
       get :unidades
+      get :usuarios
       get :estados
       get :municipios
       get :permissoes_drive
@@ -134,6 +135,10 @@ Rails.application.routes.draw do
   namespace :useget do
     resources :requisicao_transportes, only: [:index, :show] do
       get 'aprovar'
+      member do
+        get 'reagendar'
+        put 'salvar_reagendamento'
+      end
       collection do
         get 'acompanhamento'
         get 'refresh_acompanhamento'
@@ -149,7 +154,13 @@ Rails.application.routes.draw do
 
   resources :destinos
   resources :passageiros
-  resources :requisicao_transportes
+  resources :requisicao_transportes do
+    member do
+      get 'avaliar_reagendamento'
+      put 'aprovar_reagendamento'
+      put 'negar_reagendamento'
+    end
+  end
   resources :veiculos
   resources :motoristas
   get 'home/index'

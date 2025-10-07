@@ -1,6 +1,6 @@
 class Useget::RequisicaoTransportesController < ApplicationController
   before_action :verificar_permissao
-  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar salvar_negacao ]
+  before_action :set_requisicao_transporte, only: %i[ show destroy aprovar negar salvar_negacao reagendar salvar_reagendamento ]
 
   layout "acompanhamento", only: [:acompanhamento]
 
@@ -14,7 +14,8 @@ class Useget::RequisicaoTransportesController < ApplicationController
     canceladas = @requisicao_transportes.com_status(5).count
     negadas = @requisicao_transportes.com_status(4).count
     finalizadas = @requisicao_transportes.com_status(6).count
-    @contagem_requisicoes = [aguardando, aprovadas, em_servico, negadas, canceladas, finalizadas]
+    reagendadas = @requisicao_transportes.com_status(7).count
+    @contagem_requisicoes = [aguardando, aprovadas, em_servico, negadas, canceladas, finalizadas, reagendadas]
     @requisicao_transportes = @requisicao_transportes.com_status(@status)
   end
 
@@ -27,6 +28,34 @@ class Useget::RequisicaoTransportesController < ApplicationController
     @requisicao_transporte.data_hora_aprovada = Time.now
     @requisicao_transporte.usuario_aprovou = current_user.nome
     salvar_requisicao  
+  end
+
+  def reagendar
+    if @requisicao_transporte.status != 'aprovada' || @requisicao_transporte.requisicao_reagendada
+      flash[:error] = "Opss! Você não pode reagendar essa requisição."
+      @erro_padrao = true
+    end
+  end
+
+  def salvar_reagendamento
+    begin
+      motivo = params[:requisicao_transporte][:motivo_reagendamento]
+      nova_ida = params[:requisicao_transporte][:data_hora_ida].presence && Time.zone.parse(params[:requisicao_transporte][:data_hora_ida])
+      novo_retorno = params[:requisicao_transporte][:data_hora_retorno].presence && Time.zone.parse(params[:requisicao_transporte][:data_hora_retorno])
+
+      @requisicao_transporte.motivo_reagendamento = motivo
+      @requisicao_transporte.aplicar_reagendamento!(novo_ida: nova_ida, novo_retorno: novo_retorno, usuario: current_user)
+
+      flash[:success] = "Requisição reagendada com sucesso."
+      respond_to do |format|
+        format.js { render :salvar_reagendamento, status: :ok }
+      end
+    rescue => e
+      flash.now[:error] = e.message
+      respond_to do |format|
+        format.js { render :reagendar, status: :unprocessable_entity }
+      end
+    end
   end
 
   def negar
@@ -74,7 +103,12 @@ class Useget::RequisicaoTransportesController < ApplicationController
     def requisicao_transporte_params
       params.require(:requisicao_transporte).permit(:status, :user_id, :unidade_id, :tipo, :documento_viagem, :data_hora_ida, :data_hora_retorno, 
                                                     :motivo, :dia_requisicao_normal_urgente, :hora_requisicao_normal_urgente,
-                                                    :motivo_negada, :data_hora_negada, :usuario_negou, 
+                                                    :motivo_negada, :data_hora_negada, :usuario_negou,
+                                                    :motivo_reagendamento, :motivo_negacao_reagendamento,
+                                                    :data_hora_ida_antiga, :data_hora_retorno_antiga,
+                                                    :usuario_reagendou_id, :data_hora_reagendou,
+                                                    :usuario_aceitou_negou_reagendamento_id, :data_hora_aceitou_negou_reagendamento,
+                                                    :requisicao_reagendada,
                                                     passageiros_attributes: [:id, :nome, :cpf, :user_id, :_destroy],
                                                     destinos_attributes: [:id, :descricao, :cep, :numero, :user_id, :_destroy])
     end

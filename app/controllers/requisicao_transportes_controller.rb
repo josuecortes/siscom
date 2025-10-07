@@ -1,6 +1,6 @@
 class RequisicaoTransportesController < ApplicationController
   before_action :verify_permission
-  before_action :set_requisicao_transporte, only: %i[ show edit update destroy ]
+  before_action :set_requisicao_transporte, only: %i[ show edit update destroy avaliar_reagendamento aprovar_reagendamento negar_reagendamento ]
 
   # GET /requisicao_transportes or /requisicao_transportes.json
   def index
@@ -12,7 +12,8 @@ class RequisicaoTransportesController < ApplicationController
     negadas = @requisicao_transportes.com_status(4).count
     canceladas = @requisicao_transportes.com_status(5).count
     finalizadas = @requisicao_transportes.com_status(6).count
-    @contagem_requisicoes = [aguardando, aprovadas, em_servico, negadas, canceladas, finalizadas]
+    reagendadas = @requisicao_transportes.com_status(7).count
+    @contagem_requisicoes = [aguardando, aprovadas, em_servico, negadas, canceladas, finalizadas, reagendadas]
     @requisicao_transportes = @requisicao_transportes.com_status(@status)
   end
 
@@ -63,6 +64,50 @@ class RequisicaoTransportesController < ApplicationController
     end
   end
 
+  def avaliar_reagendamento
+    unless @requisicao_transporte.status == "reagendada"
+      flash[:error] = "Não há reagendamento pendente."
+      @erro_padrao = true
+    end
+  end
+
+  def aprovar_reagendamento
+    if @requisicao_transporte.status == "reagendada"
+      @requisicao_transporte.status = "aprovada"
+      @requisicao_transporte.usuario_aceitou_negou_reagendamento = current_user
+      @requisicao_transporte.data_hora_aceitou_negou_reagendamento = Time.now
+      @requisicao_transporte.motivo_negacao_reagendamento = nil
+      @requisicao_transporte.save!
+      flash[:success] = "Reagendamento aprovado."
+    else
+      flash[:error] = "Requisição não está reagendada."
+    end
+    respond_to do |format|
+      format.js { render :salvar_avaliacao_reagendamento, status: :ok }
+    end
+  end
+
+  def negar_reagendamento
+    if @requisicao_transporte.status == "reagendada"
+      @requisicao_transporte.usuario_aceitou_negou_reagendamento = current_user
+      @requisicao_transporte.data_hora_aceitou_negou_reagendamento = Time.now
+      @requisicao_transporte.motivo_negacao_reagendamento = params[:requisicao_transporte][:motivo_negacao_reagendamento]
+      # volta datas antigas (opcional) e cancela
+      @requisicao_transporte.data_hora_ida = @requisicao_transporte.data_hora_ida_antiga
+      if @requisicao_transporte.tipo == "viagem"
+        @requisicao_transporte.data_hora_retorno = @requisicao_transporte.data_hora_retorno_antiga
+      end
+      @requisicao_transporte.status = "cancelada"
+      @requisicao_transporte.save!
+      flash[:success] = "Reagendamento negado."
+    else
+      flash[:error] = "Requisição não está reagendada."
+    end
+    respond_to do |format|
+      format.js { render :salvar_avaliacao_reagendamento, status: :ok }
+    end
+  end
+
   # DELETE /requisicao_transportes/1 or /requisicao_transportes/1.json
   def destroy
     if @requisicao_transporte.status == "aguardando" or @requisicao_transporte.status == "aprovada"
@@ -91,6 +136,11 @@ class RequisicaoTransportesController < ApplicationController
     def requisicao_transporte_params
       params.require(:requisicao_transporte).permit(:status, :user_id, :unidade_id, :tipo, :documento_viagem, :data_hora_ida, :data_hora_retorno, 
                                                     :motivo, :dia_requisicao_normal_urgente, :hora_requisicao_normal_urgente, :documento,
+                                                    :motivo_reagendamento, :motivo_negacao_reagendamento,
+                                                    :data_hora_ida_antiga, :data_hora_retorno_antiga,
+                                                    :usuario_reagendou_id, :data_hora_reagendou,
+                                                    :usuario_aceitou_negou_reagendamento_id, :data_hora_aceitou_negou_reagendamento,
+                                                    :requisicao_reagendada,
                                                     passageiros_attributes: [:id, :nome, :cpf, :user_id, :_destroy],
                                                     destinos_attributes: [:id, :descricao, :cep, :numero, :user_id, :_destroy])
     end

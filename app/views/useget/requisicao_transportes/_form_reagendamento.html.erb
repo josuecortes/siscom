@@ -1,0 +1,48 @@
+<div class="modal-body">
+  <%= form_for @requisicao_transporte, url: salvar_reagendamento_useget_requisicao_transporte_path(@requisicao_transporte), method: :put, remote: true do |f| %>
+
+    <% if @requisicao_transporte.errors.any? %>
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Ops! Algo deu errado.</h5>
+        <% @requisicao_transporte.errors.full_messages.each do |msg| %>
+          <div><%= msg %></div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= f.label :motivo_reagendamento, 'Motivo do reagendamento' %>
+      <%= f.text_area :motivo_reagendamento, class: "form-control", required: true %>
+      <%= has_error(@requisicao_transporte, :motivo_reagendamento) %>
+    </div>
+
+    <% if @requisicao_transporte.tipo.in?(["normal", "urgente"]) %>
+      <div class="form-group">
+        <%= f.label :data_hora_ida, 'Nova data/hora ida' %>
+        <%= f.text_field :data_hora_ida, class: "form-control", required: true, value: (@requisicao_transporte.data_hora_ida && @requisicao_transporte.data_hora_ida.strftime('%d/%m/%Y %H:%M')) %>
+        <small>Não pode ser inferior à data/hora ida atual.</small>
+        <%= has_error(@requisicao_transporte, :data_hora_ida) %>
+      </div>
+    <% else %>
+      <div class="form-group">
+        <%= f.label :data_hora_ida, 'Nova data/hora ida' %>
+        <%= f.text_field :data_hora_ida, class: "form-control", required: true, value: (@requisicao_transporte.data_hora_ida && @requisicao_transporte.data_hora_ida.strftime('%d/%m/%Y %H:%M')) %>
+        <small>Não pode ser inferior à data/hora ida atual.</small>
+        <%= has_error(@requisicao_transporte, :data_hora_ida) %>
+      </div>
+      <div class="form-group">
+        <%= f.label :data_hora_retorno, 'Nova data/hora retorno' %>
+        <%= f.text_field :data_hora_retorno, class: "form-control", required: true, value: (@requisicao_transporte.data_hora_retorno && @requisicao_transporte.data_hora_retorno.strftime('%d/%m/%Y %H:%M')) %>
+        <small>Não pode ser inferior à nova data/hora ida.</small>
+        <%= has_error(@requisicao_transporte, :data_hora_retorno) %>
+      </div>
+    <% end %>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>
+

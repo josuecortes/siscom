@@ -58,6 +58,17 @@ class AutocompletesController < ApplicationController
     render json: unidades.map { |u| { id: u.id, value: u.sigla_nome } }
   end
 
+  def usuarios
+    term = params[:term]&.downcase
+    usuarios = User.order(:nome)
+
+    if term.present?
+      usuarios = usuarios.where("LOWER(nome) LIKE ? OR LOWER(email) LIKE ?", "%#{term}%", "%#{term}%")
+    end
+
+    render json: usuarios.limit(20).map { |u| { id: u.id, value: u.nome } }
+  end
+
   def estados
     term = params[:term]&.downcase
     estados = ['Amapá']

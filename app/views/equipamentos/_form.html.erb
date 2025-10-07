@@ -532,6 +532,9 @@ function toggleCamposEquipamento() {
   // Esconder todos os campos específicos primeiro
   $camposRede.hide();
   $campoGabinete.hide();
+  // Desabilitar inputs dos blocos ocultos para evitar sobrescrita
+  $camposRede.find('input').prop('disabled', true);
+  $campoGabinete.find('input').prop('disabled', true);
   
   // Remover required de todos os campos dinâmicos primeiro
   $camposRede.find('input').removeAttr('required');
@@ -541,12 +544,16 @@ function toggleCamposEquipamento() {
   if (tipoEquipamento === 'Impressora' || tipoEquipamento === 'Roteador' || tipoEquipamento === 'Switch') {
     console.log('Mostrando campos de rede (Host + IP) para:', tipoEquipamento);
     $camposRede.show();
+    // Habilitar apenas os inputs do bloco visível
+    $camposRede.find('input').prop('disabled', false);
     // Adicionar required aos campos de rede
     $camposRede.find('input[name="equipamento[host]"]').attr('required', false);
     $camposRede.find('input[name="equipamento[ip]"]').attr('required', false);
   } else if (tipoEquipamento === 'Gabinete') {
     console.log('Mostrando campo de gabinete (Host) para:', tipoEquipamento);
     $campoGabinete.show();
+    // Habilitar apenas os inputs do bloco visível
+    $campoGabinete.find('input').prop('disabled', false);
     // Adicionar required ao campo de host do gabinete
     $campoGabinete.find('input[name="equipamento[host]"]').attr('required', false);
   } else {
@@ -573,16 +580,23 @@ function toggleCamposEquipamentoKit(selectElement) {
   $camposDinamicos.hide();
   $camposRede.hide();
   $campoGabinete.hide();
+  // Desabilitar inputs dos blocos ocultos para evitar sobrescrita
+  $camposRede.find('input').prop('disabled', true);
+  $campoGabinete.find('input').prop('disabled', true);
   
   // Mostrar campos baseados no tipo
   if (tipoEquipamento === 'Impressora' || tipoEquipamento === 'Roteador' || tipoEquipamento === 'Switch') {
     console.log('Mostrando campos de rede (Host + IP) para item do kit:', tipoEquipamento);
     $camposDinamicos.show();
     $camposRede.show();
+    // Habilitar apenas os inputs do bloco visível
+    $camposRede.find('input').prop('disabled', false);
   } else if (tipoEquipamento === 'Gabinete') {
     console.log('Mostrando campo de gabinete (Host) para item do kit:', tipoEquipamento);
     $camposDinamicos.show();
     $campoGabinete.show();
+    // Habilitar apenas os inputs do bloco visível
+    $campoGabinete.find('input').prop('disabled', false);
   } else {
     console.log('Nenhum campo específico para item do kit:', tipoEquipamento);
   }
@@ -661,6 +675,9 @@ function adicionarItemKit() {
     </div>
   `;
   container.appendChild(novoItem);
+  
+  // Desabilitar inicialmente os campos de host/IP dos blocos dinâmicos do novo item
+  $(novoItem).find('input[name="equipamento[itens_kit][][host]"], input[name="equipamento[itens_kit][][ip]"]').prop('disabled', true);
   
   // Inicializar autocomplete para Marca/Modelo dos itens de kit recém-adicionados
   (function initAutocompleteForNewKitItem(){
@@ -960,6 +977,9 @@ function inicializarCamposDinamicosItensKit() {
   $('.item-kit').each(function() {
     const $item = $(this);
     const tipoEquipamento = $item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]').val();
+    
+    // Desabilitar por padrão os campos de host/IP até que o tipo determine quais devem habilitar
+    $item.find('input[name="equipamento[itens_kit][][host]"], input[name="equipamento[itens_kit][][ip]"]').prop('disabled', true);
     
     if (tipoEquipamento) {
       toggleCamposEquipamentoKit($item.find('select[name="equipamento[itens_kit][][tipo_equipamento]"]')[0]);

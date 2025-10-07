@@ -1,0 +1,65 @@
+<div class="modal-body">
+    <div class="form-group">
+      <label>Usuário que reagendou</label>
+      <input type="text" class="form-control" value="<%= @requisicao_transporte.usuario_reagendou&.nome %>" readonly>
+    </div>
+    <div class="form-group">
+      <label>Data/Hora do reagendamento</label>
+      <input type="text" class="form-control" value="<%= @requisicao_transporte.data_hora_reagendou&.strftime('%d/%m/%Y %H:%M') %>" readonly>
+    </div>
+    <div class="form-group">
+      <label>Motivo do reagendamento</label>
+      <textarea class="form-control" rows="3" readonly><%= @requisicao_transporte.motivo_reagendamento %></textarea>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Data/Hora ida antiga</label>
+          <input type="text" class="form-control" value="<%= @requisicao_transporte.data_hora_ida_antiga&.strftime('%d/%m/%Y %H:%M') %>" readonly>
+        </div>
+      </div>
+      <% if @requisicao_transporte.tipo == 'viagem' %>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Data/Hora retorno antiga</label>
+          <input type="text" class="form-control" value="<%= @requisicao_transporte.data_hora_retorno_antiga&.strftime('%d/%m/%Y %H:%M') %>" readonly>
+        </div>
+      </div>
+      <% end %>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Nova data/hora ida</label>
+          <input type="text" class="form-control" value="<%= @requisicao_transporte.data_hora_ida&.strftime('%d/%m/%Y %H:%M') %>" readonly>
+        </div>
+      </div>
+      <% if @requisicao_transporte.tipo == 'viagem' %>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Nova data/hora retorno</label>
+          <input type="text" class="form-control" value="<%= @requisicao_transporte.data_hora_retorno&.strftime('%d/%m/%Y %H:%M') %>" readonly>
+        </div>
+      </div>
+      <% end %>
+    </div>
+
+    <%= button_to 'Aprovar', aprovar_reagendamento_requisicao_transporte_path(@requisicao_transporte), method: :put, remote: true, class: 'btn btn-success' %>
+
+    <%= form_with url: negar_reagendamento_requisicao_transporte_path(@requisicao_transporte), method: :put, local: false do |f| %>
+      <div class="form-group">
+        <%= f.label :motivo_negacao_reagendamento, 'Motivo da negação do reagendamento' %>
+        <%= f.text_area :motivo_negacao_reagendamento, class: "form-control", required: true, name: 'requisicao_transporte[motivo_negacao_reagendamento]' %>
+        <%= has_error(@requisicao_transporte, :motivo_negacao_reagendamento) %>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger"><i class="icon fas fa-ban"></i> Negar</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+      </div>
+    <% end %>
+</div>
+
+

@@ -10,10 +10,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_08_26_140610) do
+ActiveRecord::Schema.define(version: 2025_10_03_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "acao_unidades", force: :cascade do |t|
+    t.integer "nivel"
+    t.bigint "acao_id", null: false
+    t.bigint "unidade_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["acao_id"], name: "index_acao_unidades_on_acao_id"
+    t.index ["unidade_id"], name: "index_acao_unidades_on_unidade_id"
+  end
+
+  create_table "acao_users", force: :cascade do |t|
+    t.integer "nivel"
+    t.integer "status"
+    t.date "inicio"
+    t.date "fim"
+    t.bigint "user_id", null: false
+    t.bigint "acao_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["acao_id"], name: "index_acao_users_on_acao_id"
+    t.index ["user_id"], name: "index_acao_users_on_user_id"
+  end
 
   create_table "acoes", force: :cascade do |t|
     t.string "nome"
@@ -52,26 +75,6 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
-  end
-
-  create_table "base_permissoes", force: :cascade do |t|
-    t.string "nome", null: false
-    t.string "descricao", null: false
-    t.boolean "status", default: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["nome"], name: "index_base_permissoes_on_nome", unique: true
-  end
-
-  create_table "base_user_permissoes", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "permissao_id", null: false
-    t.boolean "status", default: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["permissao_id"], name: "index_base_user_permissoes_on_permissao_id"
-    t.index ["user_id", "permissao_id"], name: "index_base_user_permissoes_on_user_id_and_permissao_id", unique: true
-    t.index ["user_id"], name: "index_base_user_permissoes_on_user_id"
   end
 
   create_table "cargos", force: :cascade do |t|
@@ -155,101 +158,10 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.index ["acao_id"], name: "index_etapas_on_acao_id"
   end
 
-  create_table "etapas_users", force: :cascade do |t|
-    t.bigint "etapa_id", null: false
-    t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["etapa_id"], name: "index_etapas_users_on_etapa_id"
-    t.index ["user_id"], name: "index_etapas_users_on_user_id"
-  end
-
   create_table "funcoes", force: :cascade do |t|
     t.string "nome"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "hd_campo_requisicaos", force: :cascade do |t|
-    t.string "nome", null: false
-    t.integer "tipo", null: false
-    t.boolean "obrigatorio", default: false
-    t.jsonb "opcoes"
-    t.bigint "requisicao_id", null: false
-    t.integer "ordem"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["requisicao_id", "nome"], name: "index_hd_campo_requisicaos_on_requisicao_id_and_nome", unique: true
-    t.index ["requisicao_id"], name: "index_hd_campo_requisicaos_on_requisicao_id"
-  end
-
-  create_table "hd_campo_requisicoes", force: :cascade do |t|
-    t.string "nome", null: false
-    t.string "tipo", null: false
-    t.boolean "obrigatorio", default: false, null: false
-    t.jsonb "opcoes", default: {}, null: false
-    t.bigint "requisicao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "mascara"
-    t.string "tabela"
-    t.index ["requisicao_id", "nome"], name: "index_hd_campo_requisicoes_on_requisicao_id_and_nome", unique: true
-    t.index ["requisicao_id"], name: "index_hd_campo_requisicoes_on_requisicao_id"
-  end
-
-  create_table "hd_chamados", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "unidade_id", null: false
-    t.bigint "requisicao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.jsonb "campos"
-    t.index ["requisicao_id"], name: "index_hd_chamados_on_requisicao_id"
-    t.index ["unidade_id"], name: "index_hd_chamados_on_unidade_id"
-    t.index ["user_id"], name: "index_hd_chamados_on_user_id"
-  end
-
-  create_table "hd_requisicao_permissoes", force: :cascade do |t|
-    t.bigint "requisicao_id", null: false
-    t.bigint "permissao_id", null: false
-    t.boolean "status", default: true
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["permissao_id"], name: "index_hd_requisicao_permissoes_on_permissao_id"
-    t.index ["requisicao_id", "permissao_id"], name: "index_hd_req_perm_on_req_id_and_perm_id", unique: true
-    t.index ["requisicao_id"], name: "index_hd_requisicao_permissoes_on_requisicao_id"
-  end
-
-  create_table "hd_requisicaos", force: :cascade do |t|
-    t.string "nome", null: false
-    t.bigint "tipo_requisicao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["nome"], name: "index_hd_requisicaos_on_nome", unique: true
-    t.index ["tipo_requisicao_id"], name: "index_hd_requisicaos_on_tipo_requisicao_id"
-  end
-
-  create_table "hd_requisicoes", force: :cascade do |t|
-    t.string "nome", null: false
-    t.bigint "tipo_requisicao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["nome"], name: "index_hd_requisicoes_on_nome", unique: true
-    t.index ["tipo_requisicao_id"], name: "index_hd_requisicoes_on_tipo_requisicao_id"
-  end
-
-  create_table "hd_tipo_requisicaos", force: :cascade do |t|
-    t.string "nome", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["nome"], name: "index_hd_tipo_requisicaos_on_nome", unique: true
-  end
-
-  create_table "hd_tipo_requisicoes", force: :cascade do |t|
-    t.string "nome", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["nome"], name: "index_hd_tipo_requisicoes_on_nome", unique: true
   end
 
   create_table "incidentes", force: :cascade do |t|
@@ -273,21 +185,6 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.string "status", default: "pendente"
     t.index ["equipamento_id"], name: "index_item_movimentacoes_on_equipamento_id"
     t.index ["movimentacao_equipamento_id"], name: "index_item_movimentacoes_on_movimentacao_equipamento_id"
-  end
-
-  create_table "lotacoes", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "unidade_id", null: false
-    t.bigint "funcao_id", null: false
-    t.boolean "status", default: true
-    t.date "data_inicio", null: false
-    t.date "data_fim"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.text "observacoes"
-    t.index ["funcao_id"], name: "index_lotacoes_on_funcao_id"
-    t.index ["unidade_id"], name: "index_lotacoes_on_unidade_id"
-    t.index ["user_id"], name: "index_lotacoes_on_user_id"
   end
 
   create_table "mensagens", force: :cascade do |t|
@@ -411,8 +308,19 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.string "usuario_negou"
     t.string "usuario_em_servico"
     t.string "usuario_finalizou"
+    t.bigint "usuario_reagendou_id"
+    t.datetime "data_hora_reagendou"
+    t.datetime "data_hora_ida_antiga"
+    t.datetime "data_hora_retorno_antiga"
+    t.bigint "usuario_aceitou_negou_reagendamento_id"
+    t.datetime "data_hora_aceitou_negou_reagendamento"
+    t.text "motivo_reagendamento"
+    t.text "motivo_negacao_reagendamento"
+    t.boolean "requisicao_reagendada", default: false
     t.index ["unidade_id"], name: "index_requisicao_transportes_on_unidade_id"
     t.index ["user_id"], name: "index_requisicao_transportes_on_user_id"
+    t.index ["usuario_aceitou_negou_reagendamento_id"], name: "idx_rt_usr_anr_id"
+    t.index ["usuario_reagendou_id"], name: "index_requisicao_transportes_on_usuario_reagendou_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -615,7 +523,6 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.bigint "unidade_id"
     t.bigint "funcao_id"
     t.boolean "status", default: true
-    t.string "vinculo"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["funcao_id"], name: "index_users_on_funcao_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -646,10 +553,12 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
     t.index ["motorista_id"], name: "index_veiculos_on_motorista_id"
   end
 
+  add_foreign_key "acao_unidades", "acoes"
+  add_foreign_key "acao_unidades", "unidades"
+  add_foreign_key "acao_users", "acoes"
+  add_foreign_key "acao_users", "users"
   add_foreign_key "acoes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "base_user_permissoes", "base_permissoes", column: "permissao_id"
-  add_foreign_key "base_user_permissoes", "users"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
   add_foreign_key "equipamentos", "unidades"
@@ -657,22 +566,8 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
   add_foreign_key "etapa_users", "etapas"
   add_foreign_key "etapa_users", "users"
   add_foreign_key "etapas", "acoes"
-  add_foreign_key "etapas_users", "etapas"
-  add_foreign_key "etapas_users", "users"
-  add_foreign_key "hd_campo_requisicaos", "hd_requisicaos", column: "requisicao_id"
-  add_foreign_key "hd_campo_requisicoes", "hd_requisicoes", column: "requisicao_id"
-  add_foreign_key "hd_chamados", "hd_requisicoes", column: "requisicao_id"
-  add_foreign_key "hd_chamados", "unidades"
-  add_foreign_key "hd_chamados", "users"
-  add_foreign_key "hd_requisicao_permissoes", "base_permissoes", column: "permissao_id"
-  add_foreign_key "hd_requisicao_permissoes", "hd_requisicoes", column: "requisicao_id"
-  add_foreign_key "hd_requisicaos", "hd_tipo_requisicaos", column: "tipo_requisicao_id"
-  add_foreign_key "hd_requisicoes", "hd_tipo_requisicoes", column: "tipo_requisicao_id"
   add_foreign_key "item_movimentacoes", "equipamentos"
   add_foreign_key "item_movimentacoes", "movimentacao_equipamentos"
-  add_foreign_key "lotacoes", "funcoes"
-  add_foreign_key "lotacoes", "unidades"
-  add_foreign_key "lotacoes", "users"
   add_foreign_key "mensagens", "requisicao_tis"
   add_foreign_key "mensagens", "users"
   add_foreign_key "movimentacao_equipamentos", "unidades", column: "unidade_destino_id"
@@ -690,6 +585,8 @@ ActiveRecord::Schema.define(version: 2025_08_26_140610) do
   add_foreign_key "requisicao_tis", "users", column: "tecnico_id"
   add_foreign_key "requisicao_transportes", "unidades"
   add_foreign_key "requisicao_transportes", "users"
+  add_foreign_key "requisicao_transportes", "users", column: "usuario_aceitou_negou_reagendamento_id"
+  add_foreign_key "requisicao_transportes", "users", column: "usuario_reagendou_id"
   add_foreign_key "servico_transportes", "motoristas"
   add_foreign_key "servico_transportes", "requisicao_transportes"
   add_foreign_key "servico_transportes", "veiculos"

@@ -3,6 +3,9 @@
     <%= link_to "Aguardando (#{contagem_requisicoes[0]})", useget_requisicao_transportes_path(status: 1), class: "nav-link #{'active' if status.to_i == 1}", remote: true %>
   </li>
   <li class="nav-item">
+    <%= link_to "Reagendadas (#{contagem_requisicoes[6].to_i})", useget_requisicao_transportes_path(status: 7), class: "nav-link #{'active' if status.to_i == 7}", remote: true %>
+  </li>
+  <li class="nav-item">
     <%= link_to "Aprovadas (#{contagem_requisicoes[1]})", useget_requisicao_transportes_path(status: 2), class: "nav-link #{'active' if status.to_i == 2}", remote: true %>
   </li>
   <li class="nav-item">
@@ -64,6 +67,11 @@
           <% if requisicao_transporte.status == "aprovada" %>
             <%= link_to new_servico_transporte_path(requisicao_transporte_id: requisicao_transporte), class: "btn btn-sm btn-success", title: "Iniciar Serviço", remote: true do %>
               <i class="fas fa-car"></i>
+            <% end %>
+          <% end %>
+          <% if requisicao_transporte.status == "aprovada" && !requisicao_transporte.requisicao_reagendada %>
+            <%= link_to reagendar_useget_requisicao_transporte_path(requisicao_transporte), class: "btn btn-sm btn-info", title: "Reagendar", remote: true do %>
+              <i class="fas fa-calendar-alt"></i>
             <% end %>
           <% end %>
           <% if requisicao_transporte.status == "em_servico" %>

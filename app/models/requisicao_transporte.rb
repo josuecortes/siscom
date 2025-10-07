@@ -4,6 +4,8 @@ class RequisicaoTransporte < ApplicationRecord
 
   belongs_to :user
   belongs_to :unidade
+  belongs_to :usuario_reagendou, class_name: 'User', optional: true
+  belongs_to :usuario_aceitou_negou_reagendamento, class_name: 'User', optional: true
 
   has_one_attached :documento
 
@@ -21,7 +23,7 @@ class RequisicaoTransporte < ApplicationRecord
   scope :do_usuario, ->(id) { where("user_id = ?", id) }
   scope :com_status, ->(status) { where("status = ?", status) }
 
-  enum status: { aguardando: 1, aprovada: 2, em_servico: 3, negada: 4, cancelada: 5, finalizada: 6 }
+  enum status: { aguardando: 1, aprovada: 2, reagendada: 7, em_servico: 3, negada: 4, cancelada: 5, finalizada: 6 }
   enum tipo: { urgente: 1, normal: 2, viagem: 3 }
 
   before_validation :ajustar_datahora_saida, on: :create
@@ -80,5 +82,33 @@ class RequisicaoTransporte < ApplicationRecord
       self.data_hora_finalizada = Time.now
     end
     self.save
+  end
+
+  def aplicar_reagendamento!(novo_ida:, novo_retorno: nil, usuario:)
+    # validações de fronteira conforme regras do negócio
+    if self.tipo.in?(["normal", "urgente"]) && novo_ida.present?
+      raise ArgumentError, "Nova data/hora ida deve ser >= atual" if self.data_hora_ida.present? && novo_ida < self.data_hora_ida
+    end
+    if self.tipo == "viagem"
+      raise ArgumentError, "Nova data/hora ida deve ser informada" unless novo_ida.present?
+      if self.data_hora_ida.present? && novo_ida < self.data_hora_ida
+        raise ArgumentError, "Nova data/hora ida deve ser >= data/hora ida antiga"
+      end
+      if novo_retorno.present? && novo_retorno < novo_ida
+        raise ArgumentError, "Nova data/hora retorno deve ser >= nova ida"
+      end
+    end
+
+    self.data_hora_ida_antiga = self.data_hora_ida
+    self.data_hora_retorno_antiga = self.data_hora_retorno if self.tipo == "viagem"
+
+    self.data_hora_ida = novo_ida if novo_ida.present?
+    self.data_hora_retorno = novo_retorno if self.tipo == "viagem"
+
+    self.usuario_reagendou = usuario
+    self.data_hora_reagendou = Time.now
+    self.requisicao_reagendada = true
+    self.status = "reagendada"
+    save!
   end
 end
