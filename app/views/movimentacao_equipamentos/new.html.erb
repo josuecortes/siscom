@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             html += '<input type="text" id="filtro_equip_local" class="form-control form-control-sm" placeholder="Filtrar por serial, patrimônio, contrato, modelo, marca ou processo...">';
             html += '</div></div>';
             html += '<div class="table-responsive"><table class="table table-bordered" id="tabela_equip_origem">';
-            html += '<thead><tr><th><input type="checkbox" id="selecionar_todos"></th><th>Equipamento</th><th>Tipo</th><th>Marca/Modelo</th><th>Situação</th></tr></thead><tbody>';
+            html += '<thead><tr><th></th><th>Equipamento</th><th>Tipo</th><th>Marca/Modelo</th><th>Situação</th></tr></thead><tbody>';
             data.forEach(function(equipamento) {
               const disabledAttr = equipamento.bloqueado ? 'disabled' : '';
               const detalhesBloqueio = equipamento.bloqueado ? ` <small class="text-muted">(${equipamento.unidade_destino_label || '-'}${equipamento.responsavel_curto ? ' - ' + equipamento.responsavel_curto : ''})</small>` : '';
@@ -152,11 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             html += '</tbody></table></div>';
             container.innerHTML = html;
-            document.getElementById('selecionar_todos').addEventListener('change', function() {
-              const checkboxes = document.querySelectorAll('.equipamento-checkbox');
-              const checked = this.checked;
-              checkboxes.forEach(function(checkbox) { checkbox.checked = checked; });
-            });
             // Re-selecionar itens previamente escolhidos
             if (selecionados && selecionados.length > 0) {
               const checkboxes = document.querySelectorAll('.equipamento-checkbox');
@@ -166,6 +161,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             // Filtro local por múltiplos campos
             var filtroInput = document.getElementById('filtro_equip_local');
+            // Bloqueia a tecla Enter apenas neste campo para evitar submit do formulário
+            filtroInput.addEventListener('keydown', function(e){
+              if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); return false; }
+            });
             filtroInput.addEventListener('input', function(){
               var termo = this.value.trim().toLowerCase();
               var linhas = document.querySelectorAll('#tabela_equip_origem tbody tr');

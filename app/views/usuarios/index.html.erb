@@ -25,9 +25,60 @@
     </tr>
   </thead>
   <tbody id="data-table-body">
-    <% @usuarios.each do |usuario| %>
-      <%= render "usuario", usuario: usuario %>
-    <% end %>
   </tbody>
 </table>
- 
+
+<% content_for :javascripts do %>
+<script>
+  $(function(){
+    var $table = $('#data-table');
+    if ($.fn.DataTable.isDataTable($table)) {
+      $table.DataTable().destroy();
+      $table.find('tbody').empty();
+    }
+    $table.DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: '<%= usuarios_path(format: :json) %>',
+        type: 'GET'
+      },
+      columns: [
+        { title: 'Nome' },
+        { title: 'Email' },
+        { title: 'Unidade' },
+        { title: 'Ações', orderable: false, searchable: false }
+      ],
+      order: [[0, 'asc']],
+      pageLength: 25,
+      lengthMenu: [[10,25,50,100],[10,25,50,100]],
+      responsive: true,
+      language: {
+        sProcessing:    'Processando...',
+        sLengthMenu:    'Mostrar _MENU_ registros',
+        sZeroRecords:   'Nenhum resultado encontrado',
+        sEmptyTable:    'Nenhum dado disponível nesta tabela',
+        sInfo:          'Mostrando registros de _START_ a _END_ de um total de _TOTAL_ registros',
+        sInfoEmpty:     'Mostrando registros de 0 a 0 de um total de 0 registros',
+        sInfoFiltered:  '(filtrando um total de _MAX_ registros)',
+        sInfoPostFix:   '',
+        sSearch:        'Buscar:',
+        sUrl:           '',
+        sInfoThousands: ',',
+        sLoadingRecords:'Carregando...',
+        oPaginate: {
+          sFirst:    'Primeiro',
+          sLast:     'Último',
+          sNext:     'Próximo',
+          sPrevious: 'Anterior'
+        },
+        oAria: {
+          sSortAscending:  ': Ative para classificar a coluna em ordem crescente',
+          sSortDescending: ': Ative para classificar a coluna em ordem decrescente'
+        }
+      }
+    });
+  });
+</script>
+<% end %>
+

@@ -7,7 +7,105 @@ class UsuariosController < ApplicationController
 
   # GET /usuarios or /usuarios.json
   def index
-    @usuarios = User.autorizado(current_user).all
+    respond_to do |format|
+      format.html do
+        # A listagem agora será carregada via DataTables (server-side)
+      end
+      format.json do
+        base_scope = User.autorizado(current_user).left_joins(:unidade).includes(:unidade).distinct
+
+        records_total = base_scope.count
+
+        # Busca global
+        if params.dig(:search, :value).present?
+          term = "%#{params[:search][:value]}%"
+          base_scope = base_scope.where(
+            "users.nome ILIKE :t OR users.email ILIKE :t OR unidades.nome ILIKE :t OR unidades.sigla ILIKE :t",
+            t: term
+          )
+        end
+
+        records_filtered = base_scope.count
+
+        # Ordenação
+        order_index = params.dig(:order, '0', :column).to_i rescue 0
+        order_dir = params.dig(:order, '0', :dir) == 'desc' ? 'desc' : 'asc'
+        order_column = case order_index
+                       when 0 then 'users.nome'
+                       when 1 then 'users.email'
+                       when 2 then 'unidades.nome'
+                       else 'users.nome'
+                       end
+        base_scope = base_scope.order(Arel.sql("#{order_column} #{order_dir}"))
+
+        # Paginação
+        start = params[:start].to_i
+        length = params[:length].to_i
+        length = 25 if length <= 0
+        length = 100 if length > 100
+
+        usuarios = base_scope.offset(start).limit(length)
+
+        data = usuarios.map do |u|
+          acoes = []
+          acoes << view_context.link_to(view_context.edit_usuario_path(u), { class: "btn btn-sm btn-primary", title: "Editar", remote: true }) do
+            '<i class="fas fa-edit"></i>'.html_safe
+          end
+
+          if current_user.has_any_role? :tec_serv_ti, :admin, :master
+            acoes << view_context.link_to(view_context.resetar_senha_usuario_path(u), { data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha", remote: true }) do
+              '<i class="fas fa-sync-alt"></i>'.html_safe
+            end
+
+            if u.status == true
+              acoes << view_context.link_to(view_context.usuario_path(u), { method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar", remote: true }) do
+                '<i class="fas fa-close"></i>'.html_safe
+              end
+            else
+              acoes << view_context.link_to(view_context.usuario_path(u), { method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar", remote: true }) do
+                '<i class="fas fa-check"></i>'.html_safe
+              end
+            end
+          end
+
+          if current_user.has_role? :tec_serv_tp
+            unless u.has_role? :req_serv_tp
+              acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar requisitante de serviço de transporte", remote: true }) do
+                '<i class="fas fa-car"></i> Requisitante'.html_safe
+              end
+            else
+              acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão requisitante de serviço de transporte", remote: true }) do
+                '<i class="fas fa-car"></i> Remover Requisitante'.html_safe
+              end
+            end
+
+            unless u.has_role? :tec_serv_tp
+              acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar técnico de serviço de transporte", remote: true }) do
+                '<i class="fas fa-user"></i> Técnico'.html_safe
+              end
+            else
+              acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão técnico de serviço de transporte", remote: true }) do
+                '<i class="fas fa-user"></i> Remover Técnico'.html_safe
+              end
+            end
+          end
+
+          [
+            u.nome,
+            u.email,
+            (u.unidade&.sigla || 'SEM UNIDADE.'),
+            acoes.join(' ').html_safe
+          ]
+        end
+
+        render json: {
+          draw: params[:draw].to_i,
+          recordsTotal: records_total,
+          recordsFiltered: records_filtered,
+          data: data
+        }
+      end
+    end
   end
 
   def autocomplete
