@@ -136,9 +136,6 @@
           <%= link_to edit_equipamento_path(equipamento), class: "btn btn-sm btn-primary", title: "Editar", remote: true do %>
             <i class="fas fa-edit"></i>
           <% end %>
-          <%= link_to equipamento_path(equipamento), method: :delete, data: { confirm: 'Tem certeza que deseja remover este equipamento?' }, class: "btn btn-sm btn-danger", title: "Remover" do %>
-            <i class="fas fa-trash"></i>
-          <% end %>
         </td>
       </tr>
     <% end %>

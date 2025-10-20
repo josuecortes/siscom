@@ -170,11 +170,12 @@ class EquipamentosController < ApplicationController
 
   def destroy
     authorize @equipamento
-    if @equipamento.destroy
-      flash[:success] = 'Equipamento removido com sucesso.'
-    else
-      flash[:error] = 'Ops! Algo deu errado.'
-    end
+    # if @equipamento.destroy
+    #   flash[:success] = 'Equipamento removido com sucesso.'
+    # else
+    #   flash[:error] = 'Ops! Algo deu errado.'
+    # end
+    flash[:error] = 'Equipamento não pode ser removido.'
     redirect_to equipamentos_url
   end
 

@@ -113,6 +113,12 @@
               <td><%= @equipamento.numero_patrimonio %></td>
             </tr>
           <% end %>
+          <% if @equipamento.host.present? %>
+            <tr>
+              <td><strong>Host:</strong></td>
+              <td><%= @equipamento.host %></td>
+            </tr>
+          <% end %>
           <% if @equipamento.outra_identificacao.present? %>
             <tr>
               <td><strong>Outra Identificação:</strong></td>
