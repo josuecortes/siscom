@@ -253,10 +253,14 @@ class MovimentacaoEquipamentosController < ApplicationController
     # Pesquisa textual em atributos de equipamentos relacionados
     if params[:q].present?
       termo = "%#{params[:q].strip}%"
-      rel = rel.joins(:equipamentos).where(
-        "equipamentos.marca ILIKE :t OR equipamentos.modelo ILIKE :t OR equipamentos.tipo ILIKE :t OR equipamentos.tipo_equipamento ILIKE :t OR equipamentos.numero_serial ILIKE :t OR equipamentos.numero_patrimonio ILIKE :t OR equipamentos.outra_identificacao ILIKE :t OR equipamentos.descricao ILIKE :t OR equipamentos.contrato ILIKE :t OR equipamentos.processo ILIKE :t OR equipamentos.host ILIKE :t OR equipamentos.ip ILIKE :t OR equipamentos.codigo_kit ILIKE :t OR equipamentos.identificacao_kit ILIKE :t",
-        t: termo
-      )
+      equipamentos_ids = Equipamento
+        .where(
+          "marca ILIKE :t OR modelo ILIKE :t OR tipo ILIKE :t OR tipo_equipamento ILIKE :t OR numero_serial ILIKE :t OR numero_patrimonio ILIKE :t OR outra_identificacao ILIKE :t OR descricao ILIKE :t OR contrato ILIKE :t OR processo ILIKE :t OR host ILIKE :t OR ip ILIKE :t OR codigo_kit ILIKE :t OR identificacao_kit ILIKE :t",
+          t: termo
+        )
+        .select(:id)
+
+      rel = rel.joins(:item_movimentacoes).where(item_movimentacoes: { equipamento_id: equipamentos_ids })
     end
 
     rel.distinct

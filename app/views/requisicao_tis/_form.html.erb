@@ -384,6 +384,55 @@
       `)
       .appendTo('head');
 
+    // ======= Validação de tamanho dos arquivos (máx. 1MB) =======
+    var MAX_FILE_BYTES = 1024 * 1024; // 1MB
+
+    function validarArquivo($input){
+      var file = $input[0].files && $input[0].files[0];
+      var $group = $input.closest('.form-group');
+      var $error = $group.find('.js-file-error');
+      var errorHtml = '<div class="text-danger small js-file-error">Arquivo maior que 1MB. Escolha um arquivo menor.</div>';
+
+      if(file && file.size > MAX_FILE_BYTES){
+        if($error.length === 0){ $group.append(errorHtml); }
+        $input.addClass('is-invalid');
+        $input.data('invalid', true);
+        $input.val(''); // remove o arquivo selecionado
+      } else if(file) {
+        // arquivo presente e válido
+        $input.removeClass('is-invalid');
+        $input.data('invalid', false);
+        $error.remove();
+      } else {
+        // sem arquivo selecionado: mantém a mensagem existente
+        // e não altera o estado inválido para preservar o aviso
+      }
+    }
+
+    var $carta   = $('#requisicao_ti_carta');
+    var $decreto = $('#requisicao_ti_decreto');
+    var $prodoc  = $('#requisicao_ti_prodoc');
+
+    $carta.on('change', function(){ validarArquivo($carta); });
+    $decreto.on('change', function(){ validarArquivo($decreto); });
+    $prodoc.on('change', function(){ validarArquivo($prodoc); });
+
+    // Bloquear envio do formulário se algum arquivo exceder o limite
+    var $form = $("form[remote='true']").has('#requisicao_ti_carta, #requisicao_ti_decreto, #requisicao_ti_prodoc');
+    $form.on('submit', function(e){
+      // Revalidar no momento do envio
+      [$carta, $decreto, $prodoc].forEach(function($i){ if($i.length){ validarArquivo($i); } });
+
+      var invalido = [$carta, $decreto, $prodoc].some(function($i){ return $i.length && $i.data('invalid') === true; });
+      if(invalido){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        alert('Um ou mais arquivos ultrapassam 1MB. Selecione arquivos menores para continuar.');
+        return false;
+      }
+    });
+    // ======= fim validação de tamanho =======
+
   });
 
 
