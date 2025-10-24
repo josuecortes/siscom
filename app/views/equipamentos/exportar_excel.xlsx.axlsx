@@ -54,6 +54,10 @@ wb.add_worksheet(name: "Equipamentos") do |sheet|
     "Contrato/Referência",
     "Host",
     "IP",
+    "Localização Física",
+    "MAC",
+    "Rack",
+    "Ativo de Rede",
     "Usuário que Cadastrou",
     "Data de Cadastro"
   ]
@@ -91,6 +95,10 @@ wb.add_worksheet(name: "Equipamentos") do |sheet|
           equipamento.contrato,
           equipamento.host,
           equipamento.ip,
+          equipamento.localizacao_fisica,
+          equipamento.mac,
+          equipamento.rack,
+          equipamento.ativo_de_rede,
           equipamento.user&.nome || equipamento.user&.email,
           equipamento.created_at&.strftime("%d/%m/%Y %H:%M")
         ], style: border_style
@@ -117,6 +125,10 @@ wb.add_worksheet(name: "Equipamentos") do |sheet|
           equipamento.contrato,
           equipamento.host,
           equipamento.ip,
+          equipamento.localizacao_fisica,
+          equipamento.mac,
+          equipamento.rack,
+          equipamento.ativo_de_rede,
           equipamento.user&.nome || equipamento.user&.email,
           equipamento.created_at&.strftime("%d/%m/%Y %H:%M")
         ], style: border_style
@@ -125,5 +137,5 @@ wb.add_worksheet(name: "Equipamentos") do |sheet|
   end
   
   # Ajustar largura das colunas
-  sheet.column_widths 20, 12, 18, 25, 15, 20, 20, 15, 20, 15, 12, 25, 20, 15, 15, 25, 20
+  sheet.column_widths 20, 12, 18, 25, 15, 20, 20, 15, 20, 15, 12, 25, 20, 15, 15, 18, 20, 18, 18, 18, 25, 20
 end

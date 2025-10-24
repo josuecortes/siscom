@@ -151,7 +151,7 @@ class RequisicaoTisController < ApplicationController
       if current_user.has_role?(:req_serv_ti_sis)
         if current_user.pode_solicitar_requisicao_ti_normal
           if current_user.unidade.tipo_unidade.nome == 'ESCOLA'
-            @problemas = ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 6, false)
+            @problemas = ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 6, 5, false)
                                   .order(nome: :asc)
                                   .map { |p| [p.nome, p.id, { nome: p.nome.downcase }] }
           else

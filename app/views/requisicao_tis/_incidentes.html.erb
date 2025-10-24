@@ -1,5 +1,5 @@
 <% Incidente.where(ativo: true).order(created_at: :asc).all.each do |incidente| %>
-  <div class="alert alert-danger" role="alert">
+  <div class="alert alert-info" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
     <i class="icon fas fa-info"></i><br/>
     <h4 class="alert-heading"><%= incidente.descricao %></h4>

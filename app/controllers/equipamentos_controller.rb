@@ -427,6 +427,7 @@ class EquipamentosController < ApplicationController
     params.require(:equipamento).permit(:tipo, :tipo_equipamento, :descricao, :marca, :modelo, 
                                        :numero_serial, :numero_patrimonio, :outra_identificacao, 
                                        :identificacao_kit, :codigo_kit, :contrato, :processo, :status, :unidade_id, :host, :ip,
+                                       :localizacao_fisica, :mac, :rack, :ativo_de_rede,
                                        :garantia, :historico_movimentacoes,
                                        itens_kit: [:tipo_equipamento, :marca, :modelo, :numero_serial, 
                                                   :numero_patrimonio, :outra_identificacao, :status, 

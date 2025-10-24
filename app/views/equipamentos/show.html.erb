@@ -119,6 +119,38 @@
               <td><%= @equipamento.host %></td>
             </tr>
           <% end %>
+          <% if @equipamento.ip.present? %>
+            <tr>
+              <td><strong>IP:</strong></td>
+              <td><%= @equipamento.ip %></td>
+            </tr>
+          <% end %>
+          <% if @equipamento.tipo_equipamento == 'Switch' %>
+            <% if @equipamento.localizacao_fisica.present? %>
+              <tr>
+                <td><strong>Localização Física:</strong></td>
+                <td><%= @equipamento.localizacao_fisica %></td>
+              </tr>
+            <% end %>
+            <% if @equipamento.mac.present? %>
+              <tr>
+                <td><strong>MAC:</strong></td>
+                <td><%= @equipamento.mac %></td>
+              </tr>
+            <% end %>
+            <% if @equipamento.rack.present? %>
+              <tr>
+                <td><strong>Rack:</strong></td>
+                <td><%= @equipamento.rack %></td>
+              </tr>
+            <% end %>
+            <% if @equipamento.ativo_de_rede.present? %>
+              <tr>
+                <td><strong>Ativo de Rede:</strong></td>
+                <td><%= @equipamento.ativo_de_rede %></td>
+              </tr>
+            <% end %>
+          <% end %>
           <% if @equipamento.outra_identificacao.present? %>
             <tr>
               <td><strong>Outra Identificação:</strong></td>

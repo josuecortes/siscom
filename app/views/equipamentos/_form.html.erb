@@ -90,6 +90,30 @@
         </div>
       </div>
 
+      <!-- Campos específicos para Switch -->
+      <div id="campos_switch" style="display: none;">
+        <div class="form-group">
+          <%= f.label :localizacao_fisica, "Localização Física" %>
+          <%= f.text_field :localizacao_fisica, class: "form-control" %>
+          <%= has_error(@equipamento, :localizacao_fisica) %>
+        </div>
+        <div class="form-group">
+          <%= f.label :mac, "MAC" %>
+          <%= f.text_field :mac, class: "form-control" %>
+          <%= has_error(@equipamento, :mac) %>
+        </div>
+        <div class="form-group">
+          <%= f.label :rack, "Rack" %>
+          <%= f.text_field :rack, class: "form-control" %>
+          <%= has_error(@equipamento, :rack) %>
+        </div>
+        <div class="form-group">
+          <%= f.label :ativo_de_rede, "Ativo de Rede" %>
+          <%= f.text_field :ativo_de_rede, class: "form-control" %>
+          <%= has_error(@equipamento, :ativo_de_rede) %>
+        </div>
+      </div>
+
       <!-- Campo específico para Gabinete -->
       <div id="campo_gabinete" style="display: none;">
         <div class="form-group">
@@ -514,6 +538,7 @@ function toggleCamposEquipamento() {
   const $tipoEquipamentoSelect = $('#tipo_equipamento_individual');
   const $camposRede = $('#campos_rede');
   const $campoGabinete = $('#campo_gabinete');
+  const $camposSwitch = $('#campos_switch');
   
   console.log('Elementos encontrados:', {
     tipoEquipamentoSelect: $tipoEquipamentoSelect.length > 0,
@@ -532,13 +557,16 @@ function toggleCamposEquipamento() {
   // Esconder todos os campos específicos primeiro
   $camposRede.hide();
   $campoGabinete.hide();
+  $camposSwitch.hide();
   // Desabilitar inputs dos blocos ocultos para evitar sobrescrita
   $camposRede.find('input').prop('disabled', true);
   $campoGabinete.find('input').prop('disabled', true);
+  $camposSwitch.find('input').prop('disabled', true);
   
   // Remover required de todos os campos dinâmicos primeiro
   $camposRede.find('input').removeAttr('required');
   $campoGabinete.find('input').removeAttr('required');
+  $camposSwitch.find('input').removeAttr('required');
   
   // Mostrar campos baseados no tipo
   if (tipoEquipamento === 'Impressora' || tipoEquipamento === 'Roteador' || tipoEquipamento === 'Switch') {
@@ -549,6 +577,13 @@ function toggleCamposEquipamento() {
     // Adicionar required aos campos de rede
     $camposRede.find('input[name="equipamento[host]"]').attr('required', false);
     $camposRede.find('input[name="equipamento[ip]"]').attr('required', false);
+    // Switch: exibir campos específicos e exigir MAC e Ativo de Rede
+    if (tipoEquipamento === 'Switch') {
+      $camposSwitch.show();
+      $camposSwitch.find('input').prop('disabled', false);
+      $camposSwitch.find('input[name="equipamento[mac]"]').attr('required', true);
+      $camposSwitch.find('input[name="equipamento[ativo_de_rede]"]').attr('required', true);
+    }
   } else if (tipoEquipamento === 'Gabinete') {
     console.log('Mostrando campo de gabinete (Host) para:', tipoEquipamento);
     $campoGabinete.show();
@@ -561,6 +596,7 @@ function toggleCamposEquipamento() {
     // Garantir que os campos dinâmicos não sejam required para outros tipos
     $camposRede.find('input').removeAttr('required');
     $campoGabinete.find('input').removeAttr('required');
+    $camposSwitch.find('input').removeAttr('required');
   }
 }
 

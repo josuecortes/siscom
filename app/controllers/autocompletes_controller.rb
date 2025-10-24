@@ -118,7 +118,7 @@ class AutocompletesController < ApplicationController
     if user.has_role?(:req_serv_ti_sis)
       if user.pode_solicitar_requisicao_ti_normal
         if user.unidade.tipo_unidade.nome == 'ESCOLA'
-          ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 6, false)
+          ProblemaTi.where("(tipo_problema_ti_id = ? OR tipo_problema_ti_id = ? OR tipo_problema_ti_id = ?) AND status != ?", 3, 6, 5, false)
                     .order(nome: :asc)
                     .map { |p| [p.nome, p.id] }
         else

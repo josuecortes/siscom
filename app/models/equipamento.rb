@@ -21,6 +21,10 @@ class Equipamento < ApplicationRecord
   validates :status, inclusion: { in: %w[ativo inativo em_manutencao descartado] }
   validates :tipo_equipamento, inclusion: { in: TIPOS_EQUIPAMENTO }, if: :individual?
   
+  # Novos campos: validações condicionais
+  validates :mac, presence: true, uniqueness: { case_sensitive: false }, if: :switch?
+  validates :ativo_de_rede, presence: true, if: :switch?
+  
   # Validações para equipamentos individuais
   validates :marca, presence: true, if: :individual?
   validates :modelo, presence: true, if: :individual?
@@ -61,6 +65,8 @@ class Equipamento < ApplicationRecord
     self.ip.upcase! if self.ip
     self.contrato.upcase! if self.contrato
     self.processo.upcase! if self.processo
+    self.mac.upcase! if self.mac
+    self.ativo_de_rede.upcase! if self.ativo_de_rede
   end
 
   def gerar_codigo_kit
@@ -132,6 +138,10 @@ class Equipamento < ApplicationRecord
         processo: processo,
         host: host,
         ip: ip,
+          mac: mac,
+          ativo_de_rede: ativo_de_rede,
+          localizacao_fisica: localizacao_fisica,
+          rack: rack,
         identificacao_kit: identificacao_kit,
         codigo_kit: codigo_kit,
         garantia: garantia
@@ -342,8 +352,15 @@ class Equipamento < ApplicationRecord
   end
 
   def self.buscar(termo)
-    where("marca ILIKE ? OR modelo ILIKE ? OR numero_serial ILIKE ? OR numero_patrimonio ILIKE ? OR identificacao_kit ILIKE ? OR contrato ILIKE ? OR processo ILIKE ?", 
-          "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%", "%#{termo}%")
+    where(
+      "marca ILIKE :t OR modelo ILIKE :t OR numero_serial ILIKE :t OR numero_patrimonio ILIKE :t OR identificacao_kit ILIKE :t OR contrato ILIKE :t OR processo ILIKE :t OR host ILIKE :t OR ip ILIKE :t OR mac ILIKE :t OR ativo_de_rede ILIKE :t OR localizacao_fisica ILIKE :t OR rack ILIKE :t",
+      t: "%#{termo}%"
+    )
+  end
+
+  # Helper para validações condicionais
+  def switch?
+    individual? && tipo_equipamento == 'Switch'
   end
 
   def self.criar_equipamentos_do_kit(kit_params, user)
