@@ -20,12 +20,14 @@
       </div>
       <div class="form-group">
         <%= f.label :funcao_id, "Função" %>
-        <%= f.select :funcao_id, @funcoes, { include_blank: true }, { class: "form-control js-searchable", required: true } %>
+        <%= f.hidden_field :funcao_id, id: 'user_funcao_id' %>
+        <%= text_field_tag :funcao_nome, (@usuario.funcao&.nome), class: "form-control js-autocomplete-funcao", placeholder: 'Digite para buscar a função', required: true, autocomplete: 'off' %>
         <%= has_error(@usuario, :funcao_id) %>
       </div>
       <div class="form-group">
         <%= f.label :unidade_id %>
-        <%= f.select :unidade_id, @unidades, { include_blank: true }, { class: "form-control js-searchable", required: true } %>  
+        <%= f.hidden_field :unidade_id, id: 'user_unidade_id' %>
+        <%= text_field_tag :unidade_nome, (@usuario.unidade&.sigla_nome), class: "form-control js-autocomplete-unidade", placeholder: 'Digite para buscar a unidade', required: true, autocomplete: 'off' %>
         <%= has_error(@usuario, :unidade_id) %>
       </div>
       <div class="form-group">
@@ -80,11 +82,60 @@
 
 <script>
   $(document).ready(function() {
-    $('.js-searchable').select2({
-      placeholder: "Selecione",
-      allowClear: true,
-      theme: 'bootstrap',
-      width: '100%'    
-    });
+    function bindAutocompleteWithHidden(inputSelector, hiddenSelector, url){
+      $(inputSelector).autocomplete({
+        minLength: 0,
+        appendTo: $(inputSelector).closest('.modal-body'),
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+          });
+        },
+        select: function(event, ui){
+          $(hiddenSelector).val(ui.item.id);
+          $(inputSelector).val(ui.item.value).trigger('change');
+          return false;
+        },
+        change: function(event, ui){
+          if(!ui.item){ $(hiddenSelector).val(''); }
+        }
+      }).autocomplete("widget").addClass("ui-autocomplete-modal");
+
+      // Mostrar todas as opções ao focar
+      $(inputSelector).on('focus', function(){
+        $(this).autocomplete("search", "");
+      });
+
+      // Limpar hidden quando o texto for apagado
+      $(inputSelector).on('input', function(){
+        if($(this).val() === '') { $(hiddenSelector).val(''); }
+      });
+    }
+
+    // Inicializar autocompletes
+    bindAutocompleteWithHidden('.js-autocomplete-funcao', '#user_funcao_id', '/autocompletes/funcoes');
+    bindAutocompleteWithHidden('.js-autocomplete-unidade', '#user_unidade_id', '/autocompletes/unidades');
+
+    // Garantir que o autocomplete apareça acima do modal
+    $('<style>')
+      .prop('type', 'text/css')
+      .html(`
+        .ui-autocomplete-modal {
+          z-index: 9999 !important;
+          max-height: 200px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .ui-autocomplete-modal .ui-menu-item {
+          padding: 8px 12px;
+          border-bottom: 1px solid #eee;
+          cursor: pointer;
+        }
+        .ui-autocomplete-modal .ui-menu-item:last-child {
+          border-bottom: none;
+        }
+      `)
+      .appendTo('head');
   }); 
 </script>

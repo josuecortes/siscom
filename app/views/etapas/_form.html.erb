@@ -70,3 +70,120 @@
 
 </div>
 
+<script>
+  $(document).ready(function() {
+    function bindAutocompleteWithHidden($input, $hidden, url){
+      if($input.data('autocomplete-bound')) { return; }
+      $input.autocomplete({
+        minLength: 0,
+        appendTo: $input.closest('.modal-body'),
+        position: { my: "left top", at: "left bottom", collision: "none" },
+        source: function(request, response){
+          $.getJSON(url, { term: request.term }, function(data){
+            response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+          });
+        },
+        select: function(event, ui){
+          $hidden.val(ui.item.id);
+          $input.val(ui.item.value).trigger('change');
+          return false;
+        },
+        change: function(event, ui){
+          if(!ui.item){ $hidden.val(''); }
+        }
+      }).autocomplete("widget").addClass("ui-autocomplete-modal");
+
+      // Mostrar todas as opções ao focar
+      $input.on('focus', function(){
+        $(this).autocomplete("search", "");
+      });
+
+      // Limpar hidden quando o texto for apagado
+      $input.on('input', function(){
+        if($(this).val() === '') { $hidden.val(''); }
+      });
+
+      $input.data('autocomplete-bound', true);
+    }
+
+    function initUserAutocompletes(context){
+      $(context).find('.js-autocomplete-usuario').each(function(){
+        var $input = $(this);
+        var $hidden = $input.closest('.group-user').find('.js-etapa-user-id');
+        bindAutocompleteWithHidden($input, $hidden, '/autocompletes/usuarios');
+      });
+    }
+
+    // Inicializa os existentes
+    initUserAutocompletes(document);
+
+    // Inicializa quando adicionar novo participante (cocoon)
+    $('#users-fields').on('cocoon:after-insert', function(e, insertedItem){
+      initUserAutocompletes(insertedItem);
+    });
+
+    // Garantir que o autocomplete apareça acima do modal
+    $('<style>')
+      .prop('type', 'text/css')
+      .html(`
+        .ui-autocomplete-modal {
+          z-index: 9999 !important;
+          max-height: 200px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .ui-autocomplete-modal .ui-menu-item {
+          padding: 8px 12px;
+          border-bottom: 1px solid #eee;
+          cursor: pointer;
+        }
+        .ui-autocomplete-modal .ui-menu-item:last-child {
+          border-bottom: none;
+        }
+      `)
+      .appendTo('head');
+  });
+</script>
+
+<script>
+  // Inicialização preguiçosa e delegada para inputs dinâmicos
+  // Garante que QUALQUER campo .js-autocomplete-usuario novo receba autocomplete ao focar
+  $(document).off('focus.etapas', '.js-autocomplete-usuario').on('focus.etapas', '.js-autocomplete-usuario', function(){
+    var $input = $(this);
+    var $hidden = $input.closest('.group-user').find('.js-etapa-user-id');
+
+    // Já inicializado? Apenas abrir a lista
+    if ($input.data('uiAutocomplete')) {
+      $input.autocomplete('search', $input.val() || '');
+      return;
+    }
+
+    $input.autocomplete({
+      minLength: 0,
+      delay: 100,
+      appendTo: $input.closest('.modal-body'),
+      position: { my: "left top", at: "left bottom", collision: "none" },
+      source: function(request, response){
+        $.getJSON('/autocompletes/usuarios', { term: request.term }, function(data){
+          var items = $.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; });
+          response(items);
+        }).fail(function(){ response([]); });
+      },
+      select: function(event, ui){
+        $hidden.val(ui.item.id);
+        $input.val(ui.item.value).trigger('change');
+        return false;
+      },
+      change: function(event, ui){
+        if(!ui.item){
+          // Se usuário apagou/alterou manualmente, limpar o hidden
+          $hidden.val('');
+        }
+      }
+    }).autocomplete("widget").addClass("ui-autocomplete-modal");
+
+    // Abrir todas as opções imediatamente ao focar
+    $input.autocomplete('search', $input.val() || '');
+  });
+</script>
+

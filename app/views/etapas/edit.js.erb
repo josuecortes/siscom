@@ -1,3 +1,47 @@
 $('#form-modal-title').html("<i class='fa fa-edit'></i> Editar Etapa")
 $('#form-modal-body').html('<%= j render("form") %>')
 $('#form-modal').modal('show')
+
+// Inicializar autocomplete de Participante após abrir o modal
+(function() {
+  function bindAutocomplete($input, $hidden, url){
+    if($input.data('autocomplete-bound')) return;
+    $input.autocomplete({
+      minLength: 0,
+      appendTo: $input.closest('.modal-body'),
+      position: { my: "left top", at: "left bottom", collision: "none" },
+      source: function(request, response){
+        $.getJSON(url, { term: request.term }, function(data){
+          response($.map(data, function(item){ return { label: item.value, value: item.value, id: item.id }; }));
+        }).fail(function(){ response([]); });
+      },
+      select: function(event, ui){
+        $hidden.val(ui.item.id);
+        $input.val(ui.item.value).trigger('change');
+        return false;
+      },
+      change: function(event, ui){
+        if(!ui.item){ $hidden.val(''); }
+      }
+    }).autocomplete("widget").addClass("ui-autocomplete-modal");
+    $input.on('focus', function(){ $(this).autocomplete("search", ""); });
+    $input.on('input', function(){ if($(this).val() === '') { $hidden.val(''); } });
+    $input.data('autocomplete-bound', true);
+  }
+  function initInContext(context){
+    $(context).find('.js-autocomplete-usuario').each(function(){
+      var $input = $(this);
+      var $hidden = $input.closest('.group-user').find('.js-etapa-user-id');
+      bindAutocomplete($input, $hidden, '/autocompletes/usuarios');
+    });
+  }
+  initInContext($('#form-modal'));
+  $('#users-fields').off('cocoon:after-insert.etapas').on('cocoon:after-insert.etapas', function(e, insertedItem){
+    initInContext(insertedItem);
+  });
+  // CSS para garantir sobreposição correta
+  $('<style>')
+    .prop('type', 'text/css')
+    .html('.ui-autocomplete-modal{z-index:9999!important;max-height:200px;overflow-y:auto;overflow-x:hidden;}')
+    .appendTo('head');
+})(); 
