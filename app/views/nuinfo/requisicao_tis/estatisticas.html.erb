@@ -13,7 +13,7 @@
 <% if current_user.has_role? :tec_serv_ti %>
   <div class="card card-primary">
     <div class="card-header">
-      <h3 class="card-title">Formulário de seleção</h3>
+      <h3 id="sec-form-selecao" class="card-title" tabindex="-1">Formulário de seleção</h3>
     </div>
 
     <%= form_tag buscar_estatisticas_nuinfo_requisicao_tis_path, class: 'form-horizontal' do %>
@@ -54,12 +54,99 @@
     <% end %>
   </div>
 
+  <!-- Menu lateral flutuante com âncoras -->
+  <div id="side-anchor-menu" aria-label="Navegação de seções">
+    <ul>
+      <li><a href="#sec-form-selecao" title="Formulário de seleção">Formulário</a></li>
+      <li><a href="#sec-tipo-problema" title="Tipo de problema">Tipo de problema</a></li>
+      <li><a href="#sec-problemas" title="Problemas">Problemas</a></li>
+      <li><a href="#sec-unidades" title="Unidades">Unidades</a></li>
+      <li><a href="#sec-mes-ano" title="Mês/Ano">Mês/Ano</a></li>
+      <li><a href="#sec-acoes" title="Ações">Ações</a></li>
+      <li><a href="#sec-acoes-com-etapas" title="Ações com Etapas">Ações c/ Etapas</a></li>
+    </ul>
+  </div>
+  <style>
+    #side-anchor-menu {
+      position: fixed;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1040;
+      pointer-events: auto;
+    }
+    /* Garante que o título alvo não fique escondido atrás de header fixo */
+    h3[id] { scroll-margin-top: 90px; }
+    /* Destaque temporário quando a seção é focada via menu */
+    .anchor-highlight {
+      animation: anchorFlash 1.6s ease-out 1;
+    }
+    @keyframes anchorFlash {
+      0%   { background-color: #fff3cd; }
+      100% { background-color: transparent; }
+    }
+    #side-anchor-menu ul {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    }
+    #side-anchor-menu li { margin: 6px 0; }
+    #side-anchor-menu a {
+      display: block;
+      font-size: 12px;
+      line-height: 1.2;
+      color: #007bff;
+      background: #fff;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 6px 10px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    #side-anchor-menu a:hover {
+      background: #f8f9fa;
+      text-decoration: none;
+    }
+    @media (max-width: 991.98px) {
+      /* Esconde em telas menores para não sobrepor conteúdo em excesso */
+      #side-anchor-menu { display: none; }
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var links = document.querySelectorAll('#side-anchor-menu a[href^="#"]');
+      links.forEach(function(a) {
+        a.addEventListener('click', function(e) {
+          var id = this.getAttribute('href').slice(1);
+          var target = document.getElementById(id);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Força foco acessível e destaque visual temporário
+            if (!target.hasAttribute('tabindex')) {
+              target.setAttribute('tabindex', '-1');
+            }
+            target.focus({ preventScroll: true });
+            target.classList.add('anchor-highlight');
+            setTimeout(function() {
+              target.classList.remove('anchor-highlight');
+            }, 1800);
+          }
+        });
+      });
+    });
+  </script>
+
 
   <% if @requisicoes.count >= 1 %>
 
     <hr/>
 
-    <h3>Tipo de problema</h3>
+    <h3 id="sec-tipo-problema" tabindex="-1">Tipo de problema</h3>
 
     <br>
 
@@ -107,7 +194,7 @@
 
     <hr/>
 
-    <h3>Problemas</h3>
+    <h3 id="sec-problemas" tabindex="-1">Problemas</h3>
 
     <br>
 
@@ -185,7 +272,7 @@
 
     <hr/>
 
-    <h3>Unidades</h3>
+    <h3 id="sec-unidades" tabindex="-1">Unidades</h3>
 
     <br>
 
@@ -218,7 +305,7 @@
 
     <hr>
     
-    <h3>Mês/Ano</h3>
+    <h3 id="sec-mes-ano" tabindex="-1">Mês/Ano</h3>
 
     <% mes_ano_nome = [] %>
     <% mes_ano_quantidade = [] %>
@@ -269,7 +356,7 @@
 
     <hr>
 
-    <h3>Ações</h3>
+    <h3 id="sec-acoes" tabindex="-1">Ações</h3>
 
     <% if @acoes.present? %>
       <table class="table">
@@ -305,7 +392,7 @@
 
       <hr>
 
-      <h3>Ações com Etapas | <%= link_to "Geral", relatorio_geral_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %> | <%= link_to "Simplificado", relatorio_geral_simplificado_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %></h3>
+      <h3 id="sec-acoes-com-etapas" tabindex="-1">Ações com Etapas | <%= link_to "Geral", relatorio_geral_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %> | <%= link_to "Simplificado", relatorio_geral_simplificado_acoes_path(inicio: @data_inicial, fim: @data_final), target: '_blank' %></h3>
 
       <table class="table">
         <% @acoes.each do |acao| %>

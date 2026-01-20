@@ -85,7 +85,58 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   end
 
   def em_atendimento
-    @requisicoes = RequisicaoTi.where("created_at >= ?", Time.now - 60.days)
+    @tecnicos = Role.where(name: 'tec_serv_ti').first.users.order(:nome).pluck(:nome, :id) rescue []
+    @problemas = ProblemaTi.order(:nome).pluck(:nome, :id)
+
+    # Padrão: últimos 60 dias apenas no carregamento inicial (sem filtros enviados).
+    filter_keys = [:data_inicial, :data_final, :email_abertura, :email_relacionado, :nome_relacionado, :tecnico_id, :problema_ti_id, :status, :tipo_data]
+    filters = params.slice(*filter_keys)
+    applying_defaults = filters.values.all?(&:blank?)
+
+    if applying_defaults
+      @data_inicial = 60.days.ago.beginning_of_day
+      @data_final   = Time.current.end_of_day
+    else
+      @data_inicial = params[:data_inicial].present? ? params[:data_inicial].to_date.beginning_of_day : nil
+      @data_final   = params[:data_final].present?   ? params[:data_final].to_date.end_of_day         : nil
+    end
+
+    tipo_data = params[:tipo_data].presence || 'abertura'
+    field_map = {
+      'abertura'    => 'created_at',
+      'conclusao'   => 'data_hora_concluida',
+      'finalizacao' => 'data_hora_finalizada'
+    }
+    date_field = field_map[tipo_data] || 'created_at'
+
+    scope = RequisicaoTi.includes(:user, :unidade, :problema_ti, :tecnico)
+    if @data_inicial
+      scope = scope.where("requisicao_tis.#{date_field} >= ?", @data_inicial)
+    end
+    if @data_final
+      scope = scope.where("requisicao_tis.#{date_field} <= ?", @data_final)
+    end
+    scope = scope.where(problema_ti_id: params[:problema_ti_id]) if params[:problema_ti_id].present?
+    scope = scope.where(status: params[:status]) if params[:status].present?
+
+    if params[:email_abertura].present?
+      email = "%#{params[:email_abertura].strip}%"
+      scope = scope.left_joins(:user).where("users.email ILIKE ? OR requisicao_tis.email ILIKE ?", email, email)
+    end
+
+    if params[:email_relacionado].present?
+      scope = scope.where("requisicao_tis.email ILIKE ?", "%#{params[:email_relacionado].strip}%")
+    end
+
+    if params[:nome_relacionado].present?
+      scope = scope.where("requisicao_tis.nome ILIKE ?", "%#{params[:nome_relacionado].strip}%")
+    end
+
+    if params[:tecnico_id].present?
+      scope = scope.where(tecnico_id: params[:tecnico_id])
+    end
+
+    @requisicoes = scope.order(created_at: :desc)
   end
 
   def estatisticas

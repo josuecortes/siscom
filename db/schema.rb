@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_03_120000) do
+ActiveRecord::Schema.define(version: 2025_10_24_121500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,11 +123,16 @@ ActiveRecord::Schema.define(version: 2025_10_03_120000) do
     t.string "contrato"
     t.integer "garantia"
     t.string "processo"
+    t.string "localizacao_fisica"
+    t.string "mac"
+    t.string "rack"
+    t.string "ativo_de_rede"
     t.index ["codigo_kit"], name: "index_equipamentos_on_codigo_kit"
     t.index ["contrato"], name: "index_equipamentos_on_contrato"
     t.index ["historico_movimentacoes"], name: "index_equipamentos_on_historico_movimentacoes", using: :gin
     t.index ["identificacao_kit"], name: "index_equipamentos_on_identificacao_kit"
     t.index ["itens_kit"], name: "index_equipamentos_on_itens_kit", using: :gin
+    t.index ["mac"], name: "index_equipamentos_on_mac", unique: true
     t.index ["numero_patrimonio"], name: "index_equipamentos_on_numero_patrimonio"
     t.index ["numero_serial"], name: "index_equipamentos_on_numero_serial"
     t.index ["status"], name: "index_equipamentos_on_status"

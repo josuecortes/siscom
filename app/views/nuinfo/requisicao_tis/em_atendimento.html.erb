@@ -11,6 +11,68 @@
 <% end %>
 
 <% if current_user.has_role? :tec_serv_ti %>
+  <%= form_tag em_atendimento_nuinfo_requisicao_tis_path, method: :get, class: 'form-horizontal mb-3' do %>
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Pesquisar Requisições</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Data Inicial</label>
+          <div class="col-sm-4">
+            <%= text_field_tag :data_inicial, (@data_inicial&.strftime("%d/%m/%Y")), class: 'form-control data', placeholder: 'dd/mm/yyyy', autocomplete: 'off' %>
+          </div>
+          <label class="col-sm-2 col-form-label">Data Final</label>
+          <div class="col-sm-4">
+            <%= text_field_tag :data_final, (@data_final&.strftime("%d/%m/%Y")), class: 'form-control data', placeholder: 'dd/mm/yyyy', autocomplete: 'off' %>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Campo de data</label>
+          <div class="col-sm-4">
+            <%= select_tag :tipo_data, options_for_select([['Abertura','abertura'],['Conclusão','conclusao'],['Finalização','finalizacao']], params[:tipo_data].presence || 'abertura'), class: 'form-control' %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Email (quem abriu)</label>
+          <div class="col-sm-4">
+            <%= text_field_tag :email_abertura, params[:email_abertura], class: 'form-control', placeholder: 'email do usuário' %>
+          </div>
+          <label class="col-sm-2 col-form-label">Email relacionado</label>
+          <div class="col-sm-4">
+            <%= text_field_tag :email_relacionado, params[:email_relacionado], class: 'form-control', placeholder: 'email alternativo' %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Nome relacionado</label>
+          <div class="col-sm-4">
+            <%= text_field_tag :nome_relacionado, params[:nome_relacionado], class: 'form-control', placeholder: 'nome alternativo' %>
+          </div>
+          <label class="col-sm-2 col-form-label">Técnico</label>
+          <div class="col-sm-4">
+            <%= select_tag :tecnico_id, options_for_select(@tecnicos, params[:tecnico_id]), include_blank: 'Todos', class: 'form-control' %>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Problema</label>
+          <div class="col-sm-4">
+            <%= select_tag :problema_ti_id, options_for_select(@problemas, params[:problema_ti_id]), include_blank: 'Todos', class: 'form-control' %>
+          </div>
+          <label class="col-sm-2 col-form-label">Status</label>
+          <div class="col-sm-4">
+            <%= select_tag :status, options_for_select([['Solicitada',1],['Em atendimento',2],['Concluída',3],['Cancelada',4],['Finalizada',5]], params[:status]), include_blank: 'Todos', class: 'form-control' %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <%= link_to 'Limpar', em_atendimento_nuinfo_requisicao_tis_path, class: 'btn btn-default' %>
+        <button type="submit" class="btn btn-primary float-right">Buscar</button>
+      </div>
+    </div>
+  <% end %>
   <% if @requisicoes.count >= 1 %>
     <table id="data-table" class="table table-bordered table-hover">
       <thead>
