@@ -1,5 +1,4 @@
-<% draggable = 
-  (current_user.has_role?(:ges_acao) && tarefa.tipo == "Ação/Etapa") ||
+<% draggable =
   (current_user.has_role?(:ges_tf_un) && tarefa.tipo == "Unidade") ||
   (tarefa.user == current_user) %>
 
@@ -18,18 +17,26 @@
         </div>
       </div>
       <div class="card-body">
-        <p>
+        <p style="line-height: 1.2em; min-height: 12em;">
           <%= tarefa.descricao %>
         </p>
         <br>
         <div>
           <span class="badge badge-info"><%= tarefa.tipo&.first %></span>
           <span class="badge badge-<%= cor_tarefa_prioridade(tarefa.prioridade) %>"><%= tarefa.prioridade %></span>
-          <% if tarefa.prazo && (tarefa.prazo > Time.now) %>
+          <% if tarefa.prazo && (tarefa.prazo < Time.zone.now) %>
             <span class="badge badge-danger"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>
             <span class="badge badge-danger">Atrasada</span>
-          <% else %>
-            <span class="badge badge-info"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>  
+          <% elsif tarefa.prazo %>
+            <span class="badge badge-info"><%= tarefa.prazo&.strftime("%d/%m/%y") %></span>
+          <% end %>          
+          <%= link_to new_tarefa_tarefa_comentario_path(tarefa), class: 'btn btn-xs btn-success', remote: true, title: 'Adicionar comentário' do %>
+            <i class="fas fa-plus"></i>
+            Comentários
+            (<span id="comentarios-count-<%= tarefa.id %>"><%= tarefa.comentarios.size %></span>)
+          <% end %>
+          <%= link_to new_tarefa_tarefa_comentario_path(tarefa), class: 'btn btn-xs btn-info ml-1', remote: true, title: 'Ver comentários' do %>
+            <i class="fas fa-eye"></i>
           <% end %>
         </div>
       </div>

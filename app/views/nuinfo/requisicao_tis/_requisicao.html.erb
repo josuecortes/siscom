@@ -154,7 +154,7 @@
   </div>
 
   <div class="form-group d-none" id="carta">
-    <%= label_tag 'Carta de apresentação' %>
+    <%= label_tag 'Carta' %>
     <% if !@requisicao_ti.carta.blank? %>
       <%= link_to 'Clique aqui', rails_blob_path(@requisicao_ti.carta, disposition: "inline"), target: '_blank', class: 'form-control', readonly: true %>
     <% else %>
@@ -163,7 +163,7 @@
   </div> 
 
   <div class="form-group d-none" id="decreto">
-    <%= label_tag 'Decreto de nomeação' %>
+    <%= label_tag 'Decreto' %>
     <% if !@requisicao_ti.decreto.blank? %>
       <%= link_to 'Clique aqui', rails_blob_path(@requisicao_ti.decreto, disposition: "inline"), target: '_blank', class: 'form-control', readonly: true %>
     <% else %>
@@ -260,6 +260,7 @@
           break
         case 'PRODOC - RETIRADA':
           $('#nome-email').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
           break
         case 'PRODOC - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
@@ -301,6 +302,7 @@
         case 'SIGDOC - DESABILITAR PERMISSÃO':
           $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
           break
         case 'ADICIONAR USUARIO NO DOMINIO':
           $('#nome-email').removeClass('d-none')

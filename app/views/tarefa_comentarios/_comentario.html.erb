@@ -1,0 +1,16 @@
+<div class="border rounded p-2 mb-2 bg-light">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+      <% if comentario.user&.avatar&.present? %>
+        <%= image_tag comentario.user.avatar.variant(resize_to_fill: [28, 28]), class: "img-circle elevation-2 mr-2", alt: "User Image", style: "max-height: 28px; max-width: 28px;" %>
+      <% else %>
+        <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2 mr-2" alt="User Image" style="max-height: 28px; max-width: 28px;" >
+      <% end %>
+      <strong><%= comentario.user&.nome_ultimo_nome || "Usuário" %></strong>
+    </div>
+    <small class="text-muted"><%= comentario.created_at.strftime("%d/%m/%Y %H:%M") %></small>
+  </div>
+  <div class="mt-1">
+    <%= comentario.texto %>
+  </div>
+</div>

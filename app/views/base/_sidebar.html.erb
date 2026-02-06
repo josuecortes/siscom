@@ -7,22 +7,13 @@
 
   <!-- Sidebar -->
   <div class="sidebar">
-    <!-- Sidebar user (optional) -->
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-      <div class="image">
-        <% if current_user.avatar.present? %>
-          <%= image_tag current_user.avatar.variant(resize_to_fill: [160, 160]), class: "img-circle elevation-2" %>
-        <% else %>
-          <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2" alt="User Image">
-        <% end %>
-      </div>
-      <div class="info">
-        <a href="#" class="d-block"><%= current_user.nome.split.first %></a>
-      </div>
-    </div>
-    
     <!-- Sidebar Menu -->
     <nav class="mt-2">
+      <% minha_area_active = ["mensagens", "requisicao_tis", "requisicao_transportes", "acoes", "etapas", "tarefas", "movimentacao_equipamentos"].include?(params[:controller]) %>
+      <% useget_active = ["useget/requisicao_transportes", "patio", "veiculos", "motoristas"].include?(params[:controller]) %>
+      <% transporte_escolar_active = ["transporte_escolar/servicos", "transporte_escolar/contratos", "transporte_escolar/escolas", "transporte_escolar/transportadores", "transporte_escolar/condutores", "transporte_escolar/veiculos", "transporte_escolar/municipios"].include?(params[:controller]) %>
+      <% nuinfo_active = ["nuinfo/requisicao_tis", "incidentes", "problema_tis", "tipo_problema_tis", "equipamentos"].include?(params[:controller]) %>
+      <% administracao_active = ["usuarios", "unidades", "funcoes"].include?(params[:controller]) %>
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <!-- Add icons to the links using the .nav-icon class
               with font-awesome or any other icon font library -->
@@ -36,284 +27,316 @@
           </a>
         </li>  
         
-        <li class="nav-header">MINHA ÁREA</li>
-  
-        <li class="nav-item">
-          <a href="<%= perfil_index_url %>" class="nav-link <%= 'active' if (params[:controller] == 'perfil' and params[:action] == 'index') %>">
-            <i class="nav-icon fa fa-user"></i>
-            <p>Meu Perfil</p>
+        <li class="nav-item has-treeview <%= 'menu-open' if minha_area_active %>">
+          <a href="#" class="nav-link <%= 'active' if minha_area_active %>">
+            <i class="nav-icon fas fa-user-circle"></i>
+            <p>
+              Minha Área
+              <i class="right fas fa-angle-left"></i>
+            </p>
           </a>
+          <ul class="nav nav-treeview">
+            <% if current_user.has_role? :req_serv_ti %>
+              <li class="nav-item">
+                <a href="<%= mensagens_path %>" target="_blank" class="nav-link <%= 'active' if (params[:controller] == 'mensagens' and params[:action] == 'index') %>">
+                  <i class="nav-icon fas fa-sms"></i>
+                  <p>Mensagens Diretas <span id="mensagens-diretas"></span></p>
+                </a>
+              </li>
+            <% end %>
+
+            <% if current_user.has_role? :req_serv_ti %>
+              <li class="nav-item">
+                <a href="<%= requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_tis' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-desktop"></i>
+                  <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
+                    <p>Requisições Escola</p>
+                  <% else %>
+                    <p>Requisições TI</p>
+                  <% end %>
+                </a>
+              </li>
+            <% end %>
+
+            <% if current_user.has_role? :req_serv_tp %>
+              <li class="nav-item">
+                <a href="<%= requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_transportes' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-car"></i>
+                  <p>Requisições Transporte</p>
+                </a>
+              </li>
+            <% end %>
+
+            <% if current_user.has_role? :tec_serv_ti %>
+              <li class="nav-item">
+                <a href="<%= acoes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'acoes' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-copy"></i>
+                  <p>Ações</p>
+                </a>
+              </li>
+            <% end %>
+
+            <li class="nav-item">
+              <a href="<%= tarefas_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tarefas' and params[:action] == 'index') %>">
+                <i class="nav-icon fa fa-check"></i>
+                <p>Tarefas</p>
+              </a>
+            </li>
+
+            <% if current_user.has_role?(:req_serv_ti) %>
+              <li class="nav-item">
+                <a href="<%= movimentacao_equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'movimentacao_equipamentos') %>">
+                  <i class="nav-icon fas fa-exchange-alt"></i>
+                  <p>Movimentações</p>
+                </a>
+              </li>
+            <% end %>
+
+            <% if current_user.has_role? :ges_acao %>
+              <li class="nav-item">
+                <a href="<%= acoes_path %>" class="nav-link">
+                  <i class="nav-icon fa fa-copy"></i>
+                  <p>Ações</p>
+                </a>
+              </li>
+            <% end %>
+
+            <% if current_user.has_role? :req_serv_midia %>
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fa fa-copy"></i>
+                  <p>Requisições Mídia</p>
+                </a>
+              </li>
+            <% end %>
+          </ul>
         </li>
-        <li class="nav-item">  
-          <a href="<%= perfil_alterar_senha_url %>" class="nav-link <%= 'active' if (params[:controller] == 'perfil' and params[:action] == 'alterar_senha') %>">
-            <i class="nav-icon fa fa-lock"></i>
-            <p>Alterar Senha</p>
-          </a>
-        </li>
-
-        <% if current_user.has_role? :req_serv_ti %>
-          <li class="nav-item">
-            <a href="<%= mensagens_path %>" target="_blank" class="nav-link <%= 'active' if (params[:controller] == 'mensagens' and params[:action] == 'index') %>">
-              <i class="nav-icon fas fa-sms"></i>
-              <p>Mensagens Diretas <span id="mensagens-diretas"></span></p>
-            </a>
-          </li>
-        <% end %>
-
-        <% if current_user.has_role? :req_serv_ti %>
-          <li class="nav-item">
-            <a href="<%= requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_tis' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-desktop"></i>
-              <% if current_user.unidade.tipo_unidade.nome == "ESCOLA" %>
-                <p>Requisições Escola</p>
-              <% else %>  
-                <p>Requisições TI</p>
-              <% end %>
-            </a>
-          </li>
-        <% end %>
-
-        <% if current_user.has_role? :req_serv_tp %>
-          <li class="nav-item">
-            <a href="<%= requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'requisicao_transportes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-car"></i>
-              <p>Requisições Transporte</p>
-            </a>
-          </li>
-        <% end %>
-
-        <% if current_user.has_role? :tec_serv_ti %>
-          <li class="nav-item">
-            <a href="<%= acoes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'acoes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-copy"></i>
-              <p>Ações</p>
-            </a>
-          </li>
-        <% end %>
-
-        <li class="nav-item">
-          <a href="<%= tarefas_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tarefas' and params[:action] == 'index') %>">
-            <i class="nav-icon fa fa-check"></i>
-            <p>Tarefas</p>
-          </a>
-        </li>
-
-        <% if current_user.has_role?(:req_serv_ti) %>
-          <li class="nav-item">
-            <a href="<%= movimentacao_equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'movimentacao_equipamentos') %>">
-              <i class="nav-icon fas fa-exchange-alt"></i>
-              <p>Movimentações</p>
-            </a>
-          </li>
-        <% end %>
-
-        <% if current_user.has_role? :ges_acao %>
-          <li class="nav-item">
-            <a href="<%= acoes_path %>" class="nav-link">
-              <i class="nav-icon fa fa-copy"></i>
-              <p>Ações</p>
-            </a>
-          </li>
-        <% end %>
-        
-        <% if current_user.has_role? :req_serv_midia %>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fa fa-copy"></i>
-              <p>Requisições Mídia</p>
-            </a>
-          </li>
-        <% end %>
 
         <% if current_user.has_any_role? :tec_serv_tp, :master %>
-          <li class="nav-header">USEGET</li>
-
-          <li class="nav-item">
-            <a href="<%= useget_requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'useget_requisicao_transportes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-desktop"></i>
-              <p>Requisições</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= patio_index_url %>" class="nav-link <%= 'active' if (params[:controller] == 'patio' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-home"></i>
-              <p>Patio</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= veiculos_url %>" class="nav-link <%= 'active' if (params[:controller] == 'veiculos' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-car"></i>
-              <p>Veiculos</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= motoristas_url %>" class="nav-link <%= 'active' if (params[:controller] == 'motoristas' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-users"></i>
-              <p>Motoristas</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="<%= acompanhamento_useget_requisicao_transportes_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'useget_requisicao_transportes' and params[:action] == 'acompanhamento') %>">
-              <i class="nav-icon far fa-bell"></i>
+          <li class="nav-item has-treeview <%= 'menu-open' if useget_active %>">
+            <a href="#" class="nav-link <%= 'active' if useget_active %>">
+              <i class="nav-icon fas fa-layer-group"></i>
               <p>
-                Acompanhamento
+                Useget
+                <i class="right fas fa-angle-left"></i>
               </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="<%= useget_requisicao_transportes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'useget_requisicao_transportes' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-desktop"></i>
+                  <p>Requisições</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="<%= patio_index_url %>" class="nav-link <%= 'active' if (params[:controller] == 'patio' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-home"></i>
+                  <p>Patio</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="<%= veiculos_url %>" class="nav-link <%= 'active' if (params[:controller] == 'veiculos' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-car"></i>
+                  <p>Veiculos</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="<%= motoristas_url %>" class="nav-link <%= 'active' if (params[:controller] == 'motoristas' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-users"></i>
+                  <p>Motoristas</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="<%= acompanhamento_useget_requisicao_transportes_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'useget_requisicao_transportes' and params[:action] == 'acompanhamento') %>">
+                  <i class="nav-icon far fa-bell"></i>
+                  <p>
+                    Acompanhamento
+                  </p>
+                </a>
+              </li>
+            </ul>
           </li>
         <% end %>
 
         <% if current_user.has_any_role? :ges_tp_es, :tec_tp_es, :master %>
-          <li class="nav-header">TRANSPORTE ESCOLAR</li>
-
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_servicos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/servicos" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Serviços</p>
+          <li class="nav-item has-treeview <%= 'menu-open' if transporte_escolar_active %>">
+            <a href="#" class="nav-link <%= 'active' if transporte_escolar_active %>">
+              <i class="nav-icon fas fa-bus"></i>
+              <p>
+                Transporte Escolar
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
-          </li>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_servicos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/servicos" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Serviços</p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_contratos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/contratos" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Contratos</p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_contratos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/contratos" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Contratos</p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_escolas_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/escolas" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Escolas</p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_escolas_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/escolas" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Escolas</p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_transportadores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/transportadores" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Transportadores</p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_transportadores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/transportadores" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Transportadores</p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_condutores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/condutores" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Condutores</p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_condutores_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/condutores" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Condutores</p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= transporte_escolar_veiculos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/veiculos" and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>Veiculos</p>
-            </a>
+              <li class="nav-item">
+                <a href="<%= transporte_escolar_veiculos_path %>" class="nav-link <%= 'active' if (params[:controller] == "transporte_escolar/veiculos" and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>Veiculos</p>
+                </a>
+              </li>
+            </ul>
           </li>
         <% end %>
 
         <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
-          <li class="nav-header">NUINFO</li>
-
-          <li class="nav-item">
-            <a href="<%= nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-desktop"></i>
+          <li class="nav-item has-treeview <%= 'menu-open' if nuinfo_active %>">
+            <a href="#" class="nav-link <%= 'active' if nuinfo_active %>">
+              <i class="nav-icon fas fa-network-wired"></i>
               <p>
-                Requisições
+                NuInfo
+                <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-          </li>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="<%= nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-desktop"></i>
+                  <p>
+                    Requisições
+                  </p>
+                </a>
+              </li>
 
-           <li class="nav-item">
-            <a href="<%= incidentes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'incidentes' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-info"></i>
-              <p>
-                Incidentes
-              </p>
-            </a>
-          </li>
+               <li class="nav-item">
+                <a href="<%= incidentes_path %>" class="nav-link <%= 'active' if (params[:controller] == 'incidentes' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-info"></i>
+                  <p>
+                    Incidentes
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= problema_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'problema_tis' and params[:action] == 'index') %>">
-              <i class="nav-icon far fa-bell"></i>
-              <p>
-                Problemas
-              </p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= problema_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'problema_tis' and params[:action] == 'index') %>">
+                  <i class="nav-icon far fa-bell"></i>
+                  <p>
+                    Problemas
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= tipo_problema_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tipo_problema_tis' and params[:action] == 'index') %>">
-              <i class="nav-icon far fa-edit"></i>
-              <p>
-                Tipos de Problemas
-              </p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= tipo_problema_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'tipo_problema_tis' and params[:action] == 'index') %>">
+                  <i class="nav-icon far fa-edit"></i>
+                  <p>
+                    Tipos de Problemas
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'equipamentos' and params[:action] == 'index') %>">
-              <i class="nav-icon fas fa-desktop"></i>
-              <p>
-                Equipamentos
-              </p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= equipamentos_path %>" class="nav-link <%= 'active' if (params[:controller] == 'equipamentos' and params[:action] == 'index') %>">
+                  <i class="nav-icon fas fa-desktop"></i>
+                  <p>
+                    Equipamentos
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= acompanhamento_nuinfo_requisicao_tis_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'acompanhamento') %>">
-              <i class="nav-icon far fa-bell"></i>
-              <p>
-                Acompanhamento
-              </p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= acompanhamento_nuinfo_requisicao_tis_path %>" target='_blank' class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'acompanhamento') %>">
+                  <i class="nav-icon far fa-bell"></i>
+                  <p>
+                    Acompanhamento
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= em_atendimento_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'em_atendimento') %>">
-              <i class="nav-icon far fa-star"></i>
-              <p>
-                Ultimos 60 dias
-              </p>
-            </a>
-          </li>
+              <li class="nav-item">
+                <a href="<%= em_atendimento_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'em_atendimento') %>">
+                  <i class="nav-icon far fa-star"></i>
+                  <p>
+                    Ultimos 60 dias
+                  </p>
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a href="<%= estatisticas_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'estatisticas') %>">
-              <i class="nav-icon far fa-map"></i>
-              <p>
-                Estatísticas
-              </p>
-            </a>
+              <li class="nav-item">
+                <a href="<%= estatisticas_nuinfo_requisicao_tis_path %>" class="nav-link <%= 'active' if (params[:controller] == 'nuinfo_requisicao_tis' and params[:action] == 'estatisticas') %>">
+                  <i class="nav-icon far fa-map"></i>
+                  <p>
+                    Estatísticas
+                  </p>
+                </a>
+              </li>
+            </ul>
           </li>
         <% end %>
 
 
         <% if current_user.has_any_role? :tec_serv_ti, :admin, :master, :tec_serv_tp %>
-          <li class="nav-header">ADMINISTRAÇÃO</li>
-
-          <li class="nav-item">
-            <a href="<%= usuarios_path %>" class="nav-link <%= 'active' if (params[:controller] == 'usuarios' and params[:action] == 'index') %>">
-              <i class="nav-icon fa fa-users"></i>
-              <p>Usuarios</p>
+          <li class="nav-item has-treeview <%= 'menu-open' if administracao_active %>">
+            <a href="#" class="nav-link <%= 'active' if administracao_active %>">
+              <i class="nav-icon fas fa-cogs"></i>
+              <p>
+                Administração
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="<%= usuarios_path %>" class="nav-link <%= 'active' if (params[:controller] == 'usuarios' and params[:action] == 'index') %>">
+                  <i class="nav-icon fa fa-users"></i>
+                  <p>Usuarios</p>
+                </a>
+              </li>
+
+              <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
+                <li class="nav-item">
+                  <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
+                    <i class="nav-icon fa fa-sitemap"></i>
+                    <p>Unidades</p>
+                  </a>
+                </li>
+
+                <li class="nav-item">
+                  <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
+                    <i class="nav-icon fa fa-address-card"></i>
+                    <p>Funções</p>
+                  </a>
+                </li>
+              <% end %>
+            </ul>
           </li>
-
-          <% if current_user.has_any_role? :tec_serv_ti, :admin, :master %>
-            <li class="nav-item">
-              <a href="<%= unidades_url %>" class="nav-link <%= 'active' if (params[:controller] == 'unidades' and params[:action] == 'index') %>">
-                <i class="nav-icon fa fa-sitemap"></i>
-                <p>Unidades</p>
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a href="<%= funcoes_url %>" class="nav-link <%= 'active' if (params[:controller] == 'funcoes' and params[:action] == 'index') %>">
-                <i class="nav-icon fa fa-address-card"></i>
-                <p>Funções</p>
-              </a>
-            </li>
-          <% end %>
         <% end %>
 
 

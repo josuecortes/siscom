@@ -1,0 +1,8 @@
+<% if @tarefa_comentario.errors.any? %>
+  toastr.error('Não foi possível salvar a observação. Verifique o campo e tente novamente.');
+<% else %>
+  $('#comentarios-list-<%= @tarefa.id %>').html('<%= j render partial: "comentario", collection: @comentarios, as: :comentario %>');
+  $('#comentario-texto-<%= @tarefa.id %>').val('');
+  $('#comentarios-count-<%= @tarefa.id %>').text('<%= @comentarios.size %>');
+  toastr.success('Observação adicionada.');
+<% end %>

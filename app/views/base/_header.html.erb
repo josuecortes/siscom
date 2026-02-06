@@ -105,12 +105,33 @@
 
     %>
 
-    <li style='padding-left: 10px;'>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link btn badge-danger" href="<%= destroy_user_session_path %>" method="get" role="button" style="color: #D6D8D9">
-        Sair
+    <li class="nav-item dropdown user-menu">
+      <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+        <% if current_user.avatar.present? %>
+          <%= image_tag current_user.avatar.variant(resize_to_fill: [30, 30]), class: "user-image img-circle elevation-2", alt: "User Image" %>
+        <% else %>
+          <img src="/adminLTE/dist/img/avt.png" class="user-image img-circle elevation-2" alt="User Image">
+        <% end %>
+        <span class="d-none d-md-inline"><%= current_user.nome.split.first %></span>
       </a>
+      <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        <li class="user-header bg-light">
+          <% if current_user.avatar.present? %>
+            <%= image_tag current_user.avatar.variant(resize_to_fill: [90, 90]), class: "img-circle elevation-2", alt: "User Image" %>
+          <% else %>
+            <img src="/adminLTE/dist/img/avt.png" class="img-circle elevation-2" alt="User Image">
+          <% end %>
+          <p>
+            <%= current_user.nome %>
+            <small><%= current_user.email %></small>
+          </p>
+        </li>
+        <li class="user-footer">
+          <%= link_to "Meu Perfil", perfil_index_url, class: "btn btn-default btn-flat" %>
+          <%= link_to "Alterar Senha", perfil_alterar_senha_url, class: "btn btn-default btn-flat" %>
+          <%= link_to "Sair", destroy_user_session_path, method: :get, class: "btn btn-danger btn-flat float-right", style: "color: #fff;" %>
+        </li>
+      </ul>
     </li>
   </ul>
 </nav>

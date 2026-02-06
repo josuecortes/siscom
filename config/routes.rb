@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :tarefas do
+    resources :tarefa_comentarios, path: 'comentarios', only: [:index, :new, :create]
     collection do
       get :atualizar_status
     end

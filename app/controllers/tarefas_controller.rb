@@ -3,7 +3,6 @@ class TarefasController < ApplicationController
   before_action :load_status, only: %i[ new edit create update ]
   before_action :load_tipos, only: %i[ new edit create update ]
   before_action :load_users, only: %i[ new edit create update ]
-  before_action :load_etapas, only: %i[ new edit create update ]
   before_action :load_prioridades, only: %i[ new edit create update ]
   skip_before_action :verify_authenticity_token, only: :atualizar_status
 
@@ -124,7 +123,7 @@ class TarefasController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def tarefa_params
-      params.require(:tarefa).permit(:titulo, :descricao, :tipo, :status, :etapa_id, :user_id, :usuario_logado_id, :prazo, :prioridade)
+      params.require(:tarefa).permit(:titulo, :descricao, :tipo, :status, :user_id, :usuario_logado_id, :prazo, :prioridade)
     end
 
     def load_status
@@ -144,63 +143,24 @@ class TarefasController < ApplicationController
     end
 
     def load_tipos
-      if current_user.has_role?(:ges_acao)
-        @tipos = Tarefa.tipos.keys
-      else
-        @tipos = Tarefa.tipos.keys.reject { |tipo| tipo == "Ação/Etapa" }
-      end
-    end
-
-    def load_etapas
-      if current_user.has_role?(:ges_acao)
-        # acao_users = current_user.acao_users.where(nivel: [1, 2])
-        # acoes = []
-        # acao_users.each do |acao_user|
-        #   acoes << acao_user.acao
-        # end
-        # etapa_ids = []
-        # acoes.each do |acao|
-        #   acao.etapas.each do |etapa|
-        #     etapa_ids << etapa.id
-        #   end
-        # end
-        # @etapas = Etapa.where(id: etapa_ids).order(nome: :asc).all.map{ |e| [e.nome_etapa_nome_acao, e.id, {:nome => e.nome_etapa_nome_acao.downcase!}] }
-        
-        acoes = current_user.acao_users.includes(:acao).where(nivel: [1, 2]).map(&:acao).compact.uniq
-        etapa_ids = Etapa.joins(acao: :acao_users).where(acao_users: { acao_id: acoes.map(&:id) }).pluck(:id).uniq
-
-        @etapas = Etapa.where(id: etapa_ids).order(nome: :asc).map do |etapa|
-          nome_etapa_nome_acao = etapa.nome_etapa_nome_acao
-          [nome_etapa_nome_acao, etapa.id, { nome: nome_etapa_nome_acao.downcase }]
-        end
-      else
-        @etapas = []
-      end
+      @tipos = Tarefa.tipos.keys.reject { |tipo| tipo == "Ação/Etapa" }
     end
 
     def carregar_tarefas
       tarefas_do_usuario = Tarefa.do_usuario(current_user)
       tarefas_da_unidade = Tarefa.none
-      tarefas_das_etapas = Tarefa.none
     
       # if current_user.has_role?(:ges_tf_un)
         unidade = current_user.unidade
         tarefas_da_unidade = Tarefa.where(user_id: unidade.users.select(:id), tipo: ['Unidade', 2])
       # end
     
-      if current_user.has_role?(:ges_acao)
-        etapas_ids = current_user.acao_users.where(nivel: [1, 2]).joins(acao: :etapas).pluck('etapas.id').uniq
-        tarefas_das_etapas = Tarefa.where(etapa_id: etapas_ids)
-      end
-      
-      @tarefas = tarefas_do_usuario.or(tarefas_da_unidade).or(tarefas_das_etapas).distinct
+      @tarefas = tarefas_do_usuario.or(tarefas_da_unidade).distinct.includes(:comentarios)
       return @tarefas
     end
 
     def current_user_has_permission?(tarefa)
       case tarefa.tipo
-      when "Ação/Etapa"
-        current_user.has_role?(:ges_acao)
       when "Unidade"
         current_user.has_role?(:ges_tf_un)
       else

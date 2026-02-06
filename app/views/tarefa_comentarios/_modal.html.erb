@@ -1,0 +1,24 @@
+<div class="modal-body">
+  <div id="comentarios-list-<%= @tarefa.id %>">
+    <% if @comentarios.any? %>
+      <%= render partial: "comentario", collection: @comentarios, as: :comentario %>
+    <% else %>
+      <div class="text-muted small">Nenhum comentário até o momento.</div>
+    <% end %>
+  </div>
+
+  <hr>
+
+  <%= form_for [@tarefa, @tarefa_comentario], remote: true do |f| %>
+    <div class="form-group">
+      <%= f.label :texto, 'Adicionar observação' %>
+      <%= f.text_area :texto, rows: 5, class: "form-control", required: true, autocomplete: "off", id: "comentario-texto-#{@tarefa.id}" %>
+      <%= has_error(@tarefa_comentario, :texto) %>
+    </div>
+
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-success" data-disable-with="Salvar"><i class="icon fa fa-check"></i> Salvar</button>
+      <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="icon fas fa-ban"></i> Cancelar</button>
+    </div>
+  <% end %>
+</div>

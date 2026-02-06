@@ -17,6 +17,7 @@ class User < ApplicationRecord
   # has_many :acoes, through: :acao_users
   # has_many :etapas, through: :acoes
   has_many :tarefas
+  has_many :tarefa_comentarios
   has_many :acoes
   has_many :etapas_users, dependent: :destroy
   has_many :etapas, through: :etapas_users

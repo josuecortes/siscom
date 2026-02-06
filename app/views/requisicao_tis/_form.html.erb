@@ -161,7 +161,7 @@
     </div>
 
     <div class="form-group d-none" id="decreto">
-      <%= f.label :decreto, 'Decreto de nomeação' %>
+      <%= f.label :decreto, 'Decreto de nomeação', id: 'decreto-label' %>
       <%= f.file_field :decreto, { class: "", required: false, direct_upload: true } %>
       <%= has_error(@requisicao_ti, :decreto) %>
     </div>
@@ -262,11 +262,15 @@
       $('#nome_arquivo').addClass('d-none')
       $('#permissao_drive').addClass('d-none')
 
-
+      // Limpar validações de arquivos ao esconder campos
+      var $inputs = $('#requisicao_ti_carta, #requisicao_ti_decreto, #requisicao_ti_prodoc');
+      $inputs.removeClass('is-invalid').data('invalid', false);
+      $inputs.closest('.form-group').find('.js-file-error').remove();
     }
 
     function carregar_area(nome){
       limpar_area()
+      $('#decreto-label').text('Decreto de nomeação')
       switch (nome){
         case 'PRODOC - CADASTRO':
           $('#nome-email').removeClass('d-none')
@@ -286,6 +290,8 @@
           break
         case 'PRODOC - RETIRADA':
           $('#nome-email').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
+          $('#decreto-label').html('Decreto de Exoneração (<span class="text-danger">OBRIGATÓRIO</span> em caso de cargo comissionado).')
           break
         case 'PRODOC - TROCAR SENHA':
           $('#nome-email').removeClass('d-none')
@@ -327,6 +333,8 @@
         case 'SIGDOC - DESABILITAR PERMISSÃO':
           $('#nome-email').removeClass('d-none')
           $('#unidade').removeClass('d-none')
+          $('#decreto').removeClass('d-none')
+          $('#decreto-label').html('Decreto de Exoneração (<span class="text-danger">OBRIGATÓRIO</span> em caso de cargo comissionado).')
           break
         case 'ADICIONAR USUARIO NO DOMINIO':
           $('#nome-email').removeClass('d-none')
@@ -404,8 +412,10 @@
         $input.data('invalid', false);
         $error.remove();
       } else {
-        // sem arquivo selecionado: mantém a mensagem existente
-        // e não altera o estado inválido para preservar o aviso
+        // sem arquivo selecionado: limpar estado inválido para não bloquear envio
+        $input.removeClass('is-invalid');
+        $input.data('invalid', false);
+        $error.remove();
       }
     }
 
@@ -423,7 +433,9 @@
       // Revalidar no momento do envio
       [$carta, $decreto, $prodoc].forEach(function($i){ if($i.length){ validarArquivo($i); } });
 
-      var invalido = [$carta, $decreto, $prodoc].some(function($i){ return $i.length && $i.data('invalid') === true; });
+      var invalido = [$carta, $decreto, $prodoc].some(function($i){
+        return $i.length && $i.is(':visible') && $i.data('invalid') === true;
+      });
       if(invalido){
         e.preventDefault();
         e.stopImmediatePropagation();

@@ -1,8 +1,7 @@
 <% passed = false %>
 
-<% if @tarefa.user == current_user || 
-      (current_user.has_role?(:ges_tf_un) && @tarefa.user.unidade == current_user.unidade) || 
-      (current_user.has_role?(:ges_acao) && (@tarefa.tipo == "Ação/Etapa" || @tarefa.tipo == 2)) %>
+<% if @tarefa.user == current_user ||
+      (current_user.has_role?(:ges_tf_un) && @tarefa.user.unidade == current_user.unidade) %>
   <% passed = true %>
 <% end %>
 
