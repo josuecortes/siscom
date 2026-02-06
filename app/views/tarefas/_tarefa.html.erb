@@ -1,6 +1,4 @@
-<% draggable =
-  (current_user.has_role?(:ges_tf_un) && tarefa.tipo == "Unidade") ||
-  (tarefa.user == current_user) %>
+<% draggable = tarefa.editable_by?(current_user) %>
 
 <div class="tarefa tarefa<%= tarefa.tipo&.first %>" id="tarefa_<%= tarefa.id %>" draggable="<%= draggable %>" ondragstart="dragStart(event)">
   <div class="card-body">
@@ -8,11 +6,13 @@
       <div class="card-header">
         <h5 class="card-title"><span><%= truncate_sentence(tarefa.titulo, 20) %></span></h5>
         <div class="card-tools">
-          <%= link_to edit_tarefa_path(tarefa), class: 'btn btn-tool', remote: true do %>
-            <i class="fas fa-pen"></i>
-          <% end %>
-          <%= link_to tarefa_path(tarefa), method: :delete, data: { confirm: 'Tem certeza?' }, class: 'btn btn-tool', remote: true do %>
-            <i class="fas fa-trash"></i>
+          <% if tarefa.editable_by?(current_user) %>
+            <%= link_to edit_tarefa_path(tarefa), class: 'btn btn-tool', remote: true do %>
+              <i class="fas fa-pen"></i>
+            <% end %>
+            <%= link_to tarefa_path(tarefa), method: :delete, data: { confirm: 'Tem certeza?' }, class: 'btn btn-tool', remote: true do %>
+              <i class="fas fa-trash"></i>
+            <% end %>
           <% end %>
         </div>
       </div>

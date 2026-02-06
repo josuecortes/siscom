@@ -1,7 +1,6 @@
 <% passed = false %>
 
-<% if @tarefa.user == current_user ||
-      (current_user.has_role?(:ges_tf_un) && @tarefa.user.unidade == current_user.unidade) %>
+<% if @tarefa.editable_by?(current_user) %>
   <% passed = true %>
 <% end %>
 

@@ -59,18 +59,16 @@ var tarefaHTML = `
             <span class="badge badge-danger"><%= @tarefa.prazo&.strftime("%d/%m/%y") %></span>
             <span class="badge badge-danger">Atrasada</span>
           <% elsif @tarefa.prazo %>
-            <span class="badge badge-info"><%= @tarefa.prazo&.strftime("%d/%m/%y") %></span>  
+            <span class="badge badge-info"><%= @tarefa.prazo&.strftime("%d/%m/%y") %></span>
           <% end %>
-        </div>
-        <div class="mt-2">
-          <a class="btn btn-sm btn-success" data-remote="true" title="Adicionar observação" href="<%= new_tarefa_tarefa_comentario_path(@tarefa) %>">
+          <%= link_to new_tarefa_tarefa_comentario_path(@tarefa), class: 'btn btn-xs btn-success', remote: true, title: 'Adicionar comentário' do %>
             <i class="fas fa-plus"></i>
-            Observações
-            (<span id="comentarios-count-<%= @tarefa.id %>">0</span>)
-          </a>
-          <a class="btn btn-sm btn-info" data-remote="true" title="Ver observações" href="<%= new_tarefa_tarefa_comentario_path(@tarefa) %>">
-            <i class="fas fa-eye"></i> Ver
-          </a>
+            Comentários
+            (<span id="comentarios-count-<%= @tarefa.id %>"><%= @tarefa.comentarios.size %></span>)
+          <% end %>
+          <%= link_to new_tarefa_tarefa_comentario_path(@tarefa), class: 'btn btn-xs btn-info ml-1', remote: true, title: 'Ver comentários' do %>
+            <i class="fas fa-eye"></i>
+          <% end %>
         </div>
       </div>
       <div class="card-footer d-flex justify-content-between align-items-center rounded" style="max-height: 40px;">

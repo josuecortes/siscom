@@ -32,6 +32,7 @@ class TarefasController < ApplicationController
   # POST /tarefas or /tarefas.json
   def create
     @tarefa = Tarefa.new(tarefa_params)
+    @tarefa.created_by_id ||= current_user.id
     
     respond_to do |format|
       if @tarefa.save
@@ -66,7 +67,7 @@ class TarefasController < ApplicationController
   def destroy
     @erro = false
     
-    if @tarefa.nil? || (@tarefa.user != current_user && !current_user_has_permission?(@tarefa))
+    if @tarefa.nil? || !current_user_has_permission?(@tarefa)
       @erro = true
     end
 
@@ -87,7 +88,7 @@ class TarefasController < ApplicationController
 
   def atualizar_status
     @tarefa = Tarefa.find_by_id(params[:tarefa_id]&.delete_prefix('tarefa_')&.to_i)
-    if @tarefa.nil? || (@tarefa.user != current_user && !current_user_has_permission?(@tarefa))
+    if @tarefa.nil? || !current_user_has_permission?(@tarefa)
       @erro = true
       return false
     end
@@ -160,12 +161,7 @@ class TarefasController < ApplicationController
     end
 
     def current_user_has_permission?(tarefa)
-      case tarefa.tipo
-      when "Unidade"
-        current_user.has_role?(:ges_tf_un)
-      else
-        true
-      end
+      tarefa.editable_by?(current_user)
     end
     
     
