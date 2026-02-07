@@ -28,8 +28,13 @@ App.cable.subscriptions.create("MensagensChannel", {
     if (data.type === "mensagem" && data.html) {
       var currentId = window.MensagensUI && window.MensagensUI.currentRequisicaoId;
       if (currentId && String(data.requisicao_id) === String(currentId)) {
-        $('.conversa').append(data.html);
-        $('.msg_history').scrollTop(10000);
+        var $targets = $('.conversa, #chat-float-conversa');
+        $targets.append(data.html);
+        var $scrollTargets = $('.msg_history');
+        $scrollTargets.each(function() {
+          var $el = $(this);
+          $el.scrollTop(this.scrollHeight);
+        });
         if (window.MensagensUI && window.MensagensUI.updateConversaBadge) {
           window.MensagensUI.updateConversaBadge(data.requisicao_id, 0);
         }

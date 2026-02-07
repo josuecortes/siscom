@@ -1,7 +1,7 @@
 class MensagensController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:js_create]
-  before_action :set_requisicoes, only: [:index, :js_create]
-  before_action :set_conversa, only: [:index, :js_create]
+  before_action :set_requisicoes, only: [:index, :js_create, :painel]
+  before_action :set_conversa, only: [:index, :js_create, :conversa]
   before_action :set_mensagem, only: [:index, :js_create]
   
   def index
@@ -49,6 +49,29 @@ class MensagensController < ApplicationController
     end
   end
 
+  def painel
+    ativas = @requisicoes_ti.select { |r| r.status == "Em atendimento" }
+    outras = @requisicoes_ti.reject { |r| r.status == "Em atendimento" }
+    @lista_requisicoes = (ativas + outras).first(10)
+
+    if params[:requisicao_ti]
+      @requisicao_ti = @lista_requisicoes.find { |r| r.id.to_s == params[:requisicao_ti].to_s }
+    end
+    @requisicao_ti ||= @lista_requisicoes.first
+    @conversa = @requisicao_ti&.mensagens&.order(created_at: :asc)
+    render partial: "painel", layout: false
+  end
+
+  def conversa
+    if @requisicao_ti
+      @conversa = @requisicao_ti.mensagens.order(created_at: :asc)
+      marcar_conversa_como_lida
+      render partial: "conversa", locals: { conversa: @conversa }
+    else
+      render plain: "", status: :not_found
+    end
+  end
+
   
 
   def mensagens_diretas
@@ -64,7 +87,7 @@ class MensagensController < ApplicationController
   def set_requisicoes
     @mensagens_da_requisicao = Hash.new
     @requisicoes_ti = []
-    RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc).each do |requisicao|
+    RequisicaoTi.do_usuario_ou_tecnico(current_user).order(created_at: :desc).each do |requisicao|
       @mensagens_da_requisicao["#{requisicao.id}"] = requisicao.mensagens_nao_lidas(current_user)
       @requisicoes_ti << requisicao
     end

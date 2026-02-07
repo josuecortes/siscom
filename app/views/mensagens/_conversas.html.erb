@@ -10,17 +10,17 @@
           <% user = r.user %>
         <% end %>
 
-        <% if user.avatar.present? %>
+        <% if user&.avatar&.present? %>
           <%= image_tag user.avatar.variant(resize_to_fill: [128, 128]), class: "chat_img profile-user-img img-fluid img-circle" %>
         <% else %>
           <img class="chat_img profile-user-img img-fluid img-circle"
                 src="/adminLTE/dist/img/avt.png"
-                alt="User profile picture">  
-        <% end %>    
+                alt="User profile picture">
+        <% end %>
 
         <div class="chat_ib">
           <h5>
-            <%= user.nome %> <%= "(Concluída)" if current_user == r.tecnico and r.status == 'Concluída' %>
+            <%= user ? user.nome : "Sem técnico" %> <%= "(Concluída)" if current_user == r.tecnico and r.status == 'Concluída' %>
             <% nao_lidas = r.mensagens_nao_lidas(current_user) %>
             
             <span id="conversa-badge-<%= r.id %>">

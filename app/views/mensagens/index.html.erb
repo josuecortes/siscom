@@ -77,12 +77,12 @@
     window.MensagensUI = window.MensagensUI || {}
     window.MensagensUI.currentRequisicaoId = '<%= @requisicao_ti&.id %>'
     window.MensagensUI.updateConversaBadge = function(requisicaoId, count){
-      var target = $('#conversa-badge-' + requisicaoId);
-      if (!target.length) { return; }
+      var targets = $('[id="conversa-badge-' + requisicaoId + '"]');
+      if (!targets.length) { return; }
       if (count && count > 0) {
-        target.html('<span class="badge badge-danger">' + count + '</span>');
+        targets.html('<span class="badge badge-danger">' + count + '</span>');
       } else {
-        target.html('');
+        targets.html('');
       }
     }
     window.MensagensUI.clearCurrentConversaBadge = function(){
