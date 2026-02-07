@@ -47,7 +47,6 @@ Rails.application.routes.draw do
 
   resources :mensagens do
     get 'mensagens_diretas', on: :collection
-    get 'refresh', on: :collection
     post 'js_create', on: :collection
     member do
       get 'new_image'

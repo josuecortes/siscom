@@ -341,51 +341,58 @@
           $('.placa').mask('AAA AAAA')
           // $('.dinheiro').mask('#.##0,00', {reverse: true})
           $('.dinheiro').mask('###0.00', {reverse: true})
-          loop()
-          requisitar_refresh()
+          // polling desativado: badge atualizado via ActionCable
+          // loop()
+          // requisitar_refresh()
         })
 
-        function atualizar_p_mensagens_diretas(valor){
+        window.MensagensUI = window.MensagensUI || {}
+        window.MensagensUI.updateBadge = function(valor){
           if(valor != '0'){
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').addClass('badge badge-danger piscar')
             $('#mensagens-diretas').html(valor)
+
+            $('#mensagens-diretas-header').removeClass('d-none')
+            $('#mensagens-diretas-header').html(valor)
             
             toastr.error('Você possui mensagens diretas não lidas!.')
 
           }else{
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').removeClass('badge badge-danger piscar')
+
+            $('#mensagens-diretas-header').html('').addClass('d-none')
           }          
         }
 
-        function requisitar_refresh(){
-          $.get( '<%= mensagens_diretas_mensagens_url %>', function( data ) {
-            pode_chatear = data["pode_chatear"]
-            numero_de_mensagens = data["mensagens_nao_lidas"]
-          });   
-          atualizar_p_mensagens_diretas(numero_de_mensagens)         
-          if(pode_chatear){
-            tempo_de_refresh_application = 60000
-          }else{
-            tempo_de_refresh_application = 300000
-          } 
-        }
+        // function requisitar_refresh(){
+        //   $.get( '<%= mensagens_diretas_mensagens_url %>', function( data ) {
+        //     pode_chatear = data["pode_chatear"]
+        //     numero_de_mensagens = data["mensagens_nao_lidas"]
+        //   });   
+        //   window.MensagensUI.updateBadge(numero_de_mensagens)
+        //   if(pode_chatear){
+        //     tempo_de_refresh_application = 60000
+        //   }else{
+        //     tempo_de_refresh_application = 300000
+        //   } 
+        // }
 
-        function loop() {
-          setTimeout(() => {
-            requisitar_refresh()
-            loop();
-          }, tempo_de_refresh_application);
-        }
+        // function loop() {
+        //   setTimeout(() => {
+        //     requisitar_refresh()
+        //     loop();
+        //   }, tempo_de_refresh_application);
+        // }
 
-        document.addEventListener("visibilitychange", function() {
-          if (document.hidden){
-            
-          } else {
-            requisitar_refresh()
-          }
-        });
+        // document.addEventListener("visibilitychange", function() {
+        //   if (document.hidden){
+        //     
+        //   } else {
+        //     requisitar_refresh()
+        //   }
+        // });
 
       </script>
 

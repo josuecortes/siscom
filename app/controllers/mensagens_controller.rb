@@ -1,8 +1,8 @@
 class MensagensController < ApplicationController
-  skip_before_action :verify_authenticity_token, only: [:js_create, :create_imagem]
-  before_action :set_requisicoes, only: [:index, :refresh, :js_create, :create_imagem]
-  before_action :set_conversa, only: [:index, :refresh, :js_create, :create_imagem]
-  before_action :set_mensagem, only: [:index, :refresh, :js_create, :create_imagem]
+  skip_before_action :verify_authenticity_token, only: [:js_create]
+  before_action :set_requisicoes, only: [:index, :js_create]
+  before_action :set_conversa, only: [:index, :js_create]
+  before_action :set_mensagem, only: [:index, :js_create]
   
   def index
   end
@@ -12,7 +12,11 @@ class MensagensController < ApplicationController
     if mensagem_id
       @mensagem = Mensagem.find(mensagem_id)
     end
-    render :layout => false
+    if @mensagem&.imagem&.attached?
+      redirect_to rails_blob_path(@mensagem.imagem, disposition: "inline")
+    else
+      render plain: "Erro ao carregar imagem", status: :not_found
+    end
   end
 
   def show
@@ -22,7 +26,8 @@ class MensagensController < ApplicationController
   def js_create
 
     if @requisicao_ti.status == 'Concluída' or (params[:mensagem].blank? and params[:image].blank?) 
-      return false
+      head :unprocessable_entity
+      return
     end
     
     @mensagem.user = current_user
@@ -31,17 +36,20 @@ class MensagensController < ApplicationController
     @mensagem.imagem = params[:image] if params[:image]
 
     if @mensagem.save
-      return true
+      destinatario = destinatario_da_conversa
+      broadcast_mensagem(destinatario, true) if destinatario && destinatario != current_user
+      broadcast_mensagem(current_user, false)
+      broadcast_badge(destinatario)
+      broadcast_conversa_badge(destinatario)
+      broadcast_conversa_badge(current_user)
+      broadcast_dropdown(destinatario)
+      head :ok
     else
-      return false
+      head :unprocessable_entity
     end
   end
 
   
-
-  def refresh
-    
-  end
 
   def mensagens_diretas
     pode_chatear = current_user.pode_chatear
@@ -60,13 +68,6 @@ class MensagensController < ApplicationController
       @mensagens_da_requisicao["#{requisicao.id}"] = requisicao.mensagens_nao_lidas(current_user)
       @requisicoes_ti << requisicao
     end
-    
-    # @requisicoes_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
-    # if current_user.has_role? :tec_serv_ti
-    #   @requisicoes_ti = RequisicaoTi.do_tecnico(current_user).pode_enviar_mensagem.order(created_at: :desc)
-    # else
-    #   @requisicoes_ti = RequisicaoTi.do_usuario(current_user).pode_enviar_mensagem.order(created_at: :desc)
-    # end
   end
 
   def set_conversa
@@ -77,6 +78,7 @@ class MensagensController < ApplicationController
       end
       if @requisicao_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.find(id)
         @conversa = @requisicao_ti.mensagens.order(created_at: :asc) if @requisicao_ti
+        marcar_conversa_como_lida
       end
     end
     @requisicao_ti = nil unless @requisicao_ti
@@ -92,5 +94,79 @@ class MensagensController < ApplicationController
     else
       @mensagem = nil
     end
+  end
+
+  def marcar_conversa_como_lida
+    return unless @requisicao_ti
+
+    @requisicao_ti.mensagens.where("user_id != ? AND status = ?", current_user.id, "não lida").update_all(status: "lida")
+    MensagensChannel.broadcast_to(current_user, {
+      type: "badge",
+      count: current_user.mensagens_nao_lidas
+    })
+  end
+
+  def destinatario_da_conversa
+    if @requisicao_ti.user_id == current_user.id
+      @requisicao_ti.tecnico
+    else
+      @requisicao_ti.user
+    end
+  end
+
+  def broadcast_badge(user)
+    return unless user
+
+    MensagensChannel.broadcast_to(user, {
+      type: "badge",
+      count: user.mensagens_nao_lidas
+    })
+  end
+
+  def broadcast_mensagem(user, play_sound)
+    return unless user
+
+    html = ApplicationController.render(
+      partial: "mensagens/mensagem",
+      locals: { mensagem: @mensagem, current_user: user }
+    )
+
+    MensagensChannel.broadcast_to(user, {
+      type: "mensagem",
+      requisicao_id: @requisicao_ti.id,
+      html: html,
+      playSound: play_sound
+    })
+  end
+
+  def broadcast_conversa_badge(user)
+    return unless user
+
+    MensagensChannel.broadcast_to(user, {
+      type: "conversa_badge",
+      requisicao_id: @requisicao_ti.id,
+      count: @requisicao_ti.mensagens_nao_lidas(user)
+    })
+  end
+
+  def broadcast_dropdown(user)
+    return unless user
+
+    unread_msgs = Mensagem.joins(:requisicao_ti)
+      .where(requisicao_tis: { id: RequisicaoTi.do_usuario_ou_tecnico(user).pode_enviar_mensagem.select(:id) })
+      .where.not(user_id: user.id)
+      .where(status: 'não lida')
+      .order(created_at: :desc)
+      .limit(5)
+
+    html = ApplicationController.render(
+      partial: "mensagens/dropdown_items",
+      locals: { unread_msgs: unread_msgs }
+    )
+
+    MensagensChannel.broadcast_to(user, {
+      type: "dropdown",
+      html: html
+    })
   end
 end

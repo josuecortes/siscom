@@ -1,51 +1,5 @@
 <% if conversa.count > 0 %>
-  <% conversa.each do |c| %>
-    <% if c.texto %>
-      <% if c.user == current_user %>
-        <div class="outgoing_msg">
-          <div class="sent_msg">
-            <% unless c.texto.blank? %>
-              <p><%= c.texto %></p>
-            <% end %>
-            <% unless c.imagem.blank? %>
-              <%= link_to imagem_mensagens_path(mensagem_id: c.id), target: '_blank' do %>
-                <%= image_tag(c.imagem.variant(resize: "200x200")) %>
-              <% end %>  
-            <% end %>
-            <span class="time_date"><%= c.created_at.strftime("%H:%M") if c.created_at %> | <%= c.created_at.strftime("%b %e") if c.created_at %> (<%= c.status %>)</span> 
-          </div>
-        </div>
-      <% else %>
-        <% c.marcar_como_lida if c.status == 'não lida' %>
-        <div class="incoming_msg">
-          <div class="incoming_msg_img"> 
-            <% if c.user.avatar.present? %>
-              <%= image_tag c.user.avatar.variant(resize_to_fill: [128, 128]), class: "profile-user-img img-fluid img-circle" %>
-            <% else %>
-              <img class="profile-user-img img-fluid img-circle"
-                    src="/adminLTE/dist/img/avt.png"
-                    alt="User profile picture">  
-            <% end %>    
-          </div>
-          <div class="received_msg">
-            <div class="received_withd_msg">
-              <% unless c.texto.blank? %>
-                <p><%= c.texto %></p>
-              <% end %>
-              <% unless c.imagem.blank? %>
-              <%= link_to imagem_mensagens_path(mensagem_id: c.id), target: '_blank' do %>
-                <%= image_tag(c.imagem.variant(resize: "200x200")) %>
-              <% end %>  
-            <% end %>
-
-
-              <span class="time_date"><%= c.created_at.strftime("%H:%M") if c.created_at %> | <%= c.created_at.strftime("%b %e") if c.created_at %></span> 
-            </div>
-          </div>
-        </div>      
-      <% end %>
-    <% end %>
-  <% end %>
+  <%= render partial: "mensagem", collection: conversa, as: :mensagem, locals: { current_user: current_user } %>
 <% else %>
   <p>Sem mensagens aqui!</p>
 <% end %>
