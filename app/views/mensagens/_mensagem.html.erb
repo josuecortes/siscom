@@ -1,0 +1,51 @@
+<% if mensagem.texto %>
+  <% if mensagem.user == current_user %>
+    <div class="outgoing_msg">
+      <div class="sent_msg">
+        <% unless mensagem.texto.blank? %>
+          <p><%= mensagem.texto %></p>
+        <% end %>
+        <% if mensagem.imagem.attached? %>
+          <% if mensagem.imagem.variable? %>
+            <%= link_to rails_blob_path(mensagem.imagem, disposition: "inline"), target: '_blank' do %>
+              <%= image_tag(mensagem.imagem.variant(resize: "200x200")) %>
+            <% end %>
+          <% else %>
+            <%= link_to mensagem.imagem.filename.to_s, rails_blob_path(mensagem.imagem, disposition: "inline"), target: '_blank' %>
+          <% end %>
+        <% end %>
+        <span class="time_date"><%= mensagem.created_at.strftime("%H:%M") if mensagem.created_at %> | <%= mensagem.created_at.strftime("%b %e") if mensagem.created_at %> (<%= mensagem.status %>)</span>
+      </div>
+    </div>
+  <% else %>
+    <div class="incoming_msg">
+      <div class="incoming_msg_img">
+        <% if mensagem.user.avatar.present? %>
+          <%= image_tag mensagem.user.avatar.variant(resize_to_fill: [128, 128]), class: "profile-user-img img-fluid img-circle" %>
+        <% else %>
+          <img class="profile-user-img img-fluid img-circle"
+                src="/adminLTE/dist/img/avt.png"
+                alt="User profile picture">
+        <% end %>
+      </div>
+      <div class="received_msg">
+        <div class="received_withd_msg">
+          <% unless mensagem.texto.blank? %>
+            <p><%= mensagem.texto %></p>
+          <% end %>
+          <% if mensagem.imagem.attached? %>
+            <% if mensagem.imagem.variable? %>
+              <%= link_to rails_blob_path(mensagem.imagem, disposition: "inline"), target: '_blank' do %>
+                <%= image_tag(mensagem.imagem.variant(resize: "200x200")) %>
+              <% end %>
+            <% else %>
+              <%= link_to mensagem.imagem.filename.to_s, rails_blob_path(mensagem.imagem, disposition: "inline"), target: '_blank' %>
+            <% end %>
+          <% end %>
+
+          <span class="time_date"><%= mensagem.created_at.strftime("%H:%M") if mensagem.created_at %> | <%= mensagem.created_at.strftime("%b %e") if mensagem.created_at %></span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

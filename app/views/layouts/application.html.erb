@@ -74,6 +74,149 @@
         <%= render "base/footer" %>
         <%= render "base/control_sidebar" %>
 
+        <style>
+          .chat-float-button {
+            position: fixed;
+            right: 20px;
+            bottom: 60px;
+            z-index: 1050;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #17a2b8;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+          }
+          .chat-float-badge { position: absolute; top: -4px; right: -4px; }
+
+          .chat-float-list-panel,
+          .chat-float-window {
+            position: fixed;
+            z-index: 1050;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            display: none;
+            overflow: hidden;
+            max-height: calc(100vh - 220px);
+          }
+          .chat-float-list-panel {
+            right: 20px;
+            bottom: 120px;
+            width: 360px;
+          }
+          .chat-float-window {
+            right: 400px;
+            bottom: 120px;
+            width: 460px;
+            max-height: calc(100vh - 200px);
+            z-index: 1051;
+          }
+          .chat-float-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+            background: #f8f9fa;
+          }
+          .chat-float-subtitle {
+            margin-left: 8px;
+            color: #9aa1a8;
+            font-weight: 400;
+            font-size: 13px;
+          }
+          .chat-float-body .time_date {
+            font-size: 11px;
+            margin-top: 0;
+          }
+          .chat-float-body { padding: 8px; }
+          .chat-float-body .inbox_msg { border: none; }
+          .chat-float-body .inbox_people { width: 100%; border-right: none; padding: 6px; }
+          .chat-float-body .mesgs { padding: 6px; }
+          .chat-float-body .inbox_chat { max-height: calc(100vh - 360px); overflow-y: auto; padding-right: 4px; }
+          .chat-float-body .msg_history { max-height: calc(100vh - 420px); overflow-y: auto; padding-right: 4px; }
+          .chat-float-window .msg_history { max-height: calc(100vh - 400px); }
+          .chat-float-body .type_msg { border-top: 1px solid #ddd; padding: 8px 0; position: sticky; bottom: 0; background: #fff; }
+          .chat-float-body .input_msg_write { padding: 8px 0; }
+          .chat-float-body .chat-float-footer { padding: 8px 0 4px; }
+          .chat-float-body .chat-status-active {
+            background: #f8fffb;
+            opacity: 1;
+          }
+          .chat-float-body .chat-status-active .chat_img img,
+          .chat-float-body .chat-status-active .profile-user-img {
+            border: 2px solid #28a745;
+            border-radius: 50%;
+          }
+          .chat-float-body .chat-status-inactive {
+            opacity: 0.65;
+            filter: grayscale(20%);
+          }
+          .chat-float-body .chat-status-inactive .chat_ib h5,
+          .chat-float-body .chat-status-inactive .chat_ib p {
+            color: #9aa1a8;
+          }
+          .chat-float-body .chat_img { width: 14%; }
+          .chat-float-body .chat_ib { width: 84%; }
+          .chat-float-body .chat_ib h5 { font-size: 15px; margin: 0 0 6px 0; }
+          .chat-float-body .chat_ib p { font-size: 13px; }
+          .chat-float-body .profile-user-img { max-height: 36px; max-width: 36px; }
+          .chat-float-body .outgoing_msg .sent_msg p { background: #007bff; color: #fff; }
+          .chat-float-body .incoming_msg .received_msg p { background: #f1f1f1; color: #333; }
+          .chat-float-body .sent_msg p,
+          .chat-float-body .received_msg p { font-size: 14px; padding: 6px 10px; }
+          .chat-float-body .incoming_msg,
+          .chat-float-body .outgoing_msg { margin-bottom: 12px; }
+          .chat-float-body .outgoing_msg { text-align: right; }
+          .chat-float-body .sent_msg { float: right; max-width: 80%; }
+          .chat-float-body .received_msg { float: left; max-width: 80%; }
+          .chat-float-body .incoming_msg_img { margin-right: 14px; }
+          .chat-float-body .incoming_msg_img,
+          .chat-float-body .outgoing_msg { margin-bottom: 6px; }
+          .chat-float-body .received_msg { padding-left: 0; }
+          .chat-float-body .outgoing_msg:after,
+          .chat-float-body .incoming_msg:after { content: ""; display: block; clear: both; }
+          .chat-float-body .write_msg { width: 100%; }
+          .chat-float-body .type_msg .row { margin: 0; }
+          .chat-float-body .type_msg .col-12,
+          .chat-float-body .type_msg .col-8,
+          .chat-float-body .type_msg .col-4 { padding-left: 0; padding-right: 0; }
+
+          @media (max-width: 768px) {
+            .chat-float-button { bottom: 70px; }
+            .chat-float-list-panel { right: 10px; left: 10px; width: auto; bottom: 130px; max-height: calc(100vh - 200px); }
+            .chat-float-window { right: 10px; left: 10px; width: auto; bottom: 130px; max-height: calc(100vh - 200px); }
+            .chat-float-body .time_date { font-size: 10px; }
+          }
+        </style>
+
+        <a href="#" id="chat-float-button" class="chat-float-button">
+          <i class="far fa-comments"></i>
+          <span id="mensagens-float-badge" class="badge badge-danger chat-float-badge d-none"></span>
+        </a>
+        <div id="chat-float-list-panel" class="chat-float-list-panel">
+          <div class="chat-float-header">
+            <strong>Conversas</strong>
+            <button type="button" class="close" id="chat-float-list-close">&times;</button>
+          </div>
+          <div id="chat-float-list-body" class="chat-float-body"></div>
+        </div>
+        <div id="chat-float-window" class="chat-float-window">
+          <div class="chat-float-header">
+            <div class="d-flex align-items-center">
+              <strong id="chat-float-window-title">Conversa</strong>
+              <span id="chat-float-window-subtitle" class="chat-float-subtitle"></span>
+            </div>
+            <button type="button" class="close" id="chat-float-window-close">&times;</button>
+          </div>
+          <div id="chat-float-window-body" class="chat-float-body"></div>
+        </div>
+
         <div id="form-modal" class="modal fade" data-keyboard="false" data-backdrop="static">
           <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -325,6 +468,126 @@
       </script>
 
       <script>
+        $(document).on('click', '#chat-float-button', function(e) {
+          e.preventDefault();
+          var $list = $('#chat-float-list-panel');
+          var $win = $('#chat-float-window');
+          $list.toggle();
+          if ($list.is(':visible')) {
+            $.get('<%= painel_mensagens_path %>', function(html) {
+              var $tmp = $('<div>').html(html);
+              var listHtml = $tmp.find('.inbox_people').prop('outerHTML');
+              var winHtml = $tmp.find('.mesgs').prop('outerHTML');
+              $('#chat-float-list-body').html(listHtml || '');
+              $('#chat-float-window-body').html(winHtml || '');
+              $win.hide();
+            });
+          } else {
+            $win.hide();
+          }
+        });
+
+        $(document).on('click', '#chat-float-list-close', function() {
+          $('#chat-float-list-panel').hide();
+          $('#chat-float-window').hide();
+        });
+
+        $(document).on('click', '#chat-float-window-close', function() {
+          $('#chat-float-window').hide();
+        });
+
+        $(document).on('click', '.js-chat-float-item', function(e) {
+          e.preventDefault();
+          var reqId = $(this).data('requisicaoId');
+          var userName = $(this).data('userName');
+          var chamadoId = $(this).data('chamadoId');
+          var maxLen = (window.innerWidth && window.innerWidth <= 480) ? 14 : 18;
+          window.MensagensUI.currentRequisicaoId = reqId;
+          $('.js-chat-float-item').removeClass('active');
+          $(this).addClass('active');
+          if (window.MensagensUI && window.MensagensUI.updateConversaBadge) {
+            window.MensagensUI.updateConversaBadge(reqId, 0);
+          }
+          if (window.MensagensUI && window.MensagensUI.updateBadge) {
+            window.MensagensUI.updateBadge('0');
+          }
+          if (userName) {
+            var trimmed = userName.toString().trim();
+            if (trimmed.length > maxLen) {
+              trimmed = trimmed.substring(0, maxLen) + '...';
+            }
+            $('#chat-float-window-title').text(trimmed);
+          } else {
+            $('#chat-float-window-title').text('Conversa');
+          }
+          if (chamadoId) {
+            $('#chat-float-window-subtitle').text('#' + chamadoId);
+          } else {
+            $('#chat-float-window-subtitle').text('');
+          }
+          $.get('<%= conversa_mensagens_path %>', { requisicao_ti: reqId }, function(html) {
+            $('#chat-float-conversa').html(html);
+            $('#chat-float-conversa').find('.chat-float-empty').remove();
+            var $msg = $('#chat-float-conversa');
+            if ($msg.length) {
+              $msg.scrollTop($msg[0].scrollHeight);
+              setTimeout(function() {
+                $msg.scrollTop($msg[0].scrollHeight);
+              }, 100);
+            }
+            $('#chat-float-form').attr('data-requisicao-id', reqId);
+            $('#chat-float-window').show();
+          });
+        });
+
+        $(document).on('submit', '#chat-float-form', function(e) {
+          e.preventDefault();
+          var $form = $(this);
+          var reqId = $form.data('requisicaoId');
+          if (!reqId) { return; }
+
+          var $submit = $form.find('button[type="submit"]');
+          var $file = $form.find('input[type="file"]');
+          var file = $file[0] && $file[0].files && $file[0].files[0];
+          if (file && file.size > (2 * 1024 * 1024)) {
+            alert('O arquivo deve ser menor que 2MB. O arquivo foi removido.');
+            $file.val('');
+            return;
+          }
+
+          var formData = new FormData();
+          formData.append('requisicao_ti', reqId);
+          formData.append('mensagem', $form.find('input[name="mensagem"]').val());
+          if (file) { formData.append('image', file); }
+
+          $submit.prop('disabled', true);
+          $.ajax({
+            url: '<%= js_create_mensagens_path %>',
+            data: formData,
+            processData: false,
+            contentType: false,
+            method: 'POST',
+            success: function() {
+              $form.find('input[name="mensagem"]').val('');
+              $file.val('');
+            },
+            complete: function() {
+              $submit.prop('disabled', false);
+            }
+          });
+        });
+
+        $(document).on('click', '#chat-float-conversa, #chat-float-form input[type="text"]', function() {
+          if (window.MensagensUI && window.MensagensUI.updateBadge) {
+            window.MensagensUI.updateBadge('0');
+          }
+          if (window.MensagensUI && window.MensagensUI.updateConversaBadge && window.MensagensUI.currentRequisicaoId) {
+            window.MensagensUI.updateConversaBadge(window.MensagensUI.currentRequisicaoId, 0);
+          }
+        });
+      </script>
+
+      <script>
         var tempo_de_refresh_application = 2000
         var pode_chatear = false
         var numero_de_mensagens = 0    
@@ -341,51 +604,70 @@
           $('.placa').mask('AAA AAAA')
           // $('.dinheiro').mask('#.##0,00', {reverse: true})
           $('.dinheiro').mask('###0.00', {reverse: true})
-          loop()
-          requisitar_refresh()
+          // polling desativado: badge atualizado via ActionCable
+          // loop()
+          // requisitar_refresh()
         })
 
-        function atualizar_p_mensagens_diretas(valor){
+        window.MensagensUI = window.MensagensUI || {}
+        window.MensagensUI.updateBadge = function(valor){
           if(valor != '0'){
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').addClass('badge badge-danger piscar')
             $('#mensagens-diretas').html(valor)
-            
-            toastr.error('Você possui mensagens diretas não lidas!.')
 
+            $('#mensagens-diretas-header').removeClass('d-none')
+            $('#mensagens-diretas-header').html(valor)
+            $('#mensagens-float-badge').removeClass('d-none').html(valor)
+            
           }else{
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').removeClass('badge badge-danger piscar')
-          }          
-        }
 
-        function requisitar_refresh(){
-          $.get( '<%= mensagens_diretas_mensagens_url %>', function( data ) {
-            pode_chatear = data["pode_chatear"]
-            numero_de_mensagens = data["mensagens_nao_lidas"]
-          });   
-          atualizar_p_mensagens_diretas(numero_de_mensagens)         
-          if(pode_chatear){
-            tempo_de_refresh_application = 60000
-          }else{
-            tempo_de_refresh_application = 300000
-          } 
-        }
-
-        function loop() {
-          setTimeout(() => {
-            requisitar_refresh()
-            loop();
-          }, tempo_de_refresh_application);
-        }
-
-        document.addEventListener("visibilitychange", function() {
-          if (document.hidden){
-            
-          } else {
-            requisitar_refresh()
+            $('#mensagens-diretas-header').html('').addClass('d-none')
+            $('#mensagens-float-badge').html('').addClass('d-none')
           }
-        });
+          if (window.MensagensUI && window.MensagensUI.updateTabBadge) {
+            window.MensagensUI.updateTabBadge(valor);
+          }
+        }
+        window.MensagensUI.updateConversaBadge = function(requisicaoId, count){
+          var targets = $('[id="conversa-badge-' + requisicaoId + '"]');
+          if (!targets.length) { return; }
+          if (count && count > 0) {
+            targets.html('<span class="badge badge-danger">' + count + '</span>');
+          } else {
+            targets.html('');
+          }
+        }
+
+        // function requisitar_refresh(){
+        //   $.get( '<%= mensagens_diretas_mensagens_url %>', function( data ) {
+        //     pode_chatear = data["pode_chatear"]
+        //     numero_de_mensagens = data["mensagens_nao_lidas"]
+        //   });   
+        //   window.MensagensUI.updateBadge(numero_de_mensagens)
+        //   if(pode_chatear){
+        //     tempo_de_refresh_application = 60000
+        //   }else{
+        //     tempo_de_refresh_application = 300000
+        //   } 
+        // }
+
+        // function loop() {
+        //   setTimeout(() => {
+        //     requisitar_refresh()
+        //     loop();
+        //   }, tempo_de_refresh_application);
+        // }
+
+        // document.addEventListener("visibilitychange", function() {
+        //   if (document.hidden){
+        //     
+        //   } else {
+        //     requisitar_refresh()
+        //   }
+        // });
 
       </script>
 

@@ -29,6 +29,7 @@ class Nuinfo::RequisicaoTisController < ApplicationController
       @requisicao_ti.status = 2
       @requisicao_ti.data_hora_em_atendimento = DateTime.now
       if @requisicao_ti.save
+        enviar_mensagem_inicio_atendimento(@requisicao_ti)
         flash[:success] = "Você tornou-se o responsável tecnico pela requisição!"
       else
         flash[:error] = "Opss! Algo deu errado."
@@ -49,6 +50,9 @@ class Nuinfo::RequisicaoTisController < ApplicationController
   def salvar
     respond_to do |format|
       if @requisicao_ti.update(requisicao_ti_params)
+        if @requisicao_ti.saved_change_to_status? && @requisicao_ti.status == "Concluída"
+          enviar_mensagem_conclusao(@requisicao_ti)
+        end
         flash[:success] = "Requisição concluída."
         format.js {render :salvar, status: :ok  }
       else
@@ -137,6 +141,104 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     end
 
     @requisicoes = scope.order(created_at: :desc)
+  end
+
+  private
+
+  def enviar_mensagem_inicio_atendimento(requisicao)
+    return unless requisicao&.tecnico && requisicao&.user
+
+    texto = mensagem_inicio_texto(requisicao)
+    criar_mensagem_automatica(requisicao, texto)
+  end
+
+  def enviar_mensagem_conclusao(requisicao)
+    return unless requisicao&.tecnico && requisicao&.user
+
+    texto = mensagem_conclusao_texto(requisicao)
+    criar_mensagem_automatica(requisicao, texto)
+  end
+
+  def mensagem_inicio_texto(requisicao)
+    tecnico_nome = requisicao.tecnico&.nome || "técnico"
+    "Mensagem automática do sistema: o técnico #{tecnico_nome} iniciou o atendimento do chamado ##{requisicao.id}. Enquanto o chamado estiver em atendimento, você pode conversar com o técnico por aqui. Fique atento, pois o técnico pode enviar mensagens a qualquer momento."
+  end
+
+  def mensagem_conclusao_texto(requisicao)
+    tecnico_nome = requisicao.tecnico&.nome || "técnico"
+    "Mensagem automática do sistema: o técnico #{tecnico_nome} concluiu o chamado ##{requisicao.id}. Este chat agora é apenas para histórico e não permite novas mensagens."
+  end
+
+  def criar_mensagem_automatica(requisicao, texto)
+    mensagem = requisicao.mensagens.new(
+      user: requisicao.tecnico,
+      texto: texto,
+      status: "não lida"
+    )
+    return unless mensagem.save
+
+    destinatario = requisicao.user
+    broadcast_mensagem(destinatario, mensagem, true)
+    broadcast_mensagem(requisicao.tecnico, mensagem, false)
+    broadcast_badge(destinatario)
+    broadcast_conversa_badge(destinatario, requisicao)
+    broadcast_dropdown(destinatario)
+  end
+
+  def broadcast_mensagem(user, mensagem, play_sound)
+    return unless user
+
+    html = ApplicationController.render(
+      partial: "mensagens/mensagem",
+      locals: { mensagem: mensagem, current_user: user }
+    )
+
+    MensagensChannel.broadcast_to(user, {
+      type: "mensagem",
+      requisicao_id: mensagem.requisicao_ti_id,
+      html: html,
+      playSound: play_sound
+    })
+  end
+
+  def broadcast_badge(user)
+    return unless user
+
+    MensagensChannel.broadcast_to(user, {
+      type: "badge",
+      count: user.mensagens_nao_lidas
+    })
+  end
+
+  def broadcast_conversa_badge(user, requisicao)
+    return unless user
+
+    MensagensChannel.broadcast_to(user, {
+      type: "conversa_badge",
+      requisicao_id: requisicao.id,
+      count: requisicao.mensagens_nao_lidas(user)
+    })
+  end
+
+  def broadcast_dropdown(user)
+    return unless user
+
+    unread_msgs = Mensagem.joins(:requisicao_ti)
+      .where(requisicao_tis: { id: RequisicaoTi.do_usuario_ou_tecnico(user).pode_enviar_mensagem.select(:id) })
+      .where.not(user_id: user.id)
+      .where(status: 'não lida')
+      .order(created_at: :desc)
+      .limit(5)
+
+    html = ApplicationController.render(
+      partial: "mensagens/dropdown_items",
+      locals: { unread_msgs: unread_msgs }
+    )
+
+    MensagensChannel.broadcast_to(user, {
+      type: "dropdown",
+      html: html
+    })
   end
 
   def estatisticas

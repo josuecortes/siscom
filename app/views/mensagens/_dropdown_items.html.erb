@@ -1,0 +1,31 @@
+<% if unread_msgs.any? %>
+  <% unread_msgs.each do |msg| %>
+    <% remetente = msg.user %>
+    <a href="<%= mensagens_path(requisicao_ti: msg.requisicao_ti_id) %>" class="dropdown-item" target="_blank" rel="noopener">
+      <div class="media">
+        <% if remetente.avatar.present? %>
+          <%= image_tag remetente.avatar.variant(resize_to_fill: [50, 50]), class: "img-size-50 mr-3 img-circle", alt: "User Avatar" %>
+        <% else %>
+          <img src="/adminLTE/dist/img/avt.png" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+        <% end %>
+        <div class="media-body">
+          <h3 class="dropdown-item-title">
+            <%= remetente.nome_ultimo_nome %>
+          </h3>
+          <p class="text-sm">
+            <%= msg.texto.present? ? truncate(msg.texto, length: 40) : "[arquivo]" %>
+          </p>
+          <p class="text-sm text-muted">
+            <i class="far fa-clock mr-1"></i>
+            <%= msg.created_at.strftime("%d/%m %H:%M") if msg.created_at %>
+          </p>
+        </div>
+      </div>
+    </a>
+    <div class="dropdown-divider"></div>
+  <% end %>
+<% else %>
+  <span class="dropdown-item text-muted">Sem mensagens não lidas.</span>
+  <div class="dropdown-divider"></div>
+<% end %>
+<a href="<%= mensagens_path %>" class="dropdown-item dropdown-footer" target="_blank" rel="noopener">Ver todas</a>

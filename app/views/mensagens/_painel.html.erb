@@ -1,0 +1,45 @@
+<div class="inbox_msg">
+  <div class="mesgs">
+    <div id="chat-float-conversa" class="msg_history">
+      <div class="chat-float-empty text-muted small">
+        Selecione uma conversa para visualizar as mensagens.
+      </div>
+    </div>
+    <div class="type_msg">
+      <div class="input_msg_write">
+        <% if @requisicao_ti && @requisicao_ti.status == "Em atendimento" %>
+          <form id="chat-float-form" data-requisicao-id="">
+            <div class="row mb-2">
+              <div class="col-12">
+                <input type="text" name="mensagem" class="write_msg" placeholder="Digite a mensagem">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-8">
+                <input type="file" name="image" class="btn enviar-upload">
+              </div>
+              <div class="col-4 text-right">
+                <button type="submit" class="btn btn-primary">Enviar</button>
+              </div>
+            </div>
+          </form>
+        <% else %>
+          <div class="text-muted small">Conversa em modo somente leitura.</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="inbox_people">
+    <div class="inbox_chat scroll">
+      <% if @lista_requisicoes.any? %>
+        <%= render partial: "conversas_float", locals: { requisicoes: @lista_requisicoes, current_id: @requisicao_ti&.id } %>
+      <% else %>
+        <div class="text-muted small p-2">Sem conversas.</div>
+      <% end %>
+    </div>
+    <div class="chat-float-footer">
+      <a href="<%= mensagens_path %>" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary btn-block">Conversas antigas</a>
+    </div>
+  </div>
+  </div>
+</div>

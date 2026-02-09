@@ -1,13 +1,16 @@
 <% content_for :lista_conversas do %>
   <div class="conversas">
-    <%= render "conversas", requisicoes: @requisicoes_ti %>
+    <%= render "conversas", requisicoes: (@requisicoes_ti || []) %>
   </div>
 <% end %>
 
 
-<% content_for :mensagens do %> 
-  <div class="conversa"></div>
-  
+<% content_for :mensagens do %>
+  <div class="conversa">
+    <% if @conversa.present? %>
+      <%= render "conversa", conversa: @conversa %>
+    <% end %>
+  </div>
 <% end %>
 
 <% content_for :caixa_de_digitacao_ do %>
@@ -25,7 +28,7 @@
 <% end %>     
 
 <% content_for :caixa_de_digitacao do %>
-  <%= form_with(url: "#{js_create_mensagens_path}", method: "post", multipart: true, id: "post-form") do |form| %>
+  <%= form_with(url: "#{js_create_mensagens_path}", method: "post", multipart: true, id: "post-form", local: true, data: { chat_status: @requisicao_ti&.status }) do |form| %>
     <div class="row">
       
       <%= form.hidden_field :requisicao_ti, value: (@requisicao_ti.id if @requisicao_ti) %>
@@ -50,11 +53,12 @@
 <% content_for :javascripts do %> 
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script>
-    var tempo_de_refresh = 5000
-    
     $( document ).ready(function() {
-      requisitar_refresh()
-      loop()
+      // sem refresh inicial: conversa é renderizada pelo servidor
+      var $mh = $('.msg_history');
+      if ($mh.length) {
+        $mh.scrollTop($mh[0].scrollHeight);
+      }
     }) 
 
     function enviarMensagem(){
@@ -68,92 +72,89 @@
       }
     }
 
-    // $('.enviar').click(function(){
-    //   enviarMensagem()
-    // })
+    // (removido código legado de envio)
 
-    // jQuery('.texto').keypress(function(event){
-    //   var keycode = (event.keyCode ? event.keyCode : event.which);
-    //   if(keycode == '13'){
-    //     enviarMensagem()
-    //   }
-    // })
-
-    function requisitar_refresh(){
-      let requisicao_id 
-      requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
-      if(requisicao_id) {
-        $.get( '<%= refresh_mensagens_url %>', { requisicao_ti: '<%= @requisicao_ti ? @requisicao_ti.id : nil %>'}, function( data ) {
-          $( ".result" ).html( data );
-        });
+    window.MensagensUI = window.MensagensUI || {}
+    window.MensagensUI.currentRequisicaoId = '<%= @requisicao_ti&.id %>'
+    window.MensagensUI.updateConversaBadge = function(requisicaoId, count){
+      var targets = $('[id="conversa-badge-' + requisicaoId + '"]');
+      if (!targets.length) { return; }
+      if (count && count > 0) {
+        targets.html('<span class="badge badge-danger">' + count + '</span>');
       } else {
-        $.get( '<%= mensagens_url %>', function( data ) {
-          $( ".result" ).html( data );
-        });
+        targets.html('');
+      }
+    }
+    window.MensagensUI.clearCurrentConversaBadge = function(){
+      if (window.MensagensUI.currentRequisicaoId) {
+        window.MensagensUI.updateConversaBadge(window.MensagensUI.currentRequisicaoId, 0);
       }
     }
 
-    function loop() {
-      if(document.hidden){
-        tempo_de_refresh = 30000
-      }else{
-        tempo_de_refresh = 10000
-      }  
-      setTimeout(() => {
-        requisitar_refresh()
-        loop();
-      }, tempo_de_refresh);
-    }
-
-    function enviar_mensagem(mensagem){
-      let requisicao_id 
-      requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
-      // if(requisicao_id) {
-      //   $.post( '<%= js_create_mensagens_path %>', { requisicao_ti: requisicao_id, mensagem: mensagem}, function( data ) {
-      //     $( ".result" ).html( data );
-      //   });
-      // }else{
-      //   alert('Selecione uma conversa.')
-      // }
-
-      if(requisicao_id) {
-
-      } else {
-        alert('Selecione uma conversa.')
-      }  
-
-
-    } 
-
-    document.addEventListener("visibilitychange", function() {
-      if (document.hidden){
-        requisitar_refresh()
-      } else {
-        requisitar_refresh()
-      }
+    $(document).on('click', '.js-conversa-link', function() {
+      var reqId = $(this).data('requisicaoId');
+      window.MensagensUI.currentRequisicaoId = reqId;
+      window.MensagensUI.clearCurrentConversaBadge();
     });
+
+    $(document).on('click', '.msg_history, .write_msg', function() {
+      window.MensagensUI.clearCurrentConversaBadge();
+    });
+
+    // (removido código legado de refresh/loop)
 
     $('#post-form').submit(function(event) {
       event.preventDefault();
       let requisicao_id 
       requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
       if(requisicao_id) {
+        var $form = $(this);
+        var chatStatus = $form.data('chatStatus');
+        if (chatStatus && chatStatus !== 'Em atendimento') {
+          alert('Este chat está disponível apenas para histórico e não permite novas mensagens.');
+          return false;
+        }
+        var $submit = $form.find('input[type="submit"]');
+        var $file = $form.find('input[type="file"]');
+        var file = $file[0] && $file[0].files && $file[0].files[0];
+        $submit.prop('disabled', false).removeAttr('disabled');
+        if (file && file.size > (2 * 1024 * 1024)) {
+          alert('O arquivo deve ser menor que 2MB. O arquivo foi removido.');
+          $file.val('');
+          $form.find('.write_msg').focus();
+          $submit.prop('disabled', false).removeAttr('disabled');
+          return false;
+        }
+        $submit.prop('disabled', true);
         var formData = new FormData($(this)[0]);
-        $.post({
+        $.ajax({
           url: $(this).attr('action'),
           data: formData,
           processData: false,
           contentType: false,
+          method: 'POST',
           success: function(response) {
-            // Adicione aqui o código para lidar com a resposta do servidor
+            $form.find('.write_msg').val('');
+            $form.find('input[type="file"]').val('');
           },
           error: function(response) {
-            alert('Algo deu errado.')
+            if (chatStatus && chatStatus !== 'Em atendimento') {
+              alert('Este chat está disponível apenas para histórico e não permite novas mensagens.');
+            } else {
+              alert('O arquivo deve ser menor que 2MB.');
+            }
+          },
+          complete: function() {
+            $submit.prop('disabled', false).removeAttr('disabled');
           }
         });
       } else {
         alert('Selecione uma conversa.')
       }
+    });
+
+    $('#post-form input[type="file"]').on('change', function() {
+      $('#post-form input[type="submit"]').prop('disabled', false).removeAttr('disabled');
     });
     
   </script>

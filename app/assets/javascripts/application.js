@@ -4,4 +4,6 @@
 //= require jquery.remotipart
 //= require jquery-ui
 //= require select2
+//= require action_cable
+//= require cable
 //= require_tree .
