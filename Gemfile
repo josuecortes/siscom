@@ -9,7 +9,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 
 gem 'puma', '~> 4.1'
 
-gem 'redis'
+gem 'redis', '~> 4.8'
 
 gem 'sass-rails', '>= 6'
 
