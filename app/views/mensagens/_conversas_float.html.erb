@@ -4,7 +4,7 @@
   <% else %>
     <% user = r.user %>
   <% end %>
-  <a href="#" class="chat_list js-chat-float-item <%= 'active_chat' if current_id.to_s == r.id.to_s %>"
+  <a href="#" class="chat_list js-chat-float-item <%= 'active_chat' if current_id.to_s == r.id.to_s %> <%= r.status == 'Em atendimento' ? 'chat-status-active' : 'chat-status-inactive' %>"
      data-requisicao-id="<%= r.id %>"
      data-user-name="<%= user ? user.nome : 'Sem técnico' %>"
      data-chamado-id="<%= r.id %>">

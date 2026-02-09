@@ -28,7 +28,7 @@
 <% end %>     
 
 <% content_for :caixa_de_digitacao do %>
-  <%= form_with(url: "#{js_create_mensagens_path}", method: "post", multipart: true, id: "post-form", local: true) do |form| %>
+  <%= form_with(url: "#{js_create_mensagens_path}", method: "post", multipart: true, id: "post-form", local: true, data: { chat_status: @requisicao_ti&.status }) do |form| %>
     <div class="row">
       
       <%= form.hidden_field :requisicao_ti, value: (@requisicao_ti.id if @requisicao_ti) %>
@@ -109,6 +109,11 @@
       requisicao_id = '<%= @requisicao_ti.id if @requisicao_ti %>'
       if(requisicao_id) {
         var $form = $(this);
+        var chatStatus = $form.data('chatStatus');
+        if (chatStatus && chatStatus !== 'Em atendimento') {
+          alert('Este chat está disponível apenas para histórico e não permite novas mensagens.');
+          return false;
+        }
         var $submit = $form.find('input[type="submit"]');
         var $file = $form.find('input[type="file"]');
         var file = $file[0] && $file[0].files && $file[0].files[0];
@@ -133,7 +138,11 @@
             $form.find('input[type="file"]').val('');
           },
           error: function(response) {
-            alert('O arquivo deve ser menor que 2MB.')
+            if (chatStatus && chatStatus !== 'Em atendimento') {
+              alert('Este chat está disponível apenas para histórico e não permite novas mensagens.');
+            } else {
+              alert('O arquivo deve ser menor que 2MB.');
+            }
           },
           complete: function() {
             $submit.prop('disabled', false).removeAttr('disabled');

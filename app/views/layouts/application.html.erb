@@ -132,7 +132,7 @@
           }
           .chat-float-body .time_date {
             font-size: 11px;
-            margin-top: 6px;
+            margin-top: 0;
           }
           .chat-float-body { padding: 8px; }
           .chat-float-body .inbox_msg { border: none; }
@@ -144,6 +144,23 @@
           .chat-float-body .type_msg { border-top: 1px solid #ddd; padding: 8px 0; position: sticky; bottom: 0; background: #fff; }
           .chat-float-body .input_msg_write { padding: 8px 0; }
           .chat-float-body .chat-float-footer { padding: 8px 0 4px; }
+          .chat-float-body .chat-status-active {
+            background: #f8fffb;
+            opacity: 1;
+          }
+          .chat-float-body .chat-status-active .chat_img img,
+          .chat-float-body .chat-status-active .profile-user-img {
+            border: 2px solid #28a745;
+            border-radius: 50%;
+          }
+          .chat-float-body .chat-status-inactive {
+            opacity: 0.65;
+            filter: grayscale(20%);
+          }
+          .chat-float-body .chat-status-inactive .chat_ib h5,
+          .chat-float-body .chat-status-inactive .chat_ib p {
+            color: #9aa1a8;
+          }
           .chat-float-body .chat_img { width: 14%; }
           .chat-float-body .chat_ib { width: 84%; }
           .chat-float-body .chat_ib h5 { font-size: 15px; margin: 0 0 6px 0; }
@@ -153,10 +170,14 @@
           .chat-float-body .incoming_msg .received_msg p { background: #f1f1f1; color: #333; }
           .chat-float-body .sent_msg p,
           .chat-float-body .received_msg p { font-size: 14px; padding: 6px 10px; }
+          .chat-float-body .incoming_msg,
+          .chat-float-body .outgoing_msg { margin-bottom: 12px; }
           .chat-float-body .outgoing_msg { text-align: right; }
           .chat-float-body .sent_msg { float: right; max-width: 80%; }
           .chat-float-body .received_msg { float: left; max-width: 80%; }
-          .chat-float-body .incoming_msg_img { margin-right: 6px; }
+          .chat-float-body .incoming_msg_img { margin-right: 14px; }
+          .chat-float-body .incoming_msg_img,
+          .chat-float-body .outgoing_msg { margin-bottom: 6px; }
           .chat-float-body .received_msg { padding-left: 0; }
           .chat-float-body .outgoing_msg:after,
           .chat-float-body .incoming_msg:after { content: ""; display: block; clear: both; }
@@ -599,15 +620,16 @@
             $('#mensagens-diretas-header').html(valor)
             $('#mensagens-float-badge').removeClass('d-none').html(valor)
             
-            toastr.error('Você possui mensagens diretas não lidas!.')
-
           }else{
             $('#mensagens-diretas').html('')
             $('#mensagens-diretas').removeClass('badge badge-danger piscar')
 
             $('#mensagens-diretas-header').html('').addClass('d-none')
             $('#mensagens-float-badge').html('').addClass('d-none')
-          }          
+          }
+          if (window.MensagensUI && window.MensagensUI.updateTabBadge) {
+            window.MensagensUI.updateTabBadge(valor);
+          }
         }
         window.MensagensUI.updateConversaBadge = function(requisicaoId, count){
           var targets = $('[id="conversa-badge-' + requisicaoId + '"]');

@@ -25,7 +25,7 @@ class MensagensController < ApplicationController
 
   def js_create
 
-    if @requisicao_ti.status == 'Concluída' or (params[:mensagem].blank? and params[:image].blank?) 
+    if @requisicao_ti.status != 'Em atendimento' or (params[:mensagem].blank? and params[:image].blank?) 
       head :unprocessable_entity
       return
     end
@@ -99,7 +99,7 @@ class MensagensController < ApplicationController
       unless id
         id = params[:id]
       end
-      if @requisicao_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).pode_enviar_mensagem.find(id)
+      if @requisicao_ti = RequisicaoTi.do_usuario_ou_tecnico(current_user).find(id)
         @conversa = @requisicao_ti.mensagens.order(created_at: :asc) if @requisicao_ti
         marcar_conversa_como_lida
       end

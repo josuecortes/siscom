@@ -1,7 +1,7 @@
 
 <% requisicoes.each do |r| %>
   <%= link_to mensagens_path(requisicao_ti: r.id), class: "js-conversa-link", data: { requisicao_id: r.id } do %>
-    <div class="chat_list <%= 'active_chat' if params[:requisicao_ti].to_s == r.id.to_s %>">
+    <div class="chat_list <%= 'active_chat' if params[:requisicao_ti].to_s == r.id.to_s %> <%= r.status == 'Em atendimento' ? 'chat-status-active' : 'chat-status-inactive' %>">
       <div class="chat_people">
 
         <%  if current_user == r.user %>

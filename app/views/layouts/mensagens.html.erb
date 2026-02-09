@@ -125,6 +125,23 @@
       margin: 0;
       padding: 18px 16px 10px;
     }
+    .chat-status-active {
+      background: #f8fffb;
+      opacity: 1;
+    }
+    .chat-status-active .chat_img img,
+    .chat-status-active .profile-user-img {
+      border: 2px solid #28a745;
+      border-radius: 50%;
+    }
+    .chat-status-inactive {
+      opacity: 0.65;
+      filter: grayscale(20%);
+    }
+    .chat-status-inactive .chat_ib h5,
+    .chat-status-inactive .chat_ib p {
+      color: #9aa1a8;
+    }
 
     .inbox_chat {
       height: 600px;

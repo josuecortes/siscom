@@ -25,6 +25,10 @@ App.cable.subscriptions.create("MensagensChannel", {
       var count = data.count || 0;
       window.MensagensUI.updateBadge(String(count));
     }
+    if (data.type === "badge" && window.MensagensUI && window.MensagensUI.updateTabBadge) {
+      var countTab = data.count || 0;
+      window.MensagensUI.updateTabBadge(countTab);
+    }
     if (data.type === "mensagem" && data.html) {
       var currentId = window.MensagensUI && window.MensagensUI.currentRequisicaoId;
       if (currentId && String(data.requisicao_id) === String(currentId)) {
