@@ -1,0 +1,10 @@
+if ($.fn.DataTable.isDataTable('#data-table')) {
+  var table = $('#data-table').DataTable();
+  var searchValue = table.search();
+  if (searchValue) {
+    localStorage.setItem('usuarios_dt_search', searchValue);
+  } else {
+    localStorage.removeItem('usuarios_dt_search');
+  }
+}
+window.location.reload();

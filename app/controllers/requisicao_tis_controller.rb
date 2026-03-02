@@ -136,7 +136,12 @@ class RequisicaoTisController < ApplicationController
                                             :nome, :email, :cpf, :rg, :data_nascimento, :celular, :funcao_id, :cargo_id,
                                             :estado, :municipio, :perfil, :periodo_inicio, :periodo_fim, :unidade_id,
                                             :unidade_destino, :carta, :decreto, :nae, :authenticity_token,
-                                            :permissao_drive, :nome_arquivo, :prodoc)
+                                            :permissao_drive, :nome_arquivo, :prodoc,
+                                            :prodoc_nome_da_instituicao_externa, :prodoc_sigla_da_instituicao_externa,
+                                            :prodoc_nome_unidade_organizacional_externa, :prodoc_sigla_unidade_organizacional_externa,
+                                            :prodoc_responsavel_instituicao_externa, :prodoc_cargo_do_responsavel_instituicao_externa,
+                                            :prodoc_pronome_responsavel_instituicao_externa, :prodoc_cep_instituicao_externa,
+                                            :prodoc_cidade_instituicao_externa, :prodoc_uf_instituicao_externa)
     end
 
     def verify_permission

@@ -84,6 +84,7 @@
           <th>Unidade</th>
           <th>Nome</th>
           <th>Responsável</th>
+          <th>Instituição externa</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
@@ -98,6 +99,13 @@
             <td><%= requisicao_ti.unidade.sigla_nome if requisicao_ti.unidade %></td>
             <td><%= requisicao_ti.nome %></td>
             <td><%= requisicao_ti.tecnico.nome.split.first if requisicao_ti.tecnico %></td>
+            <td>
+              <% if requisicao_ti.problema_ti&.nome == 'PRODOC - CADASTRO DE INSTITUIÇÃO EXTERNA' %>
+                <%= requisicao_ti.prodoc_nome_da_instituicao_externa %>
+              <% else %>
+                -
+              <% end %>
+            </td>
             <td><%= requisicao_ti.status %></td>
             <td>
               <%= link_to nuinfo_requisicao_ti_path(requisicao_ti), class: "btn btn-sm btn-default", title: "Ver", remote: true do %>

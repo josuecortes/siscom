@@ -177,6 +177,7 @@ Rails.application.routes.draw do
       get 'resetar_senha'
       get 'tornar_requisitante_transporte'
       get 'tornar_tecnico_transporte'
+      patch 'toggle_status'
     end
   end
 

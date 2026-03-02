@@ -40,6 +40,17 @@ class RequisicaoTi < ApplicationRecord
     case problema_ti.nome
       when 'PRODOC - PROBLEMAS'
         validates_presence_of :observacoes
+      when 'PRODOC - CADASTRO DE INSTITUIÇÃO EXTERNA'
+        validates_presence_of :prodoc_nome_da_instituicao_externa,
+                              :prodoc_sigla_da_instituicao_externa,
+                              :prodoc_nome_unidade_organizacional_externa,
+                              :prodoc_sigla_unidade_organizacional_externa,
+                              :prodoc_responsavel_instituicao_externa,
+                              :prodoc_cargo_do_responsavel_instituicao_externa,
+                              :prodoc_pronome_responsavel_instituicao_externa,
+                              :prodoc_cep_instituicao_externa,
+                              :prodoc_cidade_instituicao_externa,
+                              :prodoc_uf_instituicao_externa
       when 'WEBMAIL - PROBLEMAS'
         validates_presence_of :observacoes
       when 'SISCOM - PROBLEMAS'
@@ -73,6 +84,17 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :nome, :email, :perfil
       when 'PRODOC - LIBERAR ACESSO' then
         validates_presence_of :nome, :email, :funcao_id, :perfil, :periodo_inicio, :periodo_fim
+      when 'PRODOC - CADASTRO DE INSTITUIÇÃO EXTERNA' then
+        validates_presence_of :prodoc_nome_da_instituicao_externa,
+                              :prodoc_sigla_da_instituicao_externa,
+                              :prodoc_nome_unidade_organizacional_externa,
+                              :prodoc_sigla_unidade_organizacional_externa,
+                              :prodoc_responsavel_instituicao_externa,
+                              :prodoc_cargo_do_responsavel_instituicao_externa,
+                              :prodoc_pronome_responsavel_instituicao_externa,
+                              :prodoc_cep_instituicao_externa,
+                              :prodoc_cidade_instituicao_externa,
+                              :prodoc_uf_instituicao_externa
       when 'PRODOC - PROBLEMAS' then
         validates_presence_of :observacoes
       when 'WEBMAIL - CADASTRO' then

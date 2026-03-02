@@ -36,6 +36,7 @@
       $table.DataTable().destroy();
       $table.find('tbody').empty();
     }
+    var savedSearch = localStorage.getItem('usuarios_dt_search') || '';
     $table.DataTable({
       processing: true,
       serverSide: true,
@@ -53,6 +54,7 @@
       pageLength: 25,
       lengthMenu: [[10,25,50,100],[10,25,50,100]],
       responsive: true,
+      search: { search: savedSearch },
       language: {
         sProcessing:    'Processando...',
         sLengthMenu:    'Mostrar _MENU_ registros',
@@ -78,6 +80,9 @@
         }
       }
     });
+    if (savedSearch) {
+      localStorage.removeItem('usuarios_dt_search');
+    }
   });
 </script>
 <% end %>

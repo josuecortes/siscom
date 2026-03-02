@@ -180,6 +180,49 @@
     <% end %>
   </div> 
 
+  <div class="d-none" id="prodoc-instituicao-externa">
+    <div class="form-group">
+      <%= label_tag 'Nome da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_nome_da_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Sigla da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_sigla_da_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Nome da unidade organizacional externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_nome_unidade_organizacional_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Sigla da unidade organizacional externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_sigla_unidade_organizacional_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Responsável da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_responsavel_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Cargo do responsável' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_cargo_do_responsavel_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Pronome do responsável' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_pronome_responsavel_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'CEP da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_cep_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'Cidade da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_cidade_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+    <div class="form-group">
+      <%= label_tag 'UF da instituição externa' %>
+      <%= text_field_tag '', (@requisicao_ti.prodoc_uf_instituicao_externa), class: "form-control", readonly: true %>
+    </div>
+  </div>
+
   <div class="form-group">
     <%= label_tag "Observações" %>
     <%= text_area_tag '', (@requisicao_ti.observacoes.html_safe if @requisicao_ti.observacoes), class: "form-control", readonly: true %>
@@ -237,6 +280,7 @@
       $('#prodoc').addClass('d-none')
       $('#nome_arquivo').addClass('d-none')
       $('#permissao_drive').addClass('d-none')
+      $('#prodoc-instituicao-externa').addClass('d-none')
     }
 
     function carregar_area(nome){
@@ -324,6 +368,9 @@
           $('#destino').removeClass('d-none')
           $('#prodoc').removeClass('d-none')
           $('#nome_arquivo').removeClass('d-none')
+          break
+        case 'PRODOC - CADASTRO DE INSTITUIÇÃO EXTERNA':
+          $('#prodoc-instituicao-externa').removeClass('d-none')
           break
       }
     }

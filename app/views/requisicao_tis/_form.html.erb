@@ -171,6 +171,73 @@
       <%= f.file_field :prodoc, { class: "", required: false, direct_upload: true } %>
       <%= has_error(@requisicao_ti, :prodoc) %>
     </div>
+
+    <div class="d-none" id="prodoc-instituicao-externa">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_nome_da_instituicao_externa, 'Nome da instituição externa' %>
+          <%= f.text_field :prodoc_nome_da_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_nome_da_instituicao_externa) %>
+        </div>
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_sigla_da_instituicao_externa, 'Sigla da instituição externa' %>
+          <%= f.text_field :prodoc_sigla_da_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_sigla_da_instituicao_externa) %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_nome_unidade_organizacional_externa, 'Nome da unidade organizacional externa' %>
+          <%= f.text_field :prodoc_nome_unidade_organizacional_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_nome_unidade_organizacional_externa) %>
+        </div>
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_sigla_unidade_organizacional_externa, 'Sigla da unidade organizacional externa' %>
+          <%= f.text_field :prodoc_sigla_unidade_organizacional_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_sigla_unidade_organizacional_externa) %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_responsavel_instituicao_externa, 'Responsável da instituição externa' %>
+          <%= f.text_field :prodoc_responsavel_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_responsavel_instituicao_externa) %>
+        </div>
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_cargo_do_responsavel_instituicao_externa, 'Cargo do responsável' %>
+          <%= f.text_field :prodoc_cargo_do_responsavel_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_cargo_do_responsavel_instituicao_externa) %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_pronome_responsavel_instituicao_externa, 'Pronome do responsável' %>
+          <%= f.text_field :prodoc_pronome_responsavel_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_pronome_responsavel_instituicao_externa) %>
+        </div>
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_cep_instituicao_externa, 'CEP da instituição externa' %>
+          <%= f.text_field :prodoc_cep_instituicao_externa, class: "form-control cep", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_cep_instituicao_externa) %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_cidade_instituicao_externa, 'Cidade da instituição externa' %>
+          <%= f.text_field :prodoc_cidade_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_cidade_instituicao_externa) %>
+        </div>
+        <div class="form-group col-md-6">
+          <%= f.label :prodoc_uf_instituicao_externa, 'UF da instituição externa' %>
+          <%= f.text_field :prodoc_uf_instituicao_externa, class: "form-control", required: false %>
+          <%= has_error(@requisicao_ti, :prodoc_uf_instituicao_externa) %>
+        </div>
+      </div>
+    </div>
     
     <div class="form-group">
       <%= f.label :observacoes, 'Observações' %>
@@ -261,6 +328,7 @@
       $('#prodoc').addClass('d-none')
       $('#nome_arquivo').addClass('d-none')
       $('#permissao_drive').addClass('d-none')
+      $('#prodoc-instituicao-externa').addClass('d-none')
 
       // Limpar validações de arquivos ao esconder campos
       var $inputs = $('#requisicao_ti_carta, #requisicao_ti_decreto, #requisicao_ti_prodoc');
@@ -356,6 +424,9 @@
           $('#destino').removeClass('d-none')
           $('#prodoc').removeClass('d-none')
           $('#nome_arquivo').removeClass('d-none')
+          break
+        case 'PRODOC - CADASTRO DE INSTITUIÇÃO EXTERNA':
+          $('#prodoc-instituicao-externa').removeClass('d-none')
           break
       }
     }

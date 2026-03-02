@@ -1,5 +1,5 @@
 class UsuariosController < ApplicationController
-  before_action :set_usuario, only: %i[ show edit update destroy resetar_senha tornar_requisitante_transporte tornar_tecnico_transporte ]
+  before_action :set_usuario, only: %i[ show edit update destroy resetar_senha tornar_requisitante_transporte tornar_tecnico_transporte toggle_status ]
   before_action :set_post_url, only: %i[ new create ]
   before_action :set_put_url, only: %i[ edit update ]
   before_action :load_unidade, :load_funcoes, only: %i[ new edit update create ]
@@ -58,11 +58,11 @@ class UsuariosController < ApplicationController
             end
 
             if u.status == true
-              acoes << view_context.link_to(view_context.usuario_path(u), { method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar", remote: true }) do
+              acoes << view_context.link_to(view_context.toggle_status_usuario_path(u), { method: :patch, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar", remote: true }) do
                 '<i class="fas fa-close"></i>'.html_safe
               end
             else
-              acoes << view_context.link_to(view_context.usuario_path(u), { method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar", remote: true }) do
+              acoes << view_context.link_to(view_context.toggle_status_usuario_path(u), { method: :patch, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar", remote: true }) do
                 '<i class="fas fa-check"></i>'.html_safe
               end
             end
@@ -155,7 +155,24 @@ class UsuariosController < ApplicationController
   end
 
   # DELETE /usuarios/1 or /usuarios/1.json
-  def destroy
+  # def destroy
+  #   @usuario.status = !@usuario.status.presence
+  #
+  #   if @usuario.save
+  #     @erro = false
+  #     @mensagem = "Usuário atualizado."
+  #   else
+  #     @erro = true
+  #     @mensagem = "Opss! Algo deu errado."
+  #   end
+  #
+  #   respond_to do |format|
+  #     format.html { redirect_to usuarios_url }
+  #     format.js {}
+  #   end
+  # end
+
+  def toggle_status
     @usuario.status = !@usuario.status.presence
 
     if @usuario.save
@@ -168,7 +185,7 @@ class UsuariosController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to usuarios_url }
-      format.js {}
+      format.js { render :toggle_status }
     end
   end
 
