@@ -31,6 +31,11 @@
         <%= has_error(@usuario, :unidade_id) %>
       </div>
       <div class="form-group">
+        <%= f.label :status, 'Status' %>
+        <%= f.select :status, [['Ativo', true], ['Inativo', false]], {}, class: "form-control" %>
+        <%= has_error(@usuario, :status) %>
+      </div>
+      <div class="form-group">
         <%= f.label :role_ids, "Permissões" %>
         <%= f.collection_check_boxes(:role_ids, Role.autorizado(current_user).all, :id, :exibition_name) do |b| %>
           <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
@@ -58,6 +63,10 @@
       <div class="form-group">
         <%= label_tag "Unidade" %>
         <%= text_field_tag '',(@usuario.unidade.nome if @usuario.unidade), class: "form-control", readonly: true %>
+      </div>
+      <div class="form-group">
+        <%= label_tag "Status" %>
+        <%= text_field_tag '',(@usuario.status ? 'Ativo' : 'Inativo'), class: "form-control", readonly: true %>
       </div>
       <div class="form-group">
         <%= f.label :role_ids, "Permissões" %>

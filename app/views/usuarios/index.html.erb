@@ -15,12 +15,35 @@
   <% end %>
 <% end %>
 
+<style>
+  .usuario-inativo {
+    opacity: 0.6;
+  }
+  .usuario-inativo td {
+    color: #9aa1a8;
+  }
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.status-dot--active {
+  background: #28a745;
+}
+.status-dot--inactive {
+  background: #dc3545;
+  opacity: 0.6;
+}
+</style>
+
 <table id="data-table" class="table table-bordered table-hover">
   <thead>
     <tr>
       <th>Nome</th>
       <th>Email</th>
       <th>Unidade</th>
+      <th>Status</th>
       <th>Ações</th>
     </tr>
   </thead>
@@ -45,10 +68,11 @@
         type: 'GET'
       },
       columns: [
-        { title: 'Nome' },
-        { title: 'Email' },
-        { title: 'Unidade' },
-        { title: 'Ações', orderable: false, searchable: false }
+        { title: 'Nome', data: 0 },
+        { title: 'Email', data: 1 },
+        { title: 'Unidade', data: 2 },
+        { title: 'Status', data: 3, orderable: true, searchable: false },
+        { title: 'Ações', data: 4, orderable: false, searchable: false }
       ],
       order: [[0, 'asc']],
       pageLength: 25,

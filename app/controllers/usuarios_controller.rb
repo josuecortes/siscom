@@ -34,6 +34,7 @@ class UsuariosController < ApplicationController
                        when 0 then 'users.nome'
                        when 1 then 'users.email'
                        when 2 then 'unidades.nome'
+                       when 3 then 'users.status'
                        else 'users.nome'
                        end
         base_scope = base_scope.order(Arel.sql("#{order_column} #{order_dir}"))
@@ -52,50 +53,46 @@ class UsuariosController < ApplicationController
             '<i class="fas fa-edit"></i>'.html_safe
           end
 
-          if current_user.has_any_role? :tec_serv_ti, :admin, :master
-            acoes << view_context.link_to(view_context.resetar_senha_usuario_path(u), { data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha", remote: true }) do
-              '<i class="fas fa-sync-alt"></i>'.html_safe
-            end
-
-            if u.status == true
-              acoes << view_context.link_to(view_context.toggle_status_usuario_path(u), { method: :patch, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-danger", title: "Desativar", remote: true }) do
-                '<i class="fas fa-close"></i>'.html_safe
-              end
-            else
-              acoes << view_context.link_to(view_context.toggle_status_usuario_path(u), { method: :patch, data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-success", title: "Reativar", remote: true }) do
-                '<i class="fas fa-check"></i>'.html_safe
-              end
-            end
-          end
-
-          if current_user.has_role? :tec_serv_tp
-            unless u.has_role? :req_serv_tp
-              acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar requisitante de serviço de transporte", remote: true }) do
-                '<i class="fas fa-car"></i> Requisitante'.html_safe
-              end
-            else
-              acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão requisitante de serviço de transporte", remote: true }) do
-                '<i class="fas fa-car"></i> Remover Requisitante'.html_safe
+          if u.status == true
+            if current_user.has_any_role? :tec_serv_ti, :admin, :master
+              acoes << view_context.link_to(view_context.resetar_senha_usuario_path(u), { data: { confirm: 'Tem certeza?' }, class: "btn btn-sm btn-warning", title: "Resetar Senha", remote: true }) do
+                '<i class="fas fa-sync-alt"></i>'.html_safe
               end
             end
 
-            unless u.has_role? :tec_serv_tp
-              acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar técnico de serviço de transporte", remote: true }) do
-                '<i class="fas fa-user"></i> Técnico'.html_safe
+            if current_user.has_role? :tec_serv_tp
+              unless u.has_role? :req_serv_tp
+                acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar requisitante de serviço de transporte", remote: true }) do
+                  '<i class="fas fa-car"></i> Requisitante'.html_safe
+                end
+              else
+                acoes << view_context.link_to(view_context.tornar_requisitante_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão requisitante de serviço de transporte", remote: true }) do
+                  '<i class="fas fa-car"></i> Remover Requisitante'.html_safe
+                end
               end
-            else
-              acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão técnico de serviço de transporte", remote: true }) do
-                '<i class="fas fa-user"></i> Remover Técnico'.html_safe
+
+              unless u.has_role? :tec_serv_tp
+                acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u), { data: { confirm: 'Adicionar permissão?' }, class: "btn btn-sm btn-default", title: "Tornar técnico de serviço de transporte", remote: true }) do
+                  '<i class="fas fa-user"></i> Técnico'.html_safe
+                end
+              else
+                acoes << view_context.link_to(view_context.tornar_tecnico_transporte_usuario_path(u, remove: true), { data: { confirm: 'Remover permissão?' }, class: "btn btn-sm btn-danger", title: "Remover permissão técnico de serviço de transporte", remote: true }) do
+                  '<i class="fas fa-user"></i> Remover Técnico'.html_safe
+                end
               end
             end
           end
 
-          [
-            u.nome,
-            u.email,
-            (u.unidade&.sigla || 'SEM UNIDADE.'),
-            acoes.join(' ').html_safe
-          ]
+          status_dot = u.status ? '<span class="status-dot status-dot--active"></span>' : '<span class="status-dot status-dot--inactive"></span>'
+
+          {
+            DT_RowClass: (u.status ? nil : 'usuario-inativo'),
+            0 => u.nome,
+            1 => u.email,
+            2 => (u.unidade&.sigla || 'SEM UNIDADE.'),
+            3 => status_dot,
+            4 => acoes.join(' ').html_safe
+          }
         end
 
         render json: {
@@ -263,7 +260,7 @@ class UsuariosController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.require(:user).permit(:nome, :email, :unidade_id, :funcao_id, role_ids: [])
+      params.require(:user).permit(:nome, :email, :unidade_id, :funcao_id, :status, role_ids: [])
     end
 
     def set_post_url
