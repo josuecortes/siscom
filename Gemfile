@@ -56,3 +56,5 @@ gem 'prawn-rails'
 gem 'axlsx'
 gem 'axlsx_rails'
 gem "concurrent-ruby", "~> 1.3.4"
+
+gem 'rollbar'
