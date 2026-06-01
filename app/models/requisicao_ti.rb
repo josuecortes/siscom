@@ -1,4 +1,11 @@
 class RequisicaoTi < ApplicationRecord
+  PERFIS = [
+    'RESPONSÁVEL POR UNIDADE - usuário chefe de unidade: cria, faz envio, distribuições de documentos e recebe e envia documentos sigilosos. Acesso a aba de Documentos e Processo.',
+    'AUXILIAR DO RESPONSÁVEL - auxilia o chefe dentro da unidade: possui as mesmas funções do Reponsável de unidade com exceção de envio de documentos restritos. Acesso a aba de documentos.',
+    'CONSULTA/RASCUNHO - Usuários que tem a opção apenas de criar rascunho, visualizam e recebe documentos distribuídos pelo chefe, usuário mais utilizado apenas para consulta de documentos dentro da unidade. Acesso a aba de documentos',
+    'ANALISTA - Usuários responsáveis por apenas responder as solicitações do coordenador, não fazem envio de documento, receber distribuições da coordenação e pode devolver a distribuição (cadastra despacho quando solicitado por distribuição) pode fazer a criação de documentos. Acesso a aba de documentos.'
+  ].freeze
+
   belongs_to :user
   belongs_to :tecnico, class_name: 'User', foreign_key: 'tecnico_id', optional: true
   belongs_to :unidade
@@ -22,6 +29,7 @@ class RequisicaoTi < ApplicationRecord
   validate :verificar_requisicao_sistemas
   validate :verificar_requisicao_sistemas_problemas, on: :create
   validate :carta_ou_decreto, on: :create
+  validate :perfil_valido
 
   enum status: { "Solicitada": 1,  "Em atendimento": 2, "Concluída": 3, "Cancelada": 4, "Finalizada": 5 }
   enum avaliacao: { "Muito Bom": 5,  "Bom": 4, "Normal": 3, "Ruim": 2, "Péssimo": 1 }
@@ -61,6 +69,14 @@ class RequisicaoTi < ApplicationRecord
         validates_presence_of :observacoes
       when 'PRODOC - TREINAMENTO'
         validates_presence_of :observacoes
+    end
+  end
+
+  def perfil_valido
+    return if perfil.blank?
+
+    unless PERFIS.include?(perfil)
+      errors.add(:perfil, 'deve ser selecionado na lista')
     end
   end
 

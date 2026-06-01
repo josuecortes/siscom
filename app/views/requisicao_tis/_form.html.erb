@@ -268,10 +268,14 @@
         select: function(event, ui){
           $(hiddenSelector).val(ui.item.id);
           $(inputSelector).val(ui.item.value).trigger('change');
+          $(inputSelector).data('selectedLabel', ui.item.value);
           return false;
         },
         change: function(event, ui){
-          if(!ui.item){ $(hiddenSelector).val(''); }
+          if(!ui.item){
+            $(hiddenSelector).val('');
+            $(inputSelector).data('selectedLabel', '');
+          }
         }
       }).autocomplete("widget").addClass("ui-autocomplete-modal");
       
@@ -280,7 +284,15 @@
         $(this).autocomplete("search", "");
       });
       
-      $(inputSelector).on('input', function(){ if($(this).val() === '') { $(hiddenSelector).val(''); } });
+      $(inputSelector).on('input', function(){
+        var selected = $(this).data('selectedLabel') || '';
+        if ($(this).val() === '' || $(this).val() !== selected) {
+          $(hiddenSelector).val('');
+          if ($(this).val() !== selected) {
+            $(this).data('selectedLabel', '');
+          }
+        }
+      });
     }
 
     function bindAutocompleteSimple(inputSelector, url){
@@ -292,12 +304,24 @@
           $.getJSON(url, { term: request.term }, function(data){
             response($.map(data, function(item){ return item.value; }));
           });
+        },
+        select: function(event, ui){
+          $(inputSelector).val(ui.item.value);
+          $(inputSelector).data('selectedLabel', ui.item.value);
+          return false;
         }
       }).autocomplete("widget").addClass("ui-autocomplete-modal");
       
       // Mostrar todas as opções quando o campo recebe foco
       $(inputSelector).on('focus', function(){
         $(this).autocomplete("search", "");
+      });
+
+      $(inputSelector).on('input', function(){
+        var selected = $(this).data('selectedLabel') || '';
+        if ($(this).val() !== selected) {
+          $(this).data('selectedLabel', '');
+        }
       });
     }
 
@@ -438,6 +462,23 @@
       let problemaSelecionado = $('.js-autocomplete-problema').val()
       carregar_area(problemaSelecionado)
     })
+
+    $('form').on('submit', function(){
+      var $perfil = $('.js-autocomplete-perfil');
+      if ($perfil.length) {
+        var selected = $perfil.data('selectedLabel') || '';
+        if ($perfil.val() && $perfil.val() !== selected) {
+          $perfil.val('');
+        }
+      }
+      $('.js-autocomplete-problema, .js-autocomplete-cargo, .js-autocomplete-funcao, .js-autocomplete-unidade').each(function(){
+        var selected = $(this).data('selectedLabel') || '';
+        var hiddenSelector = '#' + $(this).attr('id').replace('_nome', '_id');
+        if ($(hiddenSelector).length && !$(hiddenSelector).val() && $(this).val() !== selected) {
+          $(this).val('');
+        }
+      });
+    });
 
     // Adicionar CSS para garantir que o autocomplete apareça acima do modal
     $('<style>')
