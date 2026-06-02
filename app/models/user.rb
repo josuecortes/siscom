@@ -26,6 +26,7 @@ class User < ApplicationRecord
   validates_presence_of :nome, :unidade_id, :funcao_id
   validates_uniqueness_of :nome
   validate :verificar_roles_padrao
+  validate :avatar_tipo_imagem
 
   before_validation :senha_padrao, on: :create
   before_save :upcase_fields
@@ -40,6 +41,15 @@ class User < ApplicationRecord
     end
     unless self.has_role? :req_serv_ti
       self.errors.add(:role, "A permissão ( Requisitante de serviços de TI ) deve estar selecionada")
+    end
+  end
+
+  def avatar_tipo_imagem
+    return unless avatar.attached?
+    return unless avatar.attachment&.new_record?
+
+    unless avatar.content_type&.start_with?('image/')
+      errors.add(:avatar, 'deve ser uma imagem')
     end
   end
 

@@ -241,6 +241,8 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     })
   end
 
+  public
+
   def estatisticas
     carregar_estatisticas
   end
@@ -249,6 +251,8 @@ class Nuinfo::RequisicaoTisController < ApplicationController
     carregar_estatisticas
     render :estatisticas
   end
+
+  private
 
   def carregar_estatisticas
     @tecnicos = Role.where(name: 'tec_serv_ti').first.users.map{ |u| [u.nome, u.id] }
