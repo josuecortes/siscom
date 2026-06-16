@@ -26,6 +26,10 @@ class RequisicaoTi < ApplicationRecord
   validates_presence_of :solucao, if: Proc.new{ |r| r.status == 'Concluída' }
   validates_presence_of :avaliacao, if: Proc.new{ |r| r.status == 'Finalizada' }
   validates_presence_of :comentario, if: Proc.new{ |r| r.avaliacao.in? ['Péssimo', 'Ruim'] }
+  validates :prodoc_sigla_da_instituicao_externa,
+            :prodoc_sigla_unidade_organizacional_externa,
+            length: { maximum: 30 },
+            allow_blank: true
   validate :verificar_requisicao_sistemas
   validate :verificar_requisicao_sistemas_problemas, on: :create
   validate :carta_ou_decreto, on: :create
