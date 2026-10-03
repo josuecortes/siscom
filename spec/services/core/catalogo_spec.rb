@@ -13,7 +13,7 @@ RSpec.describe Core::Catalogo do
   end
 
   it "carrega o módulo pelo nome do arquivo" do
-    expect(catalogo.modulos.map(&:chave)).to eq([ "exemplo" ])
+    expect(catalogo.modulos.map(&:chave)).to eq(%w[exemplo fechado])
     expect(modulo.nome).to eq("Exemplo")
     expect(modulo.icone).to eq("people")
     expect(catalogo).to be_modulo("exemplo")

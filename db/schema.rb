@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_020816) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_033348) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -87,6 +87,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_020816) do
     t.string "nome"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "core_acessos", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "modulo", null: false
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "modulo"], name: "index_core_acessos_on_user_id_and_modulo", unique: true
+    t.index ["user_id"], name: "index_core_acessos_on_user_id"
+  end
+
+  create_table "core_concessoes", force: :cascade do |t|
+    t.bigint "acesso_id", null: false
+    t.bigint "user_id", null: false
+    t.string "modulo", null: false
+    t.string "papel", null: false
+    t.string "escopo_tipo"
+    t.bigint "escopo_id"
+    t.string "status", default: "ativo", null: false
+    t.bigint "concedido_por_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["acesso_id"], name: "index_core_concessoes_on_acesso_id"
+    t.index ["concedido_por_id"], name: "index_core_concessoes_on_concedido_por_id"
+    t.index ["escopo_tipo", "escopo_id"], name: "index_core_concessoes_on_escopo_tipo_and_escopo_id"
+    t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
+    t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
+    t.index ["user_id"], name: "index_core_concessoes_on_user_id"
   end
 
   create_table "destinos", force: :cascade do |t|
@@ -764,6 +793,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_020816) do
   add_foreign_key "acoes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "core_acessos", "users"
+  add_foreign_key "core_concessoes", "core_acessos", column: "acesso_id"
+  add_foreign_key "core_concessoes", "users"
+  add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
   add_foreign_key "equipamentos", "unidades"
