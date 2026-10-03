@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_131523) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_132735) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_131523) do
     t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
     t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
     t.index ["user_id"], name: "index_core_concessoes_on_user_id"
+  end
+
+  create_table "core_configuracoes", force: :cascade do |t|
+    t.string "nome_marca_web", default: "Siscom", null: false
+    t.string "nome_marca_celular", default: "Siscom", null: false
+    t.boolean "mostrar_nome_marca_web", default: true, null: false
+    t.boolean "mostrar_nome_marca_celular", default: true, null: false
+    t.boolean "mostrar_icone_marca_web", default: true, null: false
+    t.boolean "mostrar_icone_marca_celular", default: true, null: false
+    t.string "nome_cabecalho_web", default: "Siscom", null: false
+    t.string "nome_cabecalho_celular", default: "Siscom", null: false
+    t.boolean "mostrar_nome_cabecalho_web", default: true, null: false
+    t.boolean "mostrar_nome_cabecalho_celular", default: true, null: false
+    t.string "titulo_login", default: "Seed", null: false
+    t.boolean "mostrar_titulo_login", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "core_inscricoes_push", force: :cascade do |t|

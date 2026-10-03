@@ -3,8 +3,13 @@
 <% gaveta = local_assigns.fetch(:gaveta, false) %>
 <div class="flex h-16 items-center border-b border-[var(--shell-sidebar-divider)] px-5 <%= "justify-between" if gaveta %>">
   <%= link_to root_path, class: "flex items-center gap-3", data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) } do %>
-    <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
-    <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>"><%= nome_do_sistema %></p>
+    <% marca = configuracao_do_sistema %>
+    <% if gaveta ? marca.mostrar_icone_marca_celular : marca.mostrar_icone_marca_web %>
+      <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
+    <% end %>
+    <% if gaveta ? marca.mostrar_nome_marca_celular : marca.mostrar_nome_marca_web %>
+      <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>"><%= gaveta ? marca.nome_marca_celular : marca.nome_marca_web %></p>
+    <% end %>
   <% end %>
 
   <% if gaveta %>

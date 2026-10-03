@@ -1,0 +1,81 @@
+<% content_for :title, "Configurações" %>
+<% caixa = "flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)]" %>
+<% arquivo = "block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Configurações", icone: :settings, migalha: [ "Administração", core_configuracoes_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with model: @configuracao, scope: :configuracao, url: core_configuracoes_path, method: :patch, class: "space-y-5 px-6 py-5" do |f| %>
+    <% if @configuracao.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
+    <% end %>
+
+    <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
+      <div>
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Marca e cabeçalho</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Nomes que aparecem no menu e na barra do topo, no computador e no celular.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= render "compartilhado/campo", f: f, campo: :nome_marca_web, rotulo: "Nome da marca (computador) *", html: { required: true, maxlength: 60 } %>
+        <%= render "compartilhado/campo", f: f, campo: :nome_marca_celular, rotulo: "Nome da marca (celular) *", html: { required: true, maxlength: 60 } %>
+        <%= render "compartilhado/campo", f: f, campo: :nome_cabecalho_web, rotulo: "Nome no cabeçalho (computador) *", html: { required: true, maxlength: 60 } %>
+        <%= render "compartilhado/campo", f: f, campo: :nome_cabecalho_celular, rotulo: "Nome no cabeçalho (celular) *", html: { required: true, maxlength: 60 } %>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2">
+        <% { mostrar_nome_marca_web: "Exibir nome da marca no computador", mostrar_nome_marca_celular: "Exibir nome da marca no celular",
+             mostrar_nome_cabecalho_web: "Exibir nome no cabeçalho do computador", mostrar_nome_cabecalho_celular: "Exibir nome no cabeçalho do celular" }.each do |campo, texto| %>
+          <label class="<%= caixa %>"><%= f.check_box campo, class: "h-4 w-4" %> <span><%= texto %></span></label>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
+      <div>
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Login</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Texto que aparece embaixo do nome da marca na tela de entrada.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= render "compartilhado/campo", f: f, campo: :titulo_login, rotulo: "Título do login *", html: { required: true, maxlength: 60 } %>
+        <label class="<%= caixa %> md:mt-7 md:h-11"><%= f.check_box :mostrar_titulo_login, class: "h-4 w-4" %> <span>Exibir título no login</span></label>
+      </div>
+    </section>
+
+    <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
+      <div>
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Ícones</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Ícone da marca (menu e login) e favicon (aba do navegador). PNG, WebP, JPG ou ICO, até 1 MB.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <% { icone_marca: "Arquivo do ícone da marca", favicon: "Arquivo do favicon" }.each do |campo, texto| %>
+          <% erros = @configuracao.errors[campo] %>
+          <% anexo = @configuracao.public_send(campo) %>
+          <div class="space-y-1.5">
+            <%= f.label campo, texto, class: "text-sm font-medium text-[var(--text-secondary)]" %>
+            <%= f.file_field campo, accept: ".png,.webp,.jpg,.jpeg,.ico", class: arquivo %>
+            <% erros.each do |mensagem| %><p class="text-sm text-[var(--danger-text)]"><%= texto %> <%= mensagem %></p><% end %>
+            <% if anexo.attached? && anexo.persisted? %>
+              <div class="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+                <%= image_tag rails_blob_path(anexo, only_path: true), alt: "", class: "h-9 w-9 rounded-md border border-[var(--border-subtle)] object-contain" %>
+                <label class="flex items-center gap-2"><%= check_box_tag "remover[#{campo}]", "1", false, class: "h-4 w-4" %> Remover a imagem atual</label>
+              </div>
+            <% else %>
+              <p class="text-xs text-[var(--text-muted)]">Sem imagem: o sistema usa o ícone padrão.</p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="grid gap-3 md:grid-cols-2">
+        <label class="<%= caixa %>"><%= f.check_box :mostrar_icone_marca_web, class: "h-4 w-4" %> <span>Exibir ícone da marca no computador</span></label>
+        <label class="<%= caixa %>"><%= f.check_box :mostrar_icone_marca_celular, class: "h-4 w-4" %> <span>Exibir ícone da marca no celular</span></label>
+      </div>
+    </section>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+
+    <div class="flex justify-end border-t border-[var(--border-subtle)] pt-4">
+      <%= f.button "Salvar configurações", type: "submit", data: { turbo_submits_with: "Salvando..." },
+            class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" %>
+    </div>
+  <% end %>
+</section>

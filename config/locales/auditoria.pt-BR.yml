@@ -15,5 +15,7 @@ pt-BR:
           papel_revogado: "Papel revogado"
           modulo_bloqueado: "Módulo bloqueado"
           modulo_liberado: "Módulo liberado"
+        configuracao:
+          atualizada: "Configurações do sistema alteradas"
         sessao:
           iniciada: "Entrada no sistema"

@@ -7,10 +7,15 @@
 
   <section class="w-full px-6 py-8 md:px-10 md:py-10 lg:px-12 lg:py-11">
     <div class="flex items-center gap-3 md:mx-auto md:w-full md:max-w-[38rem]">
-      <%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %>
+      <% marca = configuracao_do_sistema %>
+      <% if marca.mostrar_icone_marca_celular %><span class="md:hidden" data-login-icone="celular"><%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %></span><% end %>
+      <% if marca.mostrar_icone_marca_web %><span class="hidden md:inline" data-login-icone="web"><%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %></span><% end %>
       <div class="min-w-0">
-        <p class="text-[1.1rem] font-semibold text-[var(--text-primary)]"><%= nome_do_sistema %></p>
-        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] md:tracking-[0.18em]"><%= subtitulo_do_login %></p>
+        <% if marca.mostrar_nome_marca_celular %><p class="text-[1.1rem] font-semibold text-[var(--text-primary)] md:hidden"><%= marca.nome_marca_celular %></p><% end %>
+        <% if marca.mostrar_nome_marca_web %><p class="hidden text-[1.1rem] font-semibold text-[var(--text-primary)] md:block"><%= marca.nome_marca_web %></p><% end %>
+        <% if marca.mostrar_titulo_login %>
+          <p data-login-titulo class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] md:tracking-[0.18em]"><%= marca.titulo_login %></p>
+        <% end %>
       </div>
     </div>
 

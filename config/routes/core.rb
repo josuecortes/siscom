@@ -1,5 +1,6 @@
 # Rotas do módulo Core (administração).
 namespace :core do
+  resource :configuracoes, only: %i[show update]
   resources :auditoria, only: :index
 
   resources :usuarios, only: %i[index new create edit update] do

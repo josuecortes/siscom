@@ -18,7 +18,9 @@
 
       <div class="min-w-0 flex-1 overflow-hidden">
         <p class="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-[0.95rem]">
-          <%= nome_do_sistema %>
+          <% marca = configuracao_do_sistema %>
+          <% if marca.mostrar_nome_cabecalho_web %><span class="hidden lg:inline"><%= marca.nome_cabecalho_web %></span><% end %>
+          <% if marca.mostrar_nome_cabecalho_celular %><span class="lg:hidden"><%= marca.nome_cabecalho_celular %></span><% end %>
         </p>
       </div>
     </div>

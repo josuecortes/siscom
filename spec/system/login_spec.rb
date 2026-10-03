@@ -38,12 +38,12 @@ RSpec.describe "Login" do
       end
 
       it "tem a marca, o título e os campos nas mesmas posições" do
-        expect(retangulo("#{painel} section > div:first-child > span")).to include("x" => 396, "y" => 225, "largura" => 44, "altura" => 44)
+        expect(retangulo("#{painel} [data-login-icone='web'] > span")).to include("x" => 396, "y" => 225, "largura" => 44, "altura" => 44)
         expect(retangulo("#{painel} h1")).to include("x" => 396, "y" => 301, "largura" => 608, "altura" => 56.4)
         expect(retangulo("#{painel} input[type='email']").values_at("x", "y", "largura")).to eq([ 397, 433.2, 606 ])
         expect(tamanhos(caixa: "#{painel} form .h-12", olho: "#{painel} form button[type='button']"))
           .to eq(caixa: [ 608, 48 ], olho: [ 48, 46 ])
-        expect(estilo("#{painel} section > div:first-child p + p", "letterSpacing")).to eq("1.98px")
+        expect(estilo("#{painel} [data-login-titulo]", "letterSpacing")).to eq("1.98px")
       end
 
       it "tem a caixa de lembrar e o botão Entrar como no seed" do
@@ -68,11 +68,11 @@ RSpec.describe "Login" do
       end
 
       it "tem a marca empilhada, campos e botão na largura toda" do
-        expect(retangulo("#{painel} section > div:first-child > span")).to include("x" => 24, "y" => 36, "largura" => 44, "altura" => 44)
+        expect(retangulo("#{painel} [data-login-icone='celular'] > span")).to include("x" => 24, "y" => 36, "largura" => 44, "altura" => 44)
         expect(retangulo("#{painel} h1")).to include("x" => 24, "y" => 112, "largura" => 342)
         expect(tamanhos(caixa: "#{painel} form .h-12", botao: "#{painel} button[type='submit']"))
           .to eq(caixa: [ 342, 48 ], botao: [ 342, 44 ])
-        expect(estilo("#{painel} section > div:first-child p + p", "letterSpacing")).to eq("1.76px")
+        expect(estilo("#{painel} [data-login-titulo]", "letterSpacing")).to eq("1.76px")
       end
     end
   end

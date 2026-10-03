@@ -29,4 +29,5 @@ concessao:
 
 menu:
   - { rotulo: "Usuários", rota: core_usuarios_path, permissao: usuarios.ver, icone: people }
+  - { rotulo: "Configurações", rota: core_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }
   - { rotulo: "Auditoria", rota: core_auditoria_path, permissao: auditoria.ver, icone: notes }

@@ -1,7 +1,7 @@
 <%# Manifesto do app instalável (PWA). Ícone provisório até a marca definitiva. %>
 <%= raw({
-  name: "Siscom · SEED",
-  short_name: "Siscom",
+  name: "#{Core::Configuracao.atual.nome_marca_web} · SEED",
+  short_name: Core::Configuracao.atual.nome_marca_celular,
   description: "Sistema de comunicação e serviços da Secretaria de Estado da Educação do Amapá.",
   lang: "pt-BR",
   start_url: "/",
