@@ -30,11 +30,6 @@ module Siscom
     # Catálogos dos módulos (permissões, papéis, menu): recarregar ao editar em desenvolvimento.
     config.watchable_dirs[Rails.root.join("config/modulos").to_s] = [ :yml ]
 
-    config.to_prepare do
-      Devise::SessionsController.layout "publico"
-      Devise::PasswordsController.layout "publico"
-    end
-
     config.generators do |g|
       g.test_framework :rspec
       g.system_tests nil

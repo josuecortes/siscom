@@ -41,6 +41,11 @@
             <p class="mt-1 truncate text-xs text-[var(--text-muted)]"><%= current_user.email %></p>
           </div>
           <div class="px-3 py-3">
+            <%= link_to edit_minha_senha_path, role: "menuitem",
+                  class: "mb-1 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]" do %>
+              <%= icone(:lock_locked, classe: "h-[14px] w-[14px]") %>
+              <span>Trocar senha</span>
+            <% end %>
             <%= button_to destroy_user_session_path, method: :delete, role: "menuitem",
                   class: "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]" do %>
               <%= icone(:account_logout, classe: "h-[14px] w-[14px]") %>
