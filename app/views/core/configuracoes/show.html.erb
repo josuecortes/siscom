@@ -1,19 +1,19 @@
 <% content_for :title, "Configurações" %>
-<% caixa = "flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)]" %>
-<% arquivo = "block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
+<% caixa = "flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-secondary)]" %>
+<% arquivo = "block h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Configurações", icone: :settings, migalha: [ "Administração", core_configuracoes_path ] } do %>
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
-  <%= form_with model: @configuracao, scope: :configuracao, url: core_configuracoes_path, method: :patch, class: "space-y-5 px-6 py-5" do |f| %>
+  <%= form_with model: @configuracao, scope: :configuracao, url: core_configuracoes_path, method: :patch, class: "space-y-6 px-6 py-5" do |f| %>
     <% if @configuracao.errors.any? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
     <% end %>
 
     <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
       <div>
-        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Marca e cabeçalho</h2>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Marca e cabeçalho</h2>
         <p class="mt-1 text-sm text-[var(--text-secondary)]">Nomes que aparecem no menu e na barra do topo, no computador e no celular.</p>
       </div>
       <div class="grid gap-4 md:grid-cols-2">
@@ -32,7 +32,7 @@
 
     <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
       <div>
-        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Login</h2>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Login</h2>
         <p class="mt-1 text-sm text-[var(--text-secondary)]">Texto que aparece embaixo do nome da marca na tela de entrada.</p>
       </div>
       <div class="grid gap-4 md:grid-cols-2">
@@ -43,7 +43,7 @@
 
     <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
       <div>
-        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Ícones</h2>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Ícones</h2>
         <p class="mt-1 text-sm text-[var(--text-secondary)]">Ícone da marca (menu e login) e favicon (aba do navegador). PNG, WebP, JPG ou ICO, até 1 MB.</p>
       </div>
       <div class="grid gap-4 md:grid-cols-2">
