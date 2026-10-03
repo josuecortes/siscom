@@ -176,7 +176,7 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
       create(:core_concessao, user: admin, papel: "superadmin")
       visit core_usuarios_path
       usar_tema("light")
-      within(linha_maria) { click_on "Acessos e papéis" }
+      within(linha_maria) { click_on "Permissões" }
       find("#{painel} h2", text: "MARIA OLIVEIRA")
     end
 
@@ -185,11 +185,11 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
       expect(retangulo(painel)).to include("x" => 428, "largura" => 544)
       expect(tamanhos(cabecalho: "#{painel} > div:first-child", rodape: "#{painel} > div:last-child > div:last-child"))
         .to eq(cabecalho: [ 542, 81.5 ], rodape: [ 542, 73 ])
-      expect(retangulo("#acesso_core select")).to include("altura" => 44)
-      expect(estilo("#acesso_core select", "borderRadius")).to eq("12px")
-      expect(estilo("#acesso_core select", "paddingLeft")).to eq("16px")
-      expect(estilo("#acesso_core label", "fontSize")).to eq("14px")
-      expect(retangulo("#acesso_core button[aria-label^='Conceder']")).to include("altura" => 44)
+      expect(retangulo("#permissao_core select")).to include("altura" => 44)
+      expect(estilo("#permissao_core select", "borderRadius")).to eq("12px")
+      expect(estilo("#permissao_core select", "paddingLeft")).to eq("16px")
+      expect(estilo("#permissao_core label", "fontSize")).to eq("14px")
+      expect(retangulo("#permissao_core button[aria-label^='Conceder']")).to include("altura" => 44)
       print("usuarios-acessos-desktop")
     end
   end

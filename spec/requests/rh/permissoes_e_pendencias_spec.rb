@@ -6,10 +6,10 @@ RSpec.describe "RH: acessos e pendências" do
   let!(:maria) { create(:user, nome: "MARIA OLIVEIRA", email: "maria@seed.ap.gov.br") }
 
   describe "acessos" do
-    it "só quem tem rh.acessos.conceder entra" do
+    it "só quem tem rh.permissoes.conceder entra" do
       sign_in operador
 
-      respostas = [ -> { get rh_acessos_path }, -> { get edit_rh_acesso_path(maria) }, -> { patch rh_acesso_path(maria), params: { papel: "leitor" } } ]
+      respostas = [ -> { get rh_permissoes_path }, -> { get edit_rh_permissao_path(maria) }, -> { patch rh_permissao_path(maria), params: { papel: "leitor" } } ]
                   .map { |requisicao| requisicao.call && response.status }
 
       expect(respostas).to all(eq(403))
@@ -22,38 +22,38 @@ RSpec.describe "RH: acessos e pendências" do
       it "lista todos os usuários ativos com as permissões e filtra" do
         operador
 
-        get rh_acessos_path
+        get rh_permissoes_path
         expect(response.body).to include("MARIA OLIVEIRA", "Sem permissão (só a própria ficha)", "OPERADOR DO RH", "Operador", "3 usuário(s) listado(s)")
 
-        get rh_acessos_path, params: { situacao: "sem" }
+        get rh_permissoes_path, params: { situacao: "sem" }
         expect(response.body).to include("MARIA OLIVEIRA", "1 usuário(s) listado(s)")
 
-        get rh_acessos_path, params: { situacao: "com", q: "operador" }
+        get rh_permissoes_path, params: { situacao: "com", q: "operador" }
         expect(response.body).to include("OPERADOR DO RH", "1 usuário(s) listado(s)")
       end
 
       it "dá, troca e tira a permissão: sempre uma só" do
-        patch rh_acesso_path(maria), params: { papel: "leitor" }
+        patch rh_permissao_path(maria), params: { papel: "leitor" }
         expect(Core::Autorizacao.new(maria).papeis(:rh)).to contain_exactly("leitor", "usuario")
 
-        patch rh_acesso_path(maria), params: { papel: "operador" }
+        patch rh_permissao_path(maria), params: { papel: "operador" }
         expect(Core::Api.papeis_concedidos([ maria.id ], modulo: :rh)).to eq(maria.id => [ "operador" ])
 
-        patch rh_acesso_path(maria), params: { papel: "" }
+        patch rh_permissao_path(maria), params: { papel: "" }
         expect(Core::Autorizacao.new(maria).papeis(:rh)).to eq([ "usuario" ])
-        expect(response).to redirect_to(rh_acessos_path)
+        expect(response).to redirect_to(rh_permissoes_path)
       end
 
       it "avisa a pessoa e registra na auditoria" do
-        patch rh_acesso_path(maria), params: { papel: "leitor" }
+        patch rh_permissao_path(maria), params: { papel: "leitor" }
 
-        expect(maria.notificacoes.sole.mensagem).to include("Papel Leitor no módulo RH")
+        expect(maria.notificacoes.sole.mensagem).to include("Permissão Leitor no módulo RH")
         expect(Core::RegistroAuditoria.recentes.first).to have_attributes(evento: "acesso.papel_concedido", ator: admin, alvo_id: maria.id)
       end
 
       it "ignora papel que não é do RH ou é automático" do
-        patch rh_acesso_path(maria), params: { papel: "superadmin" }
-        patch rh_acesso_path(maria), params: { papel: "usuario" }
+        patch rh_permissao_path(maria), params: { papel: "superadmin" }
+        patch rh_permissao_path(maria), params: { papel: "usuario" }
 
         expect(Core::Concessao.where(user: maria)).to be_empty
       end

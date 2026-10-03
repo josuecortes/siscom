@@ -15,19 +15,19 @@ RSpec.describe "Notificações", :js do
 
     sign_in superadmin
     visit core_usuarios_path
-    within("tr", text: "MARIA OLIVEIRA") { click_on "Acessos e papéis" }
-    within("#acesso_core") do
-      select "Auditor", from: "Conceder papel em Administração"
-      click_on "Conceder papel em Administração"
+    within("tr", text: "MARIA OLIVEIRA") { click_on "Permissões" }
+    within("#permissao_core") do
+      select "Auditor", from: "Conceder permissão em Administração"
+      click_on "Conceder permissão em Administração"
     end
-    expect(page).to have_content("Papel concedido.")
+    expect(page).to have_content("Permissão concedida.")
 
     Capybara.using_session(:maria) do
       expect(page).to have_css("[data-sino-contador]", text: "1")
-      expect(page).to have_css("#avisos", text: "Você recebeu um novo papel")
+      expect(page).to have_css("#avisos", text: "Você recebeu uma nova permissão")
 
       click_on "Abrir notificações (1 não lidas)"
-      expect(page).to have_content("Papel Auditor no módulo Administração.")
+      expect(page).to have_content("Permissão Auditor no módulo Administração.")
       page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/sino.png") if ENV["SCREENSHOT_DIR"]
 
       click_on "Ver todas as notificações"

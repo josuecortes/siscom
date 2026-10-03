@@ -127,19 +127,19 @@ RSpec.describe "Administração: usuários", :js do
   it "concede e revoga papéis pelo painel de acessos" do
     create(:core_concessao, user: admin, papel: "superadmin")
     visit core_usuarios_path
-    within("tr", text: "MARIA OLIVEIRA") { click_on "Acessos e papéis" }
+    within("tr", text: "MARIA OLIVEIRA") { click_on "Permissões" }
     expect(page).to have_css("[role='dialog'] h2", text: "MARIA OLIVEIRA")
 
-    within("#acesso_core") do
-      select "Auditor", from: "Conceder papel em Administração"
-      click_on "Conceder papel em Administração"
+    within("#permissao_core") do
+      select "Auditor", from: "Conceder permissão em Administração"
+      click_on "Conceder permissão em Administração"
     end
-    expect(page).to have_content("Papel concedido.")
-    within("#acesso_core") { expect(page).to have_content("Com acesso") }
+    expect(page).to have_content("Permissão concedida.")
+    within("#permissao_core") { expect(page).to have_content("Com acesso") }
     print("usuarios-acessos")
 
-    click_on "Revogar o papel Auditor em Administração"
-    expect(page).to have_content("Papel revogado.")
+    click_on "Revogar a permissão Auditor em Administração"
+    expect(page).to have_content("Permissão revogada.")
 
     click_on "Concluir"
     expect(page).to have_no_css("[role='dialog']")

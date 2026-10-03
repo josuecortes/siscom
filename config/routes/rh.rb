@@ -21,7 +21,7 @@ namespace :rh do
     patch :encerrar, on: :member
   end
 
-  resources :acessos, only: %i[index edit update]
+  resources :permissoes, only: %i[index edit update]
   resources :pendencias, only: :index do
     patch :resolver, on: :member
   end

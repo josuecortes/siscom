@@ -19,7 +19,7 @@ RSpec.describe "Minha área com as medidas do seed", :js do
 
   def notificar(titulo, lida: false, ha: 0.minutes)
     notificacao = Core::Notificacoes::Criar.call(destinatarios: maria, evento: "core.acesso.papel_concedido", titulo: titulo,
-                                                 mensagem: "Papel Auditor no módulo Administração.", ator: nil).first
+                                                 mensagem: "Permissão Auditor no módulo Administração.", ator: nil).first
     notificacao.update!(created_at: ha.ago, lida_em: (Time.current if lida))
     notificacao
   end

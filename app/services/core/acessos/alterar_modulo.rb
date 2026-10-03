@@ -17,7 +17,7 @@ module Core
 
       def call
         return falha("Módulo inexistente no catálogo: #{@modulo}.") unless Core::Catalogo.modulo?(@modulo)
-        return falha("Você não pode alterar acessos.") unless Core::Autorizacao.new(@alterado_por).pode?(PERMISSAO)
+        return falha("Você não pode alterar permissões.") unless Core::Autorizacao.new(@alterado_por).pode?(PERMISSAO)
         return falha("Você não pode bloquear o seu próprio acesso à Administração.") if trancando_a_si_mesmo?
         return falha("Não é possível bloquear o último superadministrador ativo.") if ultimo_superadmin?
 

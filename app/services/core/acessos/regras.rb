@@ -3,10 +3,10 @@ module Core
     # Quem pode conceder ou revogar um papel:
     # - papéis do Core: só quem tem um papel do Core que o catálogo autoriza a
     #   concedê-lo (hoje, o superadmin);
-    # - papéis dos outros módulos: quem tem `core.acessos.conceder` ou um papel
+    # - papéis dos outros módulos: quem tem `core.permissoes.conceder` ou um papel
     #   do próprio módulo autorizado pelo catálogo (bloco `concessao`).
     module Regras
-      PERMISSAO_GERAL = "core.acessos.conceder".freeze
+      PERMISSAO_GERAL = "core.permissoes.conceder".freeze
 
       module_function
 

@@ -41,6 +41,13 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 - Layout: `layouts/application` (shell) e `layouts/publico` (login). Partials em
   `app/views/layouts/compartilhado/` e `app/views/compartilhado/` (`_cabecalho_pagina`, `_flash`,
   `_alternar_tema`). Ícones CoreUI: `icone(:nome)` (arquivos `app/assets/images/icones/cil-*.svg`).
+- **Nomes na tela (iguais em todos os módulos):** o que o código chama de *papel* (`admin`, `operador`…) aparece
+  para o usuário como **Permissão**; a tela de cada módulo que dá e tira permissões se chama **Permissões**
+  (menu "Permissões", rota `/<modulo>/permissoes`, ação "Gerenciar permissões"); a chave no catálogo é
+  `permissoes.conceder`. Não usar "acessos", "papéis" ou "regras" em textos de tela.
+- **Campos de busca:** lista com mais de 8 opções (ou que cresce) usa `compartilhado/_campo_autocomplete`
+  (a partir de 3 letras filtra; se nada combina, mostra a lista em ordem alfabética), com um endpoint de opções
+  do módulo (ex.: `Rh::OpcoesController`). Endereço usa `compartilhado/_campos_endereco` (CEP preenche o resto).
 - **Celular:** toda tela segue o comportamento do seed em tela pequena e é conferida em ~390 px (sem
   rolagem horizontal; menu em gaveta; ação principal só com ícone; formulário em painel de altura
   inteira). O app será instalável (PWA). Regras no plano, `02` §6.1 e §6.2.

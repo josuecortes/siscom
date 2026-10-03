@@ -4,7 +4,7 @@ module Core
     # avisa em tempo real (sino e aviso flutuante).
     #
     #   Core::Notificacoes::Criar.call(destinatarios: user, evento: "core.acesso.papel_concedido",
-    #                                  titulo: "Você recebeu um novo papel", mensagem: "...", url_acao: "/")
+    #                                  titulo: "Você recebeu uma nova permissão", mensagem: "...", url_acao: "/")
     class Criar
       def self.call(...) = new(...).call
 

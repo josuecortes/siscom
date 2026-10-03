@@ -105,7 +105,7 @@ RSpec.describe "RH: pessoas", :js do
     Capybara.reset_sessions!
     sign_in admin
 
-    visit rh_acessos_path
+    visit rh_permissoes_path
     within("tr", text: "MARIA OLIVEIRA") { click_on "Gerenciar permissões" }
     choose "Leitor"
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-acessos.png") if ENV["SCREENSHOT_DIR"]

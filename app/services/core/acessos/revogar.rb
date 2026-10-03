@@ -13,7 +13,7 @@ module Core
 
       def call
         return Core::Resultado.sucesso(@concessao) if @concessao.inativo?
-        return falha("Você não pode revogar este papel.") unless autorizado?
+        return falha("Você não pode revogar esta permissão.") unless autorizado?
         return falha("Não é possível revogar o último superadministrador ativo.") if ultimo_superadmin?
 
         @concessao.inativo!

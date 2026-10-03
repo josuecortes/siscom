@@ -22,7 +22,7 @@ RSpec.describe Core::Acessos::Revogar do
   it "recusa quem não pode conceder aquele papel" do
     resultado = described_class.call(concessao: concessao, revogado_por: create(:user))
 
-    expect(resultado.erros).to eq([ "Você não pode revogar este papel." ])
+    expect(resultado.erros).to eq([ "Você não pode revogar esta permissão." ])
     expect(concessao.reload).to be_ativo
   end
 

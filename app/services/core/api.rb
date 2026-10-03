@@ -27,7 +27,7 @@ module Core
     def definir_papel(user:, modulo:, papel:, definido_por:)
       papel = papel.to_s.presence
       if papel && !Acessos::Regras.pode_conceder?(definido_por, modulo:, papel:)
-        return Resultado.falha("Você não pode conceder este papel.")
+        return Resultado.falha("Você não pode conceder esta permissão.")
       end
 
       Concessao.transaction do

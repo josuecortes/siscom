@@ -1,13 +1,13 @@
-<% content_for :title, "Acessos" %>
+<% content_for :title, "Permissões" %>
 <% nomes = @papeis.to_h { |papel| [ papel.chave, papel.nome ] } %>
 <% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)]" %>
 
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Acessos", icone: :shield_alt, migalha: [ "RH", rh_acessos_path ] } do %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Permissões", icone: :shield_alt, migalha: [ "RH", rh_permissoes_path ] } do %>
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
-  <%= form_with url: rh_acessos_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
-        data: { controller: "filtro", turbo_frame: "acessos_lista", turbo_action: "advance" } do |f| %>
+  <%= form_with url: rh_permissoes_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "permissoes_lista", turbo_action: "advance" } do |f| %>
     <div class="grid gap-4 lg:grid-cols-[1.2fr_0.6fr_auto] lg:items-end">
       <div class="space-y-1.5">
         <%= f.label :q, "Buscar por nome ou e-mail", class: "text-sm font-medium text-[var(--text-secondary)]" %>
@@ -24,7 +24,7 @@
       <div class="flex flex-row gap-2">
         <button type="submit" title="Filtrar usuários" aria-label="Filtrar usuários"
                 class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
-        <%= link_to rh_acessos_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+        <%= link_to rh_permissoes_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
               class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
           <%= icone(:x) %>
         <% end %>
@@ -32,7 +32,7 @@
     </div>
   <% end %>
 
-  <%= turbo_frame_tag "acessos_lista", data: { turbo_action: "advance" } do %>
+  <%= turbo_frame_tag "permissoes_lista", data: { turbo_action: "advance" } do %>
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} usuário(s) listado(s)" %>
 
     <div class="overflow-x-auto">
@@ -48,7 +48,7 @@
         <tbody>
           <% @usuarios.each do |usuario| %>
             <% papeis = @concedidos.fetch(usuario.id, []) %>
-            <tr id="<%= dom_id(usuario, :acesso) %>">
+            <tr id="<%= dom_id(usuario, :permissao) %>">
               <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= usuario.nome %></p></td>
               <td><%= usuario.email %></td>
               <td>
@@ -57,7 +57,7 @@
                   <% if papeis.empty? %><span class="text-sm text-[var(--text-muted)]">Sem permissão (só a própria ficha)</span><% end %>
                 </div>
               </td>
-              <td><%= render "compartilhado/botao_acao", titulo: "Gerenciar permissões", icone: :shield_alt, caminho: edit_rh_acesso_path(usuario), quadro: "painel" %></td>
+              <td><%= render "compartilhado/botao_acao", titulo: "Gerenciar permissões", icone: :shield_alt, caminho: edit_rh_permissao_path(usuario), quadro: "painel" %></td>
             </tr>
           <% end %>
           <% if @usuarios.empty? %>
@@ -67,6 +67,6 @@
       </table>
     </div>
 
-    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "acessos_lista" %>
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "permissoes_lista" %>
   <% end %>
 </section>

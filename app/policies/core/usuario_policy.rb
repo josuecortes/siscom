@@ -8,7 +8,7 @@ module Core
     def update? = create? && outro?
     def alterar_status? = update?
     def redefinir_senha? = permissao?("core.usuarios.redefinir_senha") && outro?
-    def ver_acessos? = permissao?("core.acessos.conceder")
+    def ver_permissoes? = permissao?("core.permissoes.conceder")
 
     class Scope < Scope
       def resolve

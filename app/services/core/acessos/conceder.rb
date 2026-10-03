@@ -20,10 +20,10 @@ module Core
       def call
         definicao = Core::Catalogo.modulo(@modulo)
         papel = definicao&.papel(@papel)
-        return falha("Papel inexistente no catálogo: #{@modulo}.#{@papel}.") unless papel
-        return falha("O papel #{papel.nome} é automático e não precisa ser concedido.") if papel.automatico?
-        return falha("Usuário desativado não pode receber papéis.") unless @user.ativo?
-        return falha("Você não pode conceder o papel #{papel.nome}.") unless autorizado?
+        return falha("Permissão inexistente no catálogo: #{@modulo}.#{@papel}.") unless papel
+        return falha("A permissão #{papel.nome} é automática e não precisa ser concedida.") if papel.automatico?
+        return falha("Usuário desativado não pode receber permissões.") unless @user.ativo?
+        return falha("Você não pode conceder a permissão #{papel.nome}.") unless autorizado?
 
         Core::Concessao.transaction do
           acesso = Core::Acesso.find_or_create_by!(user: @user, modulo: @modulo)
@@ -53,8 +53,8 @@ module Core
       def avisar_usuario(definicao, papel)
         Core::Notificacoes::Criar.call(
           destinatarios: @user, ator: @concedido_por, evento: "core.acesso.papel_concedido", alvo: @user,
-          titulo: "Você recebeu um novo papel",
-          mensagem: "Papel #{papel.nome} no módulo #{definicao.nome}. O menu já mostra o que mudou."
+          titulo: "Você recebeu uma nova permissão",
+          mensagem: "Permissão #{papel.nome} no módulo #{definicao.nome}. O menu já mostra o que mudou."
         )
       end
 

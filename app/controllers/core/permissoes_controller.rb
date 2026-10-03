@@ -1,9 +1,9 @@
 module Core
-  # Administração → Usuários → Acessos e papéis: editor de acessos por módulo
+  # Administração → Usuários → Permissões: editor de acessos por módulo
   # de um usuário (conceder/revogar papéis, bloquear/liberar módulos).
-  class AcessosController < BaseController
+  class PermissoesController < BaseController
     before_action :carregar_usuario
-    before_action { pode!("core.acessos.conceder") }
+    before_action { pode!("core.permissoes.conceder") }
 
     def show
       montar_painel
@@ -12,13 +12,13 @@ module Core
     # Concede um papel.
     def create
       responder Acessos::Conceder.call(user: @usuario, modulo: params[:modulo], papel: params[:papel], concedido_por: current_user),
-                "Papel concedido."
+                "Permissão concedida."
     end
 
     # Revoga uma concessão.
     def destroy
       concessao = @usuario_concessoes.find(params[:concessao_id])
-      responder Acessos::Revogar.call(concessao: concessao, revogado_por: current_user), "Papel revogado."
+      responder Acessos::Revogar.call(concessao: concessao, revogado_por: current_user), "Permissão revogada."
     end
 
     # Bloqueia ou libera o módulo inteiro.

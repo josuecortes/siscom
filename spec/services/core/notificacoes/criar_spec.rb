@@ -61,8 +61,8 @@ RSpec.describe Core::Notificacoes::Criar do
     Core::Acessos::Conceder.call(user: maria, modulo: "core", papel: "auditor", concedido_por: superadmin)
     Core::Acessos::Conceder.call(user: joao, modulo: "core", papel: "auditor", pelo_sistema: true)
 
-    expect(maria.notificacoes.sole).to have_attributes(titulo: "Você recebeu um novo papel",
-                                                       mensagem: "Papel Auditor no módulo Administração. O menu já mostra o que mudou.")
+    expect(maria.notificacoes.sole).to have_attributes(titulo: "Você recebeu uma nova permissão",
+                                                       mensagem: "Permissão Auditor no módulo Administração. O menu já mostra o que mudou.")
     expect(joao.notificacoes).to be_empty
   end
 end

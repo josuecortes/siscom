@@ -30,8 +30,8 @@ pt-BR:
           senha_redefinida: "Senha redefinida pelo administrador"
           senha_alterada: "Senha alterada pelo usuário"
         acesso:
-          papel_concedido: "Papel concedido"
-          papel_revogado: "Papel revogado"
+          papel_concedido: "Permissão concedida"
+          papel_revogado: "Permissão revogada"
           modulo_bloqueado: "Módulo bloqueado"
           modulo_liberado: "Módulo liberado"
         configuracao:

@@ -1,10 +1,10 @@
 module Rh
   # RH → Acessos (porta de hr-authorizations-module.tsx): quem tem qual permissão
   # no RH. Cada usuário tem no máximo um papel concedido no módulo.
-  class AcessosController < BaseController
+  class PermissoesController < BaseController
     POR_PAGINA = 20
 
-    before_action { pode!("rh.acessos.conceder") }
+    before_action { pode!("rh.permissoes.conceder") }
     before_action :carregar_papeis
     before_action :carregar_usuario, only: %i[edit update]
 
@@ -29,7 +29,7 @@ module Rh
                                           definido_por: current_user)
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Permissão de #{@usuario.nome} atualizada.", voltar_para: rh_acessos_path)
+        concluir_painel(aviso: "Permissão de #{@usuario.nome} atualizada.", voltar_para: rh_permissoes_path)
       else
         @erro = resultado.mensagem_de_erro
         @papel_atual = params[:papel]

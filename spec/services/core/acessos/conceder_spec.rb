@@ -50,10 +50,10 @@ RSpec.describe Core::Acessos::Conceder do
 
   it "recusa papel fora do catálogo e usuário desativado" do
     expect(described_class.call(user: user, modulo: "core", papel: "fantasma", pelo_sistema: true).erros)
-      .to eq([ "Papel inexistente no catálogo: core.fantasma." ])
+      .to eq([ "Permissão inexistente no catálogo: core.fantasma." ])
 
     user.update!(status: false)
-    expect(conceder(pelo_sistema: true).erros).to eq([ "Usuário desativado não pode receber papéis." ])
+    expect(conceder(pelo_sistema: true).erros).to eq([ "Usuário desativado não pode receber permissões." ])
   end
 
   context "com catálogo de exemplo" do
@@ -66,7 +66,7 @@ RSpec.describe Core::Acessos::Conceder do
       end
     end
 
-    it "quem tem core.acessos.conceder concede papéis de outros módulos" do
+    it "quem tem core.permissoes.conceder concede papéis de outros módulos" do
       resultado = described_class.call(user: user, modulo: "fechado", papel: "leitor", concedido_por: admin_usuarios)
 
       expect(resultado).to be_sucesso
@@ -83,7 +83,7 @@ RSpec.describe Core::Acessos::Conceder do
     it "recusa conceder papel automático" do
       resultado = described_class.call(user: user, modulo: "exemplo", papel: "usuario", pelo_sistema: true)
 
-      expect(resultado.erros).to eq([ "O papel Usuário é automático e não precisa ser concedido." ])
+      expect(resultado.erros).to eq([ "A permissão Usuário é automática e não precisa ser concedida." ])
     end
   end
 end

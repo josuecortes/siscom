@@ -24,7 +24,7 @@ RSpec.describe Core::Acessos::AlterarModulo do
     expect(described_class.call(user: user, modulo: "nada", ativo: false, alterado_por: admin).erros)
       .to eq([ "Módulo inexistente no catálogo: nada." ])
     expect(described_class.call(user: user, modulo: "core", ativo: false, alterado_por: create(:user)).erros)
-      .to eq([ "Você não pode alterar acessos." ])
+      .to eq([ "Você não pode alterar permissões." ])
   end
 
   it "ninguém bloqueia o próprio acesso à Administração" do

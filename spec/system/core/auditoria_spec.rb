@@ -29,7 +29,7 @@ RSpec.describe "Administração: auditoria", :js do
     expect(page).to have_current_path(%r{de=01%2F01%2F2020})
     expect(page).to have_content("Usuário desativado")
 
-    select "Papel concedido", from: "Evento"
+    select "Permissão concedida", from: "Evento"
     expect(page).to have_content("Nenhum registro encontrado")
     expect(page).to have_current_path(/evento=core.acesso.papel_concedido/)
   end

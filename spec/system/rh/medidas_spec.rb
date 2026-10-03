@@ -58,7 +58,7 @@ RSpec.describe "RH com as medidas do seed", :js do
       visit new_rh_pessoa_lotacao_path(pessoa)
       expect(titulos_do_painel).to eq([ "nova lotação", "Conceder lotação" ])
 
-      visit edit_rh_acesso_path(admin)
+      visit edit_rh_permissao_path(admin)
       expect(titulos_do_painel).to eq([ "editar permissão", "ADMIN DO RH" ])
     end
 
@@ -87,12 +87,12 @@ RSpec.describe "RH com as medidas do seed", :js do
     end
   end
 
-  describe "acessos do RH" do
+  describe "permissões do RH" do
     it "mostra a permissão num selo neutro, como no seed" do
-      visit rh_acessos_path
+      visit rh_permissoes_path
       usar_tema("light")
 
-      selo = "#acesso_user_#{admin.id} td:nth-child(3) span"
+      selo = "#permissao_user_#{admin.id} td:nth-child(3) span"
       expect(page).to have_css(selo, text: "Administrador")
       expect(estilo(selo, "backgroundColor")).to eq("rgb(245, 247, 251)")
       expect(estilo(selo, "color")).to eq("rgb(91, 102, 117)")
