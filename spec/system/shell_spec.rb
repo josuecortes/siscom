@@ -37,4 +37,28 @@ RSpec.describe "Shell administrativo", :js do
 
     expect(page).to have_current_path(new_user_session_path)
   end
+
+  context "quando está no celular" do
+    before { page.current_window.resize_to(390, 844) }
+
+    it "esconde o menu lateral e abre a gaveta pelo botão do topo" do
+      visit root_path
+      expect(page).to have_no_css("#menu-lateral", visible: :visible)
+      expect(page).to have_css("header", text: "SISCOM")
+      page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/mobile-topo.png") if ENV["SCREENSHOT_DIR"]
+
+      click_on "Abrir menu"
+      expect(page).to have_css("[data-menu-lateral-target='gaveta'] nav", text: "Início")
+      page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/mobile-gaveta.png") if ENV["SCREENSHOT_DIR"]
+
+      within("[data-menu-lateral-target='gaveta'] > div") { click_on "Fechar menu" }
+      expect(page).to have_no_css("[data-menu-lateral-target='gaveta']", visible: :visible)
+    end
+
+    it "não cria rolagem horizontal" do
+      visit root_path
+
+      expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
+    end
+  end
 end

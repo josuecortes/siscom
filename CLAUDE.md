@@ -40,6 +40,9 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 - Layout: `layouts/application` (shell) e `layouts/publico` (login). Partials em
   `app/views/layouts/compartilhado/` e `app/views/compartilhado/` (`_cabecalho_pagina`, `_flash`,
   `_alternar_tema`). Ícones CoreUI: `icone(:nome)` (arquivos `app/assets/images/icones/cil-*.svg`).
+- **Celular:** toda tela segue o comportamento do seed em tela pequena e é conferida em ~390 px (sem
+  rolagem horizontal; menu em gaveta; ação principal só com ícone; formulário em painel de altura
+  inteira). O app será instalável (PWA). Regras no plano, `02` §6.1 e §6.2.
 - Stimulus com nomes em português (`tema`, `menu-lateral`, `dropdown`, `flash`, `mostrar-senha`).
 - Paginação: `pagy`. Excel: `caxlsx` + `caxlsx_rails`.
 - Respostas para Turbo: 422 em erro de formulário, 303 em redirecionamento.
