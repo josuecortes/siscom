@@ -61,4 +61,26 @@ RSpec.describe "Shell administrativo", :js do
       expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
     end
   end
+
+  context "com catálogo de exemplo" do
+    include_context "com catálogo de exemplo"
+
+    it "mostra o grupo do módulo com os itens que o usuário pode ver" do
+      create(:core_concessao, user: user, modulo: "exemplo", papel: "operador")
+
+      visit root_path
+
+      within("#menu-lateral") do
+        expect(page).to have_css("summary", text: "Exemplo")
+        expect(page).to have_link("Pessoas", href: "/")
+      end
+      page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/menu-grupo.png") if ENV["SCREENSHOT_DIR"]
+    end
+
+    it "não mostra o grupo para quem não tem permissão em nenhum item" do
+      visit root_path
+
+      expect(page).to have_no_css("#menu-lateral summary")
+    end
+  end
 end
