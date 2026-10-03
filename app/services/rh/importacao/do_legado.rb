@@ -25,6 +25,7 @@ module Rh
 
       def call
         ActiveRecord::Base.transaction do
+          Rh::Tabelas.garantir_padroes
           tipos = importar_referencia(Rh::TipoUnidade, Legado::Api.tipos_de_unidade)
           funcoes = importar_referencia(Rh::Funcao, Legado::Api.funcoes)
           importar_referencia(Rh::Cargo, Legado::Api.cargos)

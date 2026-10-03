@@ -29,4 +29,9 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.plural(/([cs])ao\z/i, '\1oes')
   inflect.singular(/([cs])oes\z/i, '\1ao')
   inflect.irregular "fonte_referencia", "fontes_referencia"
+  inflect.irregular "tipo_unidade", "tipos_unidade"
+  inflect.irregular "tipo_local", "tipos_local"
+  inflect.irregular "tipo_vinculo", "tipos_vinculo"
+  inflect.irregular "lotacao", "lotacoes"
+  inflect.irregular "pendencia", "pendencias"
 end

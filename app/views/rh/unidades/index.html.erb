@@ -1,0 +1,63 @@
+<% content_for :title, "Unidades" %>
+<% gerencia = pode?("rh.unidades.gerenciar") %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Unidades", icone: :sitemap, migalha: [ "RH", rh_unidades_path ] } do %>
+  <% if gerencia %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Nova unidade", icone: :plus, caminho: new_rh_unidade_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: rh_unidades_path, quadro: "unidades_lista", rotulo_busca: "Buscar por nome ou sigla",
+        exemplo: "Ex.: NUINFO ou informática", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Todas", "todos" ], [ "Ativas", "ativo" ], [ "Inativas", "inativo" ] ], titulo_filtrar: "Filtrar unidades" %>
+
+  <%= turbo_frame_tag "unidades_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} unidade(s) registrada(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1040px]">
+        <thead>
+          <tr>
+            <th scope="col">Unidade</th>
+            <th scope="col">Sigla</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Unidade superior</th>
+            <th scope="col">Lotados</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @unidades.each do |unidade| %>
+            <tr id="<%= dom_id(unidade) %>">
+              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= unidade.nome %></p></td>
+              <td><%= unidade.sigla.presence || "—" %></td>
+              <td><%= unidade.tipo_unidade.nome %></td>
+              <td><%= unidade.pai&.sigla_e_nome || "—" %></td>
+              <td><%= @lotados.fetch(unidade.id, 0) %></td>
+              <td><%= render "compartilhado/selo", texto: (unidade.ativo? ? "Ativa" : "Inativa"), tom: (unidade.ativo? ? :sucesso : :atencao) %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Editar unidade", icone: :pencil, caminho: edit_rh_unidade_path(unidade), quadro: "painel", desabilitado: !gerencia %>
+                  <% if unidade.ativo? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Desativar unidade", icone: :ban, caminho: desativar_rh_unidade_path(unidade, request.query_parameters), metodo: :patch,
+                          desabilitado: !gerencia, confirmar: { mensagem: "Confirme a desativação da unidade #{unidade.nome}.", rotulo: "Desativar" } %>
+                  <% else %>
+                    <%= render "compartilhado/botao_acao", titulo: "Ativar unidade", icone: :check_circle, caminho: ativar_rh_unidade_path(unidade, request.query_parameters), metodo: :patch,
+                          desabilitado: !gerencia, confirmar: { mensagem: "Confirme a ativação da unidade #{unidade.nome}.", rotulo: "Ativar", tom: "primario" } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @unidades.empty? %>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma unidade encontrada para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "unidades_lista" %>
+  <% end %>
+</section>

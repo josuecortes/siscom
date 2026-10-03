@@ -2,6 +2,17 @@
 pt-BR:
   auditoria:
     eventos:
+      rh:
+        unidade:
+          criada: "Unidade criada"
+          atualizada: "Unidade atualizada"
+          ativada: "Unidade ativada"
+          desativada: "Unidade desativada"
+        tabela:
+          criada: "Item de tabela de referência criado"
+          atualizada: "Item de tabela de referência atualizado"
+          ativada: "Item de tabela de referência ativado"
+          desativada: "Item de tabela de referência desativado"
       core:
         usuario:
           criado: "Usuário cadastrado"

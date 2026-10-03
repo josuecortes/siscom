@@ -18,7 +18,7 @@ RSpec.describe "Avisos flutuantes", :js do
 
     aviso = retangulo("#avisos [role='status']")
     expect(largura_da_tela - (aviso["x"] + aviso["largura"])).to be_between(0, 40)
-    expect(aviso["y"]).to be_between(64, 100)
+    expect(aviso["y"]).to be_between(130, 160) # abaixo do cabeçalho da página, sem cobrir o botão de ação
   end
 
   it "o título da página fica colado na barra do topo" do

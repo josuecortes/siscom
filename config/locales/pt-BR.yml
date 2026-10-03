@@ -6,6 +6,18 @@ pt-BR:
         one: Usuário
         other: Usuários
     attributes:
+      rh/unidade:
+        nome: Nome
+        sigla: Sigla
+        tipo_unidade: Tipo de unidade
+        tipo_unidade_id: Tipo de unidade
+        tipo_local_id: Local físico
+        pai_id: Unidade superior
+      rh/tipo_unidade: { nome: Nome, descricao: Descrição }
+      rh/tipo_local: { nome: Nome, descricao: Descrição }
+      rh/cargo: { nome: Nome }
+      rh/funcao: { nome: Nome, descricao: Descrição }
+      rh/tipo_vinculo: { nome: Nome }
       user:
         email: E-mail
         password: Senha

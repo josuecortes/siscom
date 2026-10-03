@@ -14,7 +14,7 @@ module Core
       def automatico? = automatico
     end
 
-    ItemMenu = Data.define(:rotulo, :rota, :permissao, :icone)
+    ItemMenu = Data.define(:rotulo, :rota, :permissao, :icone, :grupo)
 
     Modulo = Data.define(:chave, :nome, :icone, :permissoes, :papeis, :concessao, :menu) do
       def permissao?(permissao) = permissoes.key?(permissao.to_s)
@@ -120,7 +120,7 @@ module Core
         erro!(chave, "menu #{item['rotulo']} usa permissão inexistente: #{permissao}") if permissao && !permissoes.key?(permissao)
         erro!(chave, "item de menu sem rótulo ou rota") if item["rotulo"].blank? || item["rota"].blank?
 
-        ItemMenu.new(rotulo: item["rotulo"], rota: item["rota"].to_s, permissao: permissao, icone: item["icone"])
+        ItemMenu.new(rotulo: item["rotulo"], rota: item["rota"].to_s, permissao: permissao, icone: item["icone"], grupo: item["grupo"])
       end.freeze
     end
 

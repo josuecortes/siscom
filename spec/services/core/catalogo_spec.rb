@@ -42,7 +42,7 @@ RSpec.describe Core::Catalogo do
   it "monta os itens de menu" do
     item = modulo.menu.first
 
-    expect(item.to_h).to eq(rotulo: "Pessoas", rota: "root_path", permissao: "pessoas.ver", icone: "people")
+    expect(item.to_h).to eq(rotulo: "Pessoas", rota: "root_path", permissao: "pessoas.ver", icone: "people", grupo: nil)
   end
 
   it "levanta erro para módulo desconhecido" do

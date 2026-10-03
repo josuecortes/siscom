@@ -1,0 +1,47 @@
+<% nova = @unidade.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_unidade", rotulo: "Salvar unidade" } %>
+<% escola = @unidade.dados_escola || Rh::DadosEscola.new %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Unidades", titulo: (nova ? "Nova unidade" : "Editar unidade"), voltar: rh_unidades_path, rodape: rodape } do %>
+  <%= form_with model: @unidade, scope: :unidade, url: (nova ? rh_unidades_path : rh_unidade_path(@unidade)), id: "formulario_unidade", class: "space-y-5" do |f| %>
+    <% if @unidade.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@unidade.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 200, autofocus: true } %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%= render "compartilhado/campo", f: f, campo: :sigla, rotulo: "Sigla (obrigatória, menos para escola)", html: { maxlength: 30 } %>
+      <%= render "compartilhado/campo", f: f, campo: :tipo_unidade_id, rotulo: "Tipo de unidade *", tipo: :select,
+            opcoes: [ [ "Selecione", "" ] ] + Rh::TipoUnidade.ativo.ordenados.pluck(:nome, :id), html: { required: true } %>
+    </div>
+    <%= render "compartilhado/campo", f: f, campo: :tipo_local_id, rotulo: "Local físico", tipo: :select,
+          opcoes: [ [ "Não informado", "" ] ] + Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id) %>
+    <%= render "compartilhado/campo", f: f, campo: :pai_id, rotulo: "Unidade superior", tipo: :select,
+          opcoes: [ [ "Nenhuma (unidade de primeiro nível)", "" ] ] +
+                  Rh::Unidade.ativo.where.not(id: @unidade.id).ordenadas.pluck(:sigla, :nome, :id).map { |sigla, nome, id| [ [ sigla, nome ].compact.join(" - "), id ] } %>
+
+    <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
+      <legend class="px-1 text-sm font-semibold text-[var(--text-primary)]">Dados da escola</legend>
+      <p class="text-xs text-[var(--text-muted)]">Preencha só quando o tipo da unidade for Escola.</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1.5">
+          <label for="unidade_dados_escola_nae" class="<%= rotulo %>">NAE</label>
+          <%= text_field_tag "unidade[dados_escola][nae]", escola.nae, id: "unidade_dados_escola_nae", maxlength: 60, class: campo %>
+        </div>
+        <div class="space-y-1.5">
+          <label for="unidade_dados_escola_codigo_inep" class="<%= rotulo %>">Código INEP</label>
+          <%= text_field_tag "unidade[dados_escola][codigo_inep]", escola.codigo_inep, id: "unidade_dados_escola_codigo_inep", maxlength: 20, inputmode: "numeric", class: campo %>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <label for="unidade_dados_escola_endereco" class="<%= rotulo %>">Endereço</label>
+        <%= text_field_tag "unidade[dados_escola][endereco]", escola.endereco, id: "unidade_dados_escola_endereco", maxlength: 300, class: campo %>
+      </div>
+    </fieldset>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

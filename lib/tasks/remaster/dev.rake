@@ -9,6 +9,9 @@ namespace :remaster do
       { nome: "PADRAO SUPERADMINISTRADOR", email: "superadmin@siscom.dev", papeis: [ %w[core superadmin] ] },
       { nome: "PADRAO ADMINISTRADOR DE USUARIOS", email: "admin.usuarios@siscom.dev", papeis: [ %w[core admin_usuarios] ] },
       { nome: "PADRAO AUDITOR", email: "auditor@siscom.dev", papeis: [ %w[core auditor] ] },
+      { nome: "PADRAO RH ADMINISTRADOR", email: "rh.admin@siscom.dev", papeis: [ %w[rh admin] ] },
+      { nome: "PADRAO RH OPERADOR", email: "rh.operador@siscom.dev", papeis: [ %w[rh operador] ] },
+      { nome: "PADRAO RH LEITOR", email: "rh.leitor@siscom.dev", papeis: [ %w[rh leitor] ] },
       { nome: "PADRAO USUARIO COMUM", email: "usuario@siscom.dev", papeis: [] }
     ].freeze
 

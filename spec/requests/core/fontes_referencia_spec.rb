@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Administração: fontes de referência" do
   let(:superadmin) { create(:user).tap { |u| create(:core_concessao, user: u, papel: "superadmin") } }
   let(:admin_usuarios) { create(:user).tap { |u| create(:core_concessao, user: u, papel: "admin_usuarios") } }
-  let(:fonte) { Core::FontesReferencia::Publicar.call.sole }
+  let(:fonte) { Core::FontesReferencia::Publicar.call.find { |f| f.chave == "core_usuarios" } }
 
   it "exige a permissão core.fontes_referencia.gerenciar" do
     sign_in admin_usuarios
@@ -24,7 +24,7 @@ RSpec.describe "Administração: fontes de referência" do
     it "publica e lista as fontes padrão ao abrir a tela" do
       get core_fontes_referencia_path
 
-      expect(response.body).to include("1 fonte(s) registrada(s)", "Administração &gt; Usuários", "core_usuarios", "Gerenciada pelo sistema",
+      expect(response.body).to include("6 fonte(s) registrada(s)", "Administração &gt; Usuários", "RH &gt; Unidades", "core_usuarios", "Gerenciada pelo sistema",
                                        "Seleção única e Seleção múltipla")
     end
 

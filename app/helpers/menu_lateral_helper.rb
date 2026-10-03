@@ -20,13 +20,19 @@ module MenuLateralHelper
   def grupo_do_menu(modulo)
     return unless autorizacao.acesso?(modulo.chave)
 
-    filhos = modulo.menu.filter_map do |item|
-      next if item.permissao && !pode?("#{modulo.chave}.#{item.permissao}")
+    visiveis = modulo.menu.reject { |item| item.permissao && !pode?("#{modulo.chave}.#{item.permissao}") }
+    return if visiveis.empty?
 
-      { rotulo: item.rotulo, icone: (item.icone || modulo.icone || "list-rich").to_sym, caminho: public_send(item.rota) }
+    # Itens com `grupo:` no catálogo viram um subgrupo (ex.: "Referências"), na posição do primeiro deles.
+    filhos = visiveis.chunk_while { |anterior, atual| anterior.grupo.present? && anterior.grupo == atual.grupo }.map do |itens|
+      folhas = itens.map { |item| folha_do_menu(modulo, item) }
+      itens.first.grupo.present? ? { rotulo: itens.first.grupo, icone: :list_rich, filhos: folhas } : folhas.first
     end
-    return if filhos.empty?
 
     { rotulo: modulo.nome, icone: (modulo.icone || "list-rich").to_sym, filhos: filhos }
+  end
+
+  def folha_do_menu(modulo, item)
+    { rotulo: item.rotulo, icone: (item.icone || modulo.icone || "list-rich").to_sym, caminho: public_send(item.rota) }
   end
 end

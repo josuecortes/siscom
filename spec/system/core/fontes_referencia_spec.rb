@@ -7,7 +7,7 @@ RSpec.describe "Administração: fontes de referência", :js do
 
   it "cria uma fonte escolhendo a entidade e desativa com confirmação" do
     visit core_fontes_referencia_path
-    expect(page).to have_content("1 fonte(s) registrada(s)")
+    expect(page).to have_content("6 fonte(s) registrada(s)")
 
     click_on "Nova fonte"
     expect(page).to have_css("[role='dialog'] h2", text: "Nova fonte")
@@ -22,7 +22,7 @@ RSpec.describe "Administração: fontes de referência", :js do
 
     expect(page).to have_no_css("[role='dialog']")
     expect(page).to have_css("#avisos", text: "Fonte criada com sucesso.")
-    expect(page).to have_content("2 fonte(s) registrada(s)")
+    expect(page).to have_content("7 fonte(s) registrada(s)")
 
     within("tr", text: "Usuários por e-mail") { click_on "Desativar fonte" }
     within("#confirmacao") { click_on "Desativar" }
@@ -36,7 +36,7 @@ RSpec.describe "Administração: fontes de referência", :js do
     it "não cria rolagem horizontal" do
       visit core_fontes_referencia_path
 
-      expect(page).to have_content("1 fonte(s) registrada(s)")
+      expect(page).to have_content("6 fonte(s) registrada(s)")
       expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
     end
   end

@@ -1,9 +1,9 @@
-<%# Avisos flutuantes no canto superior direito (abaixo da barra do topo).
+<%# Avisos flutuantes no canto superior direito (abaixo da barra do topo e do cabeçalho da página).
     Somem sozinhos; erro fica mais tempo. Validação de formulário NÃO usa isto:
     fica na faixa do próprio formulário e no campo (regra do seed).
     Turbo Streams podem acrescentar avisos com `turbo_stream.append "avisos"`. %>
 <div id="avisos" aria-live="polite"
-     class="pointer-events-none fixed inset-x-3 top-[4.75rem] z-[90] flex flex-col items-stretch gap-2 sm:inset-x-auto sm:right-6 sm:w-[22rem]">
+     class="pointer-events-none fixed inset-x-3 top-[8.75rem] z-[90] flex flex-col items-stretch gap-2 sm:inset-x-auto sm:right-6 sm:w-[22rem]">
   <% flash.each do |tipo, mensagem| %>
     <% next unless mensagem.is_a?(String) && mensagem.present? %>
     <%= render "compartilhado/aviso", tipo: tipo, mensagem: mensagem %>

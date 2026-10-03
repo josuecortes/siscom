@@ -1,0 +1,19 @@
+<% novo = @registro.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_tabela", rotulo: "Salvar" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: @tabela.titulo, titulo: (novo ? "#{@tabela.novo} #{@tabela.singular}" : "Editar #{@tabela.singular}"),
+                voltar: caminho_da_lista, rodape: rodape } do %>
+  <%= form_with model: @registro, scope: :registro, url: (novo ? caminho_da_lista : caminho_do_registro(@registro)), id: "formulario_tabela", class: "space-y-5" do |f| %>
+    <% if @registro.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@registro.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 120, autofocus: true } %>
+    <% if @tabela.com_descricao %>
+      <%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Descrição", html: { maxlength: 300 } %>
+    <% end %>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

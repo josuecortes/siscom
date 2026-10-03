@@ -16,9 +16,9 @@ RSpec.describe Core::FontesReferencia do # rubocop:disable RSpec/SpecFilePathFor
   describe Core::FontesReferencia::Publicar do
     it "publica as fontes padrão, sem duplicar ao rodar de novo" do
       described_class.call
-      fonte = described_class.call.sole
+      fonte = described_class.call.find { |f| f.chave == "core_usuarios" }
 
-      expect(Core::FonteReferencia.count).to eq(1)
+      expect(Core::FonteReferencia.pluck(:chave)).to contain_exactly("core_usuarios", "rh_pessoas", "rh_unidades", "rh_cargos", "rh_funcoes", "rh_tipos_vinculo")
       expect(fonte).to have_attributes(chave: "core_usuarios", gerenciada_pelo_sistema: true, status: "ativo",
                                        campos_busca: %w[nome email], tipos_de_campo: %w[selecao_unica selecao_multipla])
     end
@@ -83,7 +83,7 @@ RSpec.describe Core::FontesReferencia do # rubocop:disable RSpec/SpecFilePathFor
     end
 
     it "em fonte gerenciada pelo sistema só muda nome e descrição" do
-      fonte = Core::FontesReferencia::Publicar.call.sole
+      fonte = Core::FontesReferencia::Publicar.call.find { |f| f.chave == "core_usuarios" }
 
       expect(described_class.call(fonte: fonte, atributos: { nome: "Servidores" }, salvo_por: superadmin)).to be_sucesso
       travada = described_class.call(fonte: fonte.reload, atributos: { campo_rotulo: "email" }, salvo_por: superadmin)
