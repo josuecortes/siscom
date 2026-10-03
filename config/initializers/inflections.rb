@@ -22,3 +22,10 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "acao_user", "acao_users"
   inflect.irregular "acao_unidade", "acao_unidades"
 end
+
+# Plurais em português usados nos nomes do remaster (rotas, tabelas, classes):
+# notificacao/notificacoes, concessao/concessoes, configuracao/configuracoes...
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.plural(/([cs])ao\z/i, '\1oes')
+  inflect.singular(/([cs])oes\z/i, '\1ao')
+end

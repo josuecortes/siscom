@@ -1,0 +1,47 @@
+<%# Sino de notificações (porta de notifications-bell.tsx). Atualizado em tempo real por
+    Core::Notificacoes::Transmitir (Turbo Stream "replace" neste elemento). locals: user %>
+<% nao_lidas = user.notificacoes.nao_lidas.count %>
+<% recentes = user.notificacoes.recentes.limit(8) %>
+<div id="sino_notificacoes" class="relative z-50 shrink-0" data-controller="dropdown"
+     data-action="keydown.esc@window->dropdown#fechar click@window->dropdown#fecharFora">
+  <button type="button" data-action="dropdown#alternar" data-dropdown-target="botao"
+          class="relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          aria-label="Abrir notificações<%= " (#{nao_lidas} não lidas)" if nao_lidas.positive? %>" aria-haspopup="true" aria-expanded="false">
+    <%= icone(:bell, classe: "h-[18px] w-[18px]") %>
+    <% if nao_lidas.positive? %>
+      <span data-sino-contador class="absolute right-1.5 top-1.5 inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--accent-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-white"><%= nao_lidas > 9 ? "9+" : nao_lidas %></span>
+    <% end %>
+  </button>
+
+  <div data-dropdown-target="menu"
+       class="absolute right-0 top-[calc(100%+12px)] z-[60] hidden w-[min(92vw,24rem)] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_20px_50px_rgba(15,23,42,0.18)] max-sm:fixed max-sm:inset-x-3 max-sm:top-[4.75rem] max-sm:w-auto">
+    <div class="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
+      <div>
+        <p class="text-sm font-semibold text-[var(--text-primary)]">Notificações</p>
+        <p class="text-xs text-[var(--text-muted)]"><%= nao_lidas %> não lida(s)</p>
+      </div>
+      <%= button_to marcar_todas_notificacoes_path, method: :patch, form: { data: { turbo_frame: "_top" } },
+            class: "inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" do %>
+        <%= icone(:check_alt, classe: "h-3.5 w-3.5") %> Marcar tudo
+      <% end %>
+    </div>
+
+    <div class="max-h-[26rem] overflow-y-auto">
+      <% recentes.each do |notificacao| %>
+        <%= button_to abrir_notificacao_path(notificacao), method: :patch, form: { class: "border-b border-[var(--border-subtle)] last:border-b-0", data: { turbo_frame: "_top" } },
+              class: [ "block w-full cursor-pointer px-4 py-3 text-left transition hover:bg-[var(--surface-subtle)]", ("bg-[var(--system-context-surface)]" unless notificacao.lida?) ] do %>
+          <span class="block text-sm font-semibold text-[var(--text-primary)]"><%= notificacao.titulo %></span>
+          <% if notificacao.mensagem.present? %><span class="mt-1 block text-sm text-[var(--text-secondary)]"><%= truncate(notificacao.mensagem, length: 140) %></span><% end %>
+          <span class="mt-2 block text-xs text-[var(--text-muted)]"><%= l(notificacao.created_at, format: "%d/%m/%Y %H:%M") %></span>
+        <% end %>
+      <% end %>
+      <% if recentes.empty? %>
+        <div class="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">Nenhuma notificação no momento.</div>
+      <% end %>
+    </div>
+
+    <div class="border-t border-[var(--border-subtle)] px-4 py-3 text-center">
+      <%= link_to "Ver todas", notificacoes_path, class: "text-sm font-medium text-[var(--accent-strong)] hover:underline" %>
+    </div>
+  </div>
+</div>

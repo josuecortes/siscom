@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :lockable, :trackable, :timeoutable
 
   has_one_attached :avatar
+  has_many :notificacoes, class_name: "Core::Notificacao", dependent: :delete_all
   has_many :senhas_anteriores, class_name: "Core::SenhaAnterior", dependent: :delete_all
 
   scope :ativos, -> { where(status: true) }

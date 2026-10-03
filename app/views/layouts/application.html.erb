@@ -24,6 +24,7 @@
         </div>
       </div>
 
+      <%= turbo_stream_from current_user, :notificacoes %>
       <%= render "compartilhado/flash" %>
       <%= render "compartilhado/confirmacao" %>
       <%# Painel de formulário: as views new/edit entregam o próprio quadro. %>

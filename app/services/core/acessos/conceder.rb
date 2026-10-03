@@ -35,6 +35,7 @@ module Core
             concessao = Core::Concessao.create!(atributos.merge(acesso: acesso, concedido_por: @concedido_por))
             Core::Auditoria::Registrar.call(evento: "core.acesso.papel_concedido", alvo: @user, ator: @concedido_por,
                                             dados: { modulo: @modulo, papel: @papel, escopo_tipo: @escopo_tipo, escopo_id: @escopo_id }.compact)
+            avisar_usuario(definicao, papel) unless @pelo_sistema
           end
 
           Core::Resultado.sucesso(concessao)
@@ -47,6 +48,14 @@ module Core
 
       def autorizado?
         @pelo_sistema || Regras.pode_conceder?(@concedido_por, modulo: @modulo, papel: @papel)
+      end
+
+      def avisar_usuario(definicao, papel)
+        Core::Notificacoes::Criar.call(
+          destinatarios: @user, ator: @concedido_por, evento: "core.acesso.papel_concedido", alvo: @user,
+          titulo: "Você recebeu um novo papel",
+          mensagem: "Papel #{papel.nome} no módulo #{definicao.nome}. O menu já mostra o que mudou."
+        )
       end
 
       def falha(mensagem) = Core::Resultado.falha(mensagem)

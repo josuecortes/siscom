@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_130413) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_130902) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_130413) do
     t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
     t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
     t.index ["user_id"], name: "index_core_concessoes_on_user_id"
+  end
+
+  create_table "core_notificacoes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "ator_id"
+    t.string "modulo", null: false
+    t.string "evento", null: false
+    t.string "titulo", null: false
+    t.text "mensagem"
+    t.string "url_acao"
+    t.string "alvo_tipo"
+    t.bigint "alvo_id"
+    t.jsonb "dados", default: {}, null: false
+    t.datetime "lida_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["alvo_tipo", "alvo_id"], name: "index_core_notificacoes_on_alvo_tipo_and_alvo_id"
+    t.index ["ator_id"], name: "index_core_notificacoes_on_ator_id"
+    t.index ["user_id", "created_at"], name: "index_core_notificacoes_on_user_id_and_created_at"
+    t.index ["user_id", "lida_em"], name: "index_core_notificacoes_on_user_id_and_lida_em"
+    t.index ["user_id"], name: "index_core_notificacoes_on_user_id"
   end
 
   create_table "core_registros_auditoria", force: :cascade do |t|
@@ -832,6 +853,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_130413) do
   add_foreign_key "core_concessoes", "core_acessos", column: "acesso_id"
   add_foreign_key "core_concessoes", "users"
   add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
+  add_foreign_key "core_notificacoes", "users"
+  add_foreign_key "core_notificacoes", "users", column: "ator_id"
   add_foreign_key "core_registros_auditoria", "users", column: "ator_id"
   add_foreign_key "core_senhas_anteriores", "users"
   add_foreign_key "destinos", "requisicao_transportes"

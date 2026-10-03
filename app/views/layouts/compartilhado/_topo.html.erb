@@ -25,6 +25,7 @@
 
     <div class="flex items-center gap-2">
       <%= render "compartilhado/alternar_tema" %>
+      <%= render "layouts/compartilhado/sino", user: current_user %>
 
       <div class="relative z-50 shrink-0" data-controller="dropdown" data-action="keydown.esc@window->dropdown#fechar click@window->dropdown#fecharFora">
         <button type="button" data-action="dropdown#alternar" data-dropdown-target="botao"
