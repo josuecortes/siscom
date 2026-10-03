@@ -26,6 +26,11 @@ module TamanhoDeTela
     JS
   end
 
+  # Largura e altura de vários elementos de uma vez: { nome => seletor } vira { nome => [ largura, altura ] }.
+  def tamanhos(seletores)
+    seletores.transform_values { |seletor| retangulo(seletor).values_at("largura", "altura") }
+  end
+
   # Valor calculado de uma propriedade CSS (nome em camelCase, como no JavaScript).
   def estilo(seletor, propriedade)
     page.evaluate_script("getComputedStyle(document.querySelector(#{seletor.to_json}))[#{propriedade.to_json}]")
