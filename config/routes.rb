@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   # e-mail): a redefinição é feita por um administrador, com senha temporária.
   devise_for :users, controllers: { sessions: "core/sessoes" }, skip: [ :passwords ]
 
+  resource :meu_perfil, path: "minha-area/perfil", only: %i[show update], controller: "core/meu_perfil"
   resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
 
   # Caminhos em português: /novo e /editar.

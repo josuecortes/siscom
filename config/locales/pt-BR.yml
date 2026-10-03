@@ -13,6 +13,7 @@ pt-BR:
         current_password: Senha atual
         nome: Nome
         remember_me: Lembrar de mim
+        avatar: Imagem
     errors:
       messages:
         record_invalid: 'A validação falhou: %{errors}'

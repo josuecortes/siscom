@@ -18,6 +18,10 @@ class User < ApplicationRecord
   # Senha temporária em texto, disponível só logo após criar/redefinir (nunca é gravada).
   attr_accessor :senha_temporaria
 
+  AVATAR_TIPOS = %w[image/png image/jpeg image/webp].freeze
+  AVATAR_TAMANHO_MAXIMO = 5.megabytes
+
+  validate :avatar_valido, if: -> { attachment_changes.key?("avatar") }
   validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? }
 
   before_update :guardar_senha_anterior, if: :will_save_change_to_encrypted_password?
@@ -79,6 +83,13 @@ class User < ApplicationRecord
 
   def mensagem_de_bloqueio
     I18n.t("devise.failure.bloqueada", tentativas: self.class.maximum_attempts, count: minutos_para_desbloqueio)
+  end
+
+  def avatar_valido
+    return unless avatar.attached?
+
+    errors.add(:avatar, "deve ser uma imagem PNG, JPG ou WebP") unless avatar.blob.content_type.in?(AVATAR_TIPOS)
+    errors.add(:avatar, "deve ter no máximo 5 MB") if avatar.blob.byte_size > AVATAR_TAMANHO_MAXIMO
   end
 
   def senha_dentro_da_politica
