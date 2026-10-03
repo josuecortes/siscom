@@ -1,0 +1,51 @@
+module Core
+  module Acessos
+    # Concede um papel de um módulo a um usuário (com escopo opcional).
+    # Conceder de novo o que já está ativo devolve a concessão existente.
+    #
+    #   Core::Acessos::Conceder.call(user:, modulo: "rh", papel: "operador", concedido_por: admin)
+    #   Core::Acessos::Conceder.call(user:, modulo: "core", papel: "superadmin", pelo_sistema: true)
+    class Conceder
+      def self.call(...) = new(...).call
+
+      def initialize(user:, modulo:, papel:, concedido_por: nil, escopo: nil, pelo_sistema: false)
+        @user = user
+        @modulo = modulo.to_s
+        @papel = papel.to_s
+        @concedido_por = concedido_por
+        @escopo_tipo, @escopo_id = Core::Autorizacao.normalizar_escopo(escopo)
+        @pelo_sistema = pelo_sistema
+      end
+
+      def call
+        definicao = Core::Catalogo.modulo(@modulo)
+        papel = definicao&.papel(@papel)
+        return falha("Papel inexistente no catálogo: #{@modulo}.#{@papel}.") unless papel
+        return falha("O papel #{papel.nome} é automático e não precisa ser concedido.") if papel.automatico?
+        return falha("Usuário desativado não pode receber papéis.") unless @user.ativo?
+        return falha("Você não pode conceder o papel #{papel.nome}.") unless autorizado?
+
+        Core::Concessao.transaction do
+          acesso = Core::Acesso.find_or_create_by!(user: @user, modulo: @modulo)
+          acesso.ativo! unless acesso.ativo?
+
+          atributos = { user: @user, modulo: @modulo, papel: @papel, escopo_tipo: @escopo_tipo, escopo_id: @escopo_id }
+          concessao = Core::Concessao.ativo.find_by(atributos) ||
+                      Core::Concessao.create!(atributos.merge(acesso: acesso, concedido_por: @concedido_por))
+
+          Core::Resultado.sucesso(concessao)
+        end
+      rescue ActiveRecord::RecordInvalid => e
+        Core::Resultado.falha(e.record)
+      end
+
+      private
+
+      def autorizado?
+        @pelo_sistema || Regras.pode_conceder?(@concedido_por, modulo: @modulo, papel: @papel)
+      end
+
+      def falha(mensagem) = Core::Resultado.falha(mensagem)
+    end
+  end
+end
