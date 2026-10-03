@@ -265,8 +265,12 @@ Devise.setup do |config|
   # The "*/*" below is required to match Internet Explorer requests.
   # config.navigational_formats = ['*/*', :html]
 
+  # Respostas compatíveis com Turbo (422 em erro, 303 em redirecionamento).
+  config.responder.error_status = :unprocessable_content
+  config.responder.redirect_status = :see_other
+
   # The default HTTP method used to sign out a resource. Default is :delete.
-  config.sign_out_via = :get
+  config.sign_out_via = :delete
 
   # ==> OmniAuth
   # Add a new OmniAuth provider. Check the wiki for more information on setting

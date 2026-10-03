@@ -1,6 +1,9 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
+plugins:
+  - rubocop-rspec
+
 AllCops:
   Exclude:
     # Migrations e seeds herdados do siscom antigo (não reformatar).
@@ -13,3 +16,9 @@ AllCops:
     - "vendor/**/*"
     - "tmp/**/*"
     - "node_modules/**/*"
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/ExampleLength:
+  Max: 20
