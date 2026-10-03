@@ -18,11 +18,13 @@ module Rh
         lotacao.data_inicio ||= Date.current if @atributos[:data_inicio].blank?
         return Core::Resultado.falha("Você não pode lotar pessoas.", objeto: lotacao) unless Core::Autorizacao.new(@lotado_por).pode?(PERMISSAO)
 
+        return Core::Resultado.falha(lotacao) unless lotacao.valid?
+
         lotacao.errors.add(:unidade_id, "está inativa") if lotacao.unidade&.inativo?
         lotacao.errors.add(:funcao_id, "está inativa") if lotacao.funcao&.inativo?
         return Core::Resultado.falha(lotacao) if lotacao.errors.any? || !lotacao.save
 
-        Rh::PendenciaImportacao.abertas.where(pessoa: @pessoa, tipo: "sem_lotacao").find_each { |pendencia| pendencia.update!(resolvida_em: Time.current) }
+        Rh::PendenciaImportacao.abertas.where(pessoa: lotacao.pessoa, tipo: "sem_lotacao").find_each { |pendencia| pendencia.update!(resolvida_em: Time.current) }
         Core::Api.auditar(evento: "rh.lotacao.criada", alvo: @pessoa, ator: @lotado_por,
                           dados: { unidade: lotacao.unidade.sigla_e_nome, funcao: lotacao.funcao.nome })
         Core::Resultado.sucesso(lotacao)

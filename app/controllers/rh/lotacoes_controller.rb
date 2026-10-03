@@ -16,6 +16,25 @@ module Rh
       @pagy, @lotacoes = pagy(:offset, lotacoes, limit: POR_PAGINA)
     end
 
+    # Nova lotação pela lista: a pessoa também é escolhida por busca.
+    def new
+      pode!(Rh::Lotacoes::Lotar::PERMISSAO)
+      @lotacao = Rh::Lotacao.new(data_inicio: Date.current)
+    end
+
+    def create
+      pode!(Rh::Lotacoes::Lotar::PERMISSAO)
+      atributos = params.expect(lotacao: %i[pessoa_id unidade_id funcao_id data_inicio])
+      resultado = Rh::Lotacoes::Lotar.call(pessoa: Rh::Pessoa.find_by(id: atributos[:pessoa_id]), atributos: atributos, lotado_por: current_user)
+      @lotacao = resultado.objeto
+
+      if resultado.sucesso?
+        concluir_painel(aviso: "Lotação registrada com sucesso.", voltar_para: rh_lotacoes_path)
+      else
+        render :new, status: :unprocessable_content
+      end
+    end
+
     def encerrar
       lotacao = Rh::Lotacao.find(params[:id])
       resultado = Rh::Lotacoes::Encerrar.call(lotacao: lotacao, encerrado_por: current_user)

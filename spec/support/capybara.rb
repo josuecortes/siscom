@@ -77,3 +77,16 @@ RSpec.configure do |config|
     system("bin/rails tailwindcss:build", out: File::NULL, exception: true)
   end
 end
+
+# Campo de busca com sugestões (compartilhado/_campo_autocomplete): digita e escolhe na lista.
+module AjudantesDeAutocomplete
+  def escolher_no_autocomplete(rotulo, digitar:, opcao:)
+    campo = find_field(rotulo)
+    campo.fill_in(with: digitar)
+    lista = find("##{campo[:id]}_lista", visible: :visible)
+    lista.find("[role='option']", text: opcao, match: :prefer_exact).click
+    expect(campo.value).to eq(opcao)
+  end
+end
+
+RSpec.configure { |config| config.include AjudantesDeAutocomplete, type: :system }

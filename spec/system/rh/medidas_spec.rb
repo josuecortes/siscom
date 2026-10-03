@@ -66,7 +66,7 @@ RSpec.describe "RH com as medidas do seed", :js do
       visit new_rh_unidade_path
       usar_tema("light")
 
-      expect(tamanhos(nome: "#unidade_nome", sigla: "#unidade_sigla", tipo: "#unidade_tipo_unidade_id", superior: "#unidade_pai_id"))
+      expect(tamanhos(nome: "#unidade_nome", sigla: "#unidade_sigla", tipo: "#unidade_tipo_unidade_id", superior: "#unidade_pai"))
         .to eq(nome: [ 502, 44 ], sigla: [ 502, 44 ], tipo: [ 502, 44 ], superior: [ 502, 44 ])
       expect(retangulo("#unidade_tipo_unidade_id")["y"] - retangulo("#unidade_sigla")["y"]).to be_within(0.2).of(86.8)
       legenda = retangulo("#{painel} fieldset legend")

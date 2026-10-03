@@ -30,15 +30,12 @@
       <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Vínculo funcional</legend>
       <p class="text-xs text-[var(--text-muted)]">Opcional. Se preencher um campo do vínculo, preencha os três.</p>
       <div class="grid gap-4 sm:grid-cols-2">
-        <% { tipo_vinculo_id: [ "Vínculo", Rh::TipoVinculo.ativo.ordenados ], cargo_id: [ "Cargo", Rh::Cargo.ativo.ordenados ] }.each do |campo, (texto, opcoes)| %>
-          <% erros = vinculo.errors[campo.to_s.delete_suffix("_id")] + vinculo.errors[campo] %>
-          <div class="space-y-1.5">
-            <label for="pessoa_vinculo_<%= campo %>" class="<%= rotulo %>"><%= texto %></label>
-            <%= select_tag "pessoa[vinculo][#{campo}]", options_for_select([ [ "Selecione", "" ] ] + opcoes.pluck(:nome, :id), vinculo.public_send(campo)),
-                  id: "pessoa_vinculo_#{campo}", class: "#{seletor} #{borda.call(erros)}" %>
-            <% if erros.any? %><p class="text-sm text-[var(--danger-text)]"><%= texto %> deve ser informado</p><% end %>
-          </div>
-        <% end %>
+        <%= render "compartilhado/campo_autocomplete", nome: "pessoa[vinculo][tipo_vinculo_id]", id: "pessoa_vinculo_tipo_vinculo", rotulo: "Vínculo",
+              url: rh_opcoes_path("tipos_vinculo"), valor: vinculo.tipo_vinculo_id, texto: vinculo.tipo_vinculo&.nome,
+              erros: ((vinculo.errors[:tipo_vinculo] + vinculo.errors[:tipo_vinculo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum vínculo cadastrado." %>
+        <%= render "compartilhado/campo_autocomplete", nome: "pessoa[vinculo][cargo_id]", id: "pessoa_vinculo_cargo", rotulo: "Cargo",
+              url: rh_opcoes_path("cargos"), valor: vinculo.cargo_id, texto: vinculo.cargo&.nome,
+              erros: ((vinculo.errors[:cargo] + vinculo.errors[:cargo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum cargo cadastrado." %>
         <% erros = vinculo.errors[:data_inicio] %>
         <div class="space-y-1.5">
           <label for="pessoa_vinculo_data_inicio" class="<%= rotulo %>">Início do vínculo</label>

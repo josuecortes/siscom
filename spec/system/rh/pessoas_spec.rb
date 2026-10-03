@@ -33,8 +33,8 @@ RSpec.describe "RH: pessoas", :js do
     expect(page).to have_content("02/03/1990")
 
     click_on "Nova lotação"
-    select "NUINFO - NÚCLEO DE INFORMÁTICA", from: "Unidade *"
-    select "TÉCNICO", from: "Função *"
+    escolher_no_autocomplete "Unidade *", digitar: "informát", opcao: "NUINFO - NÚCLEO DE INFORMÁTICA"
+    escolher_no_autocomplete "Função *", digitar: "téc", opcao: "TÉCNICO"
     click_on "Salvar lotação"
     expect(page).to have_css("#avisos", text: "Lotação registrada com sucesso.")
     expect(page).to have_content("1 ativa(s) de 1 registrada(s)")
@@ -60,6 +60,43 @@ RSpec.describe "RH: pessoas", :js do
 
     expect(page).to have_css("h1", text: "Minha ficha")
     expect(page).to have_content("MARIA OLIVEIRA")
+  end
+
+  it "abre Nova lotação pela lista e procura pessoa, unidade e função digitando" do
+    create(:rh_pessoa, nome: "Maria Oliveira", email: "maria@seed.ap.gov.br")
+    create(:rh_funcao, nome: "Assessor")
+
+    visit rh_lotacoes_path
+    click_on "Nova lotação"
+    expect(page).to have_css("[role='dialog'] h2", text: "Conceder lotação")
+
+    fill_in "Função *", with: "xyz"
+    within("#lotacao_funcao_lista") do
+      expect(page).to have_content('Nada encontrado para "xyz". Lista completa:')
+      expect(all("[role='option']").map(&:text)).to eq(%w[ASSESSOR TÉCNICO])
+    end
+    escolher_no_autocomplete "Pessoa *", digitar: "mar", opcao: "MARIA OLIVEIRA"
+    escolher_no_autocomplete "Unidade *", digitar: "nui", opcao: "NUINFO - NÚCLEO DE INFORMÁTICA"
+    escolher_no_autocomplete "Função *", digitar: "téc", opcao: "TÉCNICO"
+    page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-nova-lotacao.png") if ENV["SCREENSHOT_DIR"]
+    click_on "Salvar lotação"
+
+    expect(page).to have_css("#avisos", text: "Lotação registrada com sucesso.")
+    within("tr", text: "MARIA OLIVEIRA") { expect(page).to have_content("NUINFO - NÚCLEO DE INFORMÁTICA") }
+  end
+
+  it "avisa quando o texto foi digitado mas nada foi escolhido na lista" do
+    create(:rh_pessoa, nome: "Maria Oliveira")
+
+    visit rh_lotacoes_path
+    click_on "Nova lotação"
+    escolher_no_autocomplete "Pessoa *", digitar: "mar", opcao: "MARIA OLIVEIRA"
+    fill_in "Unidade *", with: "nuinfo"
+    escolher_no_autocomplete "Função *", digitar: "téc", opcao: "TÉCNICO"
+    click_on "Salvar lotação"
+
+    expect(page).to have_content("Unidade deve ser escolhida na lista")
+    expect(page).to have_field("Pessoa *", with: "MARIA OLIVEIRA")
   end
 
   it "o administrador do RH troca a permissão de um usuário pelo painel" do

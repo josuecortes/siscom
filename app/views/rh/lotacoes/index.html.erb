@@ -2,6 +2,9 @@
 <% gerencia = pode?("rh.lotacoes.gerenciar") %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Lotações", icone: :briefcase, migalha: [ "RH", rh_lotacoes_path ] } do %>
+  <% if gerencia %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Nova lotação", icone: :plus, caminho: new_rh_lotacao_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">

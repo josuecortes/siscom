@@ -4,17 +4,5 @@
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Nova lotação", titulo: "Conceder lotação", voltar: rh_pessoa_path(@pessoa), rodape: rodape,
                 descricao: "Lotar #{@pessoa.nome} em uma unidade, com uma função. A pessoa pode ter mais de uma lotação ativa." } do %>
-  <%= form_with model: @lotacao, scope: :lotacao, url: rh_pessoa_lotacoes_path(@pessoa), id: "formulario_lotacao", class: "space-y-5" do |f| %>
-    <% if @lotacao.errors.any? %>
-      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@lotacao.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
-    <% end %>
-
-    <%= render "compartilhado/campo", f: f, campo: :unidade_id, rotulo: "Unidade *", tipo: :select, html: { required: true, autofocus: true },
-          opcoes: [ [ "Selecione", "" ] ] + Rh::Unidade.ativo.ordenadas.pluck(:sigla, :nome, :id).map { |sigla, nome, id| [ [ sigla, nome ].compact.join(" - "), id ] } %>
-    <%= render "compartilhado/campo", f: f, campo: :funcao_id, rotulo: "Função *", tipo: :select, html: { required: true },
-          opcoes: [ [ "Selecione", "" ] ] + Rh::Funcao.ativo.ordenados.pluck(:nome, :id) %>
-    <%= render "compartilhado/campo_data", f: f, campo: :data_inicio, rotulo: "Início *", html: { required: true } %>
-
-    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
-  <% end %>
+  <%= render "rh/lotacoes/formulario", lotacao: @lotacao, url: rh_pessoa_lotacoes_path(@pessoa), pessoa: @pessoa %>
 <% end %>

@@ -10,12 +10,14 @@ namespace :rh do
     end
   end
 
+  get "opcoes/:fonte", to: "opcoes#index", as: :opcoes, defaults: { format: :json }
+
   resource :minha_ficha, only: :show, controller: "minha_ficha"
 
   resources :pessoas, only: %i[index show new create edit update] do
     resources :lotacoes, only: %i[new create], controller: "lotacoes_da_pessoa"
   end
-  resources :lotacoes, only: :index do
+  resources :lotacoes, only: %i[index new create] do
     patch :encerrar, on: :member
   end
 

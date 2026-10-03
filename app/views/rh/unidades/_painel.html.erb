@@ -18,9 +18,10 @@
           opcoes: [ [ "Selecione", "" ] ] + Rh::TipoUnidade.ativo.ordenados.pluck(:nome, :id), html: { required: true } %>
     <%= render "compartilhado/campo", f: f, campo: :tipo_local_id, rotulo: "Local físico", tipo: :select,
           opcoes: [ [ "Não informado", "" ] ] + Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id) %>
-    <%= render "compartilhado/campo", f: f, campo: :pai_id, rotulo: "Unidade superior", tipo: :select,
-          opcoes: [ [ "Nenhuma (unidade de primeiro nível)", "" ] ] +
-                  Rh::Unidade.ativo.where.not(id: @unidade.id).ordenadas.pluck(:sigla, :nome, :id).map { |sigla, nome, id| [ [ sigla, nome ].compact.join(" - "), id ] } %>
+    <%= render "compartilhado/campo_autocomplete", nome: "unidade[pai_id]", id: "unidade_pai", rotulo: "Unidade superior",
+          url: rh_opcoes_path("unidades", exceto: @unidade.id), valor: @unidade.pai_id, texto: @unidade.pai&.sigla_e_nome,
+          erros: @unidade.errors[:pai_id], placeholder: "Em branco = unidade de primeiro nível. Digite 3 letras para procurar",
+          vazio: "Nenhuma unidade cadastrada." %>
 
     <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
       <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Dados da escola</legend>

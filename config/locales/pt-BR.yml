@@ -19,6 +19,7 @@ pt-BR:
         cargo: Cargo
         data_inicio: Início do vínculo
       rh/lotacao:
+        pessoa: Pessoa
         unidade: Unidade
         unidade_id: Unidade
         funcao: Função

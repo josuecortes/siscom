@@ -29,7 +29,7 @@ RSpec.describe "RH: unidades e referências", :js do
     fill_in "Nome *", with: "Divisão de Redes"
     fill_in "Sigla (obrigatória, menos para escola)", with: "direde"
     select "SEDE", from: "Tipo de unidade *"
-    select "NUINFO - NÚCLEO DE INFORMÁTICA", from: "Unidade superior"
+    escolher_no_autocomplete "Unidade superior", digitar: "nuin", opcao: "NUINFO - NÚCLEO DE INFORMÁTICA"
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-unidade-painel.png") if ENV["SCREENSHOT_DIR"]
     click_on "Salvar unidade"
 
