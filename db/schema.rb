@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_190359) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_191503) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -465,6 +465,130 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_190359) do
     t.index ["user_id"], name: "index_requisicao_transportes_on_user_id"
     t.index ["usuario_aceitou_negou_reagendamento_id"], name: "idx_rt_usr_anr_id"
     t.index ["usuario_reagendou_id"], name: "index_requisicao_transportes_on_usuario_reagendou_id"
+  end
+
+  create_table "rh_cargos", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "status", default: "ativo", null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_rh_cargos_nome", unique: true
+    t.index ["legacy_id"], name: "index_rh_cargos_on_legacy_id", unique: true
+  end
+
+  create_table "rh_dados_escola", force: :cascade do |t|
+    t.bigint "unidade_id", null: false
+    t.string "nae"
+    t.string "codigo_inep"
+    t.text "endereco"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unidade_id"], name: "index_rh_dados_escola_on_unidade_id", unique: true
+  end
+
+  create_table "rh_funcoes", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_rh_funcoes_nome", unique: true
+    t.index ["legacy_id"], name: "index_rh_funcoes_on_legacy_id", unique: true
+  end
+
+  create_table "rh_lotacoes", force: :cascade do |t|
+    t.bigint "pessoa_id", null: false
+    t.bigint "unidade_id", null: false
+    t.bigint "funcao_id", null: false
+    t.date "data_inicio", null: false
+    t.date "data_fim"
+    t.string "status", default: "ativo", null: false
+    t.datetime "lotado_em", null: false
+    t.string "lotado_por_nome"
+    t.string "lotado_por_email"
+    t.datetime "encerrado_em"
+    t.string "encerrado_por_nome"
+    t.string "encerrado_por_email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["funcao_id"], name: "index_rh_lotacoes_on_funcao_id"
+    t.index ["pessoa_id", "unidade_id", "funcao_id"], name: "idx_rh_lotacoes_ativa", unique: true, where: "((status)::text = 'ativo'::text)"
+    t.index ["pessoa_id"], name: "index_rh_lotacoes_on_pessoa_id"
+    t.index ["unidade_id"], name: "index_rh_lotacoes_on_unidade_id"
+  end
+
+  create_table "rh_pessoas", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "nome", null: false
+    t.string "email", null: false
+    t.string "celular"
+    t.string "cpf"
+    t.date "data_nascimento"
+    t.string "sexo", default: "nao_informado", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((email)::text)", name: "idx_rh_pessoas_email", unique: true
+    t.index ["cpf"], name: "index_rh_pessoas_on_cpf", unique: true, where: "(cpf IS NOT NULL)"
+    t.index ["user_id"], name: "index_rh_pessoas_on_user_id", unique: true
+  end
+
+  create_table "rh_tipos_local", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_rh_tipos_local_nome", unique: true
+  end
+
+  create_table "rh_tipos_unidade", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_rh_tipos_unidade_nome", unique: true
+    t.index ["legacy_id"], name: "index_rh_tipos_unidade_on_legacy_id", unique: true
+  end
+
+  create_table "rh_tipos_vinculo", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_rh_tipos_vinculo_nome", unique: true
+  end
+
+  create_table "rh_unidades", force: :cascade do |t|
+    t.string "nome", null: false
+    t.string "sigla"
+    t.bigint "tipo_unidade_id", null: false
+    t.bigint "tipo_local_id"
+    t.bigint "pai_id"
+    t.string "status", default: "ativo", null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((sigla)::text)", name: "idx_rh_unidades_sigla", unique: true, where: "(sigla IS NOT NULL)"
+    t.index ["legacy_id"], name: "index_rh_unidades_on_legacy_id", unique: true
+    t.index ["pai_id"], name: "index_rh_unidades_on_pai_id"
+    t.index ["tipo_local_id"], name: "index_rh_unidades_on_tipo_local_id"
+    t.index ["tipo_unidade_id"], name: "index_rh_unidades_on_tipo_unidade_id"
+  end
+
+  create_table "rh_vinculos", force: :cascade do |t|
+    t.bigint "pessoa_id", null: false
+    t.bigint "tipo_vinculo_id", null: false
+    t.bigint "cargo_id", null: false
+    t.date "data_inicio", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cargo_id"], name: "index_rh_vinculos_on_cargo_id"
+    t.index ["pessoa_id"], name: "index_rh_vinculos_on_pessoa_id", unique: true
+    t.index ["tipo_vinculo_id"], name: "index_rh_vinculos_on_tipo_vinculo_id"
   end
 
   create_table "roles", force: :cascade do |t|
@@ -934,6 +1058,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_190359) do
   add_foreign_key "requisicao_transportes", "users"
   add_foreign_key "requisicao_transportes", "users", column: "usuario_aceitou_negou_reagendamento_id"
   add_foreign_key "requisicao_transportes", "users", column: "usuario_reagendou_id"
+  add_foreign_key "rh_dados_escola", "rh_unidades", column: "unidade_id"
+  add_foreign_key "rh_lotacoes", "rh_funcoes", column: "funcao_id"
+  add_foreign_key "rh_lotacoes", "rh_pessoas", column: "pessoa_id"
+  add_foreign_key "rh_lotacoes", "rh_unidades", column: "unidade_id"
+  add_foreign_key "rh_pessoas", "users"
+  add_foreign_key "rh_unidades", "rh_tipos_local", column: "tipo_local_id"
+  add_foreign_key "rh_unidades", "rh_tipos_unidade", column: "tipo_unidade_id"
+  add_foreign_key "rh_unidades", "rh_unidades", column: "pai_id"
+  add_foreign_key "rh_vinculos", "rh_cargos", column: "cargo_id"
+  add_foreign_key "rh_vinculos", "rh_pessoas", column: "pessoa_id"
+  add_foreign_key "rh_vinculos", "rh_tipos_vinculo", column: "tipo_vinculo_id"
   add_foreign_key "servico_transportes", "motoristas"
   add_foreign_key "servico_transportes", "requisicao_transportes"
   add_foreign_key "servico_transportes", "veiculos"
