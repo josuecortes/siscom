@@ -1,35 +1,35 @@
-require_relative 'boot'
+require_relative "boot"
 
-require 'rails/all'
+require "rails"
+require "active_model/railtie"
+require "active_job/railtie"
+require "active_record/railtie"
+require "active_storage/engine"
+require "action_controller/railtie"
+require "action_mailer/railtie"
+require "action_view/railtie"
+require "action_cable/engine"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module Siscom
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.0
+    config.load_defaults 8.1
 
-    I18n.config.available_locales = :'pt-BR'
-    config.i18n.default_locale = :'pt-BR'
-    config.i18n.load_path += Dir[Rails.root.join('config/locales/**/*.{rb,yml')]
+    config.autoload_lib(ignore: %w[assets tasks])
 
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration can go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded after loading
-    # the framework and any gems in your application.
+    config.i18n.available_locales = [ :"pt-BR", :en ]
+    config.i18n.default_locale = :"pt-BR"
+    config.i18n.load_path += Dir[Rails.root.join("config/locales/**/*.{rb,yml}")]
 
+    # O banco de produção grava datas no horário local (Brasília).
+    # Não trocar para :utc sem migrar todos os timestamps existentes.
     config.time_zone = "Brasilia"
-    config.active_record.default_timezone = :local # Or :utc
+    config.active_record.default_timezone = :local
 
-    # Diferent layouts to devise
-    config.to_prepare do
-      Devise::SessionsController.layout "devise"
-      Devise::RegistrationsController.layout proc{ |controller| user_signed_in? ? "application" : "devise" }
-      Devise::ConfirmationsController.layout "devise"
-      Devise::UnlocksController.layout "devise"
-      Devise::PasswordsController.layout "devise"
+    config.generators do |g|
+      g.test_framework :rspec
+      g.system_tests nil
     end
   end
 end

@@ -84,3 +84,13 @@ xerial*.*
 /config/master.key
 
 .byebug_history
+
+# Rails 8 / remaster
+/app/assets/builds/*
+!/app/assets/builds/.keep
+/public/assets
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/.keep
+/.env*

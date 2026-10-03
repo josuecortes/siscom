@@ -2,25 +2,24 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_24_121500) do
-
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_020816) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "acao_unidades", force: :cascade do |t|
     t.integer "nivel"
     t.bigint "acao_id", null: false
     t.bigint "unidade_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["acao_id"], name: "index_acao_unidades_on_acao_id"
     t.index ["unidade_id"], name: "index_acao_unidades_on_unidade_id"
   end
@@ -32,8 +31,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.date "fim"
     t.bigint "user_id", null: false
     t.bigint "acao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["acao_id"], name: "index_acao_users_on_acao_id"
     t.index ["user_id"], name: "index_acao_users_on_user_id"
   end
@@ -46,8 +45,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "orcamento"
     t.integer "status"
     t.boolean "mostrar_no_site"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.string "documento_externo"
     t.string "local"
@@ -61,7 +60,7 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -72,15 +71,22 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "content_type"
     t.text "metadata"
     t.bigint "byte_size", null: false
-    t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.string "checksum"
+    t.datetime "created_at", precision: nil, null: false
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "cargos", force: :cascade do |t|
     t.string "nome"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "destinos", force: :cascade do |t|
@@ -93,8 +99,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "logradouro"
     t.bigint "requisicao_transporte_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["requisicao_transporte_id"], name: "index_destinos_on_requisicao_transporte_id"
     t.index ["user_id"], name: "index_destinos_on_user_id"
   end
@@ -108,13 +114,13 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "numero_patrimonio"
     t.string "outra_identificacao"
     t.integer "status", default: 0
-    t.datetime "data_cadastro"
+    t.datetime "data_cadastro", precision: nil
     t.bigint "unidade_id", null: false
     t.bigint "user_id", null: false
     t.jsonb "itens_kit", default: []
     t.jsonb "historico_movimentacoes", default: []
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "tipo_equipamento"
     t.string "identificacao_kit"
     t.string "host"
@@ -145,8 +151,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
   create_table "etapa_users", force: :cascade do |t|
     t.bigint "etapa_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["etapa_id"], name: "index_etapa_users_on_etapa_id"
     t.index ["user_id"], name: "index_etapa_users_on_user_id"
   end
@@ -158,35 +164,35 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.date "termino"
     t.integer "status"
     t.bigint "acao_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["acao_id"], name: "index_etapas_on_acao_id"
   end
 
   create_table "funcoes", force: :cascade do |t|
     t.string "nome"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "incidentes", force: :cascade do |t|
     t.string "descricao"
     t.string "texto_explicativo"
     t.string "previsao_de_retorno"
-    t.datetime "data_hora_inicio"
-    t.datetime "data_hora_fim"
+    t.datetime "data_hora_inicio", precision: nil
+    t.datetime "data_hora_fim", precision: nil
     t.boolean "ativo"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "item_movimentacoes", force: :cascade do |t|
     t.bigint "movimentacao_equipamento_id", null: false
     t.bigint "equipamento_id", null: false
     t.boolean "recebido", default: false
-    t.datetime "data_recebimento"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "data_recebimento", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "status", default: "pendente"
     t.index ["equipamento_id"], name: "index_item_movimentacoes_on_equipamento_id"
     t.index ["movimentacao_equipamento_id"], name: "index_item_movimentacoes_on_movimentacao_equipamento_id"
@@ -197,8 +203,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.text "texto"
     t.bigint "user_id", null: false
     t.bigint "requisicao_ti_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["requisicao_ti_id"], name: "index_mensagens_on_requisicao_ti_id"
     t.index ["user_id"], name: "index_mensagens_on_user_id"
   end
@@ -210,8 +216,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "cnh"
     t.date "validade_cnh"
     t.string "celular"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "status"
   end
 
@@ -221,9 +227,9 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.bigint "responsavel_id", null: false
     t.string "status", default: "em_andamento"
     t.text "descricao"
-    t.datetime "data_movimentacao", default: -> { "CURRENT_TIMESTAMP" }
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "data_movimentacao", precision: nil, default: -> { "CURRENT_TIMESTAMP" }
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["responsavel_id"], name: "index_movimentacao_equipamentos_on_responsavel_id"
     t.index ["unidade_destino_id"], name: "index_movimentacao_equipamentos_on_unidade_destino_id"
@@ -237,8 +243,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "cpf"
     t.bigint "requisicao_transporte_id", null: false
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["requisicao_transporte_id"], name: "index_passageiros_on_requisicao_transporte_id"
     t.index ["user_id"], name: "index_passageiros_on_user_id"
   end
@@ -247,8 +253,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "nome"
     t.text "descricao"
     t.bigint "tipo_problema_ti_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "status", default: true
     t.index ["tipo_problema_ti_id"], name: "index_problema_tis_on_tipo_problema_ti_id"
   end
@@ -262,8 +268,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.text "observacoes"
     t.text "solucao"
     t.integer "avaliacao"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "comentario"
     t.string "nome"
     t.string "email"
@@ -278,13 +284,23 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "perfil"
     t.date "periodo_inicio"
     t.date "periodo_fim"
-    t.datetime "data_hora_em_atendimento"
-    t.datetime "data_hora_concluida"
-    t.datetime "data_hora_finalizada"
+    t.datetime "data_hora_em_atendimento", precision: nil
+    t.datetime "data_hora_concluida", precision: nil
+    t.datetime "data_hora_finalizada", precision: nil
     t.text "unidade_destino"
     t.string "nae"
     t.text "permissao_drive"
     t.text "nome_arquivo"
+    t.string "prodoc_nome_da_instituicao_externa", limit: 140
+    t.string "prodoc_sigla_da_instituicao_externa", limit: 30
+    t.string "prodoc_nome_unidade_organizacional_externa", limit: 140
+    t.string "prodoc_sigla_unidade_organizacional_externa", limit: 30
+    t.string "prodoc_responsavel_instituicao_externa", limit: 140
+    t.string "prodoc_cargo_do_responsavel_instituicao_externa", limit: 140
+    t.string "prodoc_pronome_responsavel_instituicao_externa", limit: 100
+    t.string "prodoc_cep_instituicao_externa"
+    t.string "prodoc_cidade_instituicao_externa"
+    t.string "prodoc_uf_instituicao_externa"
     t.index ["cargo_id"], name: "index_requisicao_tis_on_cargo_id"
     t.index ["funcao_id"], name: "index_requisicao_tis_on_funcao_id"
     t.index ["problema_ti_id"], name: "index_requisicao_tis_on_problema_ti_id"
@@ -299,26 +315,26 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.bigint "unidade_id", null: false
     t.integer "tipo"
     t.string "documento_viagem"
-    t.datetime "data_hora_ida"
-    t.datetime "data_hora_retorno"
+    t.datetime "data_hora_ida", precision: nil
+    t.datetime "data_hora_retorno", precision: nil
     t.text "motivo"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.datetime "data_hora_aprovada"
-    t.datetime "data_hora_em_servico"
-    t.datetime "data_hora_negada"
-    t.datetime "data_hora_finalizada"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "data_hora_aprovada", precision: nil
+    t.datetime "data_hora_em_servico", precision: nil
+    t.datetime "data_hora_negada", precision: nil
+    t.datetime "data_hora_finalizada", precision: nil
     t.text "motivo_negada"
     t.string "usuario_aprovou"
     t.string "usuario_negou"
     t.string "usuario_em_servico"
     t.string "usuario_finalizou"
     t.bigint "usuario_reagendou_id"
-    t.datetime "data_hora_reagendou"
-    t.datetime "data_hora_ida_antiga"
-    t.datetime "data_hora_retorno_antiga"
+    t.datetime "data_hora_reagendou", precision: nil
+    t.datetime "data_hora_ida_antiga", precision: nil
+    t.datetime "data_hora_retorno_antiga", precision: nil
     t.bigint "usuario_aceitou_negou_reagendamento_id"
-    t.datetime "data_hora_aceitou_negou_reagendamento"
+    t.datetime "data_hora_aceitou_negou_reagendamento", precision: nil
     t.text "motivo_reagendamento"
     t.text "motivo_negacao_reagendamento"
     t.boolean "requisicao_reagendada", default: false
@@ -332,8 +348,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "name"
     t.string "resource_type"
     t.bigint "resource_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
     t.index ["resource_type", "resource_id"], name: "index_roles_on_resource_type_and_resource_id"
   end
@@ -346,26 +362,209 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.bigint "km_inicial"
     t.bigint "km_final"
     t.text "observacoes"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["motorista_id"], name: "index_servico_transportes_on_motorista_id"
     t.index ["requisicao_transporte_id"], name: "index_servico_transportes_on_requisicao_transporte_id"
     t.index ["veiculo_id"], name: "index_servico_transportes_on_veiculo_id"
   end
 
+  create_table "solid_cable_messages", force: :cascade do |t|
+    t.binary "channel", null: false
+    t.binary "payload", null: false
+    t.datetime "created_at", null: false
+    t.bigint "channel_hash", null: false
+    t.index ["channel_hash"], name: "index_solid_cable_messages_on_channel_hash"
+    t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
+  end
+
+  create_table "solid_cache_entries", force: :cascade do |t|
+    t.binary "key", null: false
+    t.binary "value", null: false
+    t.datetime "created_at", null: false
+    t.bigint "key_hash", null: false
+    t.integer "byte_size", null: false
+    t.index ["byte_size"], name: "index_solid_cache_entries_on_byte_size"
+    t.index ["key_hash", "byte_size"], name: "index_solid_cache_entries_on_key_hash_and_byte_size"
+    t.index ["key_hash"], name: "index_solid_cache_entries_on_key_hash", unique: true
+  end
+
+  create_table "solid_queue_batch_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.bigint "batch_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["batch_id"], name: "index_solid_queue_batch_executions_on_batch_id"
+    t.index ["job_id"], name: "index_solid_queue_batch_executions_on_job_id", unique: true
+  end
+
+  create_table "solid_queue_batches", force: :cascade do |t|
+    t.string "active_job_batch_id"
+    t.string "description"
+    t.text "on_finish"
+    t.text "on_success"
+    t.text "on_failure"
+    t.text "metadata"
+    t.integer "total_jobs", default: 0, null: false
+    t.integer "completed_jobs", default: 0, null: false
+    t.integer "failed_jobs", default: 0, null: false
+    t.datetime "enqueued_at"
+    t.datetime "finished_at"
+    t.datetime "failed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active_job_batch_id"], name: "index_solid_queue_batches_on_active_job_batch_id", unique: true
+    t.index ["finished_at"], name: "index_solid_queue_batches_on_finished_at"
+  end
+
+  create_table "solid_queue_blocked_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.string "queue_name", null: false
+    t.integer "priority", default: 0, null: false
+    t.string "concurrency_key", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.index ["concurrency_key", "priority", "job_id"], name: "index_solid_queue_blocked_executions_for_release"
+    t.index ["expires_at", "concurrency_key"], name: "index_solid_queue_blocked_executions_for_maintenance"
+    t.index ["job_id"], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
+  end
+
+  create_table "solid_queue_claimed_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.bigint "process_id"
+    t.datetime "created_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_claimed_executions_on_job_id", unique: true
+    t.index ["process_id", "job_id"], name: "index_solid_queue_claimed_executions_on_process_id_and_job_id"
+  end
+
+  create_table "solid_queue_failed_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_failed_executions_on_job_id", unique: true
+  end
+
+  create_table "solid_queue_jobs", force: :cascade do |t|
+    t.string "queue_name", null: false
+    t.string "class_name", null: false
+    t.text "arguments"
+    t.integer "priority", default: 0, null: false
+    t.string "active_job_id"
+    t.datetime "scheduled_at"
+    t.datetime "finished_at"
+    t.string "concurrency_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "batch_id"
+    t.index ["active_job_id"], name: "index_solid_queue_jobs_on_active_job_id"
+    t.index ["batch_id"], name: "index_solid_queue_jobs_on_batch_id"
+    t.index ["class_name"], name: "index_solid_queue_jobs_on_class_name"
+    t.index ["finished_at"], name: "index_solid_queue_jobs_on_finished_at"
+    t.index ["queue_name", "finished_at"], name: "index_solid_queue_jobs_for_filtering"
+    t.index ["scheduled_at", "finished_at"], name: "index_solid_queue_jobs_for_alerting"
+  end
+
+  create_table "solid_queue_pauses", force: :cascade do |t|
+    t.string "queue_name", null: false
+    t.datetime "created_at", null: false
+    t.index ["queue_name"], name: "index_solid_queue_pauses_on_queue_name", unique: true
+  end
+
+  create_table "solid_queue_processes", force: :cascade do |t|
+    t.string "kind", null: false
+    t.datetime "last_heartbeat_at", null: false
+    t.bigint "supervisor_id"
+    t.integer "pid", null: false
+    t.string "hostname"
+    t.text "metadata"
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.index ["last_heartbeat_at"], name: "index_solid_queue_processes_on_last_heartbeat_at"
+    t.index ["name", "supervisor_id"], name: "index_solid_queue_processes_on_name_and_supervisor_id", unique: true
+    t.index ["supervisor_id"], name: "index_solid_queue_processes_on_supervisor_id"
+  end
+
+  create_table "solid_queue_ready_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.string "queue_name", null: false
+    t.integer "priority", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_ready_executions_on_job_id", unique: true
+    t.index ["priority", "job_id"], name: "index_solid_queue_poll_all"
+    t.index ["queue_name", "priority", "job_id"], name: "index_solid_queue_poll_by_queue"
+  end
+
+  create_table "solid_queue_recurring_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.string "task_key", null: false
+    t.datetime "run_at", null: false
+    t.datetime "created_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_recurring_executions_on_job_id", unique: true
+    t.index ["task_key", "run_at"], name: "index_solid_queue_recurring_executions_on_task_key_and_run_at", unique: true
+  end
+
+  create_table "solid_queue_recurring_tasks", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "schedule", null: false
+    t.string "command", limit: 2048
+    t.string "class_name"
+    t.text "arguments"
+    t.string "queue_name"
+    t.integer "priority", default: 0
+    t.boolean "static", default: true, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_solid_queue_recurring_tasks_on_key", unique: true
+    t.index ["static"], name: "index_solid_queue_recurring_tasks_on_static"
+  end
+
+  create_table "solid_queue_scheduled_executions", force: :cascade do |t|
+    t.bigint "job_id", null: false
+    t.string "queue_name", null: false
+    t.integer "priority", default: 0, null: false
+    t.datetime "scheduled_at", null: false
+    t.datetime "created_at", null: false
+    t.index ["job_id"], name: "index_solid_queue_scheduled_executions_on_job_id", unique: true
+    t.index ["scheduled_at", "priority", "job_id"], name: "index_solid_queue_dispatch_all"
+  end
+
+  create_table "solid_queue_semaphores", force: :cascade do |t|
+    t.string "key", null: false
+    t.integer "value", default: 1, null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_solid_queue_semaphores_on_expires_at"
+    t.index ["key", "value"], name: "index_solid_queue_semaphores_on_key_and_value"
+    t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
+  end
+
+  create_table "tarefa_comentarios", force: :cascade do |t|
+    t.bigint "tarefa_id", null: false
+    t.bigint "user_id", null: false
+    t.string "texto", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_tarefa_comentarios_on_created_at"
+    t.index ["tarefa_id"], name: "index_tarefa_comentarios_on_tarefa_id"
+    t.index ["user_id"], name: "index_tarefa_comentarios_on_user_id"
+  end
+
   create_table "tarefas", force: :cascade do |t|
     t.string "titulo"
     t.string "descricao"
-    t.datetime "inicio"
-    t.datetime "fim"
+    t.datetime "inicio", precision: nil
+    t.datetime "fim", precision: nil
     t.integer "tipo"
     t.integer "status"
     t.bigint "etapa_id"
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "prioridade"
     t.date "prazo"
+    t.bigint "created_by_id"
+    t.index ["created_by_id"], name: "index_tarefas_on_created_by_id"
     t.index ["etapa_id"], name: "index_tarefas_on_etapa_id"
     t.index ["user_id"], name: "index_tarefas_on_user_id"
   end
@@ -373,14 +572,14 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
   create_table "tipo_problema_tis", force: :cascade do |t|
     t.string "nome"
     t.text "descricao"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "tipo_unidades", force: :cascade do |t|
     t.string "nome"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "transporte_escolar_condutores", force: :cascade do |t|
@@ -394,8 +593,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "logradouro"
     t.string "numero"
     t.string "cep"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["municipio_id"], name: "index_transporte_escolar_condutores_on_municipio_id"
   end
 
@@ -410,8 +609,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "bigint"
     t.bigint "transportador_id", null: false
     t.bigint "escola_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "veiculo_id", null: false
     t.index ["escola_id"], name: "index_transporte_escolar_contratos_on_escola_id"
     t.index ["transportador_id"], name: "index_transporte_escolar_contratos_on_transportador_id"
@@ -426,16 +625,16 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "logradouro"
     t.string "numero"
     t.string "cep"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["municipio_id"], name: "index_transporte_escolar_escolas_on_municipio_id"
   end
 
   create_table "transporte_escolar_municipios", force: :cascade do |t|
     t.string "nome"
     t.integer "tipo"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "transporte_escolar_servicos", force: :cascade do |t|
@@ -444,8 +643,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.bigint "contrato_id", null: false
     t.integer "status"
     t.string "ano_mes"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "nota", default: false
     t.boolean "boletim", default: false
     t.index ["contrato_id"], name: "index_transporte_escolar_servicos_on_contrato_id"
@@ -462,8 +661,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "logradouro"
     t.string "numero"
     t.string "cep"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "codigo"
     t.string "banco"
     t.string "agencia"
@@ -497,8 +696,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.integer "capacidade_carga"
     t.bigint "transportador_id", null: false
     t.bigint "condutor_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "procedencia"
     t.index ["condutor_id"], name: "index_transporte_escolar_veiculos_on_condutor_id"
     t.index ["transportador_id"], name: "index_transporte_escolar_veiculos_on_transportador_id"
@@ -507,8 +706,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
   create_table "unidades", force: :cascade do |t|
     t.string "nome"
     t.string "sigla"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "tipo_unidade_id", null: false
     t.index ["tipo_unidade_id"], name: "index_unidades_on_tipo_unidade_id"
   end
@@ -517,10 +716,10 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "nome"
     t.string "celular"
     t.string "cpf"
@@ -550,8 +749,8 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
     t.integer "capacidade"
     t.integer "carga"
     t.integer "status"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "motorista_id"
     t.string "nome"
     t.float "consumo"
@@ -564,6 +763,7 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
   add_foreign_key "acao_users", "users"
   add_foreign_key "acoes", "users"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
   add_foreign_key "equipamentos", "unidades"
@@ -595,8 +795,19 @@ ActiveRecord::Schema.define(version: 2025_10_24_121500) do
   add_foreign_key "servico_transportes", "motoristas"
   add_foreign_key "servico_transportes", "requisicao_transportes"
   add_foreign_key "servico_transportes", "veiculos"
+  add_foreign_key "solid_queue_batch_executions", "solid_queue_batches", column: "batch_id", on_delete: :cascade
+  add_foreign_key "solid_queue_batch_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tarefa_comentarios", "tarefas"
+  add_foreign_key "tarefa_comentarios", "users"
   add_foreign_key "tarefas", "etapas"
   add_foreign_key "tarefas", "users"
+  add_foreign_key "tarefas", "users", column: "created_by_id"
   add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"

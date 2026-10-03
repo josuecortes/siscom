@@ -1,0 +1,15 @@
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+AllCops:
+  Exclude:
+    # Migrations e seeds herdados do siscom antigo (não reformatar).
+    - "db/migrate/202[1-5]*"
+    - "db/migrate/202602*"
+    - "db/seeds.rb"
+    - "db/seeds_equipamentos.rb"
+    - "db/schema.rb"
+    - "bin/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+    - "node_modules/**/*"
