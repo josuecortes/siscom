@@ -1,0 +1,10 @@
+<%# Faixa de aviso dentro da página ou do formulário (porta de ui/notice-banner.tsx).
+    É o lugar da mensagem geral de um formulário; confirmação rápida usa o aviso flutuante (_aviso).
+    Uso: render "compartilhado/faixa_aviso", tom: :erro, mensagem: "..."      (faixa reta, só com linha embaixo)
+         render "compartilhado/faixa_aviso", tom: :sucesso, embutida: true, mensagem: "..."  (cartão arredondado) %>
+<% sucesso = tom.to_s == "sucesso" %>
+<% embutida = local_assigns.fetch(:embutida, false) %>
+<div role="<%= sucesso ? "status" : "alert" %>" data-faixa-aviso="<%= tom %>"
+     class="text-sm <%= sucesso ? "bg-[var(--success-surface)] text-[var(--success-text)]" : "bg-[var(--danger-surface)] text-[var(--danger-text)]" %> <%= embutida ? "rounded-[var(--radius-card)] border px-5 py-4" : "border-b border-[var(--border-subtle)] px-6 py-4" %> <%= (sucesso ? "border-[var(--success-border)]" : "border-[var(--danger-border-soft)]") if embutida %>">
+  <%= mensagem %>
+</div>

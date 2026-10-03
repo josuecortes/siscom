@@ -16,12 +16,13 @@ module TamanhoDeTela
     usar_tela(largura: 390, altura: 844, celular: true)
   end
 
-  # Posição e tamanho de um elemento na tela: { "x", "y", "largura", "altura" }.
+  # Posição e tamanho de um elemento na tela, com uma casa decimal: { "x", "y", "largura", "altura" }.
   def retangulo(seletor)
     page.evaluate_script(<<~JS)
       (() => {
         const r = document.querySelector(#{seletor.to_json}).getBoundingClientRect();
-        return { x: r.x, y: r.y, largura: r.width, altura: r.height };
+        const n = (valor) => Math.round(valor * 10) / 10;
+        return { x: n(r.x), y: n(r.y), largura: n(r.width), altura: n(r.height) };
       })()
     JS
   end

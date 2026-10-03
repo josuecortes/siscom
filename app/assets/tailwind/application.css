@@ -36,6 +36,7 @@
   --accent-soft: var(--system-accent-soft);
   --danger-surface: #fff1f0;
   --danger-border: #e7b8b3;
+  --danger-border-soft: #f2c3bb; /* borda da faixa de aviso embutida (notice-banner do seed), igual nos dois temas */
   --danger-border-strong: #cc5f55;
   --danger-text: #8b352d;
   --success-surface: #ebf7ef;
