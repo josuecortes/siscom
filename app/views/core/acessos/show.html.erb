@@ -1,0 +1,81 @@
+<% content_for :title, "Acessos e papéis" %>
+<% rodape = capture do %>
+  <%= link_to "Concluir", core_usuarios_path, data: { turbo_frame: "_top" },
+        class: "inline-flex h-10 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+<% end %>
+<% botao_pequeno = "inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] px-3 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Acessos e papéis", titulo: @usuario.nome, voltar: core_usuarios_path, rodape: rodape,
+                descricao: "Os papéis definem o que o usuário pode fazer em cada módulo. As mudanças valem na hora." } do %>
+  <% if @erro.present? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+  <% elsif @aviso.present? %>
+    <%= render "compartilhado/faixa_aviso", tom: :sucesso, embutida: true, mensagem: @aviso %>
+  <% end %>
+
+  <% @modulos.each do |item| %>
+    <% modulo = item[:modulo] %>
+    <section id="acesso_<%= modulo.chave %>" class="rounded-[var(--radius-card)] border border-[var(--border-subtle)]">
+      <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3">
+        <div class="flex min-w-0 items-center gap-2">
+          <span class="text-[var(--text-secondary)]"><%= icone((modulo.icone || "list-rich").to_sym) %></span>
+          <h3 class="truncate text-sm font-semibold text-[var(--text-primary)]"><%= modulo.nome %></h3>
+          <% if item[:bloqueado] %>
+            <%= render "compartilhado/selo", texto: "Bloqueado", tom: :atencao %>
+          <% elsif item[:entra] %>
+            <%= render "compartilhado/selo", texto: "Com acesso", tom: :sucesso %>
+          <% else %>
+            <%= render "compartilhado/selo", texto: "Sem acesso" %>
+          <% end %>
+        </div>
+
+        <%= button_to (item[:bloqueado] ? "Liberar" : "Bloquear"), core_usuario_acessos_path(@usuario), method: :patch,
+              params: { modulo: modulo.chave, status: (item[:bloqueado] ? "ativo" : "inativo") },
+              class: botao_pequeno, form: { class: "shrink-0" },
+              aria: { label: "#{item[:bloqueado] ? "Liberar" : "Bloquear"} o módulo #{modulo.nome}" } %>
+      </div>
+
+      <div class="space-y-3 px-4 py-3">
+        <% if item[:concessoes].empty? && item[:automaticos].empty? %>
+          <p class="text-sm text-[var(--text-muted)]">Nenhum papel neste módulo.</p>
+        <% end %>
+
+        <ul class="space-y-2">
+          <% item[:automaticos].each do |papel| %>
+            <li class="flex items-center justify-between gap-3 text-sm">
+              <span class="text-[var(--text-primary)]"><%= papel.nome %></span>
+              <span class="text-xs text-[var(--text-muted)]">automático para todo usuário ativo</span>
+            </li>
+          <% end %>
+          <% item[:concessoes].each do |concessao| %>
+            <li class="flex items-center justify-between gap-3 text-sm">
+              <span class="min-w-0 text-[var(--text-primary)]">
+                <%= concessao.papel_do_catalogo&.nome || concessao.papel %>
+                <% unless concessao.global? %><span class="text-xs text-[var(--text-muted)]">(escopo <%= concessao.escopo_tipo %> #<%= concessao.escopo_id %>)</span><% end %>
+              </span>
+              <% if Core::Acessos::Regras.pode_conceder?(current_user, modulo: concessao.modulo, papel: concessao.papel) %>
+                <%= button_to "Revogar", core_usuario_acessos_path(@usuario), method: :delete, params: { concessao_id: concessao.id },
+                      class: botao_pequeno, form: { class: "shrink-0" },
+                      aria: { label: "Revogar o papel #{concessao.papel_do_catalogo&.nome} em #{modulo.nome}" } %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+
+        <% if item[:concediveis].any? %>
+          <%= form_with url: core_usuario_acessos_path(@usuario), method: :post, class: "flex items-end gap-2 border-t border-[var(--border-subtle)] pt-3" do |f| %>
+            <%= f.hidden_field :modulo, value: modulo.chave, id: nil %>
+            <div class="min-w-0 flex-1 space-y-1">
+              <%= f.label :papel, "Conceder papel em #{modulo.nome}", for: "papel_#{modulo.chave}", class: "text-xs font-medium text-[var(--text-secondary)]" %>
+              <%= f.select :papel, item[:concediveis].map { |papel| [ papel.nome, papel.chave ] }, {}, id: "papel_#{modulo.chave}",
+                    class: "h-10 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]" %>
+            </div>
+            <%= f.button "Conceder", type: "submit", aria: { label: "Conceder papel em #{modulo.nome}" },
+                  class: "inline-flex h-10 cursor-pointer items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+<% end %>

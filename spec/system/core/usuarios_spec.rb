@@ -105,6 +105,27 @@ RSpec.describe "Administração: usuários", :js do
     expect(User.find_by!(email: "maria@seed.ap.gov.br").valid_password?(senha)).to be(true)
   end
 
+  it "concede e revoga papéis pelo painel de acessos" do
+    create(:core_concessao, user: admin, papel: "superadmin")
+    visit core_usuarios_path
+    within("tr", text: "MARIA OLIVEIRA") { click_on "Acessos e papéis" }
+    expect(page).to have_css("[role='dialog'] h2", text: "MARIA OLIVEIRA")
+
+    within("#acesso_core") do
+      select "Auditor", from: "Conceder papel em Administração"
+      click_on "Conceder papel em Administração"
+    end
+    expect(page).to have_content("Papel concedido.")
+    within("#acesso_core") { expect(page).to have_content("Com acesso") }
+    print("usuarios-acessos")
+
+    click_on "Revogar o papel Auditor em Administração"
+    expect(page).to have_content("Papel revogado.")
+
+    click_on "Concluir"
+    expect(page).to have_no_css("[role='dialog']")
+  end
+
   context "quando está no celular" do
     before { usar_tela_de_celular }
 

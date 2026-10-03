@@ -36,6 +36,8 @@
       <%= render "compartilhado/botao_acao", titulo: "Redefinir senha", icone: :lock_locked, caminho: redefinir_senha_core_usuario_path(usuario),
             metodo: :patch, quadro: "painel", desabilitado: !politica.redefinir_senha?,
             confirmar: { mensagem: "Confirme a redefinição da senha de #{usuario.nome}. Será gerada uma senha temporária e as sessões abertas serão encerradas." } %>
+      <%= render "compartilhado/botao_acao", titulo: "Acessos e papéis", icone: :shield_alt, caminho: core_usuario_acessos_path(usuario),
+            quadro: "painel", desabilitado: !politica.ver_acessos? %>
       <% if usuario.ativo? %>
         <%= render "compartilhado/botao_acao", titulo: "Desativar usuário", icone: :ban, caminho: desativar_core_usuario_path(usuario, request.query_parameters),
               metodo: :patch, desabilitado: !politica.alterar_status?,
