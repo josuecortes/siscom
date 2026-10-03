@@ -38,6 +38,21 @@ export default class extends Controller {
     this.botaoRecolherTarget.setAttribute("aria-expanded", recolhido ? "false" : "true")
   }
 
+  // Menu recolhido: o painel flutuante do grupo aparece por CSS (hover/foco);
+  // aqui só o empurramos para caber na altura da tela.
+  ajustarFlutuante(event) {
+    const painel = event.currentTarget.querySelector("[data-flutuante]")
+    if (!painel) return
+    painel.style.marginTop = "0px"
+    const { top, bottom, height } = painel.getBoundingClientRect()
+    if (height === 0) return
+    const margem = 8
+    let ajuste = 0
+    if (bottom > window.innerHeight - margem) ajuste = window.innerHeight - margem - bottom
+    if (top + ajuste < margem) ajuste = margem - top
+    painel.style.marginTop = `${ajuste}px`
+  }
+
   // Em menus longos, rola a lista até o item da página atual.
   mostrarItemAtivo() {
     this.rolagemTargets.forEach((lista) => {

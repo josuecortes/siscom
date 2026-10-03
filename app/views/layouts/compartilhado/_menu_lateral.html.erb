@@ -16,7 +16,8 @@
   <% end %>
 </div>
 
-<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5" data-menu-lateral-target="rolagem">
+<%# Recolhido, a lista não rola: a rolagem cortaria o painel flutuante dos grupos. %>
+<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5 <%= "menu-recolhido:lg:overflow-visible" unless gaveta %>" data-menu-lateral-target="rolagem">
   <% unless gaveta %>
     <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-muted)] menu-recolhido:lg:hidden">Navegação</p>
   <% end %>
