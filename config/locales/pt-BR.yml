@@ -14,6 +14,9 @@ pt-BR:
         nome: Nome
         remember_me: Lembrar de mim
         avatar: Imagem
+        data_nascimento: Data de nascimento
+        celular: Telefone
+        cpf: CPF
     errors:
       messages:
         record_invalid: 'A validação falhou: %{errors}'

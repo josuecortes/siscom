@@ -136,12 +136,12 @@ RSpec.describe "Minha área com as medidas do seed", :js do
         usar_tema("light")
       end
 
-      it "empilha a busca e os botões e rola a tabela dentro do cartão" do
+      it "empilha a busca, deixa os botões lado a lado e rola a tabela dentro do cartão" do
         filtrar = relativo("#{cartao} button[aria-label='Filtrar notificações']", cartao)
         limpar = relativo("#{cartao} a[aria-label='Limpar busca']", cartao)
         expect(relativo("#{cartao} input[name='q']", cartao)).to include("x" => 25, "largura" => 308, "altura" => 44)
         expect(filtrar).to include("x" => 25, "largura" => 44, "altura" => 44)
-        expect(limpar).to include("x" => 25, "y" => filtrar["y"] + 44 + 16)
+        expect(limpar).to include("x" => 25 + 44 + 8, "y" => filtrar["y"])
         expect(retangulo("#{cartao} .overflow-x-auto")).to include("x" => 17, "largura" => 356)
         expect(sem_rolagem_horizontal?).to be(true)
         print("notificacoes-celular")

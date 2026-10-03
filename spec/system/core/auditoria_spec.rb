@@ -23,6 +23,12 @@ RSpec.describe "Administração: auditoria", :js do
     end
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/auditoria.png") if ENV["SCREENSHOT_DIR"]
 
+    fill_in "De", with: "01012020"
+    expect(page).to have_field("De", with: "01/01/2020") # máscara dd/mm/aaaa
+    find("body").click
+    expect(page).to have_current_path(%r{de=01%2F01%2F2020})
+    expect(page).to have_content("Usuário desativado")
+
     select "Papel concedido", from: "Evento"
     expect(page).to have_content("Nenhum registro encontrado")
     expect(page).to have_current_path(/evento=core.acesso.papel_concedido/)

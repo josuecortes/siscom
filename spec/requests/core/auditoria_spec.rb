@@ -40,8 +40,8 @@ RSpec.describe "Administração: auditoria" do
       get core_auditoria_path, params: { evento: "core.acesso.papel_concedido" }
       expect(response.body).to include("1 registro(s)", "Papel concedido")
 
-      get core_auditoria_path, params: { de: 2.days.ago.to_date.iso8601, ate: Date.current.iso8601 }
-      expect(response.body).to include("2 registro(s)")
+      get core_auditoria_path, params: { de: 2.days.ago.strftime("%d/%m/%Y"), ate: Date.current.strftime("%d/%m/%Y") }
+      expect(response.body).to include("2 registro(s)", %(value="#{Date.current.strftime('%d/%m/%Y')}"))
       expect(response.body).not_to include("Usuário atualizado</p>")
     end
 

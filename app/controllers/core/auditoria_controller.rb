@@ -9,8 +9,8 @@ module Core
       @filtros = {
         q: params[:q].to_s.strip,
         evento: params[:evento].presence_in(eventos_conhecidos.map(&:last)),
-        de: data(params[:de]),
-        ate: data(params[:ate])
+        de: DataBr.interpretar(params[:de]),
+        ate: DataBr.interpretar(params[:ate])
       }
 
       registros = Core::RegistroAuditoria.recentes.entre(@filtros[:de], @filtros[:ate])
@@ -25,12 +25,6 @@ module Core
     end
 
     private
-
-    def data(texto)
-      Date.iso8601(texto.to_s)
-    rescue ArgumentError
-      nil
-    end
 
     # [["Usuário cadastrado", "core.usuario.criado"], ...] a partir dos rótulos traduzidos.
     def eventos_conhecidos

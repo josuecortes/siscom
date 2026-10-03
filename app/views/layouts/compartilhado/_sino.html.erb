@@ -9,7 +9,7 @@
           aria-label="Abrir notificações<%= " (#{nao_lidas} não lidas)" if nao_lidas.positive? %>" aria-haspopup="true" aria-expanded="false">
     <%= icone(:bell, classe: "h-[18px] w-[18px]") %>
     <% if nao_lidas.positive? %>
-      <span data-sino-contador class="absolute right-1.5 top-1.5 inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--accent-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-white"><%= nao_lidas > 9 ? "9+" : nao_lidas %></span>
+      <span data-sino-contador class="absolute right-0 top-0 inline-flex min-w-[1.1rem] items-center justify-center rounded-full bg-[var(--accent-strong)] px-1.5 py-0.5 text-[10px] font-semibold text-white"><%= nao_lidas > 9 ? "9+" : nao_lidas %></span>
     <% end %>
   </button>
 

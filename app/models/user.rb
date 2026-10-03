@@ -13,6 +13,8 @@ class User < ApplicationRecord
 
   # Regras herdadas do siscom antigo: nome obrigatório, único e em maiúsculas.
   # Só valem quando o nome muda, para não travar registros antigos repetidos.
+  datas_br :data_nascimento
+
   normalizes :nome, with: ->(nome) { nome.squish.upcase }
   validates :nome, presence: true
   validates :nome, uniqueness: { case_sensitive: false }, if: :will_save_change_to_nome?

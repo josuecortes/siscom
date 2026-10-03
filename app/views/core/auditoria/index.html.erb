@@ -21,14 +21,10 @@
         <%= f.label :evento, "Evento", class: rotulo %>
         <%= f.select :evento, @eventos, { include_blank: "Todos", selected: @filtros[:evento] }, data: { action: "change->filtro#aplicar" }, class: campo %>
       </div>
-      <div class="space-y-1.5">
-        <%= f.label :de, "De", class: rotulo %>
-        <%= f.date_field :de, value: @filtros[:de], data: { action: "change->filtro#aplicar" }, class: campo %>
-      </div>
-      <div class="space-y-1.5">
-        <%= f.label :ate, "Até", class: rotulo %>
-        <%= f.date_field :ate, value: @filtros[:ate], data: { action: "change->filtro#aplicar" }, class: campo %>
-      </div>
+      <%= render "compartilhado/campo_data", f: f, campo: :de, rotulo: "De", valor: @filtros[:de],
+            html: { data: { action: "input->mascara#aplicar change->filtro#aplicar" } } %>
+      <%= render "compartilhado/campo_data", f: f, campo: :ate, rotulo: "Até", valor: @filtros[:ate],
+            html: { data: { action: "input->mascara#aplicar change->filtro#aplicar" } } %>
       <div class="flex flex-row gap-2">
         <button type="submit" title="Filtrar registros" aria-label="Filtrar registros"
                 class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>

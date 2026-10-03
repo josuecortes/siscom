@@ -33,13 +33,16 @@
                 class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] pl-11 pr-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
         </div>
       </div>
-      <%# Como no seed, os dois botões são colunas da própria grade (16 px entre eles; empilhados no celular). %>
-      <button type="submit" title="Filtrar notificações" aria-label="Filtrar notificações"
-              class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
-      <%= link_to notificacoes_path, title: "Limpar busca", aria: { label: "Limpar busca" },
-            class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
-        <%= icone(:x) %>
-      <% end %>
+      <%# No computador os dois botões são colunas da grade, como no seed (16 px entre eles);
+          no celular ficam lado a lado, como nas outras listagens. %>
+      <div class="flex flex-row gap-2 lg:contents">
+        <button type="submit" title="Filtrar notificações" aria-label="Filtrar notificações"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to notificacoes_path, title: "Limpar busca", aria: { label: "Limpar busca" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
     </div>
   <% end %>
 
@@ -72,7 +75,7 @@
           <% @notificacoes.each do |notificacao| %>
             <tr id="<%= dom_id(notificacao) %>" class="<%= "bg-[var(--accent-soft)]/20" unless notificacao.lida? %>">
               <td class="font-semibold !text-[var(--text-primary)]"><%= notificacao.titulo %></td>
-              <td class="!whitespace-normal"><%= notificacao.mensagem.presence || "Sem detalhes adicionais." %></td>
+              <td><%= notificacao.mensagem.presence || "Sem detalhes adicionais." %></td>
               <td><%= notificacao.nome_do_modulo %></td>
               <td><%= notificacao.nome_do_ator %></td>
               <td><%= l(notificacao.created_at, format: "%d/%m/%Y %H:%M") %></td>
