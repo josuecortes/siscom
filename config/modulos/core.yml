@@ -30,4 +30,5 @@ concessao:
 menu:
   - { rotulo: "Usuários", rota: core_usuarios_path, permissao: usuarios.ver, icone: people }
   - { rotulo: "Configurações", rota: core_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }
+  - { rotulo: "Fontes de referência", rota: core_fontes_referencia_path, permissao: fontes_referencia.gerenciar, icone: description }
   - { rotulo: "Auditoria", rota: core_auditoria_path, permissao: auditoria.ver, icone: notes }

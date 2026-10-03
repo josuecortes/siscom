@@ -17,5 +17,10 @@ pt-BR:
           modulo_liberado: "Módulo liberado"
         configuracao:
           atualizada: "Configurações do sistema alteradas"
+        fonte_referencia:
+          criada: "Fonte de referência criada"
+          atualizada: "Fonte de referência atualizada"
+          ativada: "Fonte de referência ativada"
+          desativada: "Fonte de referência desativada"
         sessao:
           iniciada: "Entrada no sistema"

@@ -28,4 +28,5 @@ end
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.plural(/([cs])ao\z/i, '\1oes')
   inflect.singular(/([cs])oes\z/i, '\1ao')
+  inflect.irregular "fonte_referencia", "fontes_referencia"
 end

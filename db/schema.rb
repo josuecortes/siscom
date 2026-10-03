@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_132735) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_190359) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -133,6 +133,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_132735) do
     t.boolean "mostrar_titulo_login", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "core_fontes_referencia", force: :cascade do |t|
+    t.string "chave", null: false
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "modulo", null: false
+    t.string "entidade", null: false
+    t.string "campo_rotulo", null: false
+    t.string "campo_valor", default: "id", null: false
+    t.string "campo_subtitulo"
+    t.string "campos_busca", default: [], null: false, array: true
+    t.string "tipos_de_campo", default: [], null: false, array: true
+    t.string "status", default: "ativo", null: false
+    t.boolean "gerenciada_pelo_sistema", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chave"], name: "index_core_fontes_referencia_on_chave", unique: true
   end
 
   create_table "core_inscricoes_push", force: :cascade do |t|

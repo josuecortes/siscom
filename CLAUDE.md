@@ -45,6 +45,13 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
   inteira). O app será instalável (PWA). Regras no plano, `02` §6.1 e §6.2.
 - Stimulus com nomes em português (`tema`, `menu-lateral`, `dropdown`, `flash`, `mostrar-senha`).
 - Paginação: `pagy`. Excel: `caxlsx` + `caxlsx_rails`.
+- **Datas sempre em formato brasileiro (dd/mm/aaaa)** na tela e nos formulários: no model `datas_br :campo`,
+  no formulário `render "compartilhado/campo_data"` (nunca `date_field`), em filtros `DataBr.interpretar(params[...])`
+  e para exibir `DataBr.formatar(valor)` ou `l(data)`. Máscaras (data, CPF, telefone): Stimulus `mascara`.
+- Painéis (`compartilhado/_painel_formulario`) e confirmações fecham só pelos botões (Cancelar/Fechar/×).
+- Auditoria: toda ação que altera dados chama `Core::Api.auditar` (ou `Core::Auditoria::Registrar` dentro do Core);
+  notificações por `Core::Api.notificar`; fontes de referência por `Core::Api.opcoes_da_fonte`. Um módulo publica
+  entidades para fontes definindo `entidades_publicaveis` e `registros_da_entidade` na sua `Api`.
 - Respostas para Turbo: 422 em erro de formulário, 303 em redirecionamento.
 
 ## Comandos

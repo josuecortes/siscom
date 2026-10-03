@@ -1,5 +1,11 @@
 # Rotas do módulo Core (administração).
 namespace :core do
+  resources :fontes_referencia, only: %i[index new create edit update] do
+    member do
+      patch :ativar
+      patch :desativar
+    end
+  end
   resource :configuracoes, only: %i[show update]
   resources :auditoria, only: :index
 
