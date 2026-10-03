@@ -18,14 +18,13 @@
 
           <main class="w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 pb-6 pt-16 sm:px-6 lg:px-8">
             <div class="min-w-0 max-w-full">
-              <% if flash.any? %>
-                <div class="pt-4"><%= render "compartilhado/flash" %></div>
-              <% end %>
               <%= yield %>
             </div>
           </main>
         </div>
       </div>
+
+      <%= render "compartilhado/flash" %>
 
       <%# Menu no celular (gaveta). %>
       <div data-menu-lateral-target="gaveta" class="fixed inset-0 z-50 hidden bg-[#08111fcc] lg:hidden">

@@ -38,6 +38,9 @@
   --danger-border: #e7b8b3;
   --danger-border-strong: #cc5f55;
   --danger-text: #8b352d;
+  --success-surface: #ebf7ef;
+  --success-border: #bfe0c8;
+  --success-text: #1c7f43;
   --button-secondary-bg: #2c3950;
   --button-secondary-hover: #223047;
   --button-secondary-text: #f8fbff;
@@ -82,6 +85,9 @@ html[data-theme="dark"] {
   --danger-border: #5d2b29;
   --danger-border-strong: #e07b72;
   --danger-text: #f2b8b3;
+  --success-surface: #1c3324;
+  --success-border: #2f5a3c;
+  --success-text: #a7e0b8;
   --button-secondary-bg: #4b5a75;
   --button-secondary-hover: #5a6a86;
   --button-secondary-text: #f4f7fb;
@@ -125,6 +131,9 @@ html[data-theme="dark"] {
     --danger-border: #5d2b29;
     --danger-border-strong: #e07b72;
     --danger-text: #f2b8b3;
+    --success-surface: #1c3324;
+    --success-border: #2f5a3c;
+    --success-text: #a7e0b8;
     --button-secondary-bg: #4b5a75;
     --button-secondary-hover: #5a6a86;
     --button-secondary-text: #f4f7fb;
