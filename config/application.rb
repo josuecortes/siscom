@@ -22,10 +22,11 @@ module Siscom
     config.i18n.default_locale = :"pt-BR"
     config.i18n.load_path += Dir[Rails.root.join("config/locales/**/*.{rb,yml}")]
 
-    # O banco de produção grava datas no horário local (Brasília).
-    # Não trocar para :utc sem migrar todos os timestamps existentes.
-    config.time_zone = "Brasilia"
-    config.active_record.default_timezone = :local
+    # O banco guarda data e hora em UTC (é assim que produção sempre gravou: o servidor
+    # roda em UTC). A tela mostra no horário do Amapá (UTC-3, sem horário de verão).
+    # Fixar :utc aqui evita depender do fuso da máquina onde o sistema roda.
+    config.time_zone = "America/Belem"
+    config.active_record.default_timezone = :utc
 
     # Catálogos dos módulos (permissões, papéis, menu): recarregar ao editar em desenvolvimento.
     config.watchable_dirs[Rails.root.join("config/modulos").to_s] = [ :yml ]

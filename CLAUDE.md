@@ -31,8 +31,9 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 
 ## Convenções técnicas
 
-- Fuso **Brasília** com `active_record.default_timezone = :local` (dados antigos em horário local).
-  Não mudar para UTC.
+- **Fuso horário:** o banco guarda data e hora em **UTC** (`default_timezone = :utc`, como produção sempre gravou)
+  e a tela mostra no horário do Amapá (`America/Belem`, UTC-3). Use `Time.current`/`Time.zone`, nunca `Time.now`,
+  e mostre com `l(...)`. Não mudar essas duas configurações.
 - Banco único: Solid Cache/Queue/Cable em tabelas do banco principal (inclusive em desenvolvimento).
 - Front: importmap + Turbo + Stimulus + `tailwindcss-rails` (sem Node). Tema em
   `app/assets/tailwind/application.css` (variáveis do seed; `dark:` = `html[data-theme="dark"]`,
