@@ -1,0 +1,11 @@
+<% content_for :title, "Acesso negado" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Acesso negado", icone: :lock_locked, migalha: [ "SISCOM", root_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+  <h2 class="text-lg font-semibold text-[var(--text-primary)]">Você não tem permissão para acessar esta página.</h2>
+  <p class="mt-1 text-sm text-[var(--text-secondary)]">Se precisar deste acesso, procure o administrador do sistema.</p>
+  <%= link_to "Voltar ao início", root_path,
+        class: "mt-5 inline-flex h-10 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+</section>
