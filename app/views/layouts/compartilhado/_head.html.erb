@@ -1,5 +1,12 @@
 <title><%= content_for?(:title) ? "#{yield(:title)} · #{nome_do_sistema}" : nome_do_sistema %></title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<%# App instalável (PWA) %>
+<link rel="manifest" href="<%= pwa_manifest_path(format: :json) %>">
+<meta name="theme-color" content="#232a38">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="<%= nome_do_sistema %>">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="application-name" content="<%= nome_do_sistema %>">
 <meta name="turbo-refresh-method" content="morph">
 <meta name="turbo-refresh-scroll" content="preserve">

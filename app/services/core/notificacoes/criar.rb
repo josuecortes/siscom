@@ -30,6 +30,7 @@ module Core
             url_acao: @url_acao, alvo_tipo: @alvo&.class&.name, alvo_id: @alvo&.id, dados: @dados
           )
           Transmitir.nova(notificacao)
+          EnviarPushJob.perform_later(notificacao) if Push.ativo?
           notificacao
         end
       end

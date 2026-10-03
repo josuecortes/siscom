@@ -58,3 +58,6 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+# Notificações push (Web Push / VAPID)
+gem "web-push"

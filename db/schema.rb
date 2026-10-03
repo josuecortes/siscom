@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_130902) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_131523) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_130902) do
     t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
     t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
     t.index ["user_id"], name: "index_core_concessoes_on_user_id"
+  end
+
+  create_table "core_inscricoes_push", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "aparelho"
+    t.datetime "ultimo_envio_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint"], name: "index_core_inscricoes_push_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_core_inscricoes_push_on_user_id"
   end
 
   create_table "core_notificacoes", force: :cascade do |t|
@@ -853,6 +866,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_130902) do
   add_foreign_key "core_concessoes", "core_acessos", column: "acesso_id"
   add_foreign_key "core_concessoes", "users"
   add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
+  add_foreign_key "core_inscricoes_push", "users"
   add_foreign_key "core_notificacoes", "users"
   add_foreign_key "core_notificacoes", "users", column: "ator_id"
   add_foreign_key "core_registros_auditoria", "users", column: "ator_id"

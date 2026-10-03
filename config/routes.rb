@@ -8,12 +8,17 @@ Rails.application.routes.draw do
     patch :abrir, on: :member
     patch :marcar_todas, on: :collection
   end
+  resource :inscricao_push, path: "minha-area/avisos-no-aparelho", only: %i[create destroy], controller: "core/inscricoes_push"
   resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
 
   # Caminhos em português: /novo e /editar.
   scope path_names: { new: "novo", edit: "editar" } do
     draw :core
   end
+
+  # App instalável (PWA): manifesto e service worker (views em app/views/pwa).
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   get "up" => "rails/health#show", as: :rails_health_check
 

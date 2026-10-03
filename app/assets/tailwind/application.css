@@ -262,3 +262,12 @@ select {
     width: 100%;
   }
 }
+
+/* App instalado (PWA, viewport-fit=cover): não deixar conteúdo sob o entalhe ou as bordas do aparelho. */
+@supports (padding: env(safe-area-inset-left)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

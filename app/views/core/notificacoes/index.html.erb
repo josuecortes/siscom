@@ -3,6 +3,23 @@
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Notificações", icone: :bell, migalha: [ "Minha área", notificacoes_path ] } do %>
 <% end %>
 
+<% if Core::Notificacoes::Push.ativo? %>
+  <%# Avisos push deste aparelho (Web Push). O navegador só pergunta ao tocar em "Ativar". %>
+  <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]"
+           data-controller="push" data-push-chave-value="<%= Core::Notificacoes::Push.chave_publica %>" data-push-url-value="<%= inscricao_push_path %>">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Avisos neste aparelho</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]" data-push-target="estado" aria-live="polite">Verificando este aparelho…</p>
+      </div>
+      <button type="button" hidden data-push-target="ativar" data-action="push#ativar"
+              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]">Ativar avisos neste aparelho</button>
+      <button type="button" hidden data-push-target="desativar" data-action="push#desativar"
+              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Desativar neste aparelho</button>
+    </div>
+  </section>
+<% end %>
+
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%= form_with url: notificacoes_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
         data: { controller: "filtro", turbo_frame: "notificacoes_lista", turbo_action: "advance" } do |f| %>
