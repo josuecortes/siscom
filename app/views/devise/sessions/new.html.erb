@@ -1,20 +1,21 @@
 <% content_for :title, "Entrar" %>
 
-<%# Porta de platform-login-hero.tsx + platform-login-form.tsx. %>
+<%# Porta de platform-login-hero.tsx + platform-login-form.tsx. O seed tem um bloco para o celular
+    e outro para o desktop; aqui é um bloco só, com as diferenças entre eles nas classes md:. %>
 <div class="flex min-h-screen w-full flex-col bg-[var(--surface-card)] md:min-h-0 md:max-w-[760px] md:overflow-hidden md:rounded-[28px] md:border md:border-[var(--border-subtle)] md:shadow-[var(--shadow-panel)]">
   <div class="h-1 w-full bg-[var(--system-accent-strong)]"></div>
 
   <section class="w-full px-6 py-8 md:px-10 md:py-10 lg:px-12 lg:py-11">
-    <div class="mx-auto flex w-full max-w-[38rem] items-center gap-3">
+    <div class="flex items-center gap-3 md:mx-auto md:w-full md:max-w-[38rem]">
       <%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %>
       <div class="min-w-0">
         <p class="text-[1.1rem] font-semibold text-[var(--text-primary)]">SISCOM</p>
-        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">Secretaria de Estado da Educação</p>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] md:tracking-[0.18em]">Secretaria de Estado da Educação</p>
       </div>
     </div>
 
-    <div class="mt-8 flex justify-center">
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "w-full max-w-[38rem] space-y-5", data: { turbo: true } }) do |f| %>
+    <div class="mt-8 w-full md:flex md:justify-center">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "w-full space-y-5 md:max-w-[38rem]", data: { turbo: true } }) do |f| %>
         <div class="space-y-2">
           <h1 class="text-[2.35rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Entrar</h1>
           <p class="text-base text-[var(--text-secondary)]">Use seu e-mail e senha para acessar o SISCOM.</p>
@@ -55,7 +56,7 @@
 
         <% if devise_mapping.rememberable? %>
           <label class="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
-            <%= f.check_box :remember_me, class: "h-4 w-4 rounded border border-[var(--border-subtle)] accent-[var(--accent-strong)]" %>
+            <%= f.check_box :remember_me, class: "h-4 w-4 rounded border border-[var(--border-subtle)] text-[var(--accent-strong)]" %>
             <span>Lembrar de mim</span>
           </label>
         <% end %>
