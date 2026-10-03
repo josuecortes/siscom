@@ -1,6 +1,6 @@
-<title><%= content_for?(:title) ? "#{yield(:title)} · SISCOM" : "SISCOM · SEED" %></title>
+<title><%= content_for?(:title) ? "#{yield(:title)} · #{nome_do_sistema}" : nome_do_sistema %></title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="application-name" content="SISCOM">
+<meta name="application-name" content="<%= nome_do_sistema %>">
 <meta name="turbo-refresh-method" content="morph">
 <meta name="turbo-refresh-scroll" content="preserve">
 <%= csrf_meta_tags %>

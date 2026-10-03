@@ -45,7 +45,7 @@ RSpec.describe "Shell administrativo", :js do
       visit root_path
       expect(largura_da_tela).to eq(390)
       expect(page).to have_no_css("#menu-lateral", visible: :visible)
-      expect(page).to have_css("header", text: "SISCOM")
+      expect(page).to have_css("header", text: "Siscom")
       page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/mobile-topo.png") if ENV["SCREENSHOT_DIR"]
 
       click_on "Abrir menu"

@@ -4,7 +4,7 @@
 <div class="flex h-16 items-center border-b border-[var(--shell-sidebar-divider)] px-5 <%= "justify-between" if gaveta %>">
   <%= link_to root_path, class: "flex items-center gap-3", data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) } do %>
     <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
-    <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>">SISCOM</p>
+    <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>"><%= nome_do_sistema %></p>
   <% end %>
 
   <% if gaveta %>
