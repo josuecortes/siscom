@@ -1,12 +1,12 @@
 <% nova = @pessoa.new_record? %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_pessoa", rotulo: "Salvar pessoa" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_pessoa", rotulo: (nova ? "Cadastrar pessoa" : "Salvar pessoa") } %>
 <% vinculo = @pessoa.vinculo || Rh::Vinculo.new %>
 <% seletor = "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none" %>
 <% borda = ->(erros) { erros.any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
 <% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Pessoas", titulo: (nova ? "Nova pessoa" : "Editar pessoa"), voltar: (nova ? rh_pessoas_path : rh_pessoa_path(@pessoa)), rodape: rodape,
+      locals: { sobretitulo: (nova ? "Nova pessoa" : "Editar pessoa"), titulo: (nova ? "Cadastrar pessoa" : "Atualizar pessoa"), voltar: (nova ? rh_pessoas_path : rh_pessoa_path(@pessoa)), rodape: rodape,
                 descricao: (nova ? "Ao salvar, o sistema cria a conta de acesso da pessoa (ou usa a conta que já existir com o mesmo e-mail)." : nil) } do %>
   <%= form_with model: @pessoa, scope: :pessoa, url: (nova ? rh_pessoas_path : rh_pessoa_path(@pessoa)), id: "formulario_pessoa", class: "space-y-5" do |f| %>
     <% if @pessoa.errors.any? %>
@@ -27,7 +27,7 @@
     </div>
 
     <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
-      <legend class="px-1 text-sm font-semibold text-[var(--text-primary)]">Vínculo funcional</legend>
+      <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Vínculo funcional</legend>
       <p class="text-xs text-[var(--text-muted)]">Opcional. Se preencher um campo do vínculo, preencha os três.</p>
       <div class="grid gap-4 sm:grid-cols-2">
         <% { tipo_vinculo_id: [ "Vínculo", Rh::TipoVinculo.ativo.ordenados ], cargo_id: [ "Cargo", Rh::Cargo.ativo.ordenados ] }.each do |campo, (texto, opcoes)| %>

@@ -22,7 +22,7 @@ RSpec.describe "RH: pessoas", :js do
     expect(page).to have_field("CPF *", with: "111.444.777-35")
     expect(page).to have_field("Data de nascimento", with: "02/03/1990")
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-pessoa-painel.png") if ENV["SCREENSHOT_DIR"]
-    click_on "Salvar pessoa"
+    click_on "Cadastrar pessoa"
 
     expect(page).to have_css("[role='dialog'] h2", text: "Conta de acesso criada")
     senha = find("[data-senha-temporaria]").text

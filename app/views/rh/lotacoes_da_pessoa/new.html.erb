@@ -2,7 +2,7 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_lotacao", rotulo: "Salvar lotação" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Lotações", titulo: "Nova lotação", voltar: rh_pessoa_path(@pessoa), rodape: rodape,
+      locals: { sobretitulo: "Nova lotação", titulo: "Conceder lotação", voltar: rh_pessoa_path(@pessoa), rodape: rodape,
                 descricao: "Lotar #{@pessoa.nome} em uma unidade, com uma função. A pessoa pode ter mais de uma lotação ativa." } do %>
   <%= form_with model: @lotacao, scope: :lotacao, url: rh_pessoa_lotacoes_path(@pessoa), id: "formulario_lotacao", class: "space-y-5" do |f| %>
     <% if @lotacao.errors.any? %>

@@ -53,8 +53,8 @@
               <td><%= usuario.email %></td>
               <td>
                 <div class="flex flex-nowrap gap-2">
-                  <% papeis.each do |papel| %><%= render "compartilhado/selo", texto: nomes[papel] || papel, tom: :sucesso %><% end %>
-                  <% if papeis.empty? %><span class="text-[var(--text-muted)]">Sem permissão (só a própria ficha)</span><% end %>
+                  <% papeis.each do |papel| %><%= render "compartilhado/selo", texto: nomes[papel] || papel %><% end %>
+                  <% if papeis.empty? %><span class="text-sm text-[var(--text-muted)]">Sem permissão (só a própria ficha)</span><% end %>
                 </div>
               </td>
               <td><%= render "compartilhado/botao_acao", titulo: "Gerenciar permissões", icone: :shield_alt, caminho: edit_rh_acesso_path(usuario), quadro: "painel" %></td>

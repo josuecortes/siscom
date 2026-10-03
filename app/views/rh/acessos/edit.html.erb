@@ -2,7 +2,7 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_acesso", rotulo: "Salvar permissão" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Acessos", titulo: @usuario.nome, voltar: rh_acessos_path, rodape: rodape,
+      locals: { sobretitulo: "Editar permissão", titulo: @usuario.nome, voltar: rh_acessos_path, rodape: rodape,
                 descricao: "Cada usuário tem no máximo uma permissão no RH. Escolher outra substitui a atual; \"Sem permissão\" deixa só a própria ficha." } do %>
   <%= form_with url: rh_acesso_path(@usuario), method: :patch, id: "formulario_acesso", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

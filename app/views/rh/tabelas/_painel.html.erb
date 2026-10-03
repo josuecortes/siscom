@@ -2,7 +2,8 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_tabela", rotulo: "Salvar" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: @tabela.titulo, titulo: (novo ? "#{@tabela.novo} #{@tabela.singular}" : "Editar #{@tabela.singular}"),
+      locals: { sobretitulo: (novo ? "#{@tabela.novo} #{@tabela.singular}" : "Editar #{@tabela.singular}"),
+                titulo: (novo ? "Cadastrar #{@tabela.singular}" : "Atualizar #{@tabela.singular}"),
                 voltar: caminho_da_lista, rodape: rodape } do %>
   <%= form_with model: @registro, scope: :registro, url: (novo ? caminho_da_lista : caminho_do_registro(@registro)), id: "formulario_tabela", class: "space-y-5" do |f| %>
     <% if @registro.errors.any? %>
