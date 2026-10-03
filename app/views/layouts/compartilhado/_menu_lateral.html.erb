@@ -1,6 +1,8 @@
+<%# Conteúdo do menu lateral: usado no <aside> do desktop e, com gaveta: true, na gaveta do celular
+    (porta de admin-shell.tsx; na gaveta não há o rótulo "Navegação" nem menu recolhido). %>
 <% gaveta = local_assigns.fetch(:gaveta, false) %>
-<div class="flex h-16 items-center justify-between border-b border-[var(--shell-sidebar-divider)] px-5">
-  <%= link_to root_path, class: "flex items-center gap-3" do %>
+<div class="flex h-16 items-center border-b border-[var(--shell-sidebar-divider)] px-5 <%= "justify-between" if gaveta %>">
+  <%= link_to root_path, class: "flex items-center gap-3", data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) } do %>
     <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
     <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>">SISCOM</p>
   <% end %>
@@ -9,15 +11,17 @@
     <button type="button" data-action="menu-lateral#fecharGaveta"
             class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-white/12 bg-white/4 text-[var(--shell-sidebar-text)]"
             aria-label="Fechar menu">
-      <%= icone(:x) %>
+      <%= icone(:x, classe: "h-full w-full") %>
     </button>
   <% end %>
 </div>
 
-<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5">
-  <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-muted)] <%= "menu-recolhido:lg:hidden" unless gaveta %>">Navegação</p>
+<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5" data-menu-lateral-target="rolagem">
+  <% unless gaveta %>
+    <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-muted)] menu-recolhido:lg:hidden">Navegação</p>
+  <% end %>
 
-  <nav class="mt-3 space-y-1.5" aria-label="Menu principal">
+  <nav class="space-y-1.5 <%= "mt-3 menu-recolhido:lg:mt-0" unless gaveta %>" aria-label="Menu principal">
     <%= render partial: "layouts/compartilhado/item_menu", collection: menu_lateral_itens, as: :item, locals: { gaveta: gaveta, nivel: 0 } %>
   </nav>
 </div>

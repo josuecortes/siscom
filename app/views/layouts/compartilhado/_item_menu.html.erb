@@ -5,9 +5,9 @@
 <% if item[:filhos] %>
   <details class="group/grupo space-y-1.5" <%= "open" if ativo %>>
     <summary title="<%= item[:rotulo] %>"
-             class="flex cursor-pointer list-none items-center gap-3 rounded-md border px-3 py-2.5 transition [&::-webkit-details-marker]:hidden <%= "menu-recolhido:lg:justify-center" unless gaveta %> <%= ativo ? "border-white/10 bg-white/4 text-white" : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white" %>">
-      <span class="flex h-5 w-5 shrink-0 items-center justify-center <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
-        <%= icone(item[:icone]) %>
+             class="group flex w-full cursor-pointer list-none items-center gap-3 rounded-md border px-3 py-2.5 transition [&::-webkit-details-marker]:hidden <%= "menu-recolhido:lg:justify-center" unless gaveta %> <%= ativo ? "border-white/10 bg-white/4 text-white" : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white" %>">
+      <span class="flex h-5 w-5 shrink-0 items-center justify-center group-hover:text-white <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
+        <%= icone(item[:icone], classe: "h-full w-full") %>
       </span>
       <span class="min-w-0 flex-1 text-left text-sm font-semibold <%= esconder_no_recolhido %>"><%= item[:rotulo] %></span>
       <span class="flex h-4 w-4 items-center justify-center transition-transform group-open/grupo:rotate-90 <%= esconder_no_recolhido %>">
@@ -26,13 +26,13 @@
         data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) },
         class: [
           "group flex items-center gap-3 rounded-md border px-3 transition",
-          (nivel.zero? ? "py-2.5" : "py-2"),
+          (nivel.zero? ? "py-2.5" : (nivel == 1 ? "py-2" : "py-1.5")),
           ("menu-recolhido:lg:justify-center" unless gaveta),
           (ativo ? "border-[var(--shell-sidebar-active-border)] bg-[var(--shell-sidebar-active)] text-white shadow-[inset_3px_0_0_var(--system-accent-strong)]"
                  : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white")
         ] do %>
     <span class="flex h-5 w-5 shrink-0 items-center justify-center group-hover:text-white <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
-      <%= icone(item[:icone]) %>
+      <%= icone(item[:icone], classe: "h-full w-full") %>
     </span>
     <span class="text-sm <%= "font-semibold" if nivel.zero? %> <%= esconder_no_recolhido %>"><%= item[:rotulo] %></span>
   <% end %>

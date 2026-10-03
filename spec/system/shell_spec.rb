@@ -22,7 +22,7 @@ RSpec.describe "Shell administrativo", :js do
     visit root_path
     expect(page).to have_css("#menu-lateral", text: /navegação/i)
 
-    click_on "Recolher ou expandir menu lateral"
+    click_on "Recolher menu lateral"
 
     expect(page).to have_css("html[data-menu='recolhido']")
     expect(page).to have_no_css("#menu-lateral", text: /navegação/i)

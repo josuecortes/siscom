@@ -31,6 +31,13 @@ module TamanhoDeTela
     page.evaluate_script("getComputedStyle(document.querySelector(#{seletor.to_json}))[#{propriedade.to_json}]")
   end
 
+  # Fixa o tema ("light" ou "dark") e recarrega a página aberta (recarregar evita
+  # medir cores no meio da transição de 160 ms).
+  def usar_tema(tema)
+    page.execute_script("localStorage.setItem('siscom-tema', #{tema.to_json})")
+    page.refresh
+  end
+
   def largura_da_tela
     page.evaluate_script("window.innerWidth")
   end
