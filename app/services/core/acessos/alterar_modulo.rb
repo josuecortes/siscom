@@ -23,7 +23,13 @@ module Core
 
         acesso = Core::Acesso.find_or_initialize_by(user: @user, modulo: @modulo)
         acesso.status = @ativo ? "ativo" : "inativo"
-        acesso.save ? Core::Resultado.sucesso(acesso) : Core::Resultado.falha(acesso)
+        return Core::Resultado.falha(acesso) unless acesso.save
+
+        if acesso.saved_change_to_status?
+          Core::Auditoria::Registrar.call(evento: "core.acesso.modulo_#{@ativo ? 'liberado' : 'bloqueado'}", alvo: @user,
+                                          ator: @alterado_por, dados: { modulo: @modulo })
+        end
+        Core::Resultado.sucesso(acesso)
       end
 
       private

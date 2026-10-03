@@ -1,0 +1,19 @@
+# Rótulos dos eventos de auditoria: auditoria.eventos.<modulo>.<objeto>.<acao>
+pt-BR:
+  auditoria:
+    eventos:
+      core:
+        usuario:
+          criado: "Usuário cadastrado"
+          atualizado: "Usuário atualizado"
+          ativado: "Usuário ativado"
+          desativado: "Usuário desativado"
+          senha_redefinida: "Senha redefinida pelo administrador"
+          senha_alterada: "Senha alterada pelo usuário"
+        acesso:
+          papel_concedido: "Papel concedido"
+          papel_revogado: "Papel revogado"
+          modulo_bloqueado: "Módulo bloqueado"
+          modulo_liberado: "Módulo liberado"
+        sessao:
+          iniciada: "Entrada no sistema"

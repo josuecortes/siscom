@@ -1,0 +1,78 @@
+<% content_for :title, "Auditoria" %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Auditoria", icone: :notes, migalha: [ "Administração", core_auditoria_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: core_auditoria_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "auditoria_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid gap-4 lg:grid-cols-[1.2fr_0.9fr_0.5fr_0.5fr_auto] lg:items-end">
+      <div class="space-y-1.5">
+        <%= f.label :q, "Buscar por quem fez ou por quem foi afetado", class: rotulo %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: Maria Oliveira", autocomplete: "off",
+                data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11" %>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <%= f.label :evento, "Evento", class: rotulo %>
+        <%= f.select :evento, @eventos, { include_blank: "Todos", selected: @filtros[:evento] }, data: { action: "change->filtro#aplicar" }, class: campo %>
+      </div>
+      <div class="space-y-1.5">
+        <%= f.label :de, "De", class: rotulo %>
+        <%= f.date_field :de, value: @filtros[:de], data: { action: "change->filtro#aplicar" }, class: campo %>
+      </div>
+      <div class="space-y-1.5">
+        <%= f.label :ate, "Até", class: rotulo %>
+        <%= f.date_field :ate, value: @filtros[:ate], data: { action: "change->filtro#aplicar" }, class: campo %>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Filtrar registros" aria-label="Filtrar registros"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to core_auditoria_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "auditoria_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} registro(s) de auditoria" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1040px]">
+        <thead>
+          <tr>
+            <th scope="col">Data e hora</th>
+            <th scope="col">Evento</th>
+            <th scope="col">Feito por</th>
+            <th scope="col">Afetado</th>
+            <th scope="col">Detalhes</th>
+            <th scope="col">IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @registros.each do |registro| %>
+            <tr id="<%= dom_id(registro) %>">
+              <td><time datetime="<%= registro.created_at.iso8601 %>" class="text-sm"><%= l(registro.created_at, format: "%d/%m/%Y %H:%M:%S") %></time></td>
+              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= registro.rotulo %></p></td>
+              <td><%= registro.nome_do_ator %></td>
+              <td><%= registro.alvo_descricao.presence || "—" %></td>
+              <td class="!whitespace-normal"><span class="text-sm"><%= detalhes_da_auditoria(registro).presence || "—" %></span></td>
+              <td><%= registro.ip.presence || "—" %></td>
+            </tr>
+          <% end %>
+          <% if @registros.empty? %>
+            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "auditoria_lista" %>
+  <% end %>
+</section>

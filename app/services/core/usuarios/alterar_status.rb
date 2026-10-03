@@ -20,6 +20,7 @@ module Core
         @user.transaction do
           @user.update!(status: @ativo)
           @ativo ? @user.unlock_access! : @user.derrubar_sessoes!
+          Core::Auditoria::Registrar.call(evento: "core.usuario.#{@ativo ? 'ativado' : 'desativado'}", alvo: @user, ator: @alterado_por)
         end
         Core::Resultado.sucesso(@user)
       rescue ActiveRecord::RecordInvalid => e

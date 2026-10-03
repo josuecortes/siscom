@@ -30,8 +30,12 @@ module Core
           acesso.ativo! unless acesso.ativo?
 
           atributos = { user: @user, modulo: @modulo, papel: @papel, escopo_tipo: @escopo_tipo, escopo_id: @escopo_id }
-          concessao = Core::Concessao.ativo.find_by(atributos) ||
-                      Core::Concessao.create!(atributos.merge(acesso: acesso, concedido_por: @concedido_por))
+          concessao = Core::Concessao.ativo.find_by(atributos)
+          unless concessao
+            concessao = Core::Concessao.create!(atributos.merge(acesso: acesso, concedido_por: @concedido_por))
+            Core::Auditoria::Registrar.call(evento: "core.acesso.papel_concedido", alvo: @user, ator: @concedido_por,
+                                            dados: { modulo: @modulo, papel: @papel, escopo_tipo: @escopo_tipo, escopo_id: @escopo_id }.compact)
+          end
 
           Core::Resultado.sucesso(concessao)
         end

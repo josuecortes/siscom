@@ -6,6 +6,7 @@ module Core
 
     def create
       super do |user|
+        Core::Auditoria::Registrar.call(evento: "core.sessao.iniciada", alvo: user, ator: user)
         if Core::PoliticaDeSenha.padrao_antiga?(params.dig(:user, :password)) && !user.deve_trocar_senha?
           user.update_column(:deve_trocar_senha, true) # rubocop:disable Rails/SkipsModelValidations
         end

@@ -17,6 +17,8 @@ module Core
         return falha("Não é possível revogar o último superadministrador ativo.") if ultimo_superadmin?
 
         @concessao.inativo!
+        Core::Auditoria::Registrar.call(evento: "core.acesso.papel_revogado", alvo: @concessao.user, ator: @revogado_por,
+                                        dados: { modulo: @concessao.modulo, papel: @concessao.papel })
         Core::Resultado.sucesso(@concessao)
       end
 

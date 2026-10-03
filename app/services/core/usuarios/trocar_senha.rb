@@ -25,8 +25,11 @@ module Core
           return Core::Resultado.falha(@user)
         end
 
-        return Core::Resultado.sucesso(@user) if @user.update(password: @nova_senha, password_confirmation: @confirmacao,
-                                                              deve_trocar_senha: false)
+        obrigatoria = @user.deve_trocar_senha?
+        if @user.update(password: @nova_senha, password_confirmation: @confirmacao, deve_trocar_senha: false)
+          Core::Auditoria::Registrar.call(evento: "core.usuario.senha_alterada", alvo: @user, ator: @user, dados: { troca_obrigatoria: obrigatoria })
+          return Core::Resultado.sucesso(@user)
+        end
 
         # Não deixa a senha recusada (nem o hash dela) no objeto em memória.
         resultado = Core::Resultado.falha(@user)

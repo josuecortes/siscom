@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_035023) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_130413) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_035023) do
     t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
     t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
     t.index ["user_id"], name: "index_core_concessoes_on_user_id"
+  end
+
+  create_table "core_registros_auditoria", force: :cascade do |t|
+    t.string "modulo", null: false
+    t.string "evento", null: false
+    t.bigint "ator_id"
+    t.string "ator_nome"
+    t.string "alvo_tipo"
+    t.bigint "alvo_id"
+    t.string "alvo_descricao"
+    t.jsonb "dados", default: {}, null: false
+    t.string "ip"
+    t.string "request_id"
+    t.datetime "created_at", null: false
+    t.index ["alvo_tipo", "alvo_id"], name: "index_core_registros_auditoria_on_alvo_tipo_and_alvo_id"
+    t.index ["ator_id"], name: "index_core_registros_auditoria_on_ator_id"
+    t.index ["created_at"], name: "index_core_registros_auditoria_on_created_at"
+    t.index ["modulo", "evento"], name: "index_core_registros_auditoria_on_modulo_and_evento"
   end
 
   create_table "core_senhas_anteriores", force: :cascade do |t|
@@ -814,6 +832,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_035023) do
   add_foreign_key "core_concessoes", "core_acessos", column: "acesso_id"
   add_foreign_key "core_concessoes", "users"
   add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
+  add_foreign_key "core_registros_auditoria", "users", column: "ator_id"
   add_foreign_key "core_senhas_anteriores", "users"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"

@@ -31,4 +31,36 @@
       </div>
     <% end %>
   </section>
+
+  <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Histórico de trocas de senha</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[780px]">
+        <thead>
+          <tr>
+            <th scope="col">Evento</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Executado por</th>
+            <th scope="col">Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @historico.each do |registro| %>
+            <% propria = registro.evento == "usuario.senha_alterada" %>
+            <tr>
+              <td class="font-semibold !text-[var(--text-primary)]"><%= propria ? "Troca de senha" : "Redefinição de senha" %></td>
+              <td><%= propria ? "Senha alterada por você." : "Senha temporária gerada pelo administrador." %></td>
+              <td><%= registro.nome_do_ator %></td>
+              <td><%= l(registro.created_at, format: "%d/%m/%Y %H:%M") %></td>
+            </tr>
+          <% end %>
+          <% if @historico.empty? %>
+            <tr><td colspan="4" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro de troca de senha encontrado.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>

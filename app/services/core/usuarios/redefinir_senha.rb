@@ -22,6 +22,7 @@ module Core
           @user.update!(password: temporaria, password_confirmation: temporaria, deve_trocar_senha: true)
           @user.unlock_access! if @user.access_locked? || @user.failed_attempts.positive?
           @user.derrubar_sessoes!
+          Core::Auditoria::Registrar.call(evento: "core.usuario.senha_redefinida", alvo: @user, ator: @redefinido_por)
         end
 
         Core::Resultado.sucesso(temporaria)

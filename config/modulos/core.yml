@@ -29,3 +29,4 @@ concessao:
 
 menu:
   - { rotulo: "Usuários", rota: core_usuarios_path, permissao: usuarios.ver, icone: people }
+  - { rotulo: "Auditoria", rota: core_auditoria_path, permissao: auditoria.ver, icone: notes }

@@ -22,6 +22,7 @@ module Core
         return Core::Resultado.falha(user) unless user.save
 
         user.senha_temporaria = temporaria
+        Core::Auditoria::Registrar.call(evento: "core.usuario.criado", alvo: user, ator: @criado_por, dados: { email: user.email })
         Core::Resultado.sucesso(user)
       end
 

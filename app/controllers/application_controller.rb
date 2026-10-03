@@ -7,9 +7,16 @@ class ApplicationController < ActionController::Base
   include Core::ControleDeAcesso
   include Pagy::Method
 
+  before_action :definir_contexto
   before_action :exigir_troca_de_senha, unless: :devise_controller?
 
   private
+
+  def definir_contexto
+    Core::Contexto.ator = current_user
+    Core::Contexto.ip = request.remote_ip
+    Core::Contexto.request_id = request.request_id
+  end
 
   # Fim de uma ação feita no painel de formulário: fecha o painel, atualiza a
   # página por baixo (Turbo refresh com morph) e mostra o aviso flutuante.

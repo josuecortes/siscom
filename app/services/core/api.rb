@@ -10,5 +10,10 @@ module Core
     def modulos = Catalogo.modulos
 
     def modulo(chave) = Catalogo.modulo(chave)
+
+    # Registra um evento de auditoria: evento "<modulo>.<objeto>.<acao>".
+    def auditar(evento:, alvo: nil, dados: {}, ator: :contexto, descricao: nil)
+      Auditoria::Registrar.call(evento:, alvo:, dados:, ator:, descricao:)
+    end
   end
 end
