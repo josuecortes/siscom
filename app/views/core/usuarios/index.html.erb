@@ -15,7 +15,7 @@
         <%= f.label :q, "Buscar por nome ou e-mail", class: "text-sm font-medium text-[var(--text-secondary)]" %>
         <div class="relative">
           <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
-          <%= f.search_field :q, value: @filtros[:q], placeholder: "Ex.: João Silva ou joao@seed.ap.gov.br", autocomplete: "off",
+          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: João Silva ou joao@seed.ap.gov.br", autocomplete: "off",
                 data: { action: "input->filtro#digitar" },
                 class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] pl-11 pr-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
         </div>

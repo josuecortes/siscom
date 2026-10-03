@@ -40,6 +40,7 @@
   --danger-border-strong: #cc5f55;
   --danger-text: #8b352d;
   --success-surface: #ebf7ef;
+  --success-badge-surface: #e6f6ea; /* fundo do selo "Ativo" do seed (statusBadge) */
   --success-border: #bfe0c8;
   --success-text: #1c7f43;
   --warning-surface: #fff1e8;
@@ -91,6 +92,7 @@ html[data-theme="dark"] {
   --danger-border-strong: #e07b72;
   --danger-text: #f2b8b3;
   --success-surface: #1c3324;
+  --success-badge-surface: #1c3324;
   --success-border: #2f5a3c;
   --success-text: #a7e0b8;
   --warning-surface: #3a2a1a;
@@ -141,6 +143,7 @@ html[data-theme="dark"] {
     --danger-border-strong: #e07b72;
     --danger-text: #f2b8b3;
     --success-surface: #1c3324;
+    --success-badge-surface: #1c3324;
     --success-border: #2f5a3c;
     --success-text: #a7e0b8;
     --warning-surface: #3a2a1a;
