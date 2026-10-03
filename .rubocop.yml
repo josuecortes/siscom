@@ -17,9 +17,13 @@ AllCops:
 
 RSpec/MultipleExpectations:
   Max: 5
+  Exclude:
+    - "spec/system/**/*" # fluxos de tela conferem vários passos no mesmo exemplo
 
 RSpec/ExampleLength:
   Max: 20
+  Exclude:
+    - "spec/system/**/*"
 
 # Descrições dos specs em português.
 RSpec/ContextWording:

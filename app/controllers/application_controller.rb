@@ -5,10 +5,21 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
 
   include Core::ControleDeAcesso
+  include Pagy::Method
 
   before_action :exigir_troca_de_senha, unless: :devise_controller?
 
   private
+
+  # Fim de uma ação feita no painel de formulário: fecha o painel, atualiza a
+  # página por baixo (Turbo refresh com morph) e mostra o aviso flutuante.
+  def concluir_painel(aviso:, voltar_para:)
+    flash[:notice] = aviso
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: [ turbo_stream.update("painel", ""), turbo_stream.refresh(request_id: nil) ] }
+      format.html { redirect_to voltar_para, status: :see_other }
+    end
+  end
 
   # Senha temporária ou padrão antiga: só a tela de troca fica disponível.
   def exigir_troca_de_senha

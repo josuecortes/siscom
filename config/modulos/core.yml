@@ -27,4 +27,5 @@ papeis:
 concessao:
   superadmin: [superadmin, admin_usuarios, auditor]
 
-menu: []
+menu:
+  - { rotulo: "Usuários", rota: core_usuarios_path, permissao: usuarios.ver, icone: people }

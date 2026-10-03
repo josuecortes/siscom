@@ -42,6 +42,10 @@
   --success-surface: #ebf7ef;
   --success-border: #bfe0c8;
   --success-text: #1c7f43;
+  --warning-surface: #fff1e8;
+  --warning-text: #a85a17;
+  --danger-solid: #c44b3a;
+  --danger-solid-hover: #ad3e30;
   --button-secondary-bg: #2c3950;
   --button-secondary-hover: #223047;
   --button-secondary-text: #f8fbff;
@@ -89,6 +93,10 @@ html[data-theme="dark"] {
   --success-surface: #1c3324;
   --success-border: #2f5a3c;
   --success-text: #a7e0b8;
+  --warning-surface: #3a2a1a;
+  --warning-text: #f0c08a;
+  --danger-solid: #d0604f;
+  --danger-solid-hover: #e07b72;
   --button-secondary-bg: #4b5a75;
   --button-secondary-hover: #5a6a86;
   --button-secondary-text: #f4f7fb;
@@ -135,6 +143,10 @@ html[data-theme="dark"] {
     --success-surface: #1c3324;
     --success-border: #2f5a3c;
     --success-text: #a7e0b8;
+    --warning-surface: #3a2a1a;
+    --warning-text: #f0c08a;
+    --danger-solid: #d0604f;
+    --danger-solid-hover: #e07b72;
     --button-secondary-bg: #4b5a75;
     --button-secondary-hover: #5a6a86;
     --button-secondary-text: #f4f7fb;

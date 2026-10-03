@@ -5,6 +5,11 @@ Rails.application.routes.draw do
 
   resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
 
+  # Caminhos em português: /novo e /editar.
+  scope path_names: { new: "novo", edit: "editar" } do
+    draw :core
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   root "inicio#index"

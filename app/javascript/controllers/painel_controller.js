@@ -1,0 +1,29 @@
+import { Controller } from "@hotwired/stimulus"
+
+// Painel de formulário dentro do turbo-frame "painel": trava a rolagem da
+// página enquanto está aberto, fecha no X, no fundo ou com Esc, e volta o
+// miolo ao topo quando o formulário volta com erro.
+export default class extends Controller {
+  static targets = ["miolo"]
+  static values = { voltar: String }
+
+  connect() {
+    document.documentElement.classList.add("overflow-hidden")
+    if (this.hasMioloTarget) this.mioloTarget.scrollTop = 0
+  }
+
+  disconnect() {
+    document.documentElement.classList.remove("overflow-hidden")
+  }
+
+  fechar() {
+    const quadro = this.element.closest("turbo-frame")
+    // Aberto direto pela URL (sem a listagem por trás): volta para a listagem.
+    if (!quadro || quadro.dataset.abertoNaPagina === "true") {
+      if (this.voltarValue) window.Turbo.visit(this.voltarValue)
+      return
+    }
+    quadro.removeAttribute("src")
+    quadro.innerHTML = ""
+  }
+}

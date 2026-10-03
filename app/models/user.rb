@@ -9,10 +9,25 @@ class User < ApplicationRecord
 
   scope :ativos, -> { where(status: true) }
 
+  # Regras herdadas do siscom antigo: nome obrigatório, único e em maiúsculas.
+  # Só valem quando o nome muda, para não travar registros antigos repetidos.
+  normalizes :nome, with: ->(nome) { nome.squish.upcase }
+  validates :nome, presence: true
+  validates :nome, uniqueness: { case_sensitive: false }, if: :will_save_change_to_nome?
+
+  # Senha temporária em texto, disponível só logo após criar/redefinir (nunca é gravada).
+  attr_accessor :senha_temporaria
+
   validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? }
 
   before_update :guardar_senha_anterior, if: :will_save_change_to_encrypted_password?
   before_save :marcar_troca_de_senha, if: :will_save_change_to_encrypted_password?
+
+  scope :inativos, -> { where(status: false) }
+  scope :buscar, lambda { |termo|
+    padrao = "%#{sanitize_sql_like(termo.to_s.squish)}%"
+    where("users.nome ILIKE :p OR users.email ILIKE :p", p: padrao)
+  }
 
   def ativo?
     status != false
