@@ -3,6 +3,12 @@ pt-BR:
   auditoria:
     eventos:
       rh:
+        pessoa:
+          criada: "Pessoa cadastrada"
+          atualizada: "Pessoa atualizada"
+        lotacao:
+          criada: "Lotação registrada"
+          encerrada: "Lotação encerrada"
         unidade:
           criada: "Unidade criada"
           atualizada: "Unidade atualizada"

@@ -1,0 +1,100 @@
+<% content_for :title, "Pessoas" %>
+<% gerencia = pode?("rh.pessoas.gerenciar") %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Pessoas", icone: :people, migalha: [ "RH", rh_pessoas_path ] } do %>
+  <% if gerencia %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Nova pessoa", icone: :plus, caminho: new_rh_pessoa_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)]" %>
+  <%= form_with url: rh_pessoas_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "pessoas_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid gap-4 lg:grid-cols-[1.2fr_0.6fr_auto] lg:items-end">
+      <div class="space-y-1.5">
+        <%= f.label :q, "Buscar por nome, e-mail ou CPF", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: Maria Oliveira", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <%= f.label :situacao, "Situação", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <%= f.select :situacao, [ [ "Todas", "todas" ], [ "Com pendência de cadastro", "com_pendencia" ], [ "Sem lotação ativa", "sem_lotacao" ] ],
+              { selected: @filtros[:situacao] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Filtrar pessoas" aria-label="Filtrar pessoas"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to rh_pessoas_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "pessoas_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} pessoa(s) registrada(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1080px]">
+        <thead>
+          <tr>
+            <th scope="col">Pessoa</th>
+            <th scope="col">CPF</th>
+            <th scope="col">Lotação atual</th>
+            <th scope="col">Conta</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pessoas.each do |pessoa| %>
+            <% lotacoes = @lotacoes.fetch(pessoa.id, []) %>
+            <tr id="<%= dom_id(pessoa) %>">
+              <td>
+                <div class="space-y-1 whitespace-nowrap">
+                  <p class="text-sm font-semibold text-[var(--text-primary)]"><%= pessoa.nome %></p>
+                  <p class="text-sm text-[var(--text-secondary)]"><%= pessoa.email %></p>
+                </div>
+              </td>
+              <td>
+                <%= formatar_cpf(pessoa.cpf) || "—" %>
+                <% if @pendencias[pessoa.id] %><%= render "compartilhado/selo", texto: "Pendência", tom: :atencao %><% end %>
+              </td>
+              <td>
+                <% if lotacoes.any? %>
+                  <p class="text-sm text-[var(--text-primary)]"><%= lotacoes.first.unidade.sigla_e_nome %></p>
+                  <p class="text-sm text-[var(--text-secondary)]"><%= lotacoes.first.funcao.nome %><%= " · mais #{lotacoes.size - 1}" if lotacoes.size > 1 %></p>
+                <% else %>
+                  <span class="text-[var(--text-muted)]">Sem lotação ativa</span>
+                <% end %>
+              </td>
+              <td>
+                <% if pessoa.user.nil? %>
+                  <%= render "compartilhado/selo", texto: "Sem conta" %>
+                <% elsif pessoa.user.ativo? %>
+                  <%= render "compartilhado/selo", texto: "Ativa", tom: :sucesso %>
+                <% else %>
+                  <%= render "compartilhado/selo", texto: "Inativa", tom: :atencao %>
+                <% end %>
+              </td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pessoa) %>
+                  <%= render "compartilhado/botao_acao", titulo: "Editar pessoa", icone: :pencil, caminho: edit_rh_pessoa_path(pessoa), quadro: "painel", desabilitado: !gerencia %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @pessoas.empty? %>
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma pessoa encontrada para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "pessoas_lista" %>
+  <% end %>
+</section>

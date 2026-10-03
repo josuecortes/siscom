@@ -33,9 +33,12 @@ papeis:
 concessao:
   admin: [admin, operador, leitor]
 
-# Pessoas, Lotações, Acessos e Pendências entram no menu junto com as telas.
+# Acessos e Pendências entram no menu junto com as telas.
 menu:
+  - { rotulo: "Minha ficha", rota: rh_minha_ficha_path, permissao: minha_ficha.ver, icone: description }
+  - { rotulo: "Pessoas", rota: rh_pessoas_path, permissao: pessoas.ver, icone: people }
   - { rotulo: "Unidades", rota: rh_unidades_path, permissao: unidades.ver, icone: sitemap }
+  - { rotulo: "Lotações", rota: rh_lotacoes_path, permissao: lotacoes.ver, icone: briefcase }
   - { rotulo: "Vínculos", rota: rh_tipos_vinculo_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
   - { rotulo: "Cargos", rota: rh_cargos_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
   - { rotulo: "Funções de lotação", rota: rh_funcoes_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }

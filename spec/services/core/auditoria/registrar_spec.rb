@@ -45,6 +45,6 @@ RSpec.describe Core::Auditoria::Registrar do
   end
 
   it "usa um rótulo legível para evento sem tradução" do
-    expect(Core::RegistroAuditoria.rotulo_do_evento("rh", "pessoa.criada")).to eq("Pessoa criada")
+    expect(Core::RegistroAuditoria.rotulo_do_evento("ti", "chamado.aberto")).to eq("Chamado aberto")
   end
 end

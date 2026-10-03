@@ -7,10 +7,13 @@ module Rh
     SEXOS = { "masculino" => "Masculino", "feminino" => "Feminino", "outro" => "Outro", "nao_informado" => "Não informado" }.freeze
 
     belongs_to :user, class_name: "::User", optional: true
-    has_one :vinculo, class_name: "Rh::Vinculo", inverse_of: :pessoa, dependent: :destroy
+    has_one :vinculo, class_name: "Rh::Vinculo", inverse_of: :pessoa, dependent: :destroy, autosave: true
     has_many :lotacoes, class_name: "Rh::Lotacao", inverse_of: :pessoa, dependent: :restrict_with_error
 
-    accepts_nested_attributes_for :vinculo, update_only: true, reject_if: :all_blank
+    # Senha temporária da conta criada junto com a pessoa (só em memória, mostrada uma vez).
+    attr_accessor :senha_temporaria
+
+    validates_associated :vinculo
 
     enum :sexo, SEXOS.keys.index_by(&:itself), validate: true
     datas_br :data_nascimento

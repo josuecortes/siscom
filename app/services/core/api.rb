@@ -11,6 +11,26 @@ module Core
 
     def modulo(chave) = Catalogo.modulo(chave)
 
+    # --- Contas (para o RH ligar pessoa ↔ conta) ---
+
+    def conta_por_email(email) = ::User.find_by(email: email.to_s.strip.downcase)
+
+    # Cria a conta de uma pessoa cadastrada por outro módulo. Devolve Core::Resultado com o
+    # usuário; a senha temporária fica em `objeto.senha_temporaria` (mostrar uma única vez).
+    def criar_conta(nome:, email:, criado_por:)
+      Usuarios::Criar.call(atributos: { nome:, email: }, criado_por:, pelo_sistema: true)
+    end
+
+    # Mantém nome e e-mail da conta iguais aos da pessoa.
+    def sincronizar_conta(user, nome:, email:, atualizado_por:)
+      return Resultado.sucesso(user) if user.nome == nome.to_s.squish.upcase && user.email == email.to_s.strip.downcase
+      return Resultado.falha(user) unless user.update(nome:, email:)
+
+      mudancas = user.saved_changes.slice("nome", "email").transform_values { |de, para| { de: de, para: para } }
+      auditar(evento: "core.usuario.atualizado", alvo: user, ator: atualizado_por, dados: { mudancas: mudancas, origem: "rh" })
+      Resultado.sucesso(user)
+    end
+
     # Opções de uma fonte de referência para campos de busca/seleção:
     # [{ valor:, rotulo:, subtitulo: }]
     def opcoes_da_fonte(chave, termo: nil, limite: FontesReferencia::Consultar::LIMITE)

@@ -6,6 +6,25 @@ pt-BR:
         one: Usuário
         other: Usuários
     attributes:
+      rh/pessoa:
+        nome: Nome completo
+        email: E-mail
+        celular: Celular
+        cpf: CPF
+        data_nascimento: Data de nascimento
+        sexo: Sexo
+        vinculo: Vínculo funcional
+      rh/vinculo:
+        tipo_vinculo: Vínculo
+        cargo: Cargo
+        data_inicio: Início do vínculo
+      rh/lotacao:
+        unidade: Unidade
+        unidade_id: Unidade
+        funcao: Função
+        funcao_id: Função
+        data_inicio: Início
+        data_fim: Fim
       rh/unidade:
         nome: Nome
         sigla: Sigla

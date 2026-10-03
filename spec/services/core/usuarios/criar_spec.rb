@@ -21,12 +21,16 @@ RSpec.describe Core::Usuarios::Criar do
   end
 
   it "devolve os erros de validação" do
-    create(:user, nome: "ANA MARIA")
-
-    resultado = described_class.call(atributos: { nome: "ana maria", email: "invalido" }, criado_por: admin)
+    resultado = described_class.call(atributos: { nome: " ", email: "invalido" }, criado_por: admin)
 
     expect(resultado).to be_falha
     expect(resultado.objeto.errors.attribute_names).to contain_exactly(:nome, :email)
+  end
+
+  it "aceita homônimos (os dados pessoais são do RH)" do
+    create(:user, nome: "ANA MARIA")
+
+    expect(described_class.call(atributos: { nome: "ana maria", email: "outra.ana@seed.ap.gov.br" }, criado_por: admin)).to be_sucesso
   end
 
   it "recusa quem não tem a permissão" do

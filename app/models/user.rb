@@ -11,13 +11,12 @@ class User < ApplicationRecord
 
   scope :ativos, -> { where(status: true) }
 
-  # Regras herdadas do siscom antigo: nome obrigatório, único e em maiúsculas.
-  # Só valem quando o nome muda, para não travar registros antigos repetidos.
+  # Nome obrigatório e em maiúsculas. (A regra antiga de nome único saiu: os dados
+  # pessoais agora são do RH, e há homônimos.)
   datas_br :data_nascimento
 
   normalizes :nome, with: ->(nome) { nome.squish.upcase }
   validates :nome, presence: true
-  validates :nome, uniqueness: { case_sensitive: false }, if: :will_save_change_to_nome?
 
   # Senha temporária em texto, disponível só logo após criar/redefinir (nunca é gravada).
   attr_accessor :senha_temporaria
