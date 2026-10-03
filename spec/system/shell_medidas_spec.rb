@@ -84,8 +84,10 @@ RSpec.describe "Shell: medidas iguais às do seed", :js do
       page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/conta.png") if ENV["SCREENSHOT_DIR"]
 
       expect(retangulo("header [role='menu']")).to include("x" => 1152, "y" => 64, "largura" => 224)
-      trocar_senha = retangulo("header [role='menu'] a")
-      expect(trocar_senha).to include("largura" => 198, "altura" => 36)
+      perfil = retangulo("header [role='menu'] a")
+      trocar_senha = retangulo("header [role='menu'] a + a")
+      expect(perfil).to include("largura" => 198, "altura" => 36)
+      expect(trocar_senha).to include("largura" => 198, "altura" => 36, "y" => perfil["y"] + 36 + 4)
       expect(retangulo("header [role='menu'] button"))
         .to include("largura" => 198, "altura" => 36, "y" => trocar_senha["y"] + 36 + 8)
     end
