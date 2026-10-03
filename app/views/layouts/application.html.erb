@@ -1,31 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR" class="h-full antialiased">
   <head>
-    <title><%= content_for(:title) || "SISCOM" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="SISCOM">
-    <meta name="mobile-web-app-capable" content="yes">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-
-    <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= render "layouts/compartilhado/head" %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
-      <%= yield %>
-    </main>
+  <%# Shell administrativo (porta de seed/web/components/layout/admin-shell.tsx). %>
+  <body class="min-h-full" data-controller="menu-lateral">
+    <div class="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--surface-page)] text-[var(--text-primary)]">
+      <div class="flex min-h-screen w-full min-w-0 max-w-full overflow-x-hidden">
+        <aside id="menu-lateral"
+               class="hidden w-[252px] shrink-0 border-r border-[var(--shell-border)] bg-[var(--shell-sidebar)] text-[var(--shell-sidebar-text)] lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:h-screen lg:flex-col menu-recolhido:w-[72px]">
+          <%= render "layouts/compartilhado/menu_lateral" %>
+        </aside>
+
+        <div class="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden lg:ml-[252px] menu-recolhido:lg:ml-[72px]">
+          <%= render "layouts/compartilhado/topo" %>
+
+          <main class="w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 pb-6 pt-16 sm:px-6 lg:px-8">
+            <div class="min-w-0 max-w-full">
+              <% if flash.any? %>
+                <div class="pt-4"><%= render "compartilhado/flash" %></div>
+              <% end %>
+              <%= yield %>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <%# Menu no celular (gaveta). %>
+      <div data-menu-lateral-target="gaveta" class="fixed inset-0 z-50 hidden bg-[#08111fcc] lg:hidden">
+        <button type="button" class="absolute inset-0 cursor-pointer" data-action="menu-lateral#fecharGaveta" aria-label="Fechar menu"></button>
+        <div class="relative flex h-full w-[min(86vw,20rem)] flex-col border-r border-[var(--shell-sidebar-divider)] bg-[var(--shell-sidebar)] text-[var(--shell-sidebar-text)]">
+          <%= render "layouts/compartilhado/menu_lateral", gaveta: true %>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

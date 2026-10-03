@@ -1,0 +1,15 @@
+<%# Avisos de flash (padrão notice-banner do seed). %>
+<div id="flash" class="space-y-3">
+  <% flash.each do |tipo, mensagem| %>
+    <% next unless mensagem.is_a?(String) && mensagem.present? %>
+    <% sucesso = tipo.to_s.in?(%w[notice success]) %>
+    <div role="<%= sucesso ? "status" : "alert" %>"
+         data-controller="flash"
+         class="flex items-start justify-between gap-3 rounded-[var(--radius-card)] border px-5 py-4 text-sm <%= sucesso ? "border-[#bfe0c8] bg-[#ebf7ef] text-[#1c7f43] dark:border-[#2f5a3c] dark:bg-[#1c3324] dark:text-[#a7e0b8]" : "border-[var(--danger-border)] bg-[var(--danger-surface)] text-[var(--danger-text)]" %>">
+      <span><%= mensagem %></span>
+      <button type="button" data-action="flash#fechar" class="shrink-0 opacity-70 hover:opacity-100" aria-label="Fechar aviso">
+        <%= icone(:x, classe: "h-3.5 w-3.5") %>
+      </button>
+    </div>
+  <% end %>
+</div>

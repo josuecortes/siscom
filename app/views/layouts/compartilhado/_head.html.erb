@@ -1,0 +1,33 @@
+<title><%= content_for?(:title) ? "#{yield(:title)} · SISCOM" : "SISCOM · SEED" %></title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="application-name" content="SISCOM">
+<meta name="turbo-refresh-method" content="morph">
+<meta name="turbo-refresh-scroll" content="preserve">
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<%# Aplica tema e estado do menu antes da pintura para evitar piscar. %>
+<%= javascript_tag nonce: true do %>
+  (function () {
+    var raiz = document.documentElement;
+    if (raiz.dataset.temaFixo) return;
+    try {
+      var tema = localStorage.getItem("siscom-tema");
+      if (tema !== "light" && tema !== "dark") {
+        tema = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      raiz.dataset.theme = tema;
+      if (localStorage.getItem("siscom-menu") === "recolhido") raiz.dataset.menu = "recolhido";
+    } catch (e) {
+      raiz.dataset.theme = "light";
+    }
+  })();
+<% end %>
+
+<%= yield :head %>
+
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+<%= javascript_importmap_tags %>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full antialiased" data-theme="light" data-tema-fixo="light">
+  <head>
+    <%= render "layouts/compartilhado/head" %>
+  </head>
+
+  <%# Porta de public-shell.tsx: tela pública sempre no tema claro. %>
+  <body class="min-h-full">
+    <div data-theme="light" class="public-theme min-h-screen overflow-x-hidden bg-[var(--surface-page)] text-[var(--text-primary)]">
+      <div class="mx-auto flex min-h-screen w-full max-w-7xl items-stretch justify-start overflow-x-hidden md:items-center md:justify-center md:px-6 md:py-8 lg:px-8 lg:py-10">
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>

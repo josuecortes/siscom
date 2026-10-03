@@ -1,6 +1,18 @@
 ---
 pt-BR:
   activerecord:
+    models:
+      user:
+        one: Usuário
+        other: Usuários
+    attributes:
+      user:
+        email: E-mail
+        password: Senha
+        password_confirmation: Confirmação da senha
+        current_password: Senha atual
+        nome: Nome
+        remember_me: Lembrar de mim
     errors:
       messages:
         record_invalid: 'A validação falhou: %{errors}'

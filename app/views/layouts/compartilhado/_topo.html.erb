@@ -1,0 +1,54 @@
+<header class="fixed left-0 right-0 top-0 z-30 border-b border-[var(--shell-border)] bg-[var(--shell-topbar)] backdrop-blur lg:left-[252px] menu-recolhido:lg:left-[72px]">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--system-context-line)_0%,var(--system-accent-strong)_34%,transparent_100%)]"></div>
+  <div class="flex h-16 min-w-0 items-center justify-between gap-3 px-4 sm:px-6">
+    <div class="flex min-w-0 items-center gap-3">
+      <button type="button" data-action="menu-lateral#abrirGaveta"
+              class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:hidden"
+              aria-label="Abrir menu">
+        <%= icone(:hamburger_menu) %>
+      </button>
+
+      <button type="button" data-action="menu-lateral#alternarRecolhido"
+              class="hidden h-8 w-8 cursor-pointer items-center justify-center rounded-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] lg:inline-flex"
+              aria-label="Recolher ou expandir menu lateral" aria-controls="menu-lateral">
+        <%= icone(:hamburger_menu) %>
+      </button>
+
+      <p class="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--text-primary)] sm:text-[0.95rem]">
+        <span class="hidden lg:inline">SISCOM · Secretaria de Estado da Educação</span>
+        <span class="inline lg:hidden">SISCOM</span>
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= render "compartilhado/alternar_tema" %>
+
+      <div class="relative z-50 shrink-0" data-controller="dropdown" data-action="keydown.esc@window->dropdown#fechar click@window->dropdown#fecharFora">
+        <button type="button" data-action="dropdown#alternar" data-dropdown-target="botao"
+                class="inline-flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-[#d8c8b2] bg-[linear-gradient(135deg,#f3dcc2_0%,#d8b08c_100%)] text-[#3e2f25]"
+                aria-label="Abrir menu da conta" aria-haspopup="menu" aria-expanded="false">
+          <% if current_user.avatar.attached? %>
+            <%= image_tag rails_blob_path(current_user.avatar, only_path: true), alt: "Avatar do usuário", class: "h-full w-full object-cover" %>
+          <% else %>
+            <%= icone(:user, classe: "h-[17px] w-[17px]") %>
+          <% end %>
+        </button>
+
+        <div data-dropdown-target="menu" role="menu"
+             class="absolute right-0 top-[calc(100%+12px)] z-[60] hidden w-56 overflow-hidden rounded-md border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] shadow-[0_20px_50px_rgba(15,23,42,0.18)]">
+          <div class="border-b border-[var(--border-subtle)] px-4 py-3">
+            <p class="truncate text-sm font-semibold text-[var(--text-primary)]"><%= current_user.nome %></p>
+            <p class="mt-1 truncate text-xs text-[var(--text-muted)]"><%= current_user.email %></p>
+          </div>
+          <div class="px-3 py-3">
+            <%= button_to destroy_user_session_path, method: :delete, role: "menuitem",
+                  class: "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]" do %>
+              <%= icone(:account_logout, classe: "h-[14px] w-[14px]") %>
+              <span>Sair</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

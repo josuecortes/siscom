@@ -1,0 +1,24 @@
+<%# Cabeçalho de página (porta de page-context-header.tsx).
+    Uso: render layout: "compartilhado/cabecalho_pagina",
+                locals: { titulo:, icone:, migalha: [rotulo, caminho] } — o bloco vira a área de ações. %>
+<% migalha = local_assigns.fetch(:migalha, [ "Início", root_path ]) %>
+<section class="-mx-4 block border-b border-[var(--shell-border)] bg-[var(--shell-breadcrumb)] sm:-mx-6 lg:-mx-8">
+  <div class="flex min-h-16 w-full min-w-0 max-w-full items-center justify-between gap-4 overflow-hidden px-4 py-2 sm:px-6 lg:px-8">
+    <div class="min-w-0 flex-1 overflow-hidden">
+      <div class="flex items-center gap-2 text-[var(--text-primary)]">
+        <%= icone(local_assigns.fetch(:icone, :home), classe: "h-4 w-4 shrink-0 text-[var(--text-secondary)]") %>
+        <h1 class="truncate text-base font-semibold"><%= titulo %></h1>
+      </div>
+
+      <nav aria-label="Trilha" class="mt-0.5 flex items-center gap-2 text-[10px] text-[var(--text-muted)] sm:text-[11px]">
+        <%= link_to migalha.first, migalha.last, class: "hover:text-[var(--accent-strong)]" %>
+        <span>&gt;</span>
+        <span class="truncate"><%= titulo %></span>
+      </nav>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2">
+      <%= yield %>
+    </div>
+  </div>
+</section>

@@ -27,6 +27,11 @@ module Siscom
     config.time_zone = "Brasilia"
     config.active_record.default_timezone = :local
 
+    config.to_prepare do
+      Devise::SessionsController.layout "publico"
+      Devise::PasswordsController.layout "publico"
+    end
+
     config.generators do |g|
       g.test_framework :rspec
       g.system_tests nil

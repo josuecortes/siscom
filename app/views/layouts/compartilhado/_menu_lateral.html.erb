@@ -1,0 +1,45 @@
+<% gaveta = local_assigns.fetch(:gaveta, false) %>
+<div class="flex h-16 items-center justify-between border-b border-[var(--shell-sidebar-divider)] px-5">
+  <%= link_to root_path, class: "flex items-center gap-3" do %>
+    <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
+    <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>">SISCOM</p>
+  <% end %>
+
+  <% if gaveta %>
+    <button type="button" data-action="menu-lateral#fecharGaveta"
+            class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-white/12 bg-white/4 text-[var(--shell-sidebar-text)]"
+            aria-label="Fechar menu">
+      <%= icone(:x) %>
+    </button>
+  <% end %>
+</div>
+
+<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5">
+  <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-muted)] <%= "menu-recolhido:lg:hidden" unless gaveta %>">Navegação</p>
+
+  <nav class="mt-3 space-y-1.5" aria-label="Menu principal">
+    <% menu_lateral_itens.each do |item| %>
+      <% ativo = item_menu_ativo?(item) %>
+      <%= link_to item[:caminho],
+            title: item[:rotulo],
+            aria: { current: (ativo ? "page" : nil) },
+            data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) },
+            class: [
+              "group flex items-center gap-3 rounded-md border px-3 py-2.5 transition",
+              ("menu-recolhido:lg:justify-center" unless gaveta),
+              (ativo ? "border-[var(--shell-sidebar-active-border)] bg-[var(--shell-sidebar-active)] text-white shadow-[inset_3px_0_0_var(--system-accent-strong)]"
+                     : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white")
+            ] do %>
+        <span class="flex h-5 w-5 shrink-0 items-center justify-center group-hover:text-white <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
+          <%= icone(item[:icone]) %>
+        </span>
+        <span class="text-sm font-semibold <%= "menu-recolhido:lg:hidden" unless gaveta %>"><%= item[:rotulo] %></span>
+      <% end %>
+    <% end %>
+  </nav>
+</div>
+
+<div class="mt-auto border-t border-[var(--shell-sidebar-divider)] px-5 py-4 <%= "menu-recolhido:lg:hidden" unless gaveta %>">
+  <p class="truncate text-sm font-medium text-white"><%= current_user.nome %></p>
+  <p class="mt-1 truncate text-xs text-[var(--shell-sidebar-muted)]"><%= current_user.email %></p>
+</div>
