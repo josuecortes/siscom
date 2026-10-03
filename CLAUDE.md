@@ -52,5 +52,8 @@ bundle exec rspec       # testes (system specs :js usam Chrome headless)
 bin/ci                  # rubocop, bundler-audit, importmap audit, brakeman, rspec
 ```
 
+Deploy: Dokku por **buildpack** (sem Dockerfile na raiz — não adicionar), `Procfile` com `web` e `release`;
+Josue faz push no GitHub e `dokku git:sync --build` no servidor.
+
 Banco local: `siscom_development` é uma cópia (dump) de produção — não criar dados de teste nele;
 use os specs (banco `siscom_test`).
