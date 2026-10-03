@@ -66,13 +66,13 @@
         <% if item[:concediveis].any? %>
           <%= form_with url: core_usuario_acessos_path(@usuario), method: :post, class: "flex items-end gap-2 border-t border-[var(--border-subtle)] pt-3" do |f| %>
             <%= f.hidden_field :modulo, value: modulo.chave, id: nil %>
-            <div class="min-w-0 flex-1 space-y-1">
-              <%= f.label :papel, "Conceder papel em #{modulo.nome}", for: "papel_#{modulo.chave}", class: "text-xs font-medium text-[var(--text-secondary)]" %>
+            <div class="min-w-0 flex-1 space-y-1.5">
+              <%= f.label :papel, "Conceder papel em #{modulo.nome}", for: "papel_#{modulo.chave}", class: "text-sm font-medium text-[var(--text-secondary)]" %>
               <%= f.select :papel, item[:concediveis].map { |papel| [ papel.nome, papel.chave ] }, {}, id: "papel_#{modulo.chave}",
-                    class: "h-10 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 text-sm outline-none focus:border-[var(--accent-strong)]" %>
+                    class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
             </div>
             <%= f.button "Conceder", type: "submit", aria: { label: "Conceder papel em #{modulo.nome}" },
-                  class: "inline-flex h-10 cursor-pointer items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+                  class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
           <% end %>
         <% end %>
       </div>
