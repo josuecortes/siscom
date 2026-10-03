@@ -1,2 +1,0 @@
-module Useget::RequisicaoTransportesHelper
-end
