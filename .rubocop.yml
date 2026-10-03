@@ -20,3 +20,7 @@ RSpec/MultipleExpectations:
 
 RSpec/ExampleLength:
   Max: 20
+
+# Descrições dos specs em português.
+RSpec/ContextWording:
+  Prefixes: [quando, com, sem]
