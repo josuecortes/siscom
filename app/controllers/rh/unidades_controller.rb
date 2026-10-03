@@ -41,7 +41,7 @@ module Rh
     end
 
     def salvar(unidade, tela, aviso)
-      atributos = params.expect(unidade: [ :nome, :sigla, :tipo_unidade_id, :tipo_local_id, :pai_id, { dados_escola: %i[nae codigo_inep endereco] } ])
+      atributos = params.expect(unidade: [ :nome, :sigla, :tipo_unidade_id, :tipo_local_id, :pai_id, { dados_escola: Rh::Unidades::Salvar::CAMPOS_DA_ESCOLA } ])
       resultado = Rh::Unidades::Salvar.call(unidade: unidade, atributos: atributos, salvo_por: current_user)
       @unidade = resultado.objeto
 

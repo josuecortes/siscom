@@ -36,10 +36,7 @@
           <%= text_field_tag "unidade[dados_escola][codigo_inep]", escola.codigo_inep, id: "unidade_dados_escola_codigo_inep", maxlength: 20, inputmode: "numeric", class: campo %>
         </div>
       </div>
-      <div class="space-y-1.5">
-        <label for="unidade_dados_escola_endereco" class="<%= rotulo %>">Endereço</label>
-        <%= text_field_tag "unidade[dados_escola][endereco]", escola.endereco, id: "unidade_dados_escola_endereco", maxlength: 300, class: campo %>
-      </div>
+      <%= render "compartilhado/campos_endereco", prefixo: "unidade[dados_escola]", id: "unidade_dados_escola", endereco: escola %>
     </fieldset>
 
     <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>

@@ -54,10 +54,12 @@ RSpec.describe "RH: unidades" do
 
     it "cria escola sem sigla, com os dados da escola" do
       post rh_unidades_path, params: { unidade: { nome: "Escola Estadual A", sigla: "", tipo_unidade_id: tipo_escola.id,
-                                                  dados_escola: { nae: "NAE 1", codigo_inep: "16000001", endereco: "Rua A, 10" } } }
+                                                  dados_escola: { nae: "NAE 1", codigo_inep: "16000001", cep: "68900-073", logradouro: "Rua A", numero: "10",
+                                                                  bairro: "Centro", cidade: "Macapá", uf: "ap" } } }
 
       escola = Rh::Unidade.find_by!(nome: "ESCOLA ESTADUAL A")
-      expect(escola.dados_escola).to have_attributes(nae: "NAE 1", codigo_inep: "16000001", endereco: "Rua A, 10")
+      expect(escola.dados_escola).to have_attributes(nae: "NAE 1", codigo_inep: "16000001", cep: "68900073", uf: "AP",
+                                                     endereco_completo: "Rua A, 10 - Centro - Macapá/AP - CEP 68900-073")
     end
 
     it "ignora os dados de escola em unidade que não é escola" do

@@ -31,7 +31,7 @@ module Rh
       when "funcoes" then [ Rh::Funcao.ativo.ordenados, simples ]
       when "unidades"
         [ Rh::Unidade.ativo.where.not(id: params[:exceto].presence).ordenadas,
-          ->(unidade) { { valor: unidade.id, rotulo: unidade.sigla_e_nome, subtitulo: nil } } ]
+          ->(unidade) { { valor: unidade.id, rotulo: unidade.sigla_e_nome } } ]
       when "pessoas"
         [ Rh::Pessoa.ordenadas, ->(pessoa) { { valor: pessoa.id, rotulo: pessoa.nome, subtitulo: pessoa.email } } ]
       else raise ActiveRecord::RecordNotFound

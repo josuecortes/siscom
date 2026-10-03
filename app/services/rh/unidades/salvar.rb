@@ -4,7 +4,7 @@ module Rh
     class Salvar
       PERMISSAO = "rh.unidades.gerenciar".freeze
       CAMPOS = %i[nome sigla tipo_unidade_id tipo_local_id pai_id].freeze
-      CAMPOS_DA_ESCOLA = %i[nae codigo_inep endereco].freeze
+      CAMPOS_DA_ESCOLA = %i[nae codigo_inep cep logradouro numero complemento bairro cidade uf].freeze
 
       def self.call(...) = new(...).call
 

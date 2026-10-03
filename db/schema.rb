@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_191820) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_202103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -481,9 +481,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_191820) do
     t.bigint "unidade_id", null: false
     t.string "nae"
     t.string "codigo_inep"
-    t.text "endereco"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "cep"
+    t.string "logradouro"
+    t.string "numero"
+    t.string "complemento"
+    t.string "bairro"
+    t.string "cidade"
+    t.string "uf", limit: 2
     t.index ["unidade_id"], name: "index_rh_dados_escola_on_unidade_id", unique: true
   end
 

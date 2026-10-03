@@ -14,6 +14,11 @@ class Rack::Attack
     req.params.dig("user", "email").to_s.strip.downcase.presence if req.post? && req.path == LOGIN
   end
 
+  # Consulta de CEP (vai a serviços de fora): por usuário/IP.
+  throttle("cep/ip", limit: 30, period: 1.minute) do |req|
+    req.ip if req.path.start_with?("/cep/")
+  end
+
   # Teto geral por IP contra abuso automatizado (não conta arquivos estáticos).
   throttle("geral/ip", limit: 1200, period: 1.minute) do |req|
     req.ip unless req.path.start_with?("/assets", "/up")

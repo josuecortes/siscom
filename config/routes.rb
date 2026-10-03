@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   # e-mail): a redefinição é feita por um administrador, com senha temporária.
   devise_for :users, controllers: { sessions: "core/sessoes" }, skip: [ :passwords ]
 
+  # Consulta de CEP para formulários com endereço.
+  get "cep/:cep", to: "core/cep#show", as: :cep, constraints: { cep: /\d{5}-?\d{3}/ }, defaults: { format: :json }
+
   resource :meu_perfil, path: "minha-area/perfil", only: %i[show update], controller: "core/meu_perfil"
   resources :notificacoes, path: "minha-area/notificacoes", only: :index, controller: "core/notificacoes" do
     patch :abrir, on: :member
