@@ -5,7 +5,7 @@ RSpec.describe "Trocar senha", :js do
 
   before do
     sign_in user
-    page.current_window.resize_to(390, 844)
+    usar_tela_de_celular
   end
 
   it "obriga a troca, mostra erros por campo e libera o sistema, no celular" do
@@ -18,7 +18,7 @@ RSpec.describe "Trocar senha", :js do
     click_on "Salvar nova senha"
     expect(page).to have_content("Senha não pode ser a senha padrão antiga")
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/senha-mobile.png") if ENV["SCREENSHOT_DIR"]
-    expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
+    expect(sem_rolagem_horizontal?).to be(true)
 
     fill_in "Senha atual *", with: "Senha@Forte123"
     fill_in "Nova senha *", with: "Nova@Senha456"

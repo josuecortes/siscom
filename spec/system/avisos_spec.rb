@@ -10,11 +10,6 @@ RSpec.describe "Avisos flutuantes", :js do
     click_on "Entrar"
   end
 
-  def retangulo(seletor)
-    page.evaluate_script("(() => { const r = document.querySelector(#{seletor.to_json}).getBoundingClientRect(); " \
-                         "return { topo: r.top, base: r.bottom, direita: r.right } })()")
-  end
-
   it "mostra o aviso no canto superior direito, sem empurrar a página" do
     entrar
 
@@ -22,16 +17,15 @@ RSpec.describe "Avisos flutuantes", :js do
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/aviso.png") if ENV["SCREENSHOT_DIR"]
 
     aviso = retangulo("#avisos [role='status']")
-    largura = page.evaluate_script("window.innerWidth")
-    expect(largura - aviso["direita"]).to be_between(0, 40)
-    expect(aviso["topo"]).to be_between(64, 100)
+    expect(largura_da_tela - (aviso["x"] + aviso["largura"])).to be_between(0, 40)
+    expect(aviso["y"]).to be_between(64, 100)
   end
 
   it "o título da página fica colado na barra do topo" do
     entrar
     expect(page).to have_css("main section h1", text: "Início")
 
-    expect(retangulo("main section")["topo"]).to be_within(1).of(retangulo("header")["base"])
+    expect(retangulo("main section")["y"]).to be_within(1).of(retangulo("header")["altura"])
   end
 
   it "fecha no X" do

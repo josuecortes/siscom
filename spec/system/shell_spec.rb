@@ -39,10 +39,11 @@ RSpec.describe "Shell administrativo", :js do
   end
 
   context "quando está no celular" do
-    before { page.current_window.resize_to(390, 844) }
+    before { usar_tela_de_celular }
 
     it "esconde o menu lateral e abre a gaveta pelo botão do topo" do
       visit root_path
+      expect(largura_da_tela).to eq(390)
       expect(page).to have_no_css("#menu-lateral", visible: :visible)
       expect(page).to have_css("header", text: "SISCOM")
       page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/mobile-topo.png") if ENV["SCREENSHOT_DIR"]
@@ -58,7 +59,7 @@ RSpec.describe "Shell administrativo", :js do
     it "não cria rolagem horizontal" do
       visit root_path
 
-      expect(page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")).to be(true)
+      expect(sem_rolagem_horizontal?).to be(true)
     end
   end
 
