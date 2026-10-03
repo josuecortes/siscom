@@ -62,6 +62,22 @@ RSpec.describe "RH: pessoas", :js do
     expect(page).to have_content("MARIA OLIVEIRA")
   end
 
+  it "o administrador do RH troca a permissão de um usuário pelo painel" do
+    admin = create(:user, nome: "ADMIN DO RH").tap { |u| create(:core_concessao, user: u, modulo: "rh", papel: "admin") }
+    create(:user, nome: "MARIA OLIVEIRA")
+    Capybara.reset_sessions!
+    sign_in admin
+
+    visit rh_acessos_path
+    within("tr", text: "MARIA OLIVEIRA") { click_on "Gerenciar permissões" }
+    choose "Leitor"
+    page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-acessos.png") if ENV["SCREENSHOT_DIR"]
+    click_on "Salvar permissão"
+
+    expect(page).to have_css("#avisos", text: "Permissão de MARIA OLIVEIRA atualizada.")
+    within("tr", text: "MARIA OLIVEIRA") { expect(page).to have_content("Leitor") }
+  end
+
   context "quando está no celular" do
     before { usar_tela_de_celular }
 

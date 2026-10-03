@@ -33,7 +33,6 @@ papeis:
 concessao:
   admin: [admin, operador, leitor]
 
-# Acessos e Pendências entram no menu junto com as telas.
 menu:
   - { rotulo: "Minha ficha", rota: rh_minha_ficha_path, permissao: minha_ficha.ver, icone: description }
   - { rotulo: "Pessoas", rota: rh_pessoas_path, permissao: pessoas.ver, icone: people }
@@ -44,3 +43,5 @@ menu:
   - { rotulo: "Funções de lotação", rota: rh_funcoes_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
   - { rotulo: "Tipos de unidade", rota: rh_tipos_unidade_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
   - { rotulo: "Locais físicos", rota: rh_tipos_local_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Acessos", rota: rh_acessos_path, permissao: acessos.conceder, icone: shield-alt }
+  - { rotulo: "Pendências", rota: rh_pendencias_path, permissao: pendencias.ver, icone: task }

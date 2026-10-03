@@ -36,6 +36,7 @@ module Rh
         end
         return Core::Resultado.falha(@pessoa) unless salvou
 
+        resolver_pendencias
         registrar(nova)
         Core::Resultado.sucesso(@pessoa)
       end
@@ -91,6 +92,14 @@ module Rh
       def falha_da_conta(resultado)
         resultado.erros.each { |mensagem| @pessoa.errors.add(:base, "Conta de acesso: #{mensagem}") }
         false
+      end
+
+      # Pendências da importação se resolvem sozinhas quando o dado é corrigido.
+      def resolver_pendencias
+        tipos = []
+        tipos += %w[cpf_vazio cpf_invalido cpf_repetido] if @pessoa.cpf.present?
+        tipos << "nome_sem_sobrenome" if @pessoa.nome.split.size >= 2
+        Rh::PendenciaImportacao.abertas.where(pessoa: @pessoa, tipo: tipos).update_all(resolvida_em: Time.current, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
       end
 
       def registrar(nova)

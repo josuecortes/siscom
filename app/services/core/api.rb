@@ -11,6 +11,37 @@ module Core
 
     def modulo(chave) = Catalogo.modulo(chave)
 
+    # --- Papéis (para a tela de acessos de cada módulo) ---
+
+    # { user_id => ["operador", ...] }: papéis concedidos (sem os automáticos) no módulo.
+    def papeis_concedidos(user_ids, modulo:)
+      Concessao.ativo.where(user_id: user_ids, modulo: modulo.to_s, escopo_id: nil).order(:papel)
+               .pluck(:user_id, :papel).group_by(&:first).transform_values { |linhas| linhas.map(&:last) }
+    end
+
+    # Ids (como subconsulta) dos usuários com algum papel concedido no módulo.
+    def ids_dos_usuarios_com_papel(modulo:) = Concessao.ativo.where(modulo: modulo.to_s).select(:user_id)
+
+    # Deixa o usuário com um único papel no módulo (ou nenhum, com papel em branco):
+    # revoga os outros e concede o escolhido. Vale a regra de quem pode conceder.
+    def definir_papel(user:, modulo:, papel:, definido_por:)
+      papel = papel.to_s.presence
+      if papel && !Acessos::Regras.pode_conceder?(definido_por, modulo:, papel:)
+        return Resultado.falha("Você não pode conceder este papel.")
+      end
+
+      Concessao.transaction do
+        Concessao.ativo.where(user: user, modulo: modulo.to_s, escopo_id: nil).where.not(papel: papel).find_each do |concessao|
+          resultado = Acessos::Revogar.call(concessao: concessao, revogado_por: definido_por)
+          return resultado if resultado.falha?
+        end
+
+        papel ? Acessos::Conceder.call(user: user, modulo: modulo, papel: papel, concedido_por: definido_por) : Resultado.sucesso(user)
+      end
+    end
+
+    def pode_conceder?(user, modulo:, papel:) = Acessos::Regras.pode_conceder?(user, modulo:, papel:)
+
     # --- Contas (para o RH ligar pessoa ↔ conta) ---
 
     def conta_por_email(email) = ::User.find_by(email: email.to_s.strip.downcase)
