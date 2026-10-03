@@ -30,7 +30,7 @@ RSpec.describe "Notificações", :js do
       expect(page).to have_content("Papel Auditor no módulo Administração.")
       page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/sino.png") if ENV["SCREENSHOT_DIR"]
 
-      click_on "Ver todas"
+      click_on "Ver todas as notificações"
       expect(page).to have_css("h1", text: "Notificações")
       click_on "Marcar tudo como lido"
       expect(page).to have_content("0 notificação(ões) não lida(s)")

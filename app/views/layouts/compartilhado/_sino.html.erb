@@ -1,7 +1,7 @@
 <%# Sino de notificações (porta de notifications-bell.tsx). Atualizado em tempo real por
     Core::Notificacoes::Transmitir (Turbo Stream "replace" neste elemento). locals: user %>
 <% nao_lidas = user.notificacoes.nao_lidas.count %>
-<% recentes = user.notificacoes.recentes.limit(8) %>
+<% recentes = user.notificacoes.recentes.limit(6) %>
 <div id="sino_notificacoes" class="relative z-50 shrink-0" data-controller="dropdown"
      data-action="keydown.esc@window->dropdown#fechar click@window->dropdown#fecharFora">
   <button type="button" data-action="dropdown#alternar" data-dropdown-target="botao"
@@ -29,7 +29,7 @@
     <div class="max-h-[26rem] overflow-y-auto">
       <% recentes.each do |notificacao| %>
         <%= button_to abrir_notificacao_path(notificacao), method: :patch, form: { class: "border-b border-[var(--border-subtle)] last:border-b-0", data: { turbo_frame: "_top" } },
-              class: [ "block w-full cursor-pointer px-4 py-3 text-left transition hover:bg-[var(--surface-subtle)]", ("bg-[var(--system-context-surface)]" unless notificacao.lida?) ] do %>
+              class: [ "block w-full cursor-pointer px-4 py-3 text-left transition hover:bg-[var(--surface-subtle)]", (notificacao.lida? ? "bg-[var(--surface-card)]" : "bg-[var(--accent-soft)]/40") ] do %>
           <span class="block text-sm font-semibold text-[var(--text-primary)]"><%= notificacao.titulo %></span>
           <% if notificacao.mensagem.present? %><span class="mt-1 block text-sm text-[var(--text-secondary)]"><%= truncate(notificacao.mensagem, length: 140) %></span><% end %>
           <span class="mt-2 block text-xs text-[var(--text-muted)]"><%= l(notificacao.created_at, format: "%d/%m/%Y %H:%M") %></span>
@@ -40,8 +40,8 @@
       <% end %>
     </div>
 
-    <div class="border-t border-[var(--border-subtle)] px-4 py-3 text-center">
-      <%= link_to "Ver todas", notificacoes_path, class: "text-sm font-medium text-[var(--accent-strong)] hover:underline" %>
+    <div class="border-t border-[var(--border-subtle)] px-4 py-3">
+      <%= link_to "Ver todas as notificações", notificacoes_path, class: "text-sm font-medium text-[var(--accent-strong)] hover:underline" %>
     </div>
   </div>
 </div>

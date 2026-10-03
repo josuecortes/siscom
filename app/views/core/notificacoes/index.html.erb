@@ -8,7 +8,8 @@
   <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]"
            data-controller="push" data-push-chave-value="<%= Core::Notificacoes::Push.chave_publica %>" data-push-url-value="<%= inscricao_push_path %>">
     <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
-      <div class="min-w-0 flex-1">
+      <%# basis-56: no celular o texto fica com a linha inteira e o botão desce (senão o texto vira uma coluna estreita). %>
+      <div class="min-w-0 flex-1 basis-56">
         <h2 class="text-sm font-semibold text-[var(--text-primary)]">Avisos neste aparelho</h2>
         <p class="mt-1 text-sm text-[var(--text-secondary)]" data-push-target="estado" aria-live="polite">Verificando este aparelho…</p>
       </div>
@@ -32,14 +33,13 @@
                 class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] pl-11 pr-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
         </div>
       </div>
-      <div class="flex flex-row gap-2">
-        <button type="submit" title="Filtrar notificações" aria-label="Filtrar notificações"
-                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
-        <%= link_to notificacoes_path, title: "Limpar busca", aria: { label: "Limpar busca" },
-              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
-          <%= icone(:x) %>
-        <% end %>
-      </div>
+      <%# Como no seed, os dois botões são colunas da própria grade (16 px entre eles; empilhados no celular). %>
+      <button type="submit" title="Filtrar notificações" aria-label="Filtrar notificações"
+              class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+      <%= link_to notificacoes_path, title: "Limpar busca", aria: { label: "Limpar busca" },
+            class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+        <%= icone(:x) %>
+      <% end %>
     </div>
   <% end %>
 
@@ -70,7 +70,7 @@
         </thead>
         <tbody>
           <% @notificacoes.each do |notificacao| %>
-            <tr id="<%= dom_id(notificacao) %>" class="<%= "bg-[var(--system-context-surface)]" unless notificacao.lida? %>">
+            <tr id="<%= dom_id(notificacao) %>" class="<%= "bg-[var(--accent-soft)]/20" unless notificacao.lida? %>">
               <td class="font-semibold !text-[var(--text-primary)]"><%= notificacao.titulo %></td>
               <td class="!whitespace-normal"><%= notificacao.mensagem.presence || "Sem detalhes adicionais." %></td>
               <td><%= notificacao.nome_do_modulo %></td>
@@ -85,7 +85,7 @@
             </tr>
           <% end %>
           <% if @notificacoes.empty? %>
-            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma notificação encontrada.</td></tr>
+            <tr><td colspan="7" class="px-6 py-12 text-center text-sm text-[var(--text-secondary)]">Nenhuma notificação encontrada.</td></tr>
           <% end %>
         </tbody>
       </table>

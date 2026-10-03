@@ -4,12 +4,12 @@
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Perfil", icone: :user, migalha: [ "Minha área", meu_perfil_path ] } do %>
 <% end %>
 
-<div class="space-y-6">
+<div class="mt-6 space-y-6">
   <% if erros.any? %>
     <%= render "compartilhado/faixa_aviso", tom: :erro, mensagem: erros.to_sentence %>
   <% end %>
 
-  <section class="<%= "mt-6" if erros.empty? %> rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
     <div class="border-b border-[var(--border-subtle)] px-6 py-5">
       <h2 class="text-sm font-semibold text-[var(--text-primary)]">Informações pessoais</h2>
       <p class="mt-1 text-sm text-[var(--text-secondary)]">Dados do usuário autenticado no sistema.</p>
@@ -25,12 +25,13 @@
           <% end %>
         </div>
 
-        <%= form_with model: current_user, scope: :user, url: meu_perfil_path, method: :patch, class: "flex flex-wrap items-center gap-3" do |f| %>
+        <%= form_with model: current_user, scope: :user, url: meu_perfil_path, method: :patch, class: "group flex flex-wrap items-center gap-3" do |f| %>
+          <%# Como no seed, o botão fica apagado enquanto nenhum arquivo foi escolhido (o campo é obrigatório). %>
           <%= f.label :avatar, "Nova imagem do perfil", class: "sr-only" %>
           <%= f.file_field :avatar, accept: ".png,.jpg,.jpeg,.webp", required: true,
                 class: "block max-w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
           <%= f.button "Trocar imagem", type: "submit", data: { turbo_submits_with: "Salvando..." },
-                class: "inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" %>
+                class: "inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70 group-has-[:invalid]:cursor-not-allowed group-has-[:invalid]:opacity-70" %>
         <% end %>
       </div>
 
