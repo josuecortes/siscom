@@ -22,6 +22,22 @@ RSpec.describe "Minha área: perfil" do
       expect(response.body).to include("MARIA OLIVEIRA", "maria@seed.ap.gov.br", "123.456.789-01", "(96) 99123-4567", "17/05/1990")
     end
 
+    it "mostra as lotações ativas do RH" do
+      pessoa = create(:rh_pessoa, user: user)
+      create(:rh_lotacao, pessoa: pessoa, unidade: create(:rh_unidade, nome: "Núcleo de Informática", sigla: "NUINFO"),
+                          funcao: create(:rh_funcao, nome: "Técnico"))
+
+      get meu_perfil_path
+
+      expect(response.body).to include("Lotações ativas", "NÚCLEO DE INFORMÁTICA", "NUINFO · TÉCNICO")
+    end
+
+    it "avisa quando não há lotação" do
+      get meu_perfil_path
+
+      expect(response.body).to include("Sem lotações ativas.")
+    end
+
     it "mostra Não informado para dados ausentes" do
       user.update_columns(cpf: nil, celular: nil, data_nascimento: nil)
 

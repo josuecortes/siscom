@@ -49,6 +49,24 @@
         <% end %>
       </dl>
 
+      <%# Lotações ativas (RH), como no seed. %>
+      <% lotacoes = Rh::Api.lotacoes_ativas(current_user) %>
+      <div class="space-y-3 border-t border-[var(--border-subtle)] pt-4">
+        <h3 class="text-sm font-semibold text-[var(--text-primary)]">Lotações ativas</h3>
+        <% if lotacoes.any? %>
+          <div class="space-y-2">
+            <% lotacoes.each do |lotacao| %>
+              <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= lotacao.unidade.nome %></p>
+                <p class="text-sm text-[var(--text-secondary)]"><%= [ lotacao.unidade.sigla, lotacao.funcao ].compact.join(" · ") %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-[var(--text-secondary)]">Sem lotações ativas.</p>
+        <% end %>
+      </div>
+
       <p class="text-xs text-[var(--text-muted)]">Para corrigir nome, e-mail ou dados pessoais, procure o administrador do sistema.</p>
     </div>
   </section>
