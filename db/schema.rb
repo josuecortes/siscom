@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_033348) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_035023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,6 +116,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_033348) do
     t.index ["user_id", "modulo", "papel", "escopo_tipo", "escopo_id"], name: "idx_core_concessoes_ativa_escopo", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NOT NULL))"
     t.index ["user_id", "modulo", "papel"], name: "idx_core_concessoes_ativa_global", unique: true, where: "(((status)::text = 'ativo'::text) AND (escopo_id IS NULL))"
     t.index ["user_id"], name: "index_core_concessoes_on_user_id"
+  end
+
+  create_table "core_senhas_anteriores", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "senha_criptografada", null: false
+    t.datetime "created_at", null: false
+    t.index ["user_id"], name: "index_core_senhas_anteriores_on_user_id"
   end
 
   create_table "destinos", force: :cascade do |t|
@@ -756,6 +763,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_033348) do
     t.bigint "unidade_id"
     t.bigint "funcao_id"
     t.boolean "status", default: true
+    t.integer "failed_attempts", default: 0, null: false
+    t.datetime "locked_at"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.boolean "deve_trocar_senha", default: false, null: false
+    t.integer "versao_sessao", default: 0, null: false
+    t.datetime "senha_alterada_em"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["funcao_id"], name: "index_users_on_funcao_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -797,6 +814,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_033348) do
   add_foreign_key "core_concessoes", "core_acessos", column: "acesso_id"
   add_foreign_key "core_concessoes", "users"
   add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
+  add_foreign_key "core_senhas_anteriores", "users"
   add_foreign_key "destinos", "requisicao_transportes"
   add_foreign_key "destinos", "users"
   add_foreign_key "equipamentos", "unidades"
