@@ -7,9 +7,9 @@
 <div id="confirmacao" hidden class="fixed inset-0 z-[85] overflow-hidden overscroll-none">
   <button type="button" data-confirmacao="cancelar" class="absolute inset-0 cursor-pointer bg-[#08111fcc]" aria-label="Fechar confirmação" tabindex="-1"></button>
 
-  <div class="pointer-events-none relative flex h-[100svh] w-full items-stretch justify-end p-0 sm:p-4 lg:items-center lg:justify-center lg:p-6">
+  <div class="pointer-events-none relative flex h-[100svh] min-h-[100svh] w-full items-stretch justify-end overflow-hidden p-0 sm:min-h-full sm:p-4 lg:items-center lg:justify-center lg:p-6">
     <div role="alertdialog" aria-modal="true" aria-labelledby="confirmacao_titulo" aria-describedby="confirmacao_descricao"
-         class="pointer-events-auto flex h-[100svh] w-[min(92vw,34rem)] max-w-[92vw] flex-col overflow-hidden border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_24px_70px_rgba(2,6,23,0.35)] sm:h-[100dvh] sm:w-full sm:max-w-[34rem] lg:h-auto lg:w-[min(92vw,34rem)] lg:max-w-none lg:rounded-[var(--radius-panel)] lg:border">
+         class="pointer-events-auto flex h-[100svh] w-[min(92vw,34rem)] max-w-[92vw] flex-col overflow-hidden border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_24px_70px_rgba(2,6,23,0.35)] sm:h-[100dvh] sm:w-full sm:max-w-[34rem] lg:h-auto lg:max-h-[calc(100dvh-3rem)] lg:w-[min(92vw,34rem)] lg:max-w-none lg:rounded-[var(--radius-panel)] lg:border">
       <div class="shrink-0 border-b border-[var(--border-subtle)] px-5 py-4">
         <div class="flex items-center justify-between gap-4">
           <div>
@@ -22,11 +22,13 @@
         </div>
       </div>
 
-      <div class="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <%# O seed monta a confirmação com o painel de formulário e um miolo vazio: daí o espaço de 20 px depois da descrição. %>
+      <div class="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
         <p id="confirmacao_descricao" class="text-sm leading-6 text-[var(--text-secondary)]"></p>
+        <div></div>
       </div>
 
-      <div class="shrink-0 border-t border-[var(--border-subtle)] px-5 py-4">
+      <div class="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] px-5 py-4">
         <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button type="button" data-confirmacao="cancelar"
                   class="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Cancelar</button>

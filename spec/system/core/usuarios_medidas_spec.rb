@@ -13,6 +13,19 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
   def cartao = "main section + section"
   def linha_maria = "#user_#{maria.id}"
   def linha_joao = "#user_#{joao.id}"
+  def painel = "[role='dialog']"
+  def confirmacao = "[role='alertdialog']"
+  def rolagem_travada? = page.evaluate_script("getComputedStyle(document.documentElement).overflowY") == "hidden"
+
+  def abrir_painel
+    click_on "Novo usuário"
+    expect(page).to have_css("#{painel} h2", text: "Cadastrar usuário")
+  end
+
+  def abrir_confirmacao
+    page.execute_script("document.querySelector(#{"#{linha_maria} button[title='Desativar usuário']".to_json}).click()")
+    expect(page).to have_css("#{confirmacao} h2", text: "Desativar usuário")
+  end
 
   def print(nome)
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/#{nome}.png") if ENV["SCREENSHOT_DIR"]
@@ -85,11 +98,158 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
     end
   end
 
+  context "quando o painel de formulário está aberto no desktop" do
+    before do
+      visit core_usuarios_path
+      usar_tema("light")
+      abrir_painel
+    end
+
+    it "é um cartão central de 544 px sobre o fundo escurecido" do
+      caixa = retangulo(painel)
+      expect(caixa).to include("x" => 428, "largura" => 544, "y" => be_within(0.6).of((900 - caixa["altura"]) / 2))
+      expect(estilo(painel, "borderRadius")).to eq("16px")
+      expect(estilo(painel, "boxShadow")).to include("rgba(2, 6, 23, 0.35) 0px 24px 70px 0px")
+      expect(estilo(painel, "maxHeight")).to eq("852px")
+      expect(estilo("[data-controller='painel'] > button", "backgroundColor")).to eq("rgba(8, 17, 31, 0.8)")
+      print("usuarios-painel-desktop")
+    end
+
+    it "tem cabeçalho de 81,5 px com sobretítulo, título e botão de fechar de 36 px" do
+      expect(tamanhos(cabecalho: "#{painel} > div:first-child", fechar: "#{painel} > div:first-child button"))
+        .to eq(cabecalho: [ 542, 81.5 ], fechar: [ 36, 36 ])
+      expect(retangulo("#{painel} > div:first-child button")).to include("x" => 915)
+      expect(estilo("#{painel} > div:first-child p", "letterSpacing")).to eq("2.42px")
+      expect(estilo("#{painel} h2", "fontSize")).to eq("20px")
+    end
+
+    it "tem campos de 44 px separados por 20 px e a nota dos campos requeridos" do
+      campos = "#{painel} form > div"
+      expect(tamanhos(nome: "#{campos}:nth-of-type(1)", entrada: "#{painel} form input[type='text']", nota: "#{painel} form > p"))
+        .to eq(nome: [ 502, 66.8 ], entrada: [ 502, 44 ], nota: [ 502, 16 ])
+      expect(retangulo("#{campos}:nth-of-type(2)")["y"] - retangulo("#{campos}:nth-of-type(1)")["y"]).to be_within(0.2).of(86.8)
+      expect(estilo("#{painel} form input[type='text']", "borderRadius")).to eq("12px")
+      expect(estilo("#{painel} form input[type='text']", "backgroundColor")).to eq("rgb(241, 244, 255)")
+      expect(page).to have_css("#{painel} form > p", text: "Os campos marcados com * são requeridos.")
+    end
+
+    it "tem rodapé de 71 px com Cancelar e Salvar à direita" do
+      rodape = "#{painel} > div:last-child > div:last-child"
+      expect(tamanhos(rodape: rodape)).to eq(rodape: [ 542, 71 ])
+      expect(retangulo("#{rodape} button[type='button']")).to include("altura" => 38, "largura" => be_within(1).of(92.5))
+      salvar = retangulo("#{rodape} button[type='submit']")
+      expect(salvar).to include("altura" => 38, "largura" => be_within(1).of(127.7))
+      expect(salvar["x"] + salvar["largura"]).to be_within(0.5).of(951)
+    end
+
+    it "trava a rolagem da página, põe o foco no primeiro campo e fecha no fundo" do
+      expect(rolagem_travada?).to be(true)
+      expect(page.evaluate_script("document.activeElement.name")).to eq("user[nome]")
+
+      page.execute_script("document.querySelector(\"[data-controller='painel'] > button\").click()")
+
+      expect(page).to have_no_css(painel)
+      expect(rolagem_travada?).to be(false)
+    end
+
+    it "mostra a faixa de erro embutida e o erro embaixo do campo, com o miolo no topo" do
+      usar_tela(largura: 1400, altura: 420)
+      fill_in "Nome completo *", with: "Ana"
+      fill_in "E-mail *", with: "maria@seed.ap.gov.br"
+      page.execute_script("document.querySelector(\"[data-painel-target='miolo']\").scrollTop = 500")
+      click_on "Salvar usuário"
+
+      expect(page).to have_css("#{painel} [data-faixa-aviso='erro']", text: "Revise os campos destacados")
+      expect(page.evaluate_script("document.querySelector(\"[data-painel-target='miolo']\").scrollTop")).to eq(0)
+      expect(estilo("#{painel} [data-faixa-aviso='erro']", "borderTopColor")).to eq("rgb(242, 195, 187)")
+      expect(estilo("#{painel} [data-faixa-aviso='erro']", "borderRadius")).to eq("14.4px")
+      expect(estilo("#{painel} input[type='email']", "borderTopColor")).to eq("rgb(204, 95, 85)")
+      expect(estilo("#{painel} #erro_email", "color")).to eq("rgb(139, 53, 45)")
+    end
+  end
+
+  context "quando o diálogo de confirmação está aberto no desktop" do
+    before do
+      visit core_usuarios_path
+      usar_tema("light")
+      abrir_confirmacao
+    end
+
+    it "é o mesmo cartão central do painel, com 20 px depois da descrição" do
+      caixa = retangulo(confirmacao)
+      expect(caixa).to include("x" => 428, "largura" => 544, "y" => be_within(0.6).of((900 - caixa["altura"]) / 2))
+      expect(estilo(confirmacao, "maxHeight")).to eq("852px")
+      expect(tamanhos(cabecalho: "#{confirmacao} > div:nth-child(1)", rodape: "#{confirmacao} > div:nth-child(3)"))
+        .to eq(cabecalho: [ 542, 81.5 ], rodape: [ 542, 73 ])
+      descricao = retangulo("#confirmacao_descricao")["altura"]
+      expect(retangulo("#{confirmacao} > div:nth-child(2)")["altura"]).to be_within(0.2).of(20 + descricao + 20 + 20)
+      print("usuarios-confirmacao-desktop")
+    end
+
+    it "tem os botões de 40 px, com o de confirmar no tom de perigo" do
+      rodape = "#{confirmacao} > div:nth-child(3)"
+      expect(retangulo("#{rodape} button[data-confirmacao='cancelar']")).to include("altura" => 40, "largura" => be_within(1).of(93.9))
+      confirmar = retangulo("#{rodape} button[data-confirmacao='confirmar']")
+      expect(confirmar).to include("altura" => 40, "largura" => be_within(1).of(149.8))
+      expect(confirmar["x"] + confirmar["largura"]).to be_within(0.5).of(951)
+      expect(estilo("#{rodape} button[data-confirmacao='confirmar']", "backgroundColor")).to eq("rgb(196, 75, 58)")
+    end
+
+    it "trava a rolagem da página enquanto está aberto e destrava ao cancelar" do
+      expect(rolagem_travada?).to be(true)
+
+      within("#confirmacao") { click_on "Cancelar" }
+
+      expect(page).to have_no_css(confirmacao, visible: :visible)
+      expect(rolagem_travada?).to be(false)
+    end
+
+    it "usa o tom primário para ativar um usuário" do
+      within("#confirmacao") { click_on "Cancelar" }
+      within(linha_joao) { click_on "Ativar usuário" }
+
+      expect(page).to have_css("#{confirmacao} h2", text: "Ativar usuário")
+      expect(page).to have_css("#{confirmacao} button[data-confirmacao='confirmar'][data-tom='primario']")
+      # A cor troca com transição de 160 ms: espera chegar na cor de destaque.
+      page.document.synchronize(2, errors: [ Capybara::ExpectationNotMet ]) do
+        cor = estilo("#{confirmacao} button[data-confirmacao='confirmar']", "backgroundColor")
+        raise Capybara::ExpectationNotMet, "cor do botão: #{cor}" unless cor == "rgb(79, 99, 234)"
+      end
+    end
+  end
+
   context "quando está no celular" do
     before do
       usar_tela_de_celular
       visit core_usuarios_path
       usar_tema("light")
+    end
+
+    it "abre o painel na altura inteira, encostado à direita, com 92% da largura" do
+      abrir_painel
+
+      expect(retangulo(painel)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      expect(estilo(painel, "borderRadius")).to eq("0px")
+      expect(tamanhos(cabecalho: "#{painel} > div:first-child", entrada: "#{painel} form input[type='text']"))
+        .to eq(cabecalho: [ 357.8, 81.5 ], entrada: [ 317.8, 44 ])
+      expect(retangulo("#{painel} > div:first-child button")).to include("x" => 334, "y" => 22.3, "largura" => 36, "altura" => 36)
+      rodape = "#{painel} > div:last-child > div:last-child"
+      expect(retangulo(rodape)).to include("y" => 729, "altura" => 115)
+      expect(tamanhos(cancelar: "#{rodape} button[type='button']", salvar: "#{rodape} button[type='submit']"))
+        .to eq(cancelar: [ 317.8, 38 ], salvar: [ 317.8, 36 ])
+      expect(sem_rolagem_horizontal?).to be(true)
+      print("usuarios-painel-celular")
+    end
+
+    it "abre a confirmação no mesmo formato, com os botões empilhados" do
+      abrir_confirmacao
+
+      expect(retangulo(confirmacao)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      rodape = "#{confirmacao} > div:nth-child(3)"
+      expect(retangulo(rodape)).to include("y" => 723, "altura" => 121)
+      expect(tamanhos(cancelar: "#{rodape} button[data-confirmacao='cancelar']", confirmar: "#{rodape} button[data-confirmacao='confirmar']"))
+        .to eq(cancelar: [ 317.8, 40 ], confirmar: [ 317.8, 40 ])
+      print("usuarios-confirmacao-celular")
     end
 
     it "mostra a ação Novo usuário só com o ícone" do

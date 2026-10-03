@@ -10,6 +10,8 @@ export default class extends Controller {
   connect() {
     document.documentElement.classList.add("overflow-hidden")
     if (this.hasMioloTarget) this.mioloTarget.scrollTop = 0
+    // O navegador não aplica o atributo autofocus em conteúdo que chega por turbo-frame.
+    this.element.querySelector("[autofocus]")?.focus({ preventScroll: true })
   }
 
   disconnect() {

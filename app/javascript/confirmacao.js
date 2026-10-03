@@ -20,8 +20,13 @@ Turbo.config.forms.confirm = (mensagem, formulario, botao) => {
 
   return new Promise((resolve) => {
     const anterior = document.activeElement
+    // Trava a rolagem da página enquanto o diálogo está aberto (se um painel já travou, deixa como está).
+    const raiz = document.documentElement
+    const jaTravada = raiz.classList.contains("overflow-hidden")
+    raiz.classList.add("overflow-hidden")
     const encerrar = (resposta) => {
       dialogo.hidden = true
+      if (!jaTravada) raiz.classList.remove("overflow-hidden")
       dialogo.removeEventListener("click", aoClicar)
       window.removeEventListener("keydown", aoTeclar)
       anterior?.focus?.()
