@@ -7,7 +7,8 @@ import { Controller } from "@hotwired/stimulus"
 // O servidor responde { opcoes: [{ valor, rotulo, subtitulo }], todas: bool, restantes: n }.
 export default class extends Controller {
   static targets = ["texto", "valor", "lista"]
-  static values = { url: String, minimo: { type: Number, default: 3 }, vazio: { type: String, default: "Nada cadastrado." } }
+  // `opcoes` (lista fixa [{ valor, rotulo }]) dispensa o servidor: o filtro é feito aqui, com a mesma regra.
+  static values = { url: String, opcoes: Array, minimo: { type: Number, default: 3 }, vazio: { type: String, default: "Nada cadastrado." } }
 
   connect() {
     this.indice = -1
@@ -26,13 +27,18 @@ export default class extends Controller {
   }
 
   digitar() {
+    const tinhaValor = this.valorTarget.value !== ""
     this.valorTarget.value = ""
+    // Apagar o texto desfaz a escolha (e avisa quem escuta, ex.: um filtro).
+    if (tinhaValor && this.textoTarget.value.trim() === "") this.valorTarget.dispatchEvent(new Event("change", { bubbles: true }))
     clearTimeout(this.espera)
     this.espera = setTimeout(() => this.buscar(), 200)
   }
 
   async buscar() {
     const texto = this.textoTarget.value.trim()
+    if (this.opcoesValue.length > 0) return this.mostrar(this.filtrarLocal(texto), texto)
+
     const url = new URL(this.urlValue, window.location.origin)
     if (texto.length >= this.minimoValue) url.searchParams.set("q", texto)
 
@@ -45,6 +51,15 @@ export default class extends Controller {
     } catch (erro) {
       if (erro.name !== "AbortError") this.aviso("Não foi possível carregar as opções. Tente de novo.")
     }
+  }
+
+  filtrarLocal(texto) {
+    const simples = (valor) => valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    const todas = [...this.opcoesValue].sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR"))
+    if (texto.length < this.minimoValue) return { opcoes: todas, todas: true, restantes: 0 }
+
+    const achadas = todas.filter((opcao) => simples(opcao.rotulo).includes(simples(texto)))
+    return achadas.length > 0 ? { opcoes: achadas, todas: false, restantes: 0 } : { opcoes: todas, todas: true, restantes: 0 }
   }
 
   mostrar(dados, texto) {

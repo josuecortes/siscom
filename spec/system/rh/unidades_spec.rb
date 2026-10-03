@@ -65,6 +65,20 @@ RSpec.describe "RH: unidades e referências", :js do
     expect(Rh::Unidade.find_by!(nome: "ESCOLA ESTADUAL A").dados_escola.endereco_completo).to eq("Avenida FAB, 1070 - Central - Macapá/AP - CEP 68900-073")
   end
 
+  it "o tipo de unidade vira campo de busca quando há mais de 8 tipos" do
+    %w[Gabinete Coordenadoria Núcleo Divisão Anexo Escola Depósito Biblioteca].each { |nome| create(:rh_tipo_unidade, nome: nome) }
+
+    visit rh_unidades_path
+    click_on "Nova unidade"
+    fill_in "Nome *", with: "Coordenadoria de Gestão"
+    fill_in "Sigla (obrigatória, menos para escola)", with: "coges"
+    escolher_no_autocomplete "Tipo de unidade *", digitar: "coord", opcao: "COORDENADORIA"
+    click_on "Salvar unidade"
+
+    expect(page).to have_css("#avisos", text: "Unidade criada com sucesso.")
+    expect(Rh::Unidade.find_by!(sigla: "COGES").tipo_unidade.nome).to eq("COORDENADORIA")
+  end
+
   context "quando está no celular" do
     before { usar_tela_de_celular }
 

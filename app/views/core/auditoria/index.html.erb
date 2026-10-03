@@ -17,10 +17,8 @@
                 data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11" %>
         </div>
       </div>
-      <div class="space-y-1.5">
-        <%= f.label :evento, "Evento", class: rotulo %>
-        <%= f.select :evento, @eventos, { include_blank: "Todos", selected: @filtros[:evento] }, data: { action: "change->filtro#aplicar" }, class: campo %>
-      </div>
+      <%= render "compartilhado/campo_escolha", nome: "evento", id: "evento", rotulo: "Evento", opcoes: @eventos, valor: @filtros[:evento],
+            em_branco: "Todos", acao: "change->filtro#aplicar", flutuante: true %>
       <%= render "compartilhado/campo_data", f: f, campo: :de, rotulo: "De", valor: @filtros[:de],
             html: { data: { action: "input->mascara#aplicar change->filtro#aplicar" } } %>
       <%= render "compartilhado/campo_data", f: f, campo: :ate, rotulo: "Até", valor: @filtros[:ate],

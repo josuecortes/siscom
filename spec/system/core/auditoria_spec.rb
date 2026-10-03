@@ -29,7 +29,7 @@ RSpec.describe "Administração: auditoria", :js do
     expect(page).to have_current_path(%r{de=01%2F01%2F2020})
     expect(page).to have_content("Usuário desativado")
 
-    select "Permissão concedida", from: "Evento"
+    escolher_no_autocomplete "Evento", digitar: "permiss", opcao: "Permissão concedida"
     expect(page).to have_content("Nenhum registro encontrado")
     expect(page).to have_current_path(/evento=core.acesso.papel_concedido/)
   end
@@ -42,7 +42,7 @@ RSpec.describe "Administração: auditoria", :js do
     cartao = "main section + section"
 
     expect(retangulo("#{cartao} form")).to include("x" => 285, "y" => 154, "largura" => 1082, "altura" => 107.8)
-    expect(tamanhos(busca: "#{cartao} input[name='q']", evento: "#{cartao} select", de: "#{cartao} input[name='de']",
+    expect(tamanhos(busca: "#{cartao} input[name='q']", evento: "#{cartao} #evento", de: "#{cartao} input[name='de']",
                     ate: "#{cartao} input[name='ate']").transform_values(&:last)).to eq(busca: 44, evento: 44, de: 44, ate: 44)
     expect(retangulo("#{cartao} button[aria-label='Filtrar registros']")).to include("x" => 1247, "y" => 196.8, "largura" => 44, "altura" => 44)
     expect(retangulo("#{cartao} a[aria-label='Limpar filtros']")).to include("x" => 1299, "y" => 196.8, "largura" => 44, "altura" => 44)
@@ -59,7 +59,7 @@ RSpec.describe "Administração: auditoria", :js do
       visit core_auditoria_path
       cartao = "main section + section"
 
-      expect(tamanhos(busca: "#{cartao} input[name='q']", evento: "#{cartao} select", de: "#{cartao} input[name='de']",
+      expect(tamanhos(busca: "#{cartao} input[name='q']", evento: "#{cartao} #evento", de: "#{cartao} input[name='de']",
                       ate: "#{cartao} input[name='ate']")).to eq(busca: [ 308, 44 ], evento: [ 308, 44 ], de: [ 308, 44 ], ate: [ 308, 44 ])
       expect(retangulo("#{cartao} button[aria-label='Filtrar registros']")).to include("x" => 41, "largura" => 44, "altura" => 44)
       expect(retangulo("#{cartao} a[aria-label='Limpar filtros']")).to include("x" => 93, "largura" => 44, "altura" => 44)

@@ -14,10 +14,11 @@
     <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 200, autofocus: true } %>
     <%# Um campo por linha, como no seed (lado a lado, o rótulo comprido da sigla quebrava e desalinhava os campos). %>
     <%= render "compartilhado/campo", f: f, campo: :sigla, rotulo: "Sigla (obrigatória, menos para escola)", html: { maxlength: 30 } %>
-    <%= render "compartilhado/campo", f: f, campo: :tipo_unidade_id, rotulo: "Tipo de unidade *", tipo: :select,
-          opcoes: [ [ "Selecione", "" ] ] + Rh::TipoUnidade.ativo.ordenados.pluck(:nome, :id), html: { required: true } %>
-    <%= render "compartilhado/campo", f: f, campo: :tipo_local_id, rotulo: "Local físico", tipo: :select,
-          opcoes: [ [ "Não informado", "" ] ] + Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id) %>
+    <%= render "compartilhado/campo_escolha", nome: "unidade[tipo_unidade_id]", id: "unidade_tipo_unidade_id", rotulo: "Tipo de unidade *",
+          opcoes: Rh::TipoUnidade.ativo.ordenados.pluck(:nome, :id), valor: @unidade.tipo_unidade_id, em_branco: "Selecione", obrigatorio: true,
+          erros: @unidade.errors[:tipo_unidade] %>
+    <%= render "compartilhado/campo_escolha", nome: "unidade[tipo_local_id]", id: "unidade_tipo_local_id", rotulo: "Local físico",
+          opcoes: Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id), valor: @unidade.tipo_local_id, em_branco: "Não informado" %>
     <%= render "compartilhado/campo_autocomplete", nome: "unidade[pai_id]", id: "unidade_pai", rotulo: "Unidade superior",
           url: rh_opcoes_path("unidades", exceto: @unidade.id), valor: @unidade.pai_id, texto: @unidade.pai&.sigla_e_nome,
           erros: @unidade.errors[:pai_id], placeholder: "Em branco = unidade de primeiro nível. Digite 3 letras para procurar",
