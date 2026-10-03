@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_191503) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_191820) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -517,6 +517,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_191503) do
     t.index ["pessoa_id", "unidade_id", "funcao_id"], name: "idx_rh_lotacoes_ativa", unique: true, where: "((status)::text = 'ativo'::text)"
     t.index ["pessoa_id"], name: "index_rh_lotacoes_on_pessoa_id"
     t.index ["unidade_id"], name: "index_rh_lotacoes_on_unidade_id"
+  end
+
+  create_table "rh_pendencias_importacao", force: :cascade do |t|
+    t.bigint "pessoa_id"
+    t.string "tipo", null: false
+    t.string "descricao", null: false
+    t.datetime "resolvida_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pessoa_id", "tipo"], name: "index_rh_pendencias_importacao_on_pessoa_id_and_tipo", unique: true
+    t.index ["pessoa_id"], name: "index_rh_pendencias_importacao_on_pessoa_id"
+    t.index ["tipo"], name: "index_rh_pendencias_importacao_on_tipo"
   end
 
   create_table "rh_pessoas", force: :cascade do |t|
@@ -1062,6 +1074,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_191503) do
   add_foreign_key "rh_lotacoes", "rh_funcoes", column: "funcao_id"
   add_foreign_key "rh_lotacoes", "rh_pessoas", column: "pessoa_id"
   add_foreign_key "rh_lotacoes", "rh_unidades", column: "unidade_id"
+  add_foreign_key "rh_pendencias_importacao", "rh_pessoas", column: "pessoa_id"
   add_foreign_key "rh_pessoas", "users"
   add_foreign_key "rh_unidades", "rh_tipos_local", column: "tipo_local_id"
   add_foreign_key "rh_unidades", "rh_tipos_unidade", column: "tipo_unidade_id"
