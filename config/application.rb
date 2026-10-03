@@ -27,6 +27,9 @@ module Siscom
     config.time_zone = "Brasilia"
     config.active_record.default_timezone = :local
 
+    # Catálogos dos módulos (permissões, papéis, menu): recarregar ao editar em desenvolvimento.
+    config.watchable_dirs[Rails.root.join("config/modulos").to_s] = [ :yml ]
+
     config.to_prepare do
       Devise::SessionsController.layout "publico"
       Devise::PasswordsController.layout "publico"

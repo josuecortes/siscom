@@ -1,0 +1,30 @@
+# Catálogo do módulo Core: permissões (ações), papéis (conjuntos de permissões),
+# concessão (quem pode conceder quais papéis) e menu.
+# Ver 02-arquitetura-e-convencoes.md, seção 5.
+nome: "Administração"
+icone: "shield-alt"
+
+permissoes:
+  usuarios.ver: "Ver usuários"
+  usuarios.gerenciar: "Cadastrar, editar, ativar e desativar usuários"
+  usuarios.redefinir_senha: "Redefinir a senha de usuários"
+  acessos.conceder: "Conceder e revogar acessos e papéis nos módulos"
+  auditoria.ver: "Consultar a auditoria"
+  configuracoes.gerenciar: "Gerenciar configurações do sistema e marca"
+  fontes_referencia.gerenciar: "Gerenciar fontes de referência"
+
+papeis:
+  superadmin:
+    nome: "Superadministrador"
+    permissoes: "*"
+  admin_usuarios:
+    nome: "Administrador de usuários"
+    permissoes: [usuarios.ver, usuarios.gerenciar, usuarios.redefinir_senha, acessos.conceder]
+  auditor:
+    nome: "Auditor"
+    permissoes: [usuarios.ver, auditoria.ver]
+
+concessao:
+  superadmin: [superadmin, admin_usuarios, auditor]
+
+menu: []

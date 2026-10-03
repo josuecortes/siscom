@@ -1,0 +1,14 @@
+nome: "Exemplo"
+icone: "people"
+permissoes:
+  pessoas.ver: "Ver pessoas"
+  pessoas.editar: "Editar pessoas"
+  minha_ficha.ver: "Ver a própria ficha"
+papeis:
+  admin:    { nome: "Administrador", permissoes: "*" }
+  operador: { nome: "Operador", permissoes: [pessoas.ver, pessoas.editar] }
+  usuario:  { nome: "Usuário", permissoes: [minha_ficha.ver], automatico: true }
+concessao:
+  admin: [admin, operador]
+menu:
+  - { rotulo: "Pessoas", rota: root_path, permissao: pessoas.ver, icone: people }
