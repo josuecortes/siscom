@@ -10,8 +10,9 @@
 <% content_for :tem_painel, "1" %>
 <%= turbo_frame_tag "painel", data: { aberto_na_pagina: request.headers["Turbo-Frame"].blank? } do %>
   <div class="fixed inset-0 z-[80] overflow-hidden overscroll-none" data-controller="painel"
-       data-painel-voltar-value="<%= voltar %>" data-action="keydown.esc@window->painel#fechar">
-    <button type="button" data-action="painel#fechar" class="absolute inset-0 cursor-pointer bg-[#08111fcc]" aria-label="Fechar formulário"></button>
+       data-painel-voltar-value="<%= voltar %>">
+    <%# O fundo não fecha o painel (nem o Esc): só os botões Cancelar/Fechar/×. %>
+    <div class="absolute inset-0 bg-[#08111fcc]" aria-hidden="true"></div>
 
     <div class="pointer-events-none relative flex h-[100svh] min-h-[100svh] w-full items-stretch justify-end overflow-hidden p-0 sm:min-h-full sm:p-4 lg:items-center lg:justify-center lg:p-6">
       <div role="dialog" aria-modal="true" aria-labelledby="painel_titulo"

@@ -1,6 +1,7 @@
 // Troca o window.confirm do Turbo (data-turbo-confirm) pelo diálogo do sistema
 // (app/views/compartilhado/_confirmacao.html.erb). Título, rótulo do botão e tom
-// vêm de data-confirmacao-titulo / -rotulo / -tom no formulário ou no botão.
+// Fecha só pelos botões (Cancelar, × ou o de confirmar); Esc e clique no fundo não fecham.
+// Título, rótulo e tom vêm de data-confirmacao-titulo / -rotulo / -tom no formulário ou no botão.
 import { Turbo } from "@hotwired/turbo-rails"
 
 function dado(nome, formulario, botao) {
@@ -28,7 +29,6 @@ Turbo.config.forms.confirm = (mensagem, formulario, botao) => {
       dialogo.hidden = true
       if (!jaTravada) raiz.classList.remove("overflow-hidden")
       dialogo.removeEventListener("click", aoClicar)
-      window.removeEventListener("keydown", aoTeclar)
       anterior?.focus?.()
       resolve(resposta)
     }
@@ -37,10 +37,8 @@ Turbo.config.forms.confirm = (mensagem, formulario, botao) => {
       if (acao === "confirmar") encerrar(true)
       if (acao === "cancelar") encerrar(false)
     }
-    const aoTeclar = (evento) => { if (evento.key === "Escape") encerrar(false) }
 
     dialogo.addEventListener("click", aoClicar)
-    window.addEventListener("keydown", aoTeclar)
     dialogo.hidden = false
     confirmar.focus()
   })

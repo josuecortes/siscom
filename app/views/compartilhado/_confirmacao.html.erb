@@ -5,7 +5,7 @@
                 confirmacao_titulo: "Desativar usuário", confirmacao_rotulo: "Desativar usuário",
                 confirmacao_tom: "perigo" }   # ou "primario" %>
 <div id="confirmacao" hidden class="fixed inset-0 z-[85] overflow-hidden overscroll-none">
-  <button type="button" data-confirmacao="cancelar" class="absolute inset-0 cursor-pointer bg-[#08111fcc]" aria-label="Fechar confirmação" tabindex="-1"></button>
+  <div class="absolute inset-0 bg-[#08111fcc]" aria-hidden="true"></div>
 
   <div class="pointer-events-none relative flex h-[100svh] min-h-[100svh] w-full items-stretch justify-end overflow-hidden p-0 sm:min-h-full sm:p-4 lg:items-center lg:justify-center lg:p-6">
     <div role="alertdialog" aria-modal="true" aria-labelledby="confirmacao_titulo" aria-describedby="confirmacao_descricao"

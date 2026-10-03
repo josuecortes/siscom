@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Painel de formulário dentro do turbo-frame "painel": trava a rolagem da
-// página enquanto está aberto, fecha no X, no fundo ou com Esc, e volta o
+// página enquanto está aberto, fecha só pelos botões (Cancelar/Fechar/×), e volta o
 // miolo ao topo quando o formulário volta com erro.
 export default class extends Controller {
   static targets = ["miolo"]

@@ -95,6 +95,9 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
       expect(estilo("#{cartao} table thead th", "backgroundColor")).to eq("rgba(115, 131, 255, 0.12)")
       expect(estilo("#{linha_joao} td", "borderBottomColor")).to eq("rgb(57, 65, 80)")
       expect(estilo("#{linha_maria} td:nth-child(4) span", "backgroundColor")).to eq("rgb(37, 43, 54)")
+      # Selos de status ficam com as cores claras do seed também no tema escuro.
+      expect(estilo("#{linha_maria} td:nth-child(3) span", "backgroundColor")).to eq("rgb(230, 246, 234)")
+      expect(estilo("#{linha_joao} td:nth-child(3) span", "backgroundColor")).to eq("rgb(255, 241, 232)")
     end
   end
 
@@ -111,7 +114,7 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
       expect(estilo(painel, "borderRadius")).to eq("16px")
       expect(estilo(painel, "boxShadow")).to include("rgba(2, 6, 23, 0.35) 0px 24px 70px 0px")
       expect(estilo(painel, "maxHeight")).to eq("852px")
-      expect(estilo("[data-controller='painel'] > button", "backgroundColor")).to eq("rgba(8, 17, 31, 0.8)")
+      expect(estilo("[data-controller='painel'] > div[aria-hidden]", "backgroundColor")).to eq("rgba(8, 17, 31, 0.8)")
       print("usuarios-painel-desktop")
     end
 
@@ -142,11 +145,11 @@ RSpec.describe "Administração: usuários com as medidas do seed", :js do
       expect(salvar["x"] + salvar["largura"]).to be_within(0.5).of(951)
     end
 
-    it "trava a rolagem da página, põe o foco no primeiro campo e fecha no fundo" do
+    it "trava a rolagem da página, põe o foco no primeiro campo e destrava ao fechar no ×" do
       expect(rolagem_travada?).to be(true)
       expect(page.evaluate_script("document.activeElement.name")).to eq("user[nome]")
 
-      page.execute_script("document.querySelector(\"[data-controller='painel'] > button\").click()")
+      click_on "Fechar formulário"
 
       expect(page).to have_no_css(painel)
       expect(rolagem_travada?).to be(false)

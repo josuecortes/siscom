@@ -65,16 +65,35 @@ RSpec.describe "Administração: usuários", :js do
     expect(page).to have_content("MARIA OLIVEIRA SOUZA")
   end
 
-  it "fecha o painel com Esc e pelo botão Cancelar" do
+  it "fecha o painel só pelos botões: Esc e clique no fundo não fecham" do
     visit core_usuarios_path
     click_on "Novo usuário"
     expect(page).to have_css("[role='dialog']")
+
     find("body").send_keys(:escape)
+    page.execute_script("document.elementFromPoint(20, 400).click()") # fundo escurecido
+    expect(page).to have_css("[role='dialog'] h2", text: "Cadastrar usuário")
+
+    click_on "Cancelar"
     expect(page).to have_no_css("[role='dialog']")
 
     click_on "Novo usuário"
-    click_on "Cancelar"
+    click_on "Fechar formulário"
     expect(page).to have_no_css("[role='dialog']")
+  end
+
+  it "a confirmação não fecha com Esc nem com clique no fundo" do
+    visit core_usuarios_path
+    within("tr", text: "MARIA OLIVEIRA") { click_on "Desativar usuário" }
+    expect(page).to have_css("#confirmacao h2", text: "Desativar usuário")
+
+    find("body").send_keys(:escape)
+    page.execute_script("document.elementFromPoint(20, 400).click()")
+    expect(page).to have_css("#confirmacao h2", text: "Desativar usuário")
+
+    within("#confirmacao") { click_on "Fechar" }
+    expect(page).to have_no_css("#confirmacao h2")
+    expect(User.find_by!(email: "maria@seed.ap.gov.br")).to be_ativo
   end
 
   it "desativa com confirmação e pode cancelar" do

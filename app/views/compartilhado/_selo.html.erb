@@ -1,5 +1,5 @@
 <%# Selo (badge). locals: texto, tom (:sucesso, :atencao, :neutro), maiusculo (bool) %>
-<% tons = { sucesso: "bg-[var(--success-badge-surface)] text-[var(--success-text)]",
+<% tons = { sucesso: "bg-[var(--success-badge-surface)] text-[var(--success-badge-text)]",
             atencao: "bg-[var(--warning-surface)] text-[var(--warning-text)]",
             neutro: "bg-[var(--surface-subtle)] text-[var(--text-secondary)]" } %>
 <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold <%= tons.fetch(local_assigns.fetch(:tom, :neutro)) %> <%= "uppercase tracking-[0.08em]" if local_assigns[:maiusculo] %>"><%= texto %></span>
