@@ -58,5 +58,10 @@ bin/ci                  # rubocop, bundler-audit, importmap audit, brakeman, rsp
 Deploy: Dokku por **buildpack** (sem Dockerfile na raiz — não adicionar), `Procfile` com `web` e `release`;
 Josue faz push no GitHub e `dokku git:sync --build` no servidor.
 
-Banco local: `siscom_development` é uma cópia (dump) de produção — não criar dados de teste nele;
+Usuários padrão (um por perfil, login e senha no plano em `USUARIOS-PADRAO.md`): `bin/rails remaster:dev:usuarios_padrao`.
+Ao criar módulo, papel ou permissão, acrescente o usuário em `lib/tasks/remaster/dev.rake`, rode a task e
+atualize o documento.
+
+Banco local: `siscom_development` é uma cópia (dump) de produção — não criar dados de teste nele
+(além dos usuários padrão `@siscom.dev`);
 use os specs (banco `siscom_test`).

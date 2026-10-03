@@ -5,7 +5,7 @@
 Rails.application.config.x.push = ActiveSupport::OrderedOptions.new.tap do |push|
   push.chave_publica = ENV["VAPID_PUBLIC_KEY"].presence
   push.chave_privada = ENV["VAPID_PRIVATE_KEY"].presence
-  push.contato = ENV.fetch("VAPID_CONTATO", "mailto:nuinfo@seed.ap.gov.br")
+  push.contato = ENV.fetch("VAPID_CONTATO", "mailto:josue.cort3s@gmail.com")
   # Serviços de push dos navegadores (Chrome/Edge/Android, Firefox, Safari/iOS, Windows).
   push.servicos = %w[fcm.googleapis.com push.services.mozilla.com push.apple.com notify.windows.com]
   push.servicos += %w[push.exemplo.test] if Rails.env.test?

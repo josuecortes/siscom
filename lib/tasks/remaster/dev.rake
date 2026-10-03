@@ -1,0 +1,45 @@
+# Usuários padrão de desenvolvimento/homologação: um por perfil (papel), com login e senha conhecidos,
+# documentados em /Users/josue/projetos/seed/docs/refactor-remaster/USUARIOS-PADRAO.md.
+# NUNCA roda em produção. Idempotente: pode rodar de novo a qualquer momento.
+#
+# Ao criar um módulo, papel ou permissão: acrescente o usuário aqui e atualize o documento.
+namespace :remaster do
+  namespace :dev do
+    USUARIOS_PADRAO = [
+      { nome: "PADRAO SUPERADMINISTRADOR", email: "superadmin@siscom.dev", papeis: [ %w[core superadmin] ] },
+      { nome: "PADRAO ADMINISTRADOR DE USUARIOS", email: "admin.usuarios@siscom.dev", papeis: [ %w[core admin_usuarios] ] },
+      { nome: "PADRAO AUDITOR", email: "auditor@siscom.dev", papeis: [ %w[core auditor] ] },
+      { nome: "PADRAO USUARIO COMUM", email: "usuario@siscom.dev", papeis: [] }
+    ].freeze
+
+    desc "Cria/atualiza os usuários padrão (um por perfil) para desenvolvimento e homologação. Não roda em produção."
+    task usuarios_padrao: :environment do
+      abort "Não roda em produção." if Rails.env.production? && ENV["PERMITIR_USUARIOS_PADRAO"] != "homologacao"
+
+      senha = ENV.fetch("SENHA_USUARIOS_PADRAO", "Siscom@Dev2026")
+
+      USUARIOS_PADRAO.each do |definicao|
+        user = User.find_or_initialize_by(email: definicao[:email])
+        user.assign_attributes(nome: definicao[:nome], status: true, deve_trocar_senha: false)
+        unless user.persisted? && user.valid_password?(senha)
+          user.senhas_anteriores.delete_all if user.persisted? # a senha padrão pode estar no histórico
+          user.assign_attributes(password: senha, password_confirmation: senha)
+        end
+        user.save!
+        user.unlock_access! if user.access_locked? || user.failed_attempts.positive?
+
+        desejados = definicao[:papeis]
+        Core::Concessao.ativo.where(user: user).reject { |c| desejados.include?([ c.modulo, c.papel ]) }.each do |concessao|
+          concessao.update!(status: "inativo")
+        end
+        desejados.each do |modulo, papel|
+          resultado = Core::Acessos::Conceder.call(user: user, modulo: modulo, papel: papel, pelo_sistema: true)
+          abort "Falha em #{definicao[:email]}: #{resultado.mensagem_de_erro}" if resultado.falha?
+        end
+
+        papeis = desejados.map { |modulo, papel| "#{modulo}.#{papel}" }.join(", ").presence || "sem papéis"
+        puts "#{definicao[:email].ljust(28)} #{papeis}"
+      end
+    end
+  end
+end
