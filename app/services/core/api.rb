@@ -79,6 +79,13 @@ module Core
       FontesReferencia::Consultar.call(chave:, termo:, limite:)
     end
 
+    # A opção da fonte com aquele valor ({ valor:, rotulo:, subtitulo: }) ou nil.
+    def opcao_da_fonte(chave, valor)
+      return nil if valor.blank?
+
+      FontesReferencia::Consultar.call(chave:, valor: valor, limite: 1).first
+    end
+
     # Fontes de referência ativas, para quem monta formulários: [#<chave, nome>].
     FonteDisponivel = Data.define(:chave, :nome)
 

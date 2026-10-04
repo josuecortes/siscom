@@ -8,8 +8,10 @@ module Core
 
       def self.call(...) = new(...).call
 
-      def initialize(chave:, termo: nil, limite: LIMITE)
+      # Com `valor`, devolve só a opção com aquele valor (para conferir e guardar uma escolha).
+      def initialize(chave:, termo: nil, limite: LIMITE, valor: nil)
         @chave = chave.to_s
+        @valor = valor
         @termo = termo.to_s.squish
         @limite = limite.to_i.clamp(1, 50)
       end
@@ -21,6 +23,12 @@ module Core
         registros = Entidades.registros(fonte.modulo, fonte.entidade)
         tabela = registros.klass.arel_table
         registros = filtrar(registros, tabela, fonte) if @termo.present?
+        unless @valor.nil?
+          valor = valor_convertido(registros.klass, fonte.campo_valor)
+          return [] if valor.nil?
+
+          registros = registros.where(tabela[fonte.campo_valor].eq(valor))
+        end
         colunas = [ fonte.campo_valor, fonte.campo_rotulo, fonte.campo_subtitulo ].compact
 
         registros.reorder(tabela[fonte.campo_rotulo].asc, tabela[fonte.campo_valor].asc).limit(@limite)
@@ -29,6 +37,11 @@ module Core
       end
 
       private
+
+      # O valor vem do navegador: para coluna numérica, só passa se for número.
+      def valor_convertido(modelo, campo)
+        modelo.columns_hash[campo]&.type == :integer ? Integer(@valor.to_s, exception: false) : @valor.to_s
+      end
 
       # Os nomes de campo já foram validados contra a lista da entidade; ainda assim
       # a consulta é montada com Arel, sem interpolar texto em SQL.

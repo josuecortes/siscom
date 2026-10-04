@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -863,6 +863,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
     t.index ["legacy_id"], name: "index_ti_categorias_on_legacy_id", unique: true
   end
 
+  create_table "ti_chamados", force: :cascade do |t|
+    t.string "codigo"
+    t.bigint "problema_id", null: false
+    t.string "status", default: "aberto", null: false
+    t.string "prioridade", default: "normal", null: false
+    t.bigint "solicitante_id", null: false
+    t.string "solicitante_nome", null: false
+    t.string "solicitante_email", null: false
+    t.bigint "rh_unidade_id"
+    t.string "unidade_nome"
+    t.string "funcao_nome"
+    t.bigint "triador_id"
+    t.bigint "responsavel_id"
+    t.text "nota_triagem"
+    t.datetime "triado_em"
+    t.datetime "aberto_em", null: false
+    t.datetime "concluido_em"
+    t.datetime "finalizado_em"
+    t.integer "avaliacao"
+    t.boolean "avaliacao_resolvido"
+    t.text "avaliacao_comentario"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["codigo"], name: "index_ti_chamados_on_codigo", unique: true
+    t.index ["problema_id"], name: "index_ti_chamados_on_problema_id"
+    t.index ["responsavel_id"], name: "index_ti_chamados_on_responsavel_id"
+    t.index ["rh_unidade_id"], name: "index_ti_chamados_on_rh_unidade_id"
+    t.index ["solicitante_id"], name: "index_ti_chamados_on_solicitante_id"
+    t.index ["status"], name: "index_ti_chamados_on_status"
+    t.index ["triador_id"], name: "index_ti_chamados_on_triador_id"
+  end
+
+  create_table "ti_eventos_chamado", force: :cascade do |t|
+    t.bigint "chamado_id", null: false
+    t.string "tipo", null: false
+    t.string "de_status"
+    t.string "para_status"
+    t.text "nota"
+    t.bigint "ator_id"
+    t.string "ator_nome"
+    t.datetime "ocorrido_em", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ator_id"], name: "index_ti_eventos_chamado_on_ator_id"
+    t.index ["chamado_id"], name: "index_ti_eventos_chamado_on_chamado_id"
+  end
+
   create_table "ti_grupos_tecnicos", force: :cascade do |t|
     t.string "nome", null: false
     t.text "descricao"
@@ -941,6 +988,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
     t.index ["perfil_abertura_id"], name: "index_ti_problemas_perfis_on_perfil_abertura_id"
     t.index ["problema_id", "perfil_abertura_id"], name: "idx_on_problema_id_perfil_abertura_id_c47da1bd87", unique: true
     t.index ["problema_id"], name: "index_ti_problemas_perfis_on_problema_id"
+  end
+
+  create_table "ti_valores_campo", force: :cascade do |t|
+    t.bigint "chamado_id", null: false
+    t.bigint "campo_problema_id", null: false
+    t.string "rotulo", null: false
+    t.string "tipo", null: false
+    t.text "valor_texto"
+    t.jsonb "valor_json", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campo_problema_id"], name: "index_ti_valores_campo_on_campo_problema_id"
+    t.index ["chamado_id", "campo_problema_id"], name: "index_ti_valores_campo_on_chamado_id_and_campo_problema_id", unique: true
+    t.index ["chamado_id"], name: "index_ti_valores_campo_on_chamado_id"
   end
 
   create_table "tipo_problema_tis", force: :cascade do |t|
@@ -1214,6 +1275,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
   add_foreign_key "tarefas", "users"
   add_foreign_key "tarefas", "users", column: "created_by_id"
   add_foreign_key "ti_campos_problema", "ti_problemas", column: "problema_id"
+  add_foreign_key "ti_chamados", "ti_problemas", column: "problema_id"
+  add_foreign_key "ti_chamados", "users", column: "responsavel_id"
+  add_foreign_key "ti_chamados", "users", column: "solicitante_id"
+  add_foreign_key "ti_chamados", "users", column: "triador_id"
+  add_foreign_key "ti_eventos_chamado", "ti_chamados", column: "chamado_id"
+  add_foreign_key "ti_eventos_chamado", "users", column: "ator_id"
   add_foreign_key "ti_membros_grupo", "ti_grupos_tecnicos", column: "grupo_tecnico_id"
   add_foreign_key "ti_membros_grupo", "users"
   add_foreign_key "ti_membros_grupo", "users", column: "concedido_por_id"
@@ -1225,6 +1292,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
   add_foreign_key "ti_problemas_grupos", "ti_problemas", column: "problema_id"
   add_foreign_key "ti_problemas_perfis", "ti_perfis_abertura", column: "perfil_abertura_id"
   add_foreign_key "ti_problemas_perfis", "ti_problemas", column: "problema_id"
+  add_foreign_key "ti_valores_campo", "ti_campos_problema", column: "campo_problema_id"
+  add_foreign_key "ti_valores_campo", "ti_chamados", column: "chamado_id"
   add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"

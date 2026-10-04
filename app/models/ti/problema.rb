@@ -13,6 +13,7 @@ module Ti
     has_many :perfis_abertura, through: :vinculos_de_perfil, source: :perfil_abertura
     has_many :vinculos_de_grupo, class_name: "Ti::ProblemaGrupo", foreign_key: :problema_id, inverse_of: :problema, dependent: :destroy
     has_many :grupos_tecnicos, through: :vinculos_de_grupo, source: :grupo_tecnico
+    has_many :chamados, class_name: "Ti::Chamado", foreign_key: :problema_id, inverse_of: :problema, dependent: :restrict_with_error
     has_many :campos, class_name: "Ti::CampoProblema", foreign_key: :problema_id, inverse_of: :problema, dependent: :destroy
 
     enum :status, STATUS.index_by(&:itself), validate: true

@@ -36,6 +36,7 @@ concessao:
   admin: [admin, supervisor, triagem, tecnico]
 
 menu:
+  - { rotulo: "Meus chamados", rota: ti_chamados_path, permissao: chamados.abrir, icone: task }
   - { rotulo: "Categorias de solicitação", rota: ti_categorias_path, permissao: catalogo.gerenciar, icone: description, grupo: "Administração" }
   - { rotulo: "Perfis de abertura", rota: ti_perfis_abertura_path, permissao: catalogo.gerenciar, icone: people, grupo: "Administração" }
   - { rotulo: "Grupos técnicos", rota: ti_grupos_tecnicos_path, permissao: catalogo.gerenciar, icone: group, grupo: "Administração" }

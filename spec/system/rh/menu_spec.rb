@@ -50,9 +50,9 @@ RSpec.describe "RH: menu com subgrupo", :js do
     visit rh_tipos_vinculo_path
     usar_tema("light")
     click_on "Recolher menu lateral"
-    find("#{menu} nav > div:last-child > details > summary").hover
+    find("#{menu} nav > div:has(a[href='/rh/pessoas']) > details > summary").hover
 
-    flutuante = "#{menu} nav > div:last-child > [data-flutuante]"
+    flutuante = "#{menu} nav > div:has(a[href='/rh/pessoas']) > [data-flutuante]"
     expect(page).to have_css(flutuante, text: "Navegação do módulo", visible: :visible)
     expect(page).to have_css("#{flutuante} div.rounded-lg", text: "Referências")
     expect(page).to have_no_link("Referências")

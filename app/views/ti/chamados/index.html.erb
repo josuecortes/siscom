@@ -1,0 +1,50 @@
+<% content_for :title, "Meus chamados" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Meus chamados", icone: :task, migalha: [ "TI", ti_chamados_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir chamado", icone: :plus, caminho: new_ti_chamado_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: ti_chamados_path, quadro: "chamados_lista", rotulo_busca: "Buscar por código ou solicitação",
+        exemplo: "Ex.: TI-000001 ou internet", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Todos", "todos" ], [ "Em andamento", "andamento" ], [ "Encerrados", "encerrados" ] ], titulo_filtrar: "Filtrar chamados" %>
+
+  <%= turbo_frame_tag "chamados_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} chamado(s) encontrado(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[900px]">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Solicitação</th>
+            <th scope="col">Aberto em</th>
+            <th scope="col">Status</th>
+            <th scope="col">Responsável</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @chamados.each do |chamado| %>
+            <tr id="<%= dom_id(chamado) %>">
+              <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]"><%= chamado.codigo %></td>
+              <td>
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= chamado.problema.nome %></p>
+                <% if chamado.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= chamado.unidade_nome %></p><% end %>
+              </td>
+              <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
+              <td><%= selo_do_status(chamado) %></td>
+              <td><%= chamado.responsavel&.nome || "—" %></td>
+              <td><%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :description, caminho: ti_chamado_path(chamado) %></td>
+            </tr>
+          <% end %>
+          <% if @chamados.empty? %>
+            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum chamado encontrado. Use "Abrir chamado" para pedir algo à TI.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "chamados_lista" %>
+  <% end %>
+</section>

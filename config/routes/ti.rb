@@ -1,5 +1,9 @@
 # Rotas do módulo TI.
 namespace :ti do
+  # Chamados do solicitante.
+  resources :chamados, only: %i[index show new create]
+  get "opcoes/campos/:campo_id", to: "opcoes#index", as: :opcoes_do_campo, defaults: { format: :json }
+
   # Itens simples do catálogo (mesma tela para os três).
   %i[categorias perfis_abertura grupos_tecnicos].each do |tabela|
     resources tabela, only: %i[index new create edit update], controller: "catalogo", defaults: { tabela: tabela.to_s } do
