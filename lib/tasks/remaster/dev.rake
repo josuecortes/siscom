@@ -47,6 +47,11 @@ namespace :remaster do
         papeis = desejados.map { |modulo, papel| "#{modulo}.#{papel}" }.join(", ").presence || "sem papéis"
         puts "#{definicao[:email].ljust(28)} #{papeis}"
       end
+
+      # TI: triador e técnico só veem chamados dos grupos técnicos de que são membros.
+      Ti::GrupoTecnico.ativo.find_each do |grupo|
+        User.where(email: %w[ti.triador@siscom.dev ti.tecnico@siscom.dev]).find_each { |user| grupo.vinculos_de_membro.find_or_create_by!(user: user) }
+      end
     end
   end
 end
