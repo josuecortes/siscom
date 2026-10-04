@@ -81,7 +81,8 @@ RSpec.describe "Shell administrativo", :js do
     it "não mostra o grupo para quem não tem permissão em nenhum item" do
       visit root_path
 
-      expect(page).to have_no_css("#menu-lateral summary")
+      expect(page).to have_css("#menu-lateral summary", text: "Minha área")
+      expect(page).to have_no_css("#menu-lateral summary", text: "Exemplo")
     end
   end
 end

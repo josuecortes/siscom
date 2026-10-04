@@ -13,8 +13,9 @@ RSpec.describe MenuLateralHelper do
     helper.define_singleton_method(:pode?) { |permissao| regras.pode?(permissao) }
   end
 
-  it "mostra só o Início para quem não enxerga nenhum item dos módulos" do
-    expect(helper.menu_lateral_itens.pluck(:rotulo)).to eq([ "Início" ])
+  it "mostra só o Início e a Minha área para quem não enxerga nenhum item dos módulos" do
+    expect(helper.menu_lateral_itens.pluck(:rotulo)).to eq([ "Início", "Minha área" ])
+    expect(helper.menu_lateral_itens.last[:filhos]).to eq([ { rotulo: "Notificações", icone: :bell, caminho: "/minha-area/notificacoes" } ])
   end
 
   it "mostra o grupo do módulo com os itens permitidos" do
@@ -30,7 +31,7 @@ RSpec.describe MenuLateralHelper do
     create(:core_concessao, user: user, modulo: "exemplo", papel: "operador")
     Core::Acesso.find_by!(user: user, modulo: "exemplo").inativo!
 
-    expect(helper.menu_lateral_itens.pluck(:rotulo)).to eq([ "Início" ])
+    expect(helper.menu_lateral_itens.pluck(:rotulo)).to eq([ "Início", "Minha área" ])
   end
 
   describe "#item_menu_ativo?" do

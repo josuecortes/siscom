@@ -7,7 +7,9 @@ RSpec.describe "Menu lateral recolhido", :js do
 
   let(:user) { create(:user, nome: "MARIA SILVA", email: "maria@seed.ap.gov.br") }
   let(:menu) { "#menu-lateral" }
-  let(:painel) { "#{menu} [data-flutuante]" }
+  # O grupo do módulo é o último do menu (antes dele vêm Início e Minha área).
+  let(:grupo) { "#{menu} nav > div:last-child" }
+  let(:painel) { "#{grupo} [data-flutuante]" }
 
   before do
     create(:core_concessao, user: user, modulo: "exemplo", papel: "operador")
@@ -28,7 +30,7 @@ RSpec.describe "Menu lateral recolhido", :js do
   it "abre o painel flutuante do grupo ao passar o mouse e navega por ele" do
     expect(page).to have_no_css(painel, visible: :visible)
 
-    find("#{menu} summary").hover
+    find("#{grupo} summary").hover
 
     expect(page).to have_css(painel, text: "Navegação do módulo", visible: :visible)
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/flutuante.png") if ENV["SCREENSHOT_DIR"]
@@ -40,7 +42,7 @@ RSpec.describe "Menu lateral recolhido", :js do
   end
 
   it "abre o painel flutuante pelo teclado (foco no grupo)" do
-    page.execute_script("document.querySelector(#{"#{menu} summary".to_json}).focus()")
+    page.execute_script("document.querySelector(#{"#{grupo} summary".to_json}).focus()")
 
     expect(page).to have_css(painel, text: "Pessoas", visible: :visible)
   end
@@ -48,14 +50,14 @@ RSpec.describe "Menu lateral recolhido", :js do
   it "destaca o grupo da página atual" do
     visit root_path
 
-    expect(estilo("#{menu} nav summary", "backgroundColor")).to eq("rgb(51, 74, 116)")
-    expect(estilo("#{menu} nav summary", "boxShadow")).to include("3px 0px 0px 0px inset")
+    expect(estilo("#{grupo} summary", "backgroundColor")).to eq("rgb(51, 74, 116)")
+    expect(estilo("#{grupo} summary", "boxShadow")).to include("3px 0px 0px 0px inset")
   end
 
   it "mantém o painel flutuante dentro da tela quando ela é baixa" do
     usar_tela(largura: 1400, altura: 200)
 
-    find("#{menu} summary").hover
+    find("#{grupo} summary").hover
 
     expect(page).to have_css(painel, visible: :visible)
     caixa = retangulo("#{painel} > div")

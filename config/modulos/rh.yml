@@ -34,7 +34,7 @@ concessao:
   admin: [admin, operador, leitor]
 
 menu:
-  - { rotulo: "Minha ficha", rota: rh_minha_ficha_path, permissao: minha_ficha.ver, icone: description }
+  - { rotulo: "Minha ficha", rota: rh_minha_ficha_path, permissao: minha_ficha.ver, icone: description, minha_area: true }
   - { rotulo: "Pessoas", rota: rh_pessoas_path, permissao: pessoas.ver, icone: people }
   - { rotulo: "Unidades", rota: rh_unidades_path, permissao: unidades.ver, icone: sitemap }
   - { rotulo: "Lotações", rota: rh_lotacoes_path, permissao: lotacoes.ver, icone: briefcase }

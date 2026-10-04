@@ -53,8 +53,8 @@ RSpec.describe "RH: pessoas", :js do
 
     visit root_path
     within("#menu-lateral") do
-      find("summary", text: "RH").click
-      expect(page).to have_no_link("Pessoas")
+      expect(page).to have_no_css("summary", text: "RH")
+      find("summary", text: "Minha área").click
       click_on "Minha ficha"
     end
 

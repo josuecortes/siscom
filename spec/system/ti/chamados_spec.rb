@@ -25,7 +25,7 @@ RSpec.describe "TI: abrir chamado", :js do
   it "escolhe a solicitação, preenche o formulário dela e acompanha em Meus chamados" do
     visit root_path
     within("#menu-lateral") do
-      find("summary", text: "TI").click
+      find("summary", text: "Minha área").click
       click_on "Meus chamados"
     end
     click_on "Abrir chamado"

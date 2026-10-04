@@ -1,11 +1,12 @@
 # Menu lateral montado a partir dos catálogos dos módulos (config/modulos/*.yml)
-# e das permissões efetivas do usuário: "Início" + um grupo por módulo em que o
-# usuário entra e enxerga pelo menos um item.
+# e das permissões efetivas do usuário: "Início", "Minha área" (como no seed: o dia a dia
+# de qualquer usuário — itens marcados com `minha_area: true` nos catálogos, mais Notificações)
+# e um grupo por módulo em que o usuário entra e enxerga pelo menos um item.
 module MenuLateralHelper
   def menu_lateral_itens
     inicio = { rotulo: "Início", icone: :home, caminho: root_path, exato: true }
 
-    [ inicio ] + Core::Catalogo.modulos.filter_map { |modulo| grupo_do_menu(modulo) }
+    [ inicio, minha_area ] + Core::Catalogo.modulos.filter_map { |modulo| grupo_do_menu(modulo) }
   end
 
   def item_menu_ativo?(item)
@@ -17,10 +18,22 @@ module MenuLateralHelper
 
   private
 
+  def minha_area
+    filhos = Core::Catalogo.modulos.flat_map do |modulo|
+      next [] unless autorizacao.acesso?(modulo.chave)
+
+      itens_visiveis(modulo).select(&:minha_area).map { |item| folha_do_menu(modulo, item) }
+    end
+
+    { rotulo: "Minha área", icone: :user, filhos: filhos + [ { rotulo: "Notificações", icone: :bell, caminho: notificacoes_path } ] }
+  end
+
+  def itens_visiveis(modulo) = modulo.menu.reject { |item| item.permissao && !pode?("#{modulo.chave}.#{item.permissao}") }
+
   def grupo_do_menu(modulo)
     return unless autorizacao.acesso?(modulo.chave)
 
-    visiveis = modulo.menu.reject { |item| item.permissao && !pode?("#{modulo.chave}.#{item.permissao}") }
+    visiveis = itens_visiveis(modulo).reject(&:minha_area)
     return if visiveis.empty?
 
     # Itens com `grupo:` no catálogo viram um subgrupo (ex.: "Referências"), na posição do primeiro deles.
