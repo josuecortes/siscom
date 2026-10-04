@@ -65,6 +65,22 @@
           </div>
         <% end %>
       </div>
+      <div class="grid gap-4 md:grid-cols-2" data-previas>
+        <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3">
+          <p class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Prévia da marca</p>
+          <div class="mt-3 flex items-center gap-3">
+            <%= render "layouts/compartilhado/marca", classe: "h-10 w-10" %>
+            <span class="text-sm text-[var(--text-secondary)]">Marca ativa do sistema</span>
+          </div>
+        </div>
+        <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3">
+          <p class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Prévia do favicon</p>
+          <div class="mt-3 flex items-center gap-3">
+            <%= image_tag favicon_do_sistema, alt: "Prévia do favicon", class: "h-10 w-10 rounded-md border border-[var(--border-subtle)] object-contain" %>
+            <span class="text-sm text-[var(--text-secondary)]">Favicon aplicado no navegador</span>
+          </div>
+        </div>
+      </div>
       <div class="grid gap-3 md:grid-cols-2">
         <label class="<%= caixa %>"><%= f.check_box :mostrar_icone_marca_web, class: "h-4 w-4" %> <span>Exibir ícone da marca no computador</span></label>
         <label class="<%= caixa %>"><%= f.check_box :mostrar_icone_marca_celular, class: "h-4 w-4" %> <span>Exibir ícone da marca no celular</span></label>

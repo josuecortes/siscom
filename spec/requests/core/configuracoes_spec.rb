@@ -34,6 +34,12 @@ RSpec.describe "Administração: configurações" do
       expect(response.body).to include("Marca e cabeçalho", "Nome da marca (computador) *", 'value="Siscom"', 'value="Seed"')
     end
 
+    it "mostra as prévias da marca e do favicon em uso" do
+      get core_configuracoes_path
+
+      expect(response.body).to include("Prévia da marca", "Marca ativa do sistema", "Prévia do favicon", "Favicon aplicado no navegador")
+    end
+
     it "salva os textos e eles aparecem no menu, no topo e no manifesto do app" do
       salvar(nome_marca_web: "  Portal   SEED ", nome_cabecalho_web: "Portal da Educação", nome_marca_celular: "Portal")
       expect(response).to redirect_to(core_configuracoes_path)
