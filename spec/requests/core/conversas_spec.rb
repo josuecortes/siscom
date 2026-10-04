@@ -44,16 +44,15 @@ RSpec.describe "Conversas" do
   describe "mensagens" do
     let!(:conversa) { sincronizar }
 
-    it "participante envia; o outro é notificado só na primeira mensagem não lida" do
+    it "participante envia; para o outro conta como não lida, sem ir para o sino" do
       sign_in maria
 
       enviar(conversa, "  Bom dia, a internet caiu de novo.  ")
       enviar(conversa, "É na sala 12.")
 
       expect(conversa.mensagens.em_ordem.pluck(:corpo, :autor_nome)).to eq([ [ "Bom dia, a internet caiu de novo.", "MARIA OLIVEIRA" ], [ "É na sala 12.", "MARIA OLIVEIRA" ] ])
-      expect(joao.notificacoes.sole).to have_attributes(titulo: "Nova mensagem de MARIA OLIVEIRA", url_acao: "/ti/chamados/1")
-      expect(conversa.participante(joao).nao_lidas).to eq(2)
-      expect(conversa.participante(maria).nao_lidas).to eq(0)
+      expect(joao.notificacoes).to be_empty
+      expect([ Core::Participante.nao_lidas_de(joao), Core::Participante.nao_lidas_de(maria) ]).to eq([ 2, 0 ])
     end
 
     it "recusa mensagem em branco, de quem não participa e em conversa só para leitura" do
@@ -71,24 +70,53 @@ RSpec.describe "Conversas" do
       expect(conversa.mensagens.count).to eq(0)
     end
 
-    it "lista as conversas do usuário com as não lidas e abre a conversa (marcando como lida)" do
-      Core::Conversas::EnviarMensagem.call(conversa: conversa, autor: joao, corpo: "Estou indo aí.")
-      sign_in maria
+    context "com uma mensagem do João para a Maria" do
+      before do
+        Core::Conversas::EnviarMensagem.call(conversa: conversa, autor: joao, corpo: "Estou indo aí.")
+        sign_in maria
+      end
 
-      get conversas_path
-      expect(response.body).to include("1 conversa(s)", "TI-000001 · SEM INTERNET", "1 não lida(s)", "Aberta")
+      it "mostra o ícone flutuante com o contador em qualquer página" do
+        get root_path
 
-      get conversa_path(conversa)
-      expect(response.body).to include("Estou indo aí.", "JOAO TECNICO", "Digite sua mensagem")
-      expect(conversa.participante(maria).nao_lidas).to eq(0)
+        html = Nokogiri::HTML(response.body)
+        expect(html.at_css("button[aria-label='Abrir conversas'] #contador_de_conversas").text.strip).to eq("1")
+        expect(html.at_css("body")["data-lancador-lista-value"]).to eq("/minha-area/conversas/lancador")
+      end
+
+      it "lista no painel flutuante, separando ativas e histórico, com a prévia e as não lidas" do
+        get lancador_conversas_path
+
+        expect(response.body).to include("1 mensagem(ns) não lida(s)", "Ativas", "TI-000001 · SEM INTERNET", "Estou indo aí.", "Nenhuma conversa no histórico.")
+      end
+
+      it "abrir a conversa no painel marca como lida" do
+        get painel_conversa_path(conversa)
+
+        expect(response.body).to include("Estou indo aí.", "JOAO TECNICO", "Digite sua mensagem", "Voltar para conversas")
+        expect(Core::Participante.nao_lidas_de(maria)).to eq(0)
+      end
+
+      it "o navegador avisa que a mensagem nova foi vista" do
+        post lida_conversa_path(conversa)
+
+        expect(response).to have_http_status(:no_content)
+        expect(Core::Participante.nao_lidas_de(maria)).to eq(0)
+      end
+
+      it "também aparece em Minha área → Conversas" do
+        get conversas_path
+
+        expect(response.body).to include("1 conversa(s)", "TI-000001 · SEM INTERNET", "1 não lida(s)", "Aberta", "Abrir conversa")
+      end
     end
 
-    it "quem não participa não abre a conversa" do
+    it "quem não participa não vê a conversa na lista nem abre no painel" do
       sign_in ana
 
-      get conversas_path
-      expect(response.body).to include("0 conversa(s)")
-      get conversa_path(conversa)
+      get lancador_conversas_path
+      expect(response.body).to include("Nenhuma conversa ativa.")
+      get painel_conversa_path(conversa)
       expect(response).to have_http_status(:not_found)
     end
   end

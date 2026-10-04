@@ -29,7 +29,10 @@
             <td><%= conversa.nome_do_modulo %></td>
             <td class="whitespace-nowrap"><%= conversa.ultima_mensagem_em ? l(conversa.ultima_mensagem_em, format: "%d/%m/%Y %H:%M") : "—" %></td>
             <td><%= render "compartilhado/selo", texto: (conversa.ativa? ? "Aberta" : "Só leitura"), tom: (conversa.ativa? ? :sucesso : :neutro) %></td>
-            <td><%= render "compartilhado/botao_acao", titulo: "Abrir conversa", icone: :chat_bubble, caminho: (participacao.url.presence || conversa_path(conversa)) %></td>
+            <td>
+              <button type="button" title="Abrir conversa" aria-label="Abrir conversa" data-action="lancador#abrirConversa" data-lancador-url-param="<%= painel_conversa_path(conversa) %>"
+                      class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:chat_bubble) %></button>
+            </td>
           </tr>
         <% end %>
         <% if @participacoes.empty? %>

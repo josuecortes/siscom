@@ -1,14 +1,18 @@
-<%# Uma mensagem da conversa. A mesma marcação vai para todos por Turbo Streams, por isso não há "minha/dos outros". %>
+<%# Uma mensagem (balões de chat-launcher.tsx). A mesma marcação vai para todos por Turbo Streams; o
+    Stimulus `conversa` marca as do próprio usuário (data-minha), que ficam à direita e na cor de destaque. %>
 <% if mensagem.do_sistema? %>
-  <li id="<%= dom_id(mensagem) %>" class="px-2 text-center text-xs text-[var(--text-muted)]">
-    <%= mensagem.corpo %> · <time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m %H:%M") %></time>
+  <li id="<%= dom_id(mensagem) %>">
+    <div class="max-w-[85%] rounded-2xl bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <p class="whitespace-pre-wrap break-words"><%= mensagem.corpo %></p>
+      <p class="mt-2 text-[11px] text-[var(--text-muted)]"><time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time></p>
+    </div>
   </li>
 <% else %>
-  <li id="<%= dom_id(mensagem) %>" class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
-    <p class="flex flex-wrap items-baseline justify-between gap-x-3 text-xs">
-      <span class="font-semibold text-[var(--text-primary)]"><%= mensagem.autor_nome %></span>
-      <time datetime="<%= mensagem.created_at.iso8601 %>" class="text-[var(--text-muted)]"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time>
-    </p>
-    <div class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= simple_format(h(mensagem.corpo), {}, wrapper_tag: "span") %></div>
+  <li id="<%= dom_id(mensagem) %>" data-autor-id="<%= mensagem.autor_id %>" class="group flex justify-start data-[minha]:justify-end">
+    <div class="max-w-[85%] rounded-2xl bg-[var(--surface-panel)] px-4 py-3 text-sm text-[var(--text-primary)] group-data-[minha]:bg-[var(--accent-soft)]">
+      <p class="mb-1 text-xs font-semibold text-[var(--text-muted)]"><%= mensagem.autor_nome %></p>
+      <p class="whitespace-pre-wrap break-words"><%= mensagem.corpo %></p>
+      <p class="mt-2 text-[11px] text-[var(--text-muted)]"><time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time></p>
+    </div>
   </li>
 <% end %>

@@ -63,7 +63,8 @@ RSpec.describe "Shell: medidas iguais às do seed", :js do
     end
 
     it "conteúdo: cabeçalho de página colado na barra e 24 px até o primeiro cartão" do
-      expect([ estilo("main", "paddingLeft"), estilo("main", "paddingBottom") ]).to eq([ "32px", "24px" ])
+      # 96 px embaixo (no seed são 24): sobra espaço para rolar a última linha para cima do ícone das conversas.
+      expect([ estilo("main", "paddingLeft"), estilo("main", "paddingBottom") ]).to eq([ "32px", "96px" ])
       expect(retangulo("main section")).to include("x" => 252, "y" => 64, "largura" => 1148, "altura" => 65)
       expect(retangulo(cartao)).to include("x" => 284, "y" => 64 + 65 + 24, "largura" => 1084)
       expect(estilo(cartao, "borderRadius")).to eq("16px")

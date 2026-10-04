@@ -1,0 +1,18 @@
+<%# Ícone flutuante das conversas (porta de chat-launcher.tsx): botão fixo no canto inferior direito, com o
+    contador de não lidas, e o painel que mostra a lista e a conversa escolhida (turbo-frame).
+    O controller Stimulus `lancador` fica no <body>, para qualquer botão da página poder abrir uma conversa:
+      data-action="lancador#abrirConversa" data-lancador-url-param="<%= painel_conversa_path(conversa) %>" %>
+<%= turbo_stream_from current_user, :conversas %>
+<div data-lancador-target="painel" hidden
+     class="fixed inset-x-3 bottom-24 z-[70] flex max-h-[calc(100vh-7rem)] items-end justify-end sm:inset-x-auto sm:right-6 sm:w-[26rem] sm:max-w-[calc(100vw-3rem)]">
+  <div class="flex h-[min(72vh,42rem)] w-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card-strong)]">
+    <%= turbo_frame_tag "lancador_conversas", data: { lancador_target: "quadro" }, class: "flex min-h-0 flex-1 flex-col" do %>
+      <p class="px-5 py-4 text-sm text-[var(--text-secondary)]">Carregando conversas...</p>
+    <% end %>
+  </div>
+</div>
+<button type="button" data-action="lancador#alternar" aria-label="Abrir conversas" title="Conversas" data-lancador-target="botao"
+        class="fixed bottom-4 right-4 z-[70] inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--accent-strong)_0%,var(--accent-stronger)_100%)] text-white shadow-[0_20px_50px_rgba(15,23,42,0.28)] sm:bottom-6 sm:right-6 sm:h-16 sm:w-16">
+  <%= icone(:chat_bubble, classe: "h-7 w-7") %>
+  <%= render "core/conversas/contador", total: Core::Participante.nao_lidas_de(current_user) %>
+</button>

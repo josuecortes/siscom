@@ -28,7 +28,10 @@ Warden::Manager.on_request do |proxy|
   next unless LoginDeSistema.ultimo
 
   if proxy.request.path == "/users/sign_out"
-    LoginDeSistema.limpar
+    # Só quem está saindo deixa de valer: um "sair" atrasado de outro exemplo não derruba o login deste.
+    saindo = proxy.user(:user)
+    LoginDeSistema.usuarios.delete_if { |_, usuario| usuario == saindo }
+    LoginDeSistema.ultimo = LoginDeSistema.usuarios.values.last if LoginDeSistema.ultimo == saindo
   elsif LoginDeSistema.usuarios.values.exclude?(proxy.user(:user))
     # Navegador ainda sem login (ou com um usuário que não vale mais): entra o último que fez sign_in.
     proxy.set_user(LoginDeSistema.ultimo, scope: :user)

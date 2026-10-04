@@ -5,7 +5,7 @@
   </head>
 
   <%# Shell administrativo (porta de seed/web/components/layout/admin-shell.tsx). %>
-  <body class="min-h-full" data-controller="menu-lateral">
+  <body class="min-h-full" data-controller="menu-lateral lancador" data-lancador-lista-value="<%= lancador_conversas_path %>">
     <div class="min-h-screen w-full max-w-full overflow-x-hidden bg-[var(--surface-page)] text-[var(--text-primary)]">
       <div class="flex min-h-screen w-full min-w-0 max-w-full overflow-x-hidden">
         <aside id="menu-lateral"
@@ -16,7 +16,7 @@
         <div class="flex min-h-screen w-full min-w-0 max-w-full flex-1 flex-col overflow-x-hidden lg:ml-[252px] menu-recolhido:lg:ml-[72px]">
           <%= render "layouts/compartilhado/topo" %>
 
-          <main class="w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 pb-6 pt-16 sm:px-6 lg:px-8">
+          <main class="w-full min-w-0 max-w-full flex-1 overflow-x-hidden px-4 pb-24 pt-16 sm:px-6 lg:px-8"><%# pb-24 (no seed é pb-6): dá para rolar o fim da página para cima do ícone das conversas %>
             <div class="min-w-0 max-w-full">
               <%= yield %>
             </div>
@@ -25,6 +25,7 @@
       </div>
 
       <%= turbo_stream_from current_user, :notificacoes %>
+      <%= render "core/conversas/lancador" %>
       <%= render "compartilhado/flash" %>
       <%= render "compartilhado/confirmacao" %>
       <%# Painel de formulário: as views new/edit entregam o próprio quadro. %>

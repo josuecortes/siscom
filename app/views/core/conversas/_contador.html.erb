@@ -1,0 +1,7 @@
+<%# Número de mensagens não lidas sobre o ícone flutuante (porta do selo de chat-launcher.tsx). locals: total %>
+<span id="contador_de_conversas">
+  <% if total.positive? %>
+    <span class="absolute right-1 top-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-[var(--warning-solid)] px-1.5 py-0.5 text-[10px] font-semibold text-white"
+          aria-label="<%= total %> mensagem(ns) não lida(s)"><%= total > 9 ? "9+" : total %></span>
+  <% end %>
+</span>

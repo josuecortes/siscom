@@ -18,6 +18,9 @@ RSpec.describe "TI: operação em tempo real", :js do
     end
   end
 
+  # O aviso flutuante de uma ação recente pode estar por cima do botão; o clique vai direto nele.
+  def fechar_conversa = find("button[aria-label='Fechar conversa']").execute_script("this.click()")
+
   def print(nome)
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/#{nome}.png") if ENV["SCREENSHOT_DIR"]
   end
@@ -51,21 +54,35 @@ RSpec.describe "TI: operação em tempo real", :js do
     expect(page).to have_content("Em trabalho") # a página da Maria mudou sozinha
     expect(page).to have_content("JOAO TECNICO")
 
-    # A conversa começa quando o técnico assume; as mensagens chegam sem recarregar.
-    expect(page).to have_content("JOAO TECNICO assumiu o chamado. Use esta conversa para falar com Joao.")
-    fill_in "Mensagem", with: "É na sala 12."
-    click_on "Enviar mensagem"
-    expect(page).to have_css("ol li", text: "É na sala 12.")
-    expect(find_field("Mensagem").value).to eq("")
+    # A conversa começa quando o técnico assume. Ela abre pelo ícone flutuante; as mensagens chegam sem recarregar.
+    click_on "Abrir conversa"
+    within("#lancador_conversas") do
+      expect(page).to have_content("JOAO TECNICO assumiu o chamado. Use esta conversa para falar com Joao.")
+      fill_in "Mensagem", with: "É na sala 12."
+      click_on "Enviar mensagem"
+      expect(page).to have_css("ol li[data-minha]", text: "É na sala 12.")
+      expect(find_field("Mensagem").value).to eq("")
+    end
 
     Capybara.using_session(:tecnico) do
-      expect(page).to have_css("ol li", text: "É na sala 12.")
-      fill_in "Mensagem", with: "Estou a caminho."
-      find_field("Mensagem").send_keys(:enter)
-      expect(page).to have_css("ol li", text: "Estou a caminho.")
+      expect(page).to have_css("button[aria-label='Abrir conversas'] #contador_de_conversas", text: "1") # o indicativo aparece no ícone
+      click_on "Abrir conversas"
+      within("#lancador_conversas") do
+        expect(page).to have_content("1 mensagem(ns) não lida(s)")
+        click_on "#{codigo} · SEM INTERNET"
+        expect(page).to have_css("ol li:not([data-minha])", text: "É na sala 12.")
+        fill_in "Mensagem", with: "Estou a caminho."
+        find_field("Mensagem").send_keys(:enter)
+        expect(page).to have_css("ol li[data-minha]", text: "Estou a caminho.")
+      end
+      expect(page).to have_no_css("#contador_de_conversas span")
       print("ti-conversa")
+      fechar_conversa
+      expect(page).to have_no_css("#lancador_conversas ol")
     end
-    expect(page).to have_css("ol li", text: "Estou a caminho.")
+    within("#lancador_conversas") { expect(page).to have_css("ol li:not([data-minha])", text: "Estou a caminho.") }
+    expect(page).to have_no_css("#contador_de_conversas span") # com a conversa aberta, a mensagem nova já conta como lida
+    fechar_conversa
 
     Capybara.using_session(:tecnico) do
       click_on "Pedir ajuste ao solicitante"
@@ -103,8 +120,11 @@ RSpec.describe "TI: operação em tempo real", :js do
     expect(page).to have_css("#avisos", text: "finalizado. Obrigado pela avaliação.")
     expect(page).to have_content("Muito bom · resolveu o pedido")
 
-    expect(page).to have_content("Só leitura")
-    expect(page).to have_no_field("Mensagem")
+    click_on "Abrir conversa"
+    within("#lancador_conversas") do
+      expect(page).to have_content("só leitura")
+      expect(page).to have_no_field("Mensagem")
+    end
 
     Capybara.using_session(:tecnico) do
       expect(page).to have_content("Finalizado") # o técnico vê a avaliação sem recarregar

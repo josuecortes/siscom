@@ -1,7 +1,7 @@
 module Core
   module Conversas
-    # Grava uma mensagem, mostra em tempo real para quem está com a conversa aberta e notifica os
-    # outros participantes (só na primeira mensagem ainda não lida de cada um, para não encher o sino).
+    # Grava uma mensagem, mostra em tempo real para quem está com a conversa aberta e atualiza o
+    # contador de não lidas no ícone flutuante dos outros participantes (não vai para o sino).
     class EnviarMensagem
       def self.call(...) = new(...).call
 
@@ -9,6 +9,12 @@ module Core
         mensagem = conversa.mensagens.create!(tipo: "sistema", corpo: texto)
         transmitir(conversa, mensagem)
         mensagem
+      end
+
+      # Atualiza o número sobre o ícone flutuante do usuário, onde quer que ele esteja no sistema.
+      def self.atualizar_contador(user)
+        Turbo::StreamsChannel.broadcast_replace_to(user, :conversas, target: "contador_de_conversas", partial: "core/conversas/contador",
+                                                                     locals: { total: Core::Participante.nao_lidas_de(user) })
       end
 
       def self.transmitir(conversa, mensagem)
@@ -40,13 +46,9 @@ module Core
 
       private
 
-      def avisar(mensagem)
+      def avisar(_mensagem)
         @conversa.participantes.leitores.where.not(user_id: @autor.id).includes(:user).find_each do |participante|
-          next unless participante.nao_lidas == 1
-
-          Core::Notificacoes::Criar.call(destinatarios: participante.user, evento: "#{@conversa.modulo}.conversa.mensagem", ator: @autor,
-                                         titulo: "Nova mensagem de #{@autor.nome}", mensagem: "#{@conversa.titulo}: #{mensagem.corpo.truncate(120)}",
-                                         url_acao: participante.url || Rails.application.routes.url_helpers.conversa_path(@conversa), alvo: @conversa)
+          self.class.atualizar_contador(participante.user)
         end
       end
     end

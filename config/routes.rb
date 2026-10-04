@@ -11,7 +11,12 @@ Rails.application.routes.draw do
     patch :abrir, on: :member
     patch :marcar_todas, on: :collection
   end
-  resources :conversas, path: "minha-area/conversas", only: %i[index show], controller: "core/conversas" do
+  resources :conversas, path: "minha-area/conversas", only: :index, controller: "core/conversas" do
+    get :lancador, on: :collection # lista dentro do painel flutuante
+    member do
+      get :painel # a conversa dentro do painel flutuante
+      post :lida
+    end
     resources :mensagens, only: :create, controller: "core/mensagens"
   end
   resource :inscricao_push, path: "minha-area/avisos-no-aparelho", only: %i[create destroy], controller: "core/inscricoes_push"

@@ -56,6 +56,7 @@
   --warning-text: #a85a17;
   --danger-solid: #c44b3a;
   --danger-solid-hover: #ad3e30;
+  --warning-solid: #f59e0b;
   --button-secondary-bg: #2c3950;
   --button-secondary-hover: #223047;
   --button-secondary-text: #f8fbff;
@@ -105,6 +106,7 @@ html[data-theme="dark"] {
   --success-text: #a7e0b8;
   --danger-solid: #d0604f;
   --danger-solid-hover: #e07b72;
+  --warning-solid: #f59e0b;
   --button-secondary-bg: #4b5a75;
   --button-secondary-hover: #5a6a86;
   --button-secondary-text: #f4f7fb;
@@ -153,6 +155,7 @@ html[data-theme="dark"] {
     --success-text: #a7e0b8;
     --danger-solid: #d0604f;
     --danger-solid-hover: #e07b72;
+    --warning-solid: #f59e0b;
     --button-secondary-bg: #4b5a75;
     --button-secondary-hover: #5a6a86;
     --button-secondary-text: #f4f7fb;
