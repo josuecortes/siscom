@@ -69,6 +69,17 @@ RSpec.describe "TI: abrir chamado", :js do
     expect(Ti::Chamado.sole.problema.nome).to eq("SEM INTERNET")
   end
 
+  it "com muitas solicitações, a escolha vira campo de busca e também carrega o formulário" do
+    hardware = create(:ti_categoria, nome: "Hardware")
+    8.times { |n| create(:ti_problema, nome: "Defeito #{n}", categoria: hardware).perfis_abertura << geral }
+
+    visit new_ti_chamado_path
+    escolher_no_autocomplete "Solicitação *", digitar: "sigdoc", opcao: "SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO"
+
+    expect(page).to have_field("Nome completo *")
+    expect(find_field("Solicitação *").value).to eq("SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO")
+  end
+
   it "no celular a lista, o painel e o chamado não criam rolagem horizontal" do
     usar_tela_de_celular
     visit ti_chamados_path

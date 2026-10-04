@@ -1,6 +1,7 @@
 <% content_for :title, @tabela.titulo %>
 <% singular = @tabela.singular %>
 <% vinculo = { "perfis_abertura" => "Usuários", "grupos_tecnicos" => "Membros" }[@tabela.chave] %>
+<% solicitacoes = vinculo ? @tabela.modelo.where(id: @registros.map(&:id)).joins(:vinculos_de_problema).group(:id).count : {} %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: @tabela.titulo, icone: @tabela.icone, migalha: [ "TI", caminho_da_lista ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "#{@tabela.novo} #{singular}", icone: :plus, caminho: caminho_novo, opcoes: { data: { turbo_frame: "painel" } } %>
@@ -15,12 +16,12 @@
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} #{singular}(s) registrad#{@tabela.artigo}(s)" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[820px]">
+      <table class="collection-table min-w-[900px]">
         <thead>
           <tr>
             <th scope="col">Nome</th>
             <th scope="col">Descrição</th>
-            <% if vinculo %><th scope="col"><%= vinculo %></th><% end %>
+            <% if vinculo %><th scope="col"><%= vinculo %></th><th scope="col">Solicitações</th><% end %>
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
           </tr>
@@ -30,13 +31,17 @@
             <tr id="<%= dom_id(registro) %>">
               <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= registro.nome %></p></td>
               <td><%= registro.descricao.presence || "—" %></td>
-              <% if vinculo %><td><%= @contagens.fetch(registro.id, 0) %></td><% end %>
+              <% if vinculo %><td><%= @contagens.fetch(registro.id, 0) %></td><td><%= solicitacoes.fetch(registro.id, 0) %></td><% end %>
               <td><%= render "compartilhado/selo", texto: (registro.ativo? ? "Ativ#{@tabela.artigo}" : "Inativ#{@tabela.artigo}"), tom: (registro.ativo? ? :sucesso : :atencao) %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
                   <%= render "compartilhado/botao_acao", titulo: "Editar #{singular}", icone: :pencil, caminho: caminho_editar(registro), quadro: "painel" %>
                   <% if @tabela.grupo? %>
                     <%= render "compartilhado/botao_acao", titulo: "Gerenciar membros", icone: :people, caminho: edit_ti_grupo_tecnico_membros_path(registro), quadro: "painel" %>
+                  <% end %>
+                  <% if @tabela.grupo? || @tabela.perfil? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Gerenciar solicitações", icone: :list_rich, quadro: "painel",
+                          caminho: (@tabela.grupo? ? edit_ti_grupo_tecnico_solicitacoes_path(registro) : edit_ti_perfil_abertura_solicitacoes_path(registro)) %>
                   <% end %>
                   <% if registro.ativo? %>
                     <%= render "compartilhado/botao_acao", titulo: "Desativar #{singular}", icone: :ban, caminho: caminho_de_status(registro, :desativar), metodo: :patch,
@@ -50,7 +55,7 @@
             </tr>
           <% end %>
           <% if @registros.empty? %>
-            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado para os filtros informados.</td></tr>
+            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado para os filtros informados.</td></tr>
           <% end %>
         </tbody>
       </table>

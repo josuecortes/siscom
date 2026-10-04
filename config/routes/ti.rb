@@ -34,6 +34,10 @@ namespace :ti do
   # Membros de um grupo técnico e perfis de abertura de um usuário.
   resources :grupos_tecnicos, only: [] do
     resource :membros, only: %i[edit update], controller: "membros_do_grupo"
+    resource :solicitacoes, only: %i[edit update], controller: "solicitacoes_do_item", defaults: { tipo: "grupo" }
+  end
+  resources :perfis_abertura, only: [] do
+    resource :solicitacoes, only: %i[edit update], controller: "solicitacoes_do_item", defaults: { tipo: "perfil" }
   end
   resources :permissoes, only: %i[index edit update] do
     resource :perfis_abertura, only: %i[edit update], controller: "perfis_do_usuario"

@@ -1,0 +1,28 @@
+<% content_for :title, "Solicitações" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacoes", rotulo: "Salvar solicitações" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Solicitações", titulo: "Solicitações de #{@item.nome}", voltar: @volta, rodape: rodape,
+                descricao: Ti::SolicitacoesDoItemController::TEXTOS.dig(@tipo, :ajuda) } do %>
+  <%= form_with url: @caminho, method: :patch, id: "formulario_solicitacoes", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <%= hidden_field_tag "ids[]", "", id: nil %>
+
+    <% @por_categoria.each do |categoria, solicitacoes| %>
+      <fieldset class="space-y-2">
+        <legend class="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= categoria %></legend>
+        <% solicitacoes.each do |solicitacao| %>
+          <label class="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2.5 text-sm text-[var(--text-primary)]">
+            <%= check_box_tag "ids[]", solicitacao.id, @marcados.include?(solicitacao.id), id: "solicitacao_#{solicitacao.id}", class: "h-4 w-4" %>
+            <span class="min-w-0 break-words"><%= solicitacao.nome %></span>
+          </label>
+        <% end %>
+      </fieldset>
+    <% end %>
+    <% if @por_categoria.empty? %>
+      <p class="text-sm text-[var(--text-secondary)]">Nenhuma solicitação ativa. Cadastre em TI → Administração → Solicitações.</p>
+    <% end %>
+  <% end %>
+<% end %>

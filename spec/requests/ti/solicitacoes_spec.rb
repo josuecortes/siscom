@@ -78,6 +78,25 @@ RSpec.describe "TI: solicitações do catálogo" do
       expect(Core::RegistroAuditoria.where(evento: %w[solicitacao.perfis_alterados solicitacao.grupos_alterados]).count).to eq(3)
     end
 
+    it "define as solicitações pelo lado do perfil de abertura e do grupo técnico" do
+      internet, impressora = create(:ti_problema, nome: "Sem internet", categoria: rede), create(:ti_problema, nome: "Impressora parada", categoria: rede)
+      inativa = create(:ti_problema, status: "inativo")
+      escola = create(:ti_perfil_abertura, nome: "Escola").tap { |perfil| perfil.problemas << inativa }
+      redes = create(:ti_grupo_tecnico, nome: "Redes")
+
+      get edit_ti_perfil_abertura_solicitacoes_path(escola)
+      expect(response.body).to include("Solicitações de ESCOLA", "REDE", "SEM INTERNET", "IMPRESSORA PARADA")
+
+      patch ti_perfil_abertura_solicitacoes_path(escola), params: { ids: [ "", internet.id, impressora.id ] }
+      patch ti_perfil_abertura_solicitacoes_path(escola), params: { ids: [ "", internet.id ] }
+      patch ti_grupo_tecnico_solicitacoes_path(redes), params: { ids: [ "", impressora.id ] }
+
+      expect(escola.reload.problemas).to contain_exactly(internet, inativa)
+      expect(redes.reload.problemas).to contain_exactly(impressora)
+      expect(response).to redirect_to(ti_grupos_tecnicos_path)
+      expect(Core::RegistroAuditoria.where(evento: "catalogo.solicitacoes_alteradas").count).to eq(3)
+    end
+
     it "marca um perfil de abertura como padrão e mostra Todos na lista" do
       post ti_perfis_abertura_path, params: { registro: { nome: "Geral", padrao: "1" } }
 
