@@ -1,0 +1,39 @@
+# Catálogo do módulo TI (chamados de TI; porta do helpdesk do seed). Papéis aprovados pelo Josue em 2026-10-03.
+# Um usuário pode ter mais de um papel (ex.: triador e técnico).
+# Além dos papéis: o solicitante só abre as solicitações dos seus perfis de abertura, e o técnico/triador
+# só pega os chamados dos seus grupos técnicos (tabelas ti_perfis_abertura e ti_grupos_tecnicos).
+nome: "TI"
+icone: "task"
+
+permissoes:
+  chamados.abrir: "Abrir e acompanhar os próprios chamados"
+  chamados.triar: "Triar chamados"
+  chamados.atender: "Atender chamados"
+  chamados.supervisionar: "Supervisionar chamados (ver todos, redistribuir, mudar etapa)"
+  catalogo.gerenciar: "Gerenciar o catálogo (categorias, solicitações, perfis de abertura, grupos técnicos)"
+  permissoes.conceder: "Conceder permissões na TI"
+  configuracoes.gerenciar: "Gerenciar configurações da TI"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  supervisor:
+    nome: "Supervisor"
+    permissoes: [chamados.abrir, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar]
+  triagem:
+    nome: "Triador"
+    permissoes: [chamados.abrir, chamados.triar]
+  tecnico:
+    nome: "Técnico"
+    permissoes: [chamados.abrir, chamados.atender]
+  solicitante:
+    nome: "Solicitante"
+    permissoes: [chamados.abrir]
+    automatico: true
+
+concessao:
+  admin: [admin, supervisor, triagem, tecnico]
+
+menu:
+  - { rotulo: "Permissões", rota: ti_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }

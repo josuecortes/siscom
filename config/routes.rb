@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   scope path_names: { new: "novo", edit: "editar" } do
     draw :core
     draw :rh
+    draw :ti
   end
 
   # App instalável (PWA): manifesto e service worker (views em app/views/pwa).

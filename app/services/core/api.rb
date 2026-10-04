@@ -25,19 +25,27 @@ module Core
     # Deixa o usuário com um único papel no módulo (ou nenhum, com papel em branco):
     # revoga os outros e concede o escolhido. Vale a regra de quem pode conceder.
     def definir_papel(user:, modulo:, papel:, definido_por:)
-      papel = papel.to_s.presence
-      if papel && !Acessos::Regras.pode_conceder?(definido_por, modulo:, papel:)
+      definir_papeis(user:, modulo:, papeis: [ papel ], definido_por:)
+    end
+
+    # Deixa o usuário exatamente com os papéis informados no módulo (módulos em que a pessoa
+    # acumula papéis, ex.: triador e técnico na TI): revoga os que saíram e concede os novos.
+    def definir_papeis(user:, modulo:, papeis:, definido_por:)
+      papeis = Array(papeis).map(&:to_s).compact_blank.uniq
+      atuais = Concessao.ativo.where(user: user, modulo: modulo.to_s, escopo_id: nil).to_a
+      novos = papeis - atuais.map(&:papel)
+      if novos.any? { |papel| !Acessos::Regras.pode_conceder?(definido_por, modulo:, papel:) }
         return Resultado.falha("Você não pode conceder esta permissão.")
       end
 
+      falha = nil
       Concessao.transaction do
-        Concessao.ativo.where(user: user, modulo: modulo.to_s, escopo_id: nil).where.not(papel: papel).find_each do |concessao|
-          resultado = Acessos::Revogar.call(concessao: concessao, revogado_por: definido_por)
-          return resultado if resultado.falha?
-        end
-
-        papel ? Acessos::Conceder.call(user: user, modulo: modulo, papel: papel, concedido_por: definido_por) : Resultado.sucesso(user)
+        falha = atuais.reject { |concessao| papeis.include?(concessao.papel) }
+                      .lazy.map { |concessao| Acessos::Revogar.call(concessao: concessao, revogado_por: definido_por) }.find(&:falha?)
+        falha ||= novos.lazy.map { |papel| Acessos::Conceder.call(user: user, modulo: modulo, papel: papel, concedido_por: definido_por) }.find(&:falha?)
+        raise ActiveRecord::Rollback if falha
       end
+      falha || Resultado.sucesso(user)
     end
 
     def pode_conceder?(user, modulo:, papel:) = Acessos::Regras.pode_conceder?(user, modulo:, papel:)
