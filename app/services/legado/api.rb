@@ -16,6 +16,19 @@ module Legado
              .map { |id, nome, sigla, tipo_unidade_id| { id:, nome:, sigla:, tipo_unidade_id: } }
     end
 
+    # Catálogo antigo de requisições de TI (para a carga inicial do catálogo da TI).
+    def tipos_de_problema_ti
+      TipoProblemaTi.order(:id).pluck(:id, :nome, :descricao).map { |id, nome, descricao| { id:, nome:, descricao: } }
+    end
+
+    def problemas_ti
+      ProblemaTi.order(:id).pluck(:id, :nome, :descricao, :tipo_problema_ti_id, :status)
+                .map { |id, nome, descricao, tipo_id, status| { id:, nome:, descricao:, tipo_id:, ativo: status != false } }
+    end
+
+    # Ids das unidades antigas de um tipo (ex.: "ESCOLA").
+    def ids_das_unidades_do_tipo(nome) = Unidade.where(tipo_unidade_id: TipoUnidade.where(nome: nome.to_s).select(:id)).pluck(:id)
+
     # { "master" => 1, "admin" => 19, ... }
     def contagem_de_papeis
       Papel.where(resource_type: nil)

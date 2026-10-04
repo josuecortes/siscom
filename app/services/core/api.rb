@@ -48,6 +48,9 @@ module Core
       falha || Resultado.sucesso(user)
     end
 
+    # Converte papéis antigos (Rolify) em concessões: { "papel_antigo" => [["modulo", "papel_novo"]] }. Idempotente.
+    def importar_papeis(mapa) = Importacao::Papeis.call(mapa)
+
     def pode_conceder?(user, modulo:, papel:) = Acessos::Regras.pode_conceder?(user, modulo:, papel:)
 
     # --- Contas (para o RH ligar pessoa ↔ conta) ---
