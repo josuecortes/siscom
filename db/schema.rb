@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_202103) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -834,6 +834,60 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_202103) do
     t.index ["user_id"], name: "index_tarefas_on_user_id"
   end
 
+  create_table "ti_categorias", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_ti_categorias_nome", unique: true
+    t.index ["legacy_id"], name: "index_ti_categorias_on_legacy_id", unique: true
+  end
+
+  create_table "ti_grupos_tecnicos", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.boolean "permite_autoatribuicao", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_ti_grupos_tecnicos_nome", unique: true
+  end
+
+  create_table "ti_membros_grupo", force: :cascade do |t|
+    t.bigint "grupo_tecnico_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "concedido_por_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concedido_por_id"], name: "index_ti_membros_grupo_on_concedido_por_id"
+    t.index ["grupo_tecnico_id", "user_id"], name: "index_ti_membros_grupo_on_grupo_tecnico_id_and_user_id", unique: true
+    t.index ["grupo_tecnico_id"], name: "index_ti_membros_grupo_on_grupo_tecnico_id"
+    t.index ["user_id"], name: "index_ti_membros_grupo_on_user_id"
+  end
+
+  create_table "ti_perfis_abertura", force: :cascade do |t|
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((nome)::text)", name: "idx_ti_perfis_abertura_nome", unique: true
+  end
+
+  create_table "ti_perfis_usuario", force: :cascade do |t|
+    t.bigint "perfil_abertura_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "concedido_por_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concedido_por_id"], name: "index_ti_perfis_usuario_on_concedido_por_id"
+    t.index ["perfil_abertura_id", "user_id"], name: "index_ti_perfis_usuario_on_perfil_abertura_id_and_user_id", unique: true
+    t.index ["perfil_abertura_id"], name: "index_ti_perfis_usuario_on_perfil_abertura_id"
+    t.index ["user_id"], name: "index_ti_perfis_usuario_on_user_id"
+  end
+
   create_table "tipo_problema_tis", force: :cascade do |t|
     t.string "nome"
     t.text "descricao"
@@ -1104,6 +1158,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_202103) do
   add_foreign_key "tarefas", "etapas"
   add_foreign_key "tarefas", "users"
   add_foreign_key "tarefas", "users", column: "created_by_id"
+  add_foreign_key "ti_membros_grupo", "ti_grupos_tecnicos", column: "grupo_tecnico_id"
+  add_foreign_key "ti_membros_grupo", "users"
+  add_foreign_key "ti_membros_grupo", "users", column: "concedido_por_id"
+  add_foreign_key "ti_perfis_usuario", "ti_perfis_abertura", column: "perfil_abertura_id"
+  add_foreign_key "ti_perfis_usuario", "users"
+  add_foreign_key "ti_perfis_usuario", "users", column: "concedido_por_id"
   add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"

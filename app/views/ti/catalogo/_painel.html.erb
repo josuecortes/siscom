@@ -1,0 +1,27 @@
+<% novo = @registro.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_catalogo", rotulo: "Salvar" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (novo ? "#{@tabela.novo} #{@tabela.singular}" : "Editar #{@tabela.singular}"),
+                titulo: (novo ? "Cadastrar #{@tabela.singular}" : "Atualizar #{@tabela.singular}"),
+                descricao: @tabela.ajuda, voltar: caminho_da_lista, rodape: rodape } do %>
+  <%= form_with model: @registro, scope: :registro, url: (novo ? caminho_da_lista : caminho_do_registro(@registro)), id: "formulario_catalogo", class: "space-y-5" do |f| %>
+    <% if @registro.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@registro.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 120, autofocus: true } %>
+    <%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Descrição", html: { maxlength: 300 } %>
+    <% if @tabela.grupo? %>
+      <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm text-[var(--text-secondary)]">
+        <%= f.check_box :permite_autoatribuicao, class: "mt-0.5 h-4 w-4" %>
+        <span>
+          <span class="block font-semibold text-[var(--text-primary)]">Os membros podem pegar chamados da fila</span>
+          <span class="block">Desmarcado, só o supervisor distribui os chamados deste grupo.</span>
+        </span>
+      </label>
+    <% end %>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

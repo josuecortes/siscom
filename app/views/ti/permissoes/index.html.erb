@@ -36,12 +36,13 @@
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} usuário(s) listado(s)" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[820px]">
+      <table class="collection-table min-w-[980px]">
         <thead>
           <tr>
             <th scope="col">Usuário</th>
             <th scope="col">E-mail</th>
             <th scope="col">Permissões</th>
+            <th scope="col">Perfis de abertura</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -57,11 +58,17 @@
                   <% if papeis.empty? %><span class="text-sm text-[var(--text-muted)]">Sem permissão (só abre chamados)</span><% end %>
                 </div>
               </td>
-              <td><%= render "compartilhado/botao_acao", titulo: "Gerenciar permissões", icone: :shield_alt, caminho: edit_ti_permissao_path(usuario), quadro: "painel" %></td>
+              <td><%= @perfis.fetch(usuario.id, []).join(", ").presence || "—" %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Gerenciar permissões", icone: :shield_alt, caminho: edit_ti_permissao_path(usuario), quadro: "painel" %>
+                  <%= render "compartilhado/botao_acao", titulo: "Gerenciar perfis de abertura", icone: :people, caminho: edit_ti_permissao_perfis_abertura_path(usuario), quadro: "painel" %>
+                </div>
+              </td>
             </tr>
           <% end %>
           <% if @usuarios.empty? %>
-            <tr><td colspan="4" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum usuário encontrado para os filtros informados.</td></tr>
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum usuário encontrado para os filtros informados.</td></tr>
           <% end %>
         </tbody>
       </table>

@@ -18,6 +18,8 @@ module Ti
 
       @pagy, @usuarios = pagy(:offset, usuarios, limit: POR_PAGINA)
       @concedidos = Core::Api.papeis_concedidos(@usuarios.map(&:id), modulo: :ti)
+      @perfis = Ti::PerfilUsuario.where(user_id: @usuarios.map(&:id)).joins(:perfil_abertura).order("ti_perfis_abertura.nome")
+                                 .pluck(:user_id, "ti_perfis_abertura.nome").group_by(&:first).transform_values { |linhas| linhas.map(&:last) }
     end
 
     def edit

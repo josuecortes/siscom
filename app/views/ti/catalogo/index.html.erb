@@ -1,0 +1,61 @@
+<% content_for :title, @tabela.titulo %>
+<% singular = @tabela.singular %>
+<% vinculo = { "perfis_abertura" => "Usuários", "grupos_tecnicos" => "Membros" }[@tabela.chave] %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: @tabela.titulo, icone: @tabela.icone, migalha: [ "TI", caminho_da_lista ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "#{@tabela.novo} #{singular}", icone: :plus, caminho: caminho_novo, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: caminho_da_lista, quadro: "catalogo_lista", rotulo_busca: "Buscar por nome",
+        exemplo: "Ex.: #{@registros.first&.nome&.downcase || 'rede'}", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Todos", "todos" ], [ "Ativos", "ativo" ], [ "Inativos", "inativo" ] ], titulo_filtrar: "Filtrar" %>
+
+  <%= turbo_frame_tag "catalogo_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} #{singular}(s) registrad#{@tabela.artigo}(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[820px]">
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Descrição</th>
+            <% if vinculo %><th scope="col"><%= vinculo %></th><% end %>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @registros.each do |registro| %>
+            <tr id="<%= dom_id(registro) %>">
+              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= registro.nome %></p></td>
+              <td><%= registro.descricao.presence || "—" %></td>
+              <% if vinculo %><td><%= @contagens.fetch(registro.id, 0) %></td><% end %>
+              <td><%= render "compartilhado/selo", texto: (registro.ativo? ? "Ativ#{@tabela.artigo}" : "Inativ#{@tabela.artigo}"), tom: (registro.ativo? ? :sucesso : :atencao) %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Editar #{singular}", icone: :pencil, caminho: caminho_editar(registro), quadro: "painel" %>
+                  <% if @tabela.grupo? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Gerenciar membros", icone: :people, caminho: edit_ti_grupo_tecnico_membros_path(registro), quadro: "painel" %>
+                  <% end %>
+                  <% if registro.ativo? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Desativar #{singular}", icone: :ban, caminho: caminho_de_status(registro, :desativar), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a desativação de #{registro.nome}. O item deixa de aparecer nas opções.", rotulo: "Desativar" } %>
+                  <% else %>
+                    <%= render "compartilhado/botao_acao", titulo: "Ativar #{singular}", icone: :check_circle, caminho: caminho_de_status(registro, :ativar), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a ativação de #{registro.nome}.", rotulo: "Ativar", tom: "primario" } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @registros.empty? %>
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "catalogo_lista" %>
+  <% end %>
+</section>
