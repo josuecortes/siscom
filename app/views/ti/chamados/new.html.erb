@@ -38,11 +38,6 @@
     </div>
 
     <% if solicitacao %>
-      <div class="rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)]">
-        <p class="font-semibold text-[var(--text-primary)]"><%= solicitacao.nome %></p>
-        <p class="mt-1"><%= solicitacao.descricao %></p>
-      </div>
-
       <% solicitacao.campos.ativo.ordenados.each do |campo| %>
         <%= render "campo_dinamico", campo: campo, valor: @formulario.respostas&.entrada(campo), erro: erros[campo.chave] %>
       <% end %>

@@ -118,7 +118,7 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
       get new_ti_chamado_path, params: { problema_id: internet.id }
 
       html = Nokogiri::HTML(response.body)
-      expect(response.body).to include("Abrir chamado", "Nome completo *", "REDE › SEM INTERNET")
+      expect(response.body).to include("Abrir chamado", "Nome completo *", "SEM INTERNET")
       expect(
         cpf: html.at_css("#campo_cpf")["data-mascara-tipo-value"], nascimento: html.at_css("#campo_nascimento")["data-mascara-tipo-value"],
         perfil: html.css("select#campo_perfil option").map(&:text), sistemas: html.css("input[type=checkbox][name='campos[sistemas][]']").size,

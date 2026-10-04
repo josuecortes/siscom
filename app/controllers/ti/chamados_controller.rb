@@ -46,8 +46,7 @@ module Ti
     private
 
     def carregar_solicitacoes
-      @solicitacoes = Ti::Problema.que_pode_abrir(current_user).joins(:categoria).order("ti_categorias.nome", :nome)
-                                  .pluck(:nome, "ti_categorias.nome", :id).map { |nome, categoria, id| [ "#{categoria} › #{nome}", id ] }
+      @solicitacoes = Ti::Problema.que_pode_abrir(current_user).ordenados.pluck(:nome, :id)
     end
   end
 end

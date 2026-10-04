@@ -32,8 +32,8 @@ RSpec.describe "TI: abrir chamado", :js do
     expect(page).to have_css("[role='dialog'] h2", text: "Abrir chamado")
     expect(page).to have_no_field("Nome completo *")
 
-    select "SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
-    expect(page).to have_content("Pedido de acesso ao Sigdoc")
+    select "SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
+    expect(page).to have_no_content("Pedido de acesso ao Sigdoc")
     fill_in "Nome completo *", with: "Ana Paula"
     fill_in "Celular", with: "96991234567"
     expect(find_field("Celular").value).to eq("(96) 99123-4567")
@@ -58,10 +58,10 @@ RSpec.describe "TI: abrir chamado", :js do
 
   it "trocar a solicitação troca o formulário" do
     visit new_ti_chamado_path
-    select "SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
+    select "SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
     expect(page).to have_field("Nome completo *")
 
-    select "REDE › SEM INTERNET", from: "Solicitação *"
+    select "SEM INTERNET", from: "Solicitação *"
     expect(page).to have_no_field("Nome completo *")
     click_on "Abrir chamado"
 
@@ -74,10 +74,10 @@ RSpec.describe "TI: abrir chamado", :js do
     8.times { |n| create(:ti_problema, nome: "Defeito #{n}", categoria: hardware).perfis_abertura << geral }
 
     visit new_ti_chamado_path
-    escolher_no_autocomplete "Solicitação *", digitar: "sigdoc", opcao: "SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO"
+    escolher_no_autocomplete "Solicitação *", digitar: "sigdoc", opcao: "SIGDOC - SOLICITAR ACESSO"
 
     expect(page).to have_field("Nome completo *")
-    expect(find_field("Solicitação *").value).to eq("SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO")
+    expect(find_field("Solicitação *").value).to eq("SIGDOC - SOLICITAR ACESSO")
   end
 
   it "no celular a lista, o painel e o chamado não criam rolagem horizontal" do
@@ -86,7 +86,7 @@ RSpec.describe "TI: abrir chamado", :js do
     expect(sem_rolagem_horizontal?).to be(true)
 
     click_on "Abrir chamado"
-    select "SISTEMAS WEB › SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
+    select "SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
     expect(page).to have_field("Nome completo *")
     expect(sem_rolagem_horizontal?).to be(true)
   end
