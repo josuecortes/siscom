@@ -14,6 +14,7 @@ module Ti
 
     belongs_to :problema, class_name: "Ti::Problema", inverse_of: :chamados
     belongs_to :solicitante, class_name: "User"
+    belongs_to :aberto_por, class_name: "User", optional: true # quando a TI abre em nome do solicitante
     belongs_to :triador, class_name: "User", optional: true
     belongs_to :responsavel, class_name: "User", optional: true
     has_many :eventos, class_name: "Ti::EventoChamado", foreign_key: :chamado_id, inverse_of: :chamado, dependent: :destroy

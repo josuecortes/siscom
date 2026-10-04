@@ -2,6 +2,9 @@
 namespace :ti do
   # Chamados do solicitante.
   resources :chamados, only: %i[index show new create]
+  # A TI abre o chamado em nome de outra pessoa (que passa a ser a dona).
+  resource :chamado_para_outro, only: %i[new create], path: "chamados-para-outra-pessoa", controller: "chamados_para_outro"
+  get "opcoes/usuarios", to: "opcoes#usuarios", as: :opcoes_de_usuarios, defaults: { format: :json }
   get "opcoes/campos/:campo_id", to: "opcoes#index", as: :opcoes_do_campo, defaults: { format: :json }
 
   # Itens simples do catálogo (mesma tela para os três).

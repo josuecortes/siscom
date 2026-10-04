@@ -16,7 +16,7 @@ module Ti
     end
 
     def show
-      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
+      @chamado = Ti::Chamado.where(solicitante: current_user).or(Ti::Chamado.where(aberto_por: current_user)).find(params[:id])
       @valores = @chamado.valores.em_ordem.with_attached_arquivos
       @eventos = @chamado.eventos.em_ordem
     end
@@ -25,7 +25,7 @@ module Ti
     def new
       lotacoes = Rh::Api.lotacoes_ativas(current_user)
       solicitacao = Ti::Problema.que_pode_abrir(current_user).find_by(id: params[:problema_id])
-      @formulario = Ti::Chamados::Abrir::Formulario.new(solicitacao: solicitacao, lotacoes: lotacoes, lotacao_id: params[:lotacao_id].presence&.to_i, erros: {})
+      @formulario = Ti::Chamados::Abrir::Formulario.new(solicitante: current_user, solicitacao: solicitacao, lotacoes: lotacoes, lotacao_id: params[:lotacao_id].presence&.to_i, erros: {})
       carregar_solicitacoes
     end
 

@@ -80,6 +80,32 @@ RSpec.describe "TI: abrir chamado", :js do
     expect(find_field("Solicitação *").value).to eq("SIGDOC - SOLICITAR ACESSO")
   end
 
+  it "o técnico abre o chamado em nome de outra pessoa, escolhida por busca" do
+    tecnico = create(:user, nome: "JOAO TECNICO").tap { |u| create(:core_concessao, user: u, modulo: "ti", papel: "tecnico") }
+    Capybara.reset_sessions!
+    sign_in tecnico
+
+    visit root_path
+    within("#menu-lateral") do
+      find("summary", text: "TI").click
+      click_on "Abrir para outra pessoa"
+    end
+    expect(page).to have_css("[role='dialog'] h2", text: "Abrir chamado para outra pessoa")
+    expect(page).to have_no_field("Solicitação *")
+
+    escolher_no_autocomplete "Pessoa *", digitar: "mar", opcao: "MARIA OLIVEIRA"
+    select "SIGDOC - SOLICITAR ACESSO", from: "Solicitação *"
+    fill_in "Nome completo *", with: "Maria Oliveira"
+    escolher_no_autocomplete "Unidade *", digitar: "inform", opcao: "NÚCLEO DE INFORMÁTICA"
+    print("ti-abrir-para-outro")
+    click_on "Abrir chamado"
+
+    expect(page).to have_css("#avisos", text: /aberto em nome de MARIA OLIVEIRA\./)
+    expect(page).to have_css("h1", text: "Chamado #{Ti::Chamado.sole.codigo}")
+    expect(page).to have_content("JOAO TECNICO (em nome do solicitante)")
+    expect(Ti::Chamado.sole).to have_attributes(solicitante: maria, aberto_por: tecnico)
+  end
+
   it "no celular a lista, o painel e o chamado não criam rolagem horizontal" do
     usar_tela_de_celular
     visit ti_chamados_path

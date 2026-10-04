@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -886,6 +886,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_120000) do
     t.text "avaliacao_comentario"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "aberto_por_id"
+    t.index ["aberto_por_id"], name: "index_ti_chamados_on_aberto_por_id"
     t.index ["codigo"], name: "index_ti_chamados_on_codigo", unique: true
     t.index ["problema_id"], name: "index_ti_chamados_on_problema_id"
     t.index ["responsavel_id"], name: "index_ti_chamados_on_responsavel_id"
@@ -1276,6 +1278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_120000) do
   add_foreign_key "tarefas", "users", column: "created_by_id"
   add_foreign_key "ti_campos_problema", "ti_problemas", column: "problema_id"
   add_foreign_key "ti_chamados", "ti_problemas", column: "problema_id"
+  add_foreign_key "ti_chamados", "users", column: "aberto_por_id"
   add_foreign_key "ti_chamados", "users", column: "responsavel_id"
   add_foreign_key "ti_chamados", "users", column: "solicitante_id"
   add_foreign_key "ti_chamados", "users", column: "triador_id"

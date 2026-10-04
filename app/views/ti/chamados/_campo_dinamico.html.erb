@@ -1,4 +1,5 @@
-<%# Um campo do formulário da solicitação, conforme o tipo. locals: campo (Ti::CampoProblema), valor (o que foi digitado), erro (mensagem ou nil). %>
+<%# Um campo do formulário da solicitação, conforme o tipo. locals: campo (Ti::CampoProblema), valor (o que foi digitado), erro (mensagem ou nil),
+    solicitante_id (quando a TI abre em nome de outra pessoa). %>
 <% nome = "campos[#{campo.chave}]" %>
 <% id = "campo_#{campo.chave}" %>
 <% rotulo = campo.obrigatorio? ? "#{campo.rotulo} *" : campo.rotulo %>
@@ -10,7 +11,7 @@
 
 <% if campo.com_fonte? %>
   <% escolhida = Core::Api.opcao_da_fonte(campo.fonte, valor) %>
-  <%= render "compartilhado/campo_autocomplete", nome: nome, id: id, rotulo: rotulo, obrigatorio: campo.obrigatorio?, url: ti_opcoes_do_campo_path(campo),
+  <%= render "compartilhado/campo_autocomplete", nome: nome, id: id, rotulo: rotulo, obrigatorio: campo.obrigatorio?, url: ti_opcoes_do_campo_path(campo, solicitante_id: local_assigns[:solicitante_id]),
         valor: escolhida&.dig(:valor), texto: escolhida&.dig(:rotulo), erros: Array(erro), placeholder: campo.exemplo.presence || "Digite sua pesquisa",
         ajuda: campo.ajuda, vazio: "Nada encontrado." %>
 <% elsif %w[selecao_unica selecao_multipla sim_nao].include?(campo.tipo) %>
