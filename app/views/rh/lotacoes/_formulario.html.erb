@@ -5,9 +5,13 @@
   <% end %>
 
   <% if local_assigns[:pessoa].nil? %>
-    <%= render "compartilhado/campo_autocomplete", nome: "lotacao[pessoa_id]", id: "lotacao_pessoa", rotulo: "Pessoa *", obrigatorio: true,
-          url: rh_opcoes_path("pessoas"), valor: lotacao.pessoa_id, texto: lotacao.pessoa&.nome,
-          erros: (lotacao.errors[:pessoa].any? ? [ "deve ser escolhida na lista" ] : []), vazio: "Nenhuma pessoa cadastrada." %>
+    <div data-controller="recarregar-quadro" data-recarregar-quadro-url-value="<%= ativas_rh_lotacoes_path %>"
+         data-recarregar-quadro-parametro-value="pessoa_id" data-recarregar-quadro-quadro-value="lotacoes_ativas">
+      <%= render "compartilhado/campo_autocomplete", nome: "lotacao[pessoa_id]", id: "lotacao_pessoa", rotulo: "Pessoa *", obrigatorio: true,
+            url: rh_opcoes_path("pessoas"), valor: lotacao.pessoa_id, texto: lotacao.pessoa&.nome, acao: "change->recarregar-quadro#recarregar",
+            erros: (lotacao.errors[:pessoa].any? ? [ "deve ser escolhida na lista" ] : []), vazio: "Nenhuma pessoa cadastrada." %>
+      <%= render "rh/lotacoes/ativas", pessoa: lotacao.pessoa %>
+    </div>
   <% end %>
   <%= render "compartilhado/campo_autocomplete", nome: "lotacao[unidade_id]", id: "lotacao_unidade", rotulo: "Unidade *", obrigatorio: true,
         url: rh_opcoes_path("unidades"), valor: lotacao.unidade_id, texto: lotacao.unidade&.sigla_e_nome,

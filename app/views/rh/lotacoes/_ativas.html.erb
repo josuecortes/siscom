@@ -1,0 +1,14 @@
+<%# Lotações ativas da pessoa escolhida na Nova lotação (porta de hr-assignments-module.tsx). locals: pessoa (ou nil). %>
+<% ativas = pessoa ? pessoa.lotacoes_ativas.order(:data_inicio) : [] %>
+<%= turbo_frame_tag "lotacoes_ativas", class: "block" do %>
+  <% if ativas.any? %>
+    <div class="mt-5 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <p class="font-semibold text-[var(--text-primary)]">Lotações ativas da pessoa</p>
+      <div class="mt-2 space-y-1">
+        <% ativas.each do |lotacao| %>
+          <p><%= lotacao.unidade.nome %> - <%= lotacao.funcao.nome %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

@@ -22,6 +22,12 @@ module Rh
       @lotacao = Rh::Lotacao.new(data_inicio: Date.current)
     end
 
+    # Bloco "Lotações ativas da pessoa" do painel, carregado ao escolher a pessoa.
+    def ativas
+      pode!(Rh::Lotacoes::Lotar::PERMISSAO)
+      @pessoa = Rh::Pessoa.find_by(id: params[:pessoa_id])
+    end
+
     def create
       pode!(Rh::Lotacoes::Lotar::PERMISSAO)
       atributos = params.expect(lotacao: %i[pessoa_id unidade_id funcao_id data_inicio])

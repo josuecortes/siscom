@@ -45,6 +45,7 @@ RSpec.describe "RH: pessoas, ficha e lotações" do
       -> { post rh_pessoas_path, params: { pessoa: { nome: "X Y", email: "x@seed.ap.gov.br" } } },
       -> { patch rh_pessoa_path(maria), params: { pessoa: { nome: "Outro Nome" } } },
       -> { get new_rh_pessoa_lotacao_path(maria) },
+      -> { get ativas_rh_lotacoes_path(pessoa_id: maria.id) },
       -> { post rh_pessoa_lotacoes_path(maria), params: { lotacao: { unidade_id: nuinfo.id, funcao_id: tecnico.id } } },
       -> { patch encerrar_rh_lotacao_path(lotacao) }
     ].map { |requisicao| requisicao.call && response.status }

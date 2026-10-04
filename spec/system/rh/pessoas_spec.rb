@@ -85,6 +85,25 @@ RSpec.describe "RH: pessoas", :js do
     within("tr", text: "MARIA OLIVEIRA") { expect(page).to have_content("NUINFO - NÚCLEO DE INFORMÁTICA") }
   end
 
+  it "mostra as lotações ativas da pessoa escolhida na Nova lotação" do
+    maria = create(:rh_pessoa, nome: "Maria Oliveira")
+    create(:rh_pessoa, nome: "Marcos Souza")
+    create(:rh_lotacao, pessoa: maria, unidade: Rh::Unidade.find_by!(sigla: "NUINFO"), funcao: Rh::Funcao.find_by!(nome: "TÉCNICO"))
+
+    visit rh_lotacoes_path
+    click_on "Nova lotação"
+    expect(page).to have_no_content("Lotações ativas da pessoa")
+
+    escolher_no_autocomplete "Pessoa *", digitar: "mar", opcao: "MARIA OLIVEIRA"
+    within("#lotacoes_ativas") do
+      expect(page).to have_content("Lotações ativas da pessoa")
+      expect(page).to have_content("NÚCLEO DE INFORMÁTICA - TÉCNICO")
+    end
+
+    escolher_no_autocomplete "Pessoa *", digitar: "marc", opcao: "MARCOS SOUZA"
+    expect(page).to have_no_content("Lotações ativas da pessoa")
+  end
+
   it "avisa quando o texto foi digitado mas nada foi escolhido na lista" do
     create(:rh_pessoa, nome: "Maria Oliveira")
 

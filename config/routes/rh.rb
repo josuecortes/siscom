@@ -18,6 +18,7 @@ namespace :rh do
     resources :lotacoes, only: %i[new create], controller: "lotacoes_da_pessoa"
   end
   resources :lotacoes, only: %i[index new create] do
+    get :ativas, on: :collection
     patch :encerrar, on: :member
   end
 
