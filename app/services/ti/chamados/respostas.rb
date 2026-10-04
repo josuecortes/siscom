@@ -9,7 +9,10 @@ module Ti
     class Respostas
       attr_reader :erros, :valores
 
-      def initialize(solicitacao, entradas)
+      # `anexos_mantidos`: ids dos campos de arquivo que já têm anexo no chamado (na edição): sem arquivo
+      # novo, o anexo antigo fica e o campo conta como preenchido.
+      def initialize(solicitacao, entradas, anexos_mantidos: [])
+        @anexos_mantidos = anexos_mantidos
         # `entradas` pode ser um Hash ou os parâmetros da requisição: só as chaves dos campos são lidas.
         @entradas = entradas || {}
         @erros = {}
@@ -30,6 +33,7 @@ module Ti
         bruto = entrada(campo)
         valor = send(:"ler_#{metodo(campo)}", campo, bruto)
         return nil if @erros.key?(campo.chave)
+        return { campo: campo, manter: true } if valor.nil? && @anexos_mantidos.include?(campo.id)
 
         if vazio?(valor)
           @erros[campo.chave] = "deve ser preenchido" if campo.obrigatorio?
@@ -91,7 +95,8 @@ module Ti
       end
 
       def ler_arquivos(campo, bruto)
-        arquivos = Array(bruto).select { |item| item.respond_to?(:original_filename) }
+        # Sem Array(): um arquivo responde a to_a (as linhas dele).
+        arquivos = (bruto.is_a?(Array) ? bruto : [ bruto ]).select { |item| item.respond_to?(:original_filename) }
         arquivos = arquivos.first(1) if campo.tipo == "arquivo"
         return nil if arquivos.empty?
         if arquivos.any? { |arquivo| arquivo.size > Ti::ValorCampo::TAMANHO_MAXIMO }

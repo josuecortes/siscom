@@ -76,6 +76,21 @@ RSpec.describe "TI: operação em tempo real", :js do
 
     expect(page).to have_content("Concluído")
     expect(page).to have_content("Atendimento concluído: Cabo trocado.")
+
+    click_on "Finalizar chamado"
+    within("[role='dialog']") do
+      choose "Sim"
+      choose "Muito bom"
+      print("ti-finalizar")
+      click_on "Finalizar chamado"
+    end
+    expect(page).to have_css("#avisos", text: "finalizado. Obrigado pela avaliação.")
+    expect(page).to have_content("Muito bom · resolveu o pedido")
+
+    Capybara.using_session(:tecnico) do
+      expect(page).to have_content("Finalizado") # o técnico vê a avaliação sem recarregar
+      expect(page).to have_content("Muito bom · resolveu o pedido")
+    end
   end
 
   it "no celular a operação não cria rolagem horizontal" do

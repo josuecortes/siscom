@@ -1,10 +1,14 @@
 # Rotas do módulo TI.
 namespace :ti do
   # Chamados do solicitante.
-  resources :chamados, only: %i[index show new create] do
+  resources :chamados, only: %i[index show new create edit update] do
     member do
       get :resposta
       patch :responder
+      get :finalizacao
+      patch :finalizar
+      get :cancelamento
+      patch :cancelar
     end
   end
   # Operação: os chamados que triadores, técnicos e supervisão pegam e atendem.

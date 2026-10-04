@@ -1,0 +1,28 @@
+<% content_for :title, "Editar chamado" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_chamado", rotulo: (@chamado.aguardando_solicitante? ? "Salvar e reenviar" : "Salvar chamado") } %>
+<% erros = @erros.transform_keys(&:to_s) %>
+<% com_anexo = @chamado.valores.with_attached_arquivos.select { |valor| valor.arquivos.attached? }.index_by(&:campo_problema_id) %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Chamado #{@chamado.codigo}", titulo: "Editar chamado", voltar: ti_chamado_path(@chamado), rodape: rodape,
+                descricao: (@chamado.aguardando_solicitante? ? "A TI pediu: #{@chamado.nota_triagem} Ao salvar, o chamado volta para a TI." : @chamado.problema.nome) } do %>
+  <%= form_with url: ti_chamado_path(@chamado), method: :patch, id: "formulario_chamado", class: "space-y-5", multipart: true do |f| %>
+    <% if erros.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
+    <% end %>
+
+    <% campos = @chamado.problema.campos.ativo.ordenados %>
+    <% campos.each do |campo| %>
+      <% anexo = com_anexo[campo.id] %>
+      <%= render "campo_dinamico", campo: campo, valor: @respostas.entrada(campo), erro: erros[campo.chave], ja_tem_anexo: anexo.present? %>
+      <% if anexo %>
+        <p class="-mt-3 text-xs text-[var(--text-muted)]">Já enviado: <%= anexo.arquivos.map { |arquivo| arquivo.filename.to_s }.join(", ") %>. Escolha outro arquivo só se quiser trocar.</p>
+      <% end %>
+    <% end %>
+    <% if campos.empty? %>
+      <p class="text-sm text-[var(--text-secondary)]">Esta solicitação não pede dados adicionais.</p>
+    <% else %>
+      <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+    <% end %>
+  <% end %>
+<% end %>

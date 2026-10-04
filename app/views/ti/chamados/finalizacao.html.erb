@@ -1,0 +1,34 @@
+<% content_for :title, "Finalizar chamado" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_finalizacao", rotulo: "Finalizar chamado" } %>
+<% caixa = "flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2.5 text-sm text-[var(--text-primary)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Chamado #{@chamado.codigo}", titulo: "Finalizar chamado", voltar: ti_chamado_path(@chamado), rodape: rodape,
+                descricao: "Sua avaliação ajuda a TI a melhorar o atendimento." } do %>
+  <%= form_with url: finalizar_ti_chamado_path(@chamado), method: :patch, id: "formulario_finalizacao", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+
+    <fieldset class="space-y-2">
+      <legend class="mb-1.5 text-sm font-medium text-[var(--text-secondary)]">O atendimento resolveu o seu pedido? *</legend>
+      <% [ %w[Sim sim], %w[Não nao] ].each do |texto, valor| %>
+        <label class="<%= caixa %>"><%= radio_button_tag :resolvido, valor, params[:resolvido] == valor, required: true, class: "h-4 w-4" %> <span><%= texto %></span></label>
+      <% end %>
+    </fieldset>
+
+    <fieldset class="space-y-2">
+      <legend class="mb-1.5 text-sm font-medium text-[var(--text-secondary)]">Como você avalia o atendimento? *</legend>
+      <% Ti::Chamado::AVALIACOES.each do |valor, texto| %>
+        <label class="<%= caixa %>"><%= radio_button_tag :avaliacao, valor, params[:avaliacao].to_i == valor, required: true, class: "h-4 w-4" %> <span><%= texto %></span></label>
+      <% end %>
+    </fieldset>
+
+    <div class="space-y-1.5">
+      <label for="comentario" class="text-sm font-medium text-[var(--text-secondary)]">Comentário</label>
+      <%= text_area_tag :comentario, params[:comentario], rows: 4,
+            class: "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+      <p class="text-xs text-[var(--text-muted)]">Obrigatório quando a avaliação é Ruim ou Péssimo.</p>
+    </div>
+  <% end %>
+<% end %>

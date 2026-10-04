@@ -1,5 +1,6 @@
 <%# Um campo do formulário da solicitação, conforme o tipo. locals: campo (Ti::CampoProblema), valor (o que foi digitado), erro (mensagem ou nil),
-    solicitante_id (quando a TI abre em nome de outra pessoa). %>
+    solicitante_id (quando a TI abre em nome de outra pessoa),
+    ja_tem_anexo (na edição: o campo de arquivo já tem anexo e deixa de ser obrigatório no navegador). %>
 <% nome = "campos[#{campo.chave}]" %>
 <% id = "campo_#{campo.chave}" %>
 <% rotulo = campo.obrigatorio? ? "#{campo.rotulo} *" : campo.rotulo %>
@@ -40,7 +41,7 @@
     <% when "selecao" %>
       <%= select_tag nome, options_for_select([ [ "Selecione", "" ] ] + campo.opcoes, valor), id: id, required: campo.obrigatorio?, class: "#{entrada} h-11" %>
     <% when "arquivo", "arquivos" %>
-      <%= file_field_tag (campo.tipo == "arquivos" ? "#{nome}[]" : nome), id: id, multiple: campo.tipo == "arquivos", required: campo.obrigatorio?,
+      <%= file_field_tag (campo.tipo == "arquivos" ? "#{nome}[]" : nome), id: id, multiple: campo.tipo == "arquivos", required: campo.obrigatorio? && !local_assigns[:ja_tem_anexo],
             class: "block w-full rounded-xl border bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white #{borda}" %>
     <% when "numero" %>
       <%= text_field_tag nome, valor, id: id, required: campo.obrigatorio?, placeholder: campo.exemplo, inputmode: "decimal", autocomplete: "off", data: dados, class: "#{entrada} h-11" %>

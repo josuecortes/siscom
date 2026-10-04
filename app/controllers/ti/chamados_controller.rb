@@ -5,6 +5,9 @@ module Ti
     POR_PAGINA = 20
 
     before_action { pode!(Ti::Chamados::Abrir::PERMISSAO) }
+    before_action(only: %i[resposta responder edit update finalizacao finalizar cancelamento cancelar]) do
+      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
+    end
 
     def index
       @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(%w[andamento encerrados]) || "todos" }
@@ -23,11 +26,9 @@ module Ti
 
     # Resposta do solicitante ao pedido de ajuste da operação.
     def resposta
-      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
     end
 
     def responder
-      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
       resultado = Ti::Chamados::Responder.call(chamado: @chamado, user: current_user, nota: params[:nota])
 
       if resultado.sucesso?
@@ -36,6 +37,45 @@ module Ti
         @erro = resultado.mensagem_de_erro
         render :resposta, status: :unprocessable_content
       end
+    end
+
+    # Editar as respostas do formulário (chamado aberto, ou quando a TI pediu ajuste).
+    def edit
+      raise Core::AcessoNegado unless @chamado.editavel_pelo_solicitante?
+
+      @respostas = Ti::Chamados::Respostas.new(@chamado.problema, Ti::Chamados::Ajustar.entradas_atuais(@chamado))
+      @erros = {}
+    end
+
+    def update
+      resultado = Ti::Chamados::Ajustar.call(chamado: @chamado, user: current_user, respostas: params[:campos])
+
+      if resultado.sucesso?
+        concluir_painel(aviso: "Chamado #{@chamado.codigo} atualizado.", voltar_para: ti_chamado_path(@chamado))
+      else
+        raise Core::AcessoNegado if resultado.objeto.nil?
+
+        @respostas = resultado.objeto
+        @erros = @respostas.erros
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def finalizacao
+    end
+
+    def finalizar
+      resultado = Ti::Chamados::Finalizar.call(chamado: @chamado, user: current_user, resolvido: params[:resolvido], avaliacao: params[:avaliacao],
+                                               comentario: params[:comentario])
+      encerrar(resultado, :finalizacao, "Chamado #{@chamado.codigo} finalizado. Obrigado pela avaliação.")
+    end
+
+    def cancelamento
+    end
+
+    def cancelar
+      resultado = Ti::Chamados::Cancelar.call(chamado: @chamado, user: current_user, motivo: params[:motivo])
+      encerrar(resultado, :cancelamento, "Chamado #{@chamado.codigo} cancelado.")
     end
 
     # O painel recarrega ao escolher a solicitação, para mostrar o formulário dela.
@@ -61,6 +101,15 @@ module Ti
     end
 
     private
+
+    def encerrar(resultado, tela, aviso)
+      if resultado.sucesso?
+        concluir_painel(aviso: aviso, voltar_para: ti_chamado_path(@chamado))
+      else
+        @erro = resultado.mensagem_de_erro
+        render tela, status: :unprocessable_content
+      end
+    end
 
     def carregar_solicitacoes
       @solicitacoes = Ti::Problema.que_pode_abrir(current_user).ordenados.pluck(:nome, :id)

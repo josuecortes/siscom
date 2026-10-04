@@ -26,6 +26,8 @@ module Ti
     enum :status, STATUS.keys.index_by(&:itself), validate: true
     enum :prioridade, Ti::Problema::PRIORIDADES.keys.index_by(&:itself), prefix: :prioridade, validate: true
 
+    AVALIACOES = { 5 => "Muito bom", 4 => "Bom", 3 => "Normal", 2 => "Ruim", 1 => "Péssimo" }.freeze
+
     validates :solicitante_nome, :solicitante_email, :aberto_em, presence: true
 
     after_create :gerar_codigo
@@ -45,6 +47,11 @@ module Ti
     def nome_do_status = STATUS[status]
     def nome_da_prioridade = Ti::Problema::PRIORIDADES[prioridade]
     def em_andamento? = EM_ANDAMENTO.include?(status)
+    def nome_da_avaliacao = AVALIACOES[avaliacao]
+
+    # O solicitante ainda pode mexer nos dados (antes de alguém pegar, ou quando a TI pede ajuste).
+    def editavel_pelo_solicitante? = aberto? || aguardando_solicitante?
+    def cancelavel_pelo_solicitante? = aberto? || aguardando_solicitante?
 
     private
 

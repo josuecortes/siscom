@@ -24,6 +24,10 @@
       <% detalhe.call("Unidade", chamado.unidade_nome) %>
       <% if chamado.aberto_por %><% detalhe.call("Aberto por", "#{chamado.aberto_por.nome} (em nome do solicitante)") %><% end %>
       <% detalhe.call("Responsável", chamado.responsavel&.nome || "Ainda sem responsável") %>
+      <% if chamado.finalizado? %>
+        <% detalhe.call("Avaliação", "#{chamado.nome_da_avaliacao} · #{chamado.avaliacao_resolvido? ? 'resolveu o pedido' : 'não resolveu o pedido'}") %>
+        <% if chamado.avaliacao_comentario.present? %><% detalhe.call("Comentário do solicitante", chamado.avaliacao_comentario) %><% end %>
+      <% end %>
     </dl>
   </section>
 
