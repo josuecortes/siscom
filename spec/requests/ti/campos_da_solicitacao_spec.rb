@@ -57,7 +57,7 @@ RSpec.describe "TI: campos da solicitação" do
 
       expect(campo.reload).to have_attributes(chave: "nome", rotulo: "Nome completo", posicao: 5, tipo: "selecao_unica", status: "inativo")
       get ti_solicitacao_campos_path(solicitacao)
-      expect(response.body).to include("Campos de PRODOC - CADASTRO", "2 campo(s) registrado(s)", "Seleção única (botões)", "Sim, Não", "Inativo")
+      expect(response.body).to include("Campos do chamado PRODOC - CADASTRO", "2 campo(s) registrado(s)", "Seleção única (botões)", "Sim, Não", "Inativo")
       expect(response.body.index("E-mail")).to be < response.body.index("Nome completo")
     end
 

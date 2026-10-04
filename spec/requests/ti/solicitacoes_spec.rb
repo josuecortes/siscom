@@ -55,7 +55,7 @@ RSpec.describe "TI: solicitações do catálogo" do
       create(:ti_problema, nome: "Impressora parada", categoria: create(:ti_categoria, nome: "Hardware"))
 
       get ti_solicitacoes_path
-      expect(response.body).to include("2 solicitação(ões) registrada(s)", "SEM INTERNET", "GERAL", "REDES", "Ninguém", "Nenhum grupo")
+      expect(response.body).to include("2 solicitação(ões) registrada(s)", "SEM INTERNET", "GERAL", "REDES", "Sem perfis", "Sem grupos")
 
       get ti_solicitacoes_path, params: { q: "hardw" }
       expect(response.body).to include("1 solicitação(ões) registrada(s)", "IMPRESSORA PARADA")

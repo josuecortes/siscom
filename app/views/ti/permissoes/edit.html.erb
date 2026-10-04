@@ -19,7 +19,7 @@
       <% @papeis.each do |papel| %>
         <% marcado = @papeis_atuais.include?(papel.chave) %>
         <% pode = marcado || Core::Api.pode_conceder?(current_user, modulo: :ti, papel: papel.chave) %>
-        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm <%= "opacity-60" unless pode %>">
+        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm <%= "opacity-60" unless pode %>">
           <%= check_box_tag "papeis[]", papel.chave, marcado, id: "papel_#{papel.chave}", disabled: !pode, class: "mt-0.5 h-4 w-4" %>
           <span>
             <span class="block font-semibold text-[var(--text-primary)]"><%= papel.nome %></span>

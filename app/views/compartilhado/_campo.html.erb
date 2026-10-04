@@ -1,14 +1,19 @@
 <%# Campo de formulário com rótulo e erro por campo (borda vermelha + mensagem), padrão do seed.
-    locals: f, campo, rotulo, tipo (:text, :email, :select...), opcoes (para select: [[rotulo, valor]]),
-            html (atributos extras do campo). %>
+    locals: f, campo, rotulo, tipo (:text, :email, :select, :textarea...), opcoes (para select: [[rotulo, valor]]),
+            html (atributos extras do campo). O :textarea tem 4 linhas e 112 px de altura mínima, como no seed;
+            com curto: true, 3 linhas e 96 px. %>
 <% erros = f.object.errors[campo] %>
 <% tipo = local_assigns.fetch(:tipo, :text) %>
-<% atributos = { class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none #{erros.any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]"}",
+<% curto = local_assigns[:curto] %>
+<% altura = tipo == :textarea ? "#{curto ? "min-h-24" : "min-h-28"} py-3" : "h-11" %>
+<% atributos = { class: "#{altura} w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none #{erros.any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]"}",
                  aria: { invalid: (erros.any? ? "true" : nil), describedby: (erros.any? ? "erro_#{campo}" : nil) } }.merge(local_assigns.fetch(:html, {})) %>
 <div class="space-y-1.5">
   <%= f.label campo, rotulo, class: "text-sm font-medium text-[var(--text-secondary)]" %>
   <% if tipo == :select %>
     <%= f.select campo, opcoes, {}, atributos %>
+  <% elsif tipo == :textarea %>
+    <%= f.text_area campo, { rows: (curto ? 3 : 4) }.merge(atributos) %>
   <% else %>
     <%= f.public_send("#{tipo}_field", campo, atributos) %>
   <% end %>

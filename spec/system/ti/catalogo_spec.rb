@@ -19,12 +19,12 @@ RSpec.describe "TI: catálogo", :js do
       find("summary", text: "Administração").click
       click_on "Grupos técnicos"
     end
-    click_on "Novo grupo técnico"
+    click_on "Novo grupo"
     expect(page).to have_css("[role='dialog'] h2", text: "Cadastrar grupo técnico")
     fill_in "Nome *", with: "Redes"
     fill_in "Descrição", with: "Rede e internet"
     print("ti-grupo-painel")
-    click_on "Salvar"
+    click_on "Salvar grupo"
 
     expect(page).to have_css("#avisos", text: "Grupo técnico criado com sucesso.")
     within("tr", text: "REDES") { click_on "Gerenciar membros" }
@@ -40,9 +40,9 @@ RSpec.describe "TI: catálogo", :js do
 
   it "cadastra um perfil de abertura e dá o perfil a um usuário pela tela de permissões" do
     visit ti_perfis_abertura_path
-    click_on "Novo perfil de abertura"
+    click_on "Novo perfil"
     fill_in "Nome *", with: "Diretor de escola"
-    click_on "Salvar"
+    click_on "Salvar perfil"
     expect(page).to have_css("#avisos", text: "Perfil de abertura criado com sucesso.")
 
     visit ti_permissoes_path
@@ -61,7 +61,7 @@ RSpec.describe "TI: catálogo", :js do
     expect(sem_rolagem_horizontal?).to be(true)
 
     click_on "Nova categoria"
-    expect(page).to have_css("[role='dialog'] h2", text: "Cadastrar categoria")
+    expect(page).to have_css("[role='dialog'] h2", text: "Nova categoria")
     expect(sem_rolagem_horizontal?).to be(true)
   end
 end

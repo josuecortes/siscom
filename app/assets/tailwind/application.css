@@ -43,6 +43,8 @@
   /* Selos de status: cores fixas do seed nos dois temas (statusBadge). */
   --success-badge-surface: #e6f6ea;
   --success-badge-text: #1c7f43;
+  --info-badge-surface: #e8f0ff;
+  --info-badge-text: #315ccf;
   --success-border: #bfe0c8;
   --success-text: #1c7f43;
   --warning-surface: #fff1e8;

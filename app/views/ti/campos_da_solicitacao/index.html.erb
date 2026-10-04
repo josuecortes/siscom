@@ -1,6 +1,6 @@
 <% content_for :title, "Campos da solicitação" %>
 
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Campos de #{@solicitacao.nome}", icone: :list_rich, migalha: [ "Solicitações", ti_solicitacoes_path ] } do %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Campos do chamado #{@solicitacao.nome}", icone: :list_rich, migalha: [ "Solicitações", ti_solicitacoes_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: ti_solicitacoes_path, secundaria: true %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Novo campo", icone: :plus, caminho: new_ti_solicitacao_campo_path(@solicitacao), opcoes: { data: { turbo_frame: "painel" } } %>
 <% end %>
@@ -12,13 +12,13 @@
   <%= render "compartilhado/resumo_tabela", texto: "#{@campos.size} campo(s) registrado(s)" %>
 
   <div class="overflow-x-auto">
-    <table class="collection-table min-w-[820px]">
+    <table class="collection-table min-w-[1120px]">
       <thead>
         <tr>
-          <th scope="col">Ordem</th>
           <th scope="col">Campo</th>
           <th scope="col">Tipo</th>
           <th scope="col">Obrigatório</th>
+          <th scope="col">Posição</th>
           <th scope="col">Status</th>
           <th scope="col">Ações</th>
         </tr>
@@ -26,14 +26,16 @@
       <tbody>
         <% @campos.each do |campo| %>
           <tr id="<%= dom_id(campo) %>">
-            <td><%= campo.posicao %></td>
             <td>
-              <p class="text-sm font-semibold text-[var(--text-primary)]"><%= campo.rotulo %></p>
-              <% detalhe = campo.com_opcoes? ? campo.opcoes.join(", ") : (campo.com_fonte? ? "Fonte: #{campo.fonte}" : campo.ajuda) %>
-              <% if detalhe.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= truncate(detalhe, length: 90) %></p><% end %>
+              <div class="space-y-1">
+                <p class="font-semibold text-[var(--text-primary)]"><%= campo.rotulo %></p>
+                <% detalhe = campo.com_opcoes? ? campo.opcoes.join(", ") : (campo.com_fonte? ? "Fonte: #{campo.fonte}" : campo.ajuda) %>
+                <p class="text-sm text-[var(--text-secondary)]"><%= truncate(detalhe.presence || "Sem ajuda cadastrada.", length: 90) %></p>
+              </div>
             </td>
             <td><%= campo.nome_do_tipo %></td>
             <td><%= campo.obrigatorio? ? "Sim" : "Não" %></td>
+            <td><%= campo.posicao %></td>
             <td><%= render "compartilhado/selo", texto: (campo.ativo? ? "Ativo" : "Inativo"), tom: (campo.ativo? ? :sucesso : :atencao) %></td>
             <td>
               <div class="flex flex-nowrap items-center gap-2">

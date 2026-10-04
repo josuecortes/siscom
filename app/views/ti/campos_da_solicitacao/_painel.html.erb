@@ -1,5 +1,5 @@
 <% novo = @campo.new_record? %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_campo", rotulo: "Salvar campo" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_campo", rotulo: (novo ? "Salvar campo" : "Salvar alterações") } %>
 <% entrada = "w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none" %>
 <% borda = ->(campo) { @campo.errors[campo].any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
 
@@ -18,7 +18,7 @@
 
     <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="<%= Ti::CampoProblema::COM_OPCOES.join(" ") %>">
       <%= f.label :opcoes, "Opções * (uma por linha)", class: "text-sm font-medium text-[var(--text-secondary)]" %>
-      <%= f.text_area :opcoes, value: @campo.opcoes.join("\n"), rows: 5, class: "#{entrada} py-3 #{borda.call(:opcoes)}" %>
+      <%= f.text_area :opcoes, value: @campo.opcoes.join("\n"), rows: 5, placeholder: "Uma opção por linha", class: "#{entrada} min-h-28 py-3 #{borda.call(:opcoes)}" %>
       <% @campo.errors[:opcoes].each do |mensagem| %><p class="text-sm text-[var(--danger-text)]">Opções <%= mensagem %></p><% end %>
     </div>
 
@@ -33,15 +33,15 @@
       <%= render "compartilhado/campo", f: f, campo: :mascara, rotulo: "Máscara", tipo: :select, opcoes: [ [ "Sem máscara", "" ] ] + Ti::CampoProblema::MASCARAS.invert.to_a %>
     </div>
 
-    <label class="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm text-[var(--text-secondary)]">
-      <%= f.check_box :obrigatorio, class: "h-4 w-4" %> <span class="font-semibold text-[var(--text-primary)]">Campo obrigatório</span>
+    <label class="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
+      <%= f.check_box :obrigatorio %> <span>Campo obrigatório</span>
     </label>
     <%= render "compartilhado/campo", f: f, campo: :exemplo, rotulo: "Texto de exemplo (dentro do campo)", html: { maxlength: 120 } %>
-    <%= render "compartilhado/campo", f: f, campo: :ajuda, rotulo: "Texto de ajuda (embaixo do campo)", html: { maxlength: 300 } %>
+    <%= render "compartilhado/campo", f: f, campo: :ajuda, rotulo: "Texto de ajuda (embaixo do campo)", tipo: :textarea, curto: true, html: { maxlength: 300 } %>
     <% unless novo %>
       <%= render "compartilhado/campo", f: f, campo: :posicao, rotulo: "Ordem", tipo: :number, html: { min: 1 } %>
     <% end %>
 
-    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+    <p class="text-sm text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
   <% end %>
 <% end %>

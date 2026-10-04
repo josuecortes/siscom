@@ -33,10 +33,10 @@ RSpec.describe "TI: permissões" do
       tecnico
 
       get ti_permissoes_path
-      expect(response.body).to include("MARIA OLIVEIRA", "Sem permissão (só abre chamados)", "TECNICO DA TI", "Técnico", "3 usuário(s) listado(s)")
+      expect(response.body).to include("MARIA OLIVEIRA", "Sem permissão (só abre chamados)", "TECNICO DA TI", "Técnico", "3 usuário(s) encontrado(s)")
 
       get ti_permissoes_path, params: { situacao: "com", q: "tecnico" }
-      expect(response.body).to include("TECNICO DA TI", "1 usuário(s) listado(s)")
+      expect(response.body).to include("TECNICO DA TI", "1 usuário(s) encontrado(s)")
     end
 
     it "mostra o painel com uma caixa por permissão, marcando as atuais" do

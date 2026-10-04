@@ -1,6 +1,6 @@
 <% nova = @solicitacao.new_record? %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: "Salvar solicitação" } %>
-<% caixa = "flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm text-[var(--text-secondary)]" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: (nova ? "Salvar solicitação" : "Salvar alterações") } %>
+<% caixa = "flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-secondary)]" %>
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Solicitações", titulo: (nova ? "Nova solicitação" : "Editar solicitação"), voltar: ti_solicitacoes_path, rodape: rodape,
@@ -14,7 +14,7 @@
           valor: @solicitacao.categoria_id, em_branco: "Selecione", obrigatorio: true,
           erros: (@solicitacao.errors[:categoria].any? ? [ "deve ser escolhida" ] : []) %>
     <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 120 } %>
-    <%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Resumo *", html: { required: true, maxlength: 500 } %>
+    <%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Resumo *", tipo: :textarea, html: { required: true, maxlength: 500 } %>
     <%= render "compartilhado/campo", f: f, campo: :prioridade_padrao, rotulo: "Prioridade padrão", tipo: :select, opcoes: Ti::Problema::PRIORIDADES.invert.to_a %>
 
     <label class="<%= caixa %>">
@@ -32,6 +32,6 @@
       </span>
     </label>
 
-    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+    <p class="text-sm text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
   <% end %>
 <% end %>

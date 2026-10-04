@@ -9,7 +9,7 @@ RSpec.describe "TI: campos da solicitação", :js do
   it "monta o formulário: o tipo escolhido mostra só os campos que valem para ele" do
     visit ti_solicitacoes_path
     within("tr", text: "PRODOC - CADASTRO") { click_on "Campos da solicitação" }
-    expect(page).to have_css("h1", text: "Campos de PRODOC - CADASTRO")
+    expect(page).to have_css("h1", text: "Campos do chamado PRODOC - CADASTRO")
 
     click_on "Novo campo"
     expect(page).to have_field("Máscara")

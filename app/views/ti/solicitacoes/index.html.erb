@@ -1,4 +1,5 @@
 <% content_for :title, "Solicitações" %>
+<% campos = Ti::CampoProblema.ativo.where(problema_id: @solicitacoes.map(&:id)).group(:problema_id).count %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Solicitações", icone: :description, migalha: [ "TI", ti_solicitacoes_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Nova solicitação", icone: :plus, caminho: new_ti_solicitacao_path, opcoes: { data: { turbo_frame: "painel" } } %>
@@ -13,13 +14,14 @@
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} solicitação(ões) registrada(s)" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[1100px]">
+      <table class="collection-table min-w-[1280px]">
         <thead>
           <tr>
             <th scope="col">Solicitação</th>
             <th scope="col">Categoria</th>
-            <th scope="col">Quem abre</th>
-            <th scope="col">Quem atende</th>
+            <th scope="col">Perfis de abertura</th>
+            <th scope="col">Grupos técnicos</th>
+            <th scope="col">Campos</th>
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
           </tr>
@@ -28,15 +30,19 @@
           <% @solicitacoes.each do |solicitacao| %>
             <tr id="<%= dom_id(solicitacao) %>">
               <td>
-                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= solicitacao.nome %></p>
-                <p class="mt-1 text-xs text-[var(--text-muted)]">
-                  <%= solicitacao.exige_triagem? ? "Com triagem" : "Sem triagem" %> ·
-                  <%= solicitacao.permite_varios_abertos? ? "vários chamados abertos" : "um chamado aberto por vez" %>
-                </p>
+                <div class="space-y-1">
+                  <p class="font-semibold text-[var(--text-primary)]"><%= solicitacao.nome %></p>
+                  <p class="text-sm text-[var(--text-secondary)]"><%= solicitacao.descricao %></p>
+                  <p class="text-xs text-[var(--text-muted)]">
+                    <%= solicitacao.exige_triagem? ? "Com triagem" : "Sem triagem" %> ·
+                    <%= solicitacao.permite_varios_abertos? ? "vários chamados abertos" : "um chamado aberto por vez" %>
+                  </p>
+                </div>
               </td>
               <td><%= solicitacao.categoria.nome %></td>
-              <td><%= solicitacao.perfis_abertura.map(&:nome).sort.join(", ").presence || "Ninguém" %></td>
-              <td><%= solicitacao.grupos_tecnicos.map(&:nome).sort.join(", ").presence || "Nenhum grupo" %></td>
+              <td><%= solicitacao.perfis_abertura.map(&:nome).sort.join(", ").presence || "Sem perfis" %></td>
+              <td><%= solicitacao.grupos_tecnicos.map(&:nome).sort.join(", ").presence || "Sem grupos" %></td>
+              <td><%= campos.fetch(solicitacao.id, 0) %> campo(s)</td>
               <td><%= render "compartilhado/selo", texto: (solicitacao.ativo? ? "Ativa" : "Inativa"), tom: (solicitacao.ativo? ? :sucesso : :atencao) %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
@@ -56,7 +62,7 @@
             </tr>
           <% end %>
           <% if @solicitacoes.empty? %>
-            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação encontrada para os filtros informados.</td></tr>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação encontrada para os filtros informados.</td></tr>
           <% end %>
         </tbody>
       </table>

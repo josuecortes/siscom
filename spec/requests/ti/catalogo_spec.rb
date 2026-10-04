@@ -86,7 +86,7 @@ RSpec.describe "TI: catálogo (categorias, perfis de abertura e grupos técnicos
       expect(Core::RegistroAuditoria.where(evento: "grupo_tecnico.membros_alterados").count).to eq(2)
 
       get ti_grupos_tecnicos_path
-      expect(Nokogiri::HTML(response.body).css("##{ActionView::RecordIdentifier.dom_id(grupo)} td")[2].text).to eq("1")
+      expect(Nokogiri::HTML(response.body).css("##{ActionView::RecordIdentifier.dom_id(grupo)} td")[3].text).to eq("1")
     end
 
     it "não mexe nos perfis de abertura dos usuários" do

@@ -14,7 +14,7 @@
       <legend class="mb-2 text-sm font-medium text-[var(--text-secondary)]">Membros do grupo</legend>
       <%= hidden_field_tag "user_ids[]", "", id: nil %>
       <% @elegiveis.each do |usuario| %>
-        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm">
+        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm">
           <%= check_box_tag "user_ids[]", usuario.id, @marcados.include?(usuario.id), id: "membro_#{usuario.id}", class: "mt-0.5 h-4 w-4" %>
           <span class="min-w-0">
             <span class="block font-semibold text-[var(--text-primary)]"><%= usuario.nome %></span>
