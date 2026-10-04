@@ -11,6 +11,9 @@ Rails.application.routes.draw do
     patch :abrir, on: :member
     patch :marcar_todas, on: :collection
   end
+  resources :conversas, path: "minha-area/conversas", only: %i[index show], controller: "core/conversas" do
+    resources :mensagens, only: :create, controller: "core/mensagens"
+  end
   resource :inscricao_push, path: "minha-area/avisos-no-aparelho", only: %i[create destroy], controller: "core/inscricoes_push"
   resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
 

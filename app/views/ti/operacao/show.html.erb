@@ -5,7 +5,7 @@
 <% end %>
 
 <%= turbo_stream_from @chamado %>
-<%= render layout: "ti/chamados/detalhes", locals: { chamado: @chamado, valores: @valores, eventos: @eventos } do %>
+<%= render layout: "ti/chamados/detalhes", locals: { chamado: @chamado, valores: @valores, eventos: @eventos, supervisao: Ti::Chamados::Acesso.supervisiona?(current_user) } do %>
   <% if @acoes.any? %>
     <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] px-6 py-5 shadow-[var(--shadow-card)]" id="acoes_do_chamado">
       <h2 class="text-sm font-semibold text-[var(--text-primary)]">O que fazer</h2>

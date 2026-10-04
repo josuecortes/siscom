@@ -33,6 +33,7 @@ module Ti
           Core::Api.auditar(evento: "ti.chamado.finalizado", alvo: @chamado, ator: @user,
                             dados: { codigo: @chamado.codigo, resolvido: @resolvido, avaliacao: @avaliacao })
         end
+        Conversa.sincronizar(@chamado, nota: "Chamado finalizado pelo solicitante. Avaliação: #{@chamado.nome_da_avaliacao}.")
         Avisos.notificar([ @chamado.responsavel, @chamado.triador ], @chamado, @user, "operacao", "Chamado finalizado pelo solicitante",
                          "#{@chamado.codigo} foi encerrado. Avaliação: #{@chamado.nome_da_avaliacao}.")
         Avisos.atualizar_telas(@chamado)

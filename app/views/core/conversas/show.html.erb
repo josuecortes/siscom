@@ -1,0 +1,13 @@
+<% content_for :title, "Conversa" %>
+<% participante = @conversa.participante(current_user) %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: @conversa.titulo, icone: :chat_bubble, migalha: [ "Conversas", conversas_path ] } do %>
+  <% if participante.url.present? %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir no #{@conversa.nome_do_modulo}", icone: :link, caminho: participante.url, secundaria: true %>
+  <% end %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: conversas_path, secundaria: true %>
+<% end %>
+
+<div class="mt-6">
+  <%= render "core/conversas/conversa", conversa: @conversa %>
+</div>

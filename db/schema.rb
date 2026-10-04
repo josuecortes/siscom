@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -135,6 +135,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "core_conversas", force: :cascade do |t|
+    t.string "modulo", null: false
+    t.string "alvo_tipo", null: false
+    t.bigint "alvo_id", null: false
+    t.string "titulo", null: false
+    t.string "url"
+    t.string "status", default: "ativa", null: false
+    t.string "motivo_leitura"
+    t.datetime "ultima_mensagem_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["alvo_tipo", "alvo_id"], name: "index_core_conversas_on_alvo_tipo_and_alvo_id", unique: true
+  end
+
   create_table "core_fontes_referencia", force: :cascade do |t|
     t.string "chave", null: false
     t.string "nome", null: false
@@ -166,6 +180,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
     t.index ["user_id"], name: "index_core_inscricoes_push_on_user_id"
   end
 
+  create_table "core_mensagens", force: :cascade do |t|
+    t.bigint "conversa_id", null: false
+    t.bigint "autor_id"
+    t.string "autor_nome"
+    t.string "tipo", default: "texto", null: false
+    t.text "corpo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["autor_id"], name: "index_core_mensagens_on_autor_id"
+    t.index ["conversa_id"], name: "index_core_mensagens_on_conversa_id"
+  end
+
   create_table "core_notificacoes", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "ator_id"
@@ -185,6 +211,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
     t.index ["user_id", "created_at"], name: "index_core_notificacoes_on_user_id_and_created_at"
     t.index ["user_id", "lida_em"], name: "index_core_notificacoes_on_user_id_and_lida_em"
     t.index ["user_id"], name: "index_core_notificacoes_on_user_id"
+  end
+
+  create_table "core_participantes", force: :cascade do |t|
+    t.bigint "conversa_id", null: false
+    t.bigint "user_id", null: false
+    t.string "papel", default: "participante", null: false
+    t.string "url"
+    t.boolean "pode_ler", default: true, null: false
+    t.boolean "pode_escrever", default: false, null: false
+    t.bigint "lida_ate_id"
+    t.datetime "entrou_em"
+    t.datetime "saiu_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversa_id", "user_id"], name: "index_core_participantes_on_conversa_id_and_user_id", unique: true
+    t.index ["conversa_id"], name: "index_core_participantes_on_conversa_id"
+    t.index ["user_id"], name: "index_core_participantes_on_user_id"
   end
 
   create_table "core_registros_auditoria", force: :cascade do |t|
@@ -1216,8 +1259,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_130000) do
   add_foreign_key "core_concessoes", "users"
   add_foreign_key "core_concessoes", "users", column: "concedido_por_id"
   add_foreign_key "core_inscricoes_push", "users"
+  add_foreign_key "core_mensagens", "core_conversas", column: "conversa_id"
+  add_foreign_key "core_mensagens", "users", column: "autor_id"
   add_foreign_key "core_notificacoes", "users"
   add_foreign_key "core_notificacoes", "users", column: "ator_id"
+  add_foreign_key "core_participantes", "core_conversas", column: "conversa_id"
+  add_foreign_key "core_participantes", "users"
   add_foreign_key "core_registros_auditoria", "users", column: "ator_id"
   add_foreign_key "core_senhas_anteriores", "users"
   add_foreign_key "destinos", "requisicao_transportes"

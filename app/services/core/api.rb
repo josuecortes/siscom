@@ -115,6 +115,17 @@ module Core
       end
     end
 
+    # --- Conversas (chat ligado a um registro do módulo) ---
+
+    # Cria/atualiza a conversa do registro: ativa ou só leitura, participantes atuais e nota do sistema.
+    # participantes: [{ user:, papel:, url: }] (url = onde aquele participante vê a conversa).
+    def sincronizar_conversa(alvo:, modulo:, titulo:, ativa:, participantes:, motivo_leitura: nil, nota_do_sistema: nil)
+      Conversas::Sincronizar.call(alvo:, modulo:, titulo:, ativa:, participantes:, motivo_leitura:, nota_do_sistema:)
+    end
+
+    # A conversa do registro (ou nil), para renderizar com `core/conversas/conversa`.
+    def conversa_de(alvo) = Conversa.de(alvo)
+
     # Notifica usuários (sino, aviso em tempo real). evento "<modulo>.<objeto>.<acao>".
     def notificar(destinatarios:, evento:, titulo:, mensagem: nil, url_acao: nil, alvo: nil, ator: :contexto, dados: {})
       Notificacoes::Criar.call(destinatarios:, evento:, titulo:, mensagem:, url_acao:, alvo:, ator:, dados:)

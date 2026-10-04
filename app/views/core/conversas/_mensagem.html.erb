@@ -1,0 +1,14 @@
+<%# Uma mensagem da conversa. A mesma marcação vai para todos por Turbo Streams, por isso não há "minha/dos outros". %>
+<% if mensagem.do_sistema? %>
+  <li id="<%= dom_id(mensagem) %>" class="px-2 text-center text-xs text-[var(--text-muted)]">
+    <%= mensagem.corpo %> · <time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m %H:%M") %></time>
+  </li>
+<% else %>
+  <li id="<%= dom_id(mensagem) %>" class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+    <p class="flex flex-wrap items-baseline justify-between gap-x-3 text-xs">
+      <span class="font-semibold text-[var(--text-primary)]"><%= mensagem.autor_nome %></span>
+      <time datetime="<%= mensagem.created_at.iso8601 %>" class="text-[var(--text-muted)]"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time>
+    </p>
+    <div class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= simple_format(h(mensagem.corpo), {}, wrapper_tag: "span") %></div>
+  </li>
+<% end %>

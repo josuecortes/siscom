@@ -56,6 +56,7 @@ module Ti
           Core::Api.auditar(evento: "ti.chamado.#{@acao.evento}", alvo: @chamado, ator: @ator,
                             dados: { codigo: @chamado.codigo, de: de, para: @chamado.status, nota: @nota }.compact)
         end
+        Conversa.sincronizar(@chamado, nota: nota_da_conversa)
         Avisos.depois_de(@chamado, acao: @acao.chave, de: de, ator: @ator, nota: @nota)
         Core::Resultado.sucesso(@chamado)
       end
@@ -76,6 +77,17 @@ module Ti
       end
 
       private
+
+      # O que aparece na conversa do chamado, para o solicitante entender o que mudou.
+      def nota_da_conversa
+        case @acao.chave
+        when "assumir", "atribuir"
+          profissional = @chamado.em_triagem? ? @chamado.triador : @chamado.responsavel
+          "#{profissional.nome} assumiu o chamado#{@chamado.em_triagem? ? ' e iniciou a triagem' : ''}. Use esta conversa para falar com #{profissional.nome.split.first.capitalize}."
+        when "concluir" then "Atendimento concluído: #{@nota} Esta conversa fica só para consulta."
+        else @texto_do_evento
+        end
+      end
 
       def do_responsavel? = @chamado.responsavel_id == @ator.id
       def do_triador? = @chamado.triador_id == @ator.id

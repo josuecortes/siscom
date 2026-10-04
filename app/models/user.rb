@@ -4,6 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :recoverable, :rememberable, :validatable,
          :lockable, :trackable, :timeoutable
 
+  has_many :participacoes_em_conversas, class_name: "Core::Participante", dependent: :destroy
   has_one_attached :avatar
   has_many :inscricoes_push, class_name: "Core::InscricaoPush", dependent: :delete_all
   has_many :notificacoes, class_name: "Core::Notificacao", dependent: :delete_all

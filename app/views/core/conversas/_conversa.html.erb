@@ -1,0 +1,26 @@
+<%# Conversa de um registro (porta de chat-launcher.tsx, embutida na página do registro).
+    locals: conversa (Core::Api.conversa_de(alvo), pode ser nil), ver_sem_participar (bool: supervisão lê o histórico).
+    Quem não participa (e não supervisiona) não vê nada. %>
+<% participante = conversa&.participante(current_user) %>
+<% if conversa && (participante&.pode_ler? || local_assigns[:ver_sem_participar]) %>
+  <% participante&.marcar_lida! %>
+  <% escreve = conversa.ativa? && participante&.pode_escrever? %>
+  <section id="<%= dom_id(conversa) %>" data-controller="conversa" data-action="turbo:submit-end->conversa#limpar"
+           class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <%= turbo_stream_from conversa %>
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]"><%= icone(:chat_bubble) %> Conversa</h2>
+      <%= render "compartilhado/selo", texto: (conversa.ativa? ? "Aberta" : "Só leitura"), tom: (conversa.ativa? ? :sucesso : :neutro) %>
+    </div>
+    <ol id="mensagens_da_conversa_<%= conversa.id %>" data-conversa-target="lista" class="max-h-96 space-y-3 overflow-y-auto px-6 py-5">
+      <%= render partial: "core/conversas/mensagem", collection: conversa.mensagens.em_ordem, as: :mensagem %>
+    </ol>
+    <div class="border-t border-[var(--border-subtle)] px-6 py-4">
+      <% if escreve %>
+        <%= render "core/conversas/formulario", conversa: conversa %>
+      <% else %>
+        <p class="text-sm text-[var(--text-secondary)]"><%= conversa.ativa? ? "Você acompanha esta conversa só para leitura." : (conversa.motivo_leitura.presence || "Esta conversa está encerrada e fica só para consulta.") %></p>
+      <% end %>
+    </div>
+  </section>
+<% end %>

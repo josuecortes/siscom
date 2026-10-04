@@ -51,6 +51,22 @@ RSpec.describe "TI: operação em tempo real", :js do
     expect(page).to have_content("Em trabalho") # a página da Maria mudou sozinha
     expect(page).to have_content("JOAO TECNICO")
 
+    # A conversa começa quando o técnico assume; as mensagens chegam sem recarregar.
+    expect(page).to have_content("JOAO TECNICO assumiu o chamado. Use esta conversa para falar com Joao.")
+    fill_in "Mensagem", with: "É na sala 12."
+    click_on "Enviar mensagem"
+    expect(page).to have_css("ol li", text: "É na sala 12.")
+    expect(find_field("Mensagem").value).to eq("")
+
+    Capybara.using_session(:tecnico) do
+      expect(page).to have_css("ol li", text: "É na sala 12.")
+      fill_in "Mensagem", with: "Estou a caminho."
+      find_field("Mensagem").send_keys(:enter)
+      expect(page).to have_css("ol li", text: "Estou a caminho.")
+      print("ti-conversa")
+    end
+    expect(page).to have_css("ol li", text: "Estou a caminho.")
+
     Capybara.using_session(:tecnico) do
       click_on "Pedir ajuste ao solicitante"
       fill_in "Orientação para o solicitante *", with: "Qual é a sala?"
@@ -86,6 +102,9 @@ RSpec.describe "TI: operação em tempo real", :js do
     end
     expect(page).to have_css("#avisos", text: "finalizado. Obrigado pela avaliação.")
     expect(page).to have_content("Muito bom · resolveu o pedido")
+
+    expect(page).to have_content("Só leitura")
+    expect(page).to have_no_field("Mensagem")
 
     Capybara.using_session(:tecnico) do
       expect(page).to have_content("Finalizado") # o técnico vê a avaliação sem recarregar

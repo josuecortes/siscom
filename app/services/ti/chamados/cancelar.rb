@@ -23,6 +23,7 @@ module Ti
                                    ator: @user, ator_nome: @user.nome, ocorrido_em: Time.current)
           Core::Api.auditar(evento: "ti.chamado.cancelado", alvo: @chamado, ator: @user, dados: { codigo: @chamado.codigo, motivo: @motivo })
         end
+        Conversa.sincronizar(@chamado, nota: "Chamado cancelado pelo solicitante: #{@motivo}")
         Avisos.notificar([ @chamado.responsavel, @chamado.triador ], @chamado, @user, "operacao", "Chamado cancelado pelo solicitante",
                          "#{@chamado.codigo} foi cancelado. #{@motivo}")
         Avisos.atualizar_telas(@chamado)

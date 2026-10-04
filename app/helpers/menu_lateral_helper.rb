@@ -25,7 +25,8 @@ module MenuLateralHelper
       itens_visiveis(modulo).select(&:minha_area).map { |item| folha_do_menu(modulo, item) }
     end
 
-    { rotulo: "Minha área", icone: :user, filhos: filhos + [ { rotulo: "Notificações", icone: :bell, caminho: notificacoes_path } ] }
+    { rotulo: "Minha área", icone: :user, filhos: filhos + [ { rotulo: "Conversas", icone: :chat_bubble, caminho: conversas_path },
+                                                                      { rotulo: "Notificações", icone: :bell, caminho: notificacoes_path } ] }
   end
 
   def itens_visiveis(modulo) = modulo.menu.reject { |item| item.permissao && !pode?("#{modulo.chave}.#{item.permissao}") }

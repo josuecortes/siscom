@@ -15,7 +15,8 @@ RSpec.describe MenuLateralHelper do
 
   it "mostra só o Início e a Minha área para quem não enxerga nenhum item dos módulos" do
     expect(helper.menu_lateral_itens.pluck(:rotulo)).to eq([ "Início", "Minha área" ])
-    expect(helper.menu_lateral_itens.last[:filhos]).to eq([ { rotulo: "Notificações", icone: :bell, caminho: "/minha-area/notificacoes" } ])
+    expect(helper.menu_lateral_itens.last[:filhos].pluck(:rotulo, :caminho))
+      .to eq([ [ "Conversas", "/minha-area/conversas" ], [ "Notificações", "/minha-area/notificacoes" ] ])
   end
 
   it "mostra o grupo do módulo com os itens permitidos" do

@@ -44,6 +44,7 @@ module Ti
                                    nota: (devolvido ? "Solicitante ajustou os dados do chamado e reenviou para a TI." : "Solicitante editou os dados do chamado."))
           Core::Api.auditar(evento: "ti.chamado.ajustado", alvo: @chamado, ator: @user, dados: { codigo: @chamado.codigo })
         end
+        Conversa.sincronizar(@chamado, nota: "Solicitante ajustou os dados do chamado.") if devolvido
         devolvido ? Avisos.depois_de(@chamado, acao: "responder", de: de, ator: @user) : Avisos.atualizar_telas(@chamado)
         Core::Resultado.sucesso(@chamado)
       end

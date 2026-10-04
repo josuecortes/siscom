@@ -25,6 +25,7 @@ module Ti
                                    ator: @user, ator_nome: @user.nome, ocorrido_em: Time.current)
           Core::Api.auditar(evento: "ti.chamado.respondido", alvo: @chamado, ator: @user, dados: { codigo: @chamado.codigo })
         end
+        Conversa.sincronizar(@chamado, nota: "Solicitante respondeu ao pedido de ajuste: #{@nota}")
         Avisos.depois_de(@chamado, acao: "responder", de: de, ator: @user)
         Core::Resultado.sucesso(@chamado)
       end

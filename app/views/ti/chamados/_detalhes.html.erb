@@ -1,4 +1,5 @@
-<%# Cartões do chamado: resumo, dados informados e histórico. locals: chamado, valores, eventos. O bloco entra antes dos cartões. %>
+<%# Cartões do chamado: resumo, dados informados e histórico. locals: chamado, valores, eventos,
+    supervisao (bool: lê a conversa mesmo sem participar). O bloco entra antes dos cartões. %>
 <% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
 <% detalhe = ->(rotulo, valor) do %>
   <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
@@ -58,6 +59,8 @@
       </dl>
     <% end %>
   </section>
+
+  <%= render "core/conversas/conversa", conversa: Core::Api.conversa_de(chamado), ver_sem_participar: local_assigns[:supervisao] %>
 
   <section class="<%= cartao %>">
     <div class="border-b border-[var(--border-subtle)] px-6 py-5">
