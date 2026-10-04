@@ -10,6 +10,17 @@ namespace :ti do
     end
   end
 
+  # Solicitações do catálogo e seus vínculos (quem abre: perfis; quem atende: grupos).
+  resources :solicitacoes, only: %i[index new create edit update] do
+    member do
+      patch :ativar
+      patch :desativar
+    end
+    %w[perfis grupos].each do |tipo|
+      resource tipo, only: %i[edit update], controller: "vinculos_da_solicitacao", defaults: { tipo: tipo }
+    end
+  end
+
   # Membros de um grupo técnico e perfis de abertura de um usuário.
   resources :grupos_tecnicos, only: [] do
     resource :membros, only: %i[edit update], controller: "membros_do_grupo"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -873,6 +873,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_210000) do
     t.string "status", default: "ativo", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "padrao", default: false, null: false
     t.index "lower((nome)::text)", name: "idx_ti_perfis_abertura_nome", unique: true
   end
 
@@ -886,6 +887,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_210000) do
     t.index ["perfil_abertura_id", "user_id"], name: "index_ti_perfis_usuario_on_perfil_abertura_id_and_user_id", unique: true
     t.index ["perfil_abertura_id"], name: "index_ti_perfis_usuario_on_perfil_abertura_id"
     t.index ["user_id"], name: "index_ti_perfis_usuario_on_user_id"
+  end
+
+  create_table "ti_problemas", force: :cascade do |t|
+    t.bigint "categoria_id", null: false
+    t.string "nome", null: false
+    t.text "descricao"
+    t.string "status", default: "ativo", null: false
+    t.string "prioridade_padrao", default: "normal", null: false
+    t.boolean "exige_triagem", default: true, null: false
+    t.boolean "permite_varios_abertos", default: false, null: false
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "categoria_id, lower((nome)::text)", name: "idx_ti_problemas_categoria_nome", unique: true
+    t.index ["categoria_id"], name: "index_ti_problemas_on_categoria_id"
+    t.index ["legacy_id"], name: "index_ti_problemas_on_legacy_id", unique: true
+  end
+
+  create_table "ti_problemas_grupos", force: :cascade do |t|
+    t.bigint "problema_id", null: false
+    t.bigint "grupo_tecnico_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grupo_tecnico_id"], name: "index_ti_problemas_grupos_on_grupo_tecnico_id"
+    t.index ["problema_id", "grupo_tecnico_id"], name: "index_ti_problemas_grupos_on_problema_id_and_grupo_tecnico_id", unique: true
+    t.index ["problema_id"], name: "index_ti_problemas_grupos_on_problema_id"
+  end
+
+  create_table "ti_problemas_perfis", force: :cascade do |t|
+    t.bigint "problema_id", null: false
+    t.bigint "perfil_abertura_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["perfil_abertura_id"], name: "index_ti_problemas_perfis_on_perfil_abertura_id"
+    t.index ["problema_id", "perfil_abertura_id"], name: "idx_on_problema_id_perfil_abertura_id_c47da1bd87", unique: true
+    t.index ["problema_id"], name: "index_ti_problemas_perfis_on_problema_id"
   end
 
   create_table "tipo_problema_tis", force: :cascade do |t|
@@ -1164,6 +1201,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_210000) do
   add_foreign_key "ti_perfis_usuario", "ti_perfis_abertura", column: "perfil_abertura_id"
   add_foreign_key "ti_perfis_usuario", "users"
   add_foreign_key "ti_perfis_usuario", "users", column: "concedido_por_id"
+  add_foreign_key "ti_problemas", "ti_categorias", column: "categoria_id"
+  add_foreign_key "ti_problemas_grupos", "ti_grupos_tecnicos", column: "grupo_tecnico_id"
+  add_foreign_key "ti_problemas_grupos", "ti_problemas", column: "problema_id"
+  add_foreign_key "ti_problemas_perfis", "ti_perfis_abertura", column: "perfil_abertura_id"
+  add_foreign_key "ti_problemas_perfis", "ti_problemas", column: "problema_id"
   add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"

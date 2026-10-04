@@ -4,7 +4,7 @@ module Ti
     before_action { pode!(Ti::Perfis::DefinirDoUsuario::PERMISSAO) }
     before_action do
       @usuario = ::User.ativos.find(params[:permissao_id])
-      @perfis = Ti::PerfilAbertura.ativo.ordenados.to_a
+      @perfis = Ti::PerfilAbertura.ativo.where(padrao: false).ordenados.to_a
     end
 
     def edit

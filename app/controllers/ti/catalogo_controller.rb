@@ -47,7 +47,9 @@ module Ti
     # Quantos usuários cada perfil de abertura tem e quantos membros cada grupo técnico tem.
     def contagens_de_vinculos(ids)
       case @tabela.chave
-      when "perfis_abertura" then Ti::PerfilUsuario.where(perfil_abertura_id: ids).group(:perfil_abertura_id).count
+      when "perfis_abertura"
+        Ti::PerfilUsuario.where(perfil_abertura_id: ids).group(:perfil_abertura_id).count
+                         .merge(Ti::PerfilAbertura.where(id: ids, padrao: true).pluck(:id).index_with { "Todos" })
       when "grupos_tecnicos" then Ti::MembroGrupo.where(grupo_tecnico_id: ids).group(:grupo_tecnico_id).count
       else {}
       end
@@ -58,7 +60,7 @@ module Ti
     end
 
     def salvar(registro, tela, aviso)
-      resultado = Ti::Catalogo::Salvar.call(registro: registro, atributos: params.expect(registro: %i[nome descricao permite_autoatribuicao]), salvo_por: current_user)
+      resultado = Ti::Catalogo::Salvar.call(registro: registro, atributos: params.expect(registro: %i[nome descricao permite_autoatribuicao padrao]), salvo_por: current_user)
       @registro = resultado.objeto
 
       if resultado.sucesso?

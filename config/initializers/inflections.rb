@@ -36,4 +36,5 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "pendencia", "pendencias"
   inflect.irregular "perfil_abertura", "perfis_abertura"
   inflect.irregular "grupo_tecnico", "grupos_tecnicos"
+  inflect.irregular "solicitacao", "solicitacoes"
 end

@@ -4,5 +4,7 @@ module Ti
     include ItemDeCatalogo
 
     self.table_name = "ti_categorias"
+
+    has_many :problemas, class_name: "Ti::Problema", foreign_key: :categoria_id, inverse_of: :categoria, dependent: :restrict_with_error
   end
 end

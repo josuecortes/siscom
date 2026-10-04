@@ -22,6 +22,16 @@
       </label>
     <% end %>
 
+    <% if @tabela.perfil? %>
+      <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm text-[var(--text-secondary)]">
+        <%= f.check_box :padrao, class: "mt-0.5 h-4 w-4" %>
+        <span>
+          <span class="block font-semibold text-[var(--text-primary)]">Perfil padrão</span>
+          <span class="block">Vale para todos os usuários, sem precisar incluir um por um.</span>
+        </span>
+      </label>
+    <% end %>
+
     <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
   <% end %>
 <% end %>

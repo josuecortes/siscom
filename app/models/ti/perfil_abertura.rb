@@ -8,5 +8,7 @@ module Ti
 
     has_many :vinculos_de_usuario, class_name: "Ti::PerfilUsuario", foreign_key: :perfil_abertura_id, inverse_of: :perfil_abertura, dependent: :destroy
     has_many :usuarios, through: :vinculos_de_usuario, source: :user
+    has_many :vinculos_de_problema, class_name: "Ti::ProblemaPerfil", foreign_key: :perfil_abertura_id, inverse_of: :perfil_abertura, dependent: :destroy
+    has_many :problemas, through: :vinculos_de_problema, source: :problema
   end
 end

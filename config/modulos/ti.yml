@@ -39,4 +39,5 @@ menu:
   - { rotulo: "Categorias de solicitação", rota: ti_categorias_path, permissao: catalogo.gerenciar, icone: description, grupo: "Administração" }
   - { rotulo: "Perfis de abertura", rota: ti_perfis_abertura_path, permissao: catalogo.gerenciar, icone: people, grupo: "Administração" }
   - { rotulo: "Grupos técnicos", rota: ti_grupos_tecnicos_path, permissao: catalogo.gerenciar, icone: group, grupo: "Administração" }
+  - { rotulo: "Solicitações", rota: ti_solicitacoes_path, permissao: catalogo.gerenciar, icone: list-rich, grupo: "Administração" }
   - { rotulo: "Permissões", rota: ti_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }

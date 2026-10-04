@@ -3,7 +3,7 @@
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Perfis", titulo: "Gerenciar perfis de #{@usuario.nome}", voltar: ti_permissoes_path, rodape: rodape,
-                descricao: "O perfil de abertura define quais solicitações o usuário pode abrir. Solicitação sem perfil marcado fica aberta a todos." } do %>
+                descricao: "O perfil de abertura define quais solicitações o usuário pode abrir. Os perfis padrão já valem para todos e não aparecem aqui." } do %>
   <%= form_with url: ti_permissao_perfis_abertura_path(@usuario), method: :patch, id: "formulario_perfis", class: "space-y-5" do |f| %>
     <% if @erro.present? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>

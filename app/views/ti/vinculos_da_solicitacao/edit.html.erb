@@ -1,0 +1,30 @@
+<% content_for :title, @textos[:sobretitulo] %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_vinculos", rotulo: "Salvar" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: @textos[:sobretitulo], titulo: format(@textos[:titulo], @solicitacao.nome), voltar: ti_solicitacoes_path, rodape: rodape,
+                descricao: @textos[:ajuda] } do %>
+  <%= form_with url: (@tipo == "perfis" ? ti_solicitacao_perfis_path(@solicitacao) : ti_solicitacao_grupos_path(@solicitacao)), method: :patch,
+        id: "formulario_vinculos", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+
+    <fieldset class="space-y-2">
+      <legend class="mb-2 text-sm font-medium text-[var(--text-secondary)]"><%= @textos[:legenda] %></legend>
+      <%= hidden_field_tag "ids[]", "", id: nil %>
+      <% @opcoes.each do |opcao| %>
+        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm">
+          <%= check_box_tag "ids[]", opcao.id, @marcados.include?(opcao.id), id: "vinculo_#{opcao.id}", class: "mt-0.5 h-4 w-4" %>
+          <span class="min-w-0">
+            <span class="block font-semibold text-[var(--text-primary)]"><%= opcao.nome %><%= " (padrão: todos os usuários)" if opcao.try(:padrao) %></span>
+            <% if opcao.descricao.present? %><span class="block text-[var(--text-secondary)]"><%= opcao.descricao %></span><% end %>
+          </span>
+        </label>
+      <% end %>
+      <% if @opcoes.empty? %>
+        <p class="text-sm text-[var(--text-secondary)]"><%= @textos[:vazio] %></p>
+      <% end %>
+    </fieldset>
+  <% end %>
+<% end %>

@@ -2,7 +2,7 @@ module Ti
   module Catalogo
     # Cria ou atualiza um item simples do catálogo da TI, com auditoria.
     class Salvar
-      CAMPOS = %i[nome descricao permite_autoatribuicao].freeze
+      CAMPOS = %i[nome descricao permite_autoatribuicao padrao].freeze
 
       def self.call(...) = new(...).call
 
