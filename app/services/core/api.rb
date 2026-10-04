@@ -76,6 +76,14 @@ module Core
       FontesReferencia::Consultar.call(chave:, termo:, limite:)
     end
 
+    # Fontes de referência ativas, para quem monta formulários: [#<chave, nome>].
+    FonteDisponivel = Data.define(:chave, :nome)
+
+    def fontes_de_referencia
+      FontesReferencia::Publicar.call unless FonteReferencia.exists? # banco novo: publica as fontes padrão
+      FonteReferencia.ativo.ordenadas.pluck(:chave, :nome).map { |chave, nome| FonteDisponivel.new(chave:, nome:) }
+    end
+
     # Entidades do Core que podem virar fonte de referência (ver Core::FontesReferencia::Entidades).
     def entidades_publicaveis
       {

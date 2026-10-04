@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_04_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -834,6 +834,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_100000) do
     t.index ["user_id"], name: "index_tarefas_on_user_id"
   end
 
+  create_table "ti_campos_problema", force: :cascade do |t|
+    t.bigint "problema_id", null: false
+    t.string "chave", null: false
+    t.string "rotulo", null: false
+    t.string "tipo", default: "texto", null: false
+    t.boolean "obrigatorio", default: false, null: false
+    t.integer "posicao", default: 0, null: false
+    t.string "exemplo"
+    t.string "mascara"
+    t.text "ajuda"
+    t.jsonb "config", default: {}, null: false
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["problema_id", "chave"], name: "index_ti_campos_problema_on_problema_id_and_chave", unique: true
+    t.index ["problema_id"], name: "index_ti_campos_problema_on_problema_id"
+  end
+
   create_table "ti_categorias", force: :cascade do |t|
     t.string "nome", null: false
     t.text "descricao"
@@ -1195,6 +1213,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_100000) do
   add_foreign_key "tarefas", "etapas"
   add_foreign_key "tarefas", "users"
   add_foreign_key "tarefas", "users", column: "created_by_id"
+  add_foreign_key "ti_campos_problema", "ti_problemas", column: "problema_id"
   add_foreign_key "ti_membros_grupo", "ti_grupos_tecnicos", column: "grupo_tecnico_id"
   add_foreign_key "ti_membros_grupo", "users"
   add_foreign_key "ti_membros_grupo", "users", column: "concedido_por_id"

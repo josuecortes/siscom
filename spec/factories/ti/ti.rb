@@ -16,4 +16,9 @@ FactoryBot.define do
     descricao { "Resumo da solicitação" }
     categoria factory: :ti_categoria
   end
+
+  factory :ti_campo_problema, class: "Ti::CampoProblema" do
+    sequence(:rotulo) { |n| "Campo #{n}" }
+    problema factory: :ti_problema
+  end
 end

@@ -16,6 +16,12 @@ namespace :ti do
       patch :ativar
       patch :desativar
     end
+    resources :campos, only: %i[index new create edit update], controller: "campos_da_solicitacao" do
+      member do
+        patch :ativar
+        patch :desativar
+      end
+    end
     %w[perfis grupos].each do |tipo|
       resource tipo, only: %i[edit update], controller: "vinculos_da_solicitacao", defaults: { tipo: tipo }
     end

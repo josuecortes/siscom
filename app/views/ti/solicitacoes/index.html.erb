@@ -40,6 +40,7 @@
               <td><%= render "compartilhado/selo", texto: (solicitacao.ativo? ? "Ativa" : "Inativa"), tom: (solicitacao.ativo? ? :sucesso : :atencao) %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Campos da solicitação", icone: :list_rich, caminho: ti_solicitacao_campos_path(solicitacao) %>
                   <%= render "compartilhado/botao_acao", titulo: "Perfis de abertura", icone: :people, caminho: edit_ti_solicitacao_perfis_path(solicitacao), quadro: "painel" %>
                   <%= render "compartilhado/botao_acao", titulo: "Grupos técnicos", icone: :group, caminho: edit_ti_solicitacao_grupos_path(solicitacao), quadro: "painel" %>
                   <%= render "compartilhado/botao_acao", titulo: "Editar solicitação", icone: :pencil, caminho: edit_ti_solicitacao_path(solicitacao), quadro: "painel" %>
