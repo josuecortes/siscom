@@ -1,0 +1,72 @@
+<%# Cartões do chamado: resumo, dados informados e histórico. locals: chamado, valores, eventos. O bloco entra antes dos cartões. %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<% detalhe = ->(rotulo, valor) do %>
+  <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+    <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+    <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "—" %></dd>
+  </div>
+<% end %>
+
+<div class="mt-6 space-y-6">
+  <%= yield %>
+  <section class="<%= cartao %>">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]"><%= chamado.problema.nome %></h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= chamado.problema.categoria.nome %></p>
+      </div>
+      <%= selo_do_status(chamado) %>
+    </div>
+    <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
+      <% detalhe.call("Aberto em", l(chamado.aberto_em, format: "%d/%m/%Y %H:%M")) %>
+      <% detalhe.call("Prioridade", chamado.nome_da_prioridade) %>
+      <% detalhe.call("Solicitante", chamado.solicitante_nome) %>
+      <% detalhe.call("Unidade", chamado.unidade_nome) %>
+      <% if chamado.aberto_por %><% detalhe.call("Aberto por", "#{chamado.aberto_por.nome} (em nome do solicitante)") %><% end %>
+      <% detalhe.call("Responsável", chamado.responsavel&.nome || "Ainda sem responsável") %>
+    </dl>
+  </section>
+
+  <section class="<%= cartao %>">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Dados informados</h2>
+    </div>
+    <% if valores.empty? %>
+      <p class="px-6 py-5 text-sm text-[var(--text-secondary)]">Esta solicitação não pediu dados adicionais.</p>
+    <% else %>
+      <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
+        <% valores.each do |valor| %>
+          <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3 <%= "md:col-span-2" if valor.tipo == "texto_longo" %>">
+            <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= valor.rotulo %></dt>
+            <dd class="mt-1 break-words text-sm text-[var(--text-primary)]">
+              <% if valor.arquivos.attached? %>
+                <ul class="space-y-1">
+                  <% valor.arquivos.each do |arquivo| %>
+                    <li><%= link_to arquivo.filename.to_s, rails_blob_path(arquivo, disposition: "attachment"), class: "inline-flex items-center gap-2 text-[var(--accent-strong)] hover:underline", data: { turbo: false } %></li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <%= simple_format(h(valor.valor_texto), {}, wrapper_tag: "span") %>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    <% end %>
+  </section>
+
+  <section class="<%= cartao %>">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Histórico</h2>
+    </div>
+    <ol class="divide-y divide-[var(--border-subtle)]">
+      <% eventos.each do |evento| %>
+        <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-6 py-3 text-sm">
+          <span class="whitespace-nowrap text-[var(--text-muted)]"><%= l(evento.ocorrido_em, format: "%d/%m/%Y %H:%M") %></span>
+          <span class="text-[var(--text-primary)]"><%= evento.nota %></span>
+          <span class="text-[var(--text-secondary)]"><%= evento.ator_nome %></span>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+</div>

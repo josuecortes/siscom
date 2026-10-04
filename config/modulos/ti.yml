@@ -8,6 +8,7 @@ icone: "task"
 permissoes:
   chamados.abrir: "Abrir e acompanhar os próprios chamados"
   chamados.abrir_para_outro: "Abrir chamado em nome de outra pessoa"
+  chamados.operar: "Ver a operação (chamados dos seus grupos técnicos)"
   chamados.triar: "Triar chamados"
   chamados.atender: "Atender chamados"
   chamados.supervisionar: "Supervisionar chamados (ver todos, redistribuir, mudar etapa)"
@@ -21,13 +22,13 @@ papeis:
     permissoes: "*"
   supervisor:
     nome: "Supervisor"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar]
   triagem:
     nome: "Triador"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.triar]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar]
   tecnico:
     nome: "Técnico"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.atender]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.atender]
   solicitante:
     nome: "Solicitante"
     permissoes: [chamados.abrir]
@@ -38,6 +39,7 @@ concessao:
 
 menu:
   - { rotulo: "Meus chamados", rota: ti_chamados_path, permissao: chamados.abrir, icone: task }
+  - { rotulo: "Operação", rota: ti_operacao_index_path, permissao: chamados.operar, icone: group }
   - { rotulo: "Abrir para outra pessoa", rota: new_ti_chamado_para_outro_path, permissao: chamados.abrir_para_outro, icone: user-follow }
   - { rotulo: "Categorias de solicitação", rota: ti_categorias_path, permissao: catalogo.gerenciar, icone: description, grupo: "Administração" }
   - { rotulo: "Perfis de abertura", rota: ti_perfis_abertura_path, permissao: catalogo.gerenciar, icone: people, grupo: "Administração" }

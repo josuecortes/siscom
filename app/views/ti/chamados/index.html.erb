@@ -4,6 +4,7 @@
   <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir chamado", icone: :plus, caminho: new_ti_chamado_path, opcoes: { data: { turbo_frame: "painel" } } %>
 <% end %>
 
+<%= turbo_stream_from current_user, "ti_chamados" %>
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%= render "compartilhado/filtro_busca_status", url: ti_chamados_path, quadro: "chamados_lista", rotulo_busca: "Buscar por código ou solicitação",
         exemplo: "Ex.: TI-000001 ou internet", busca: @filtros[:q], status: @filtros[:status],

@@ -1,0 +1,30 @@
+<% content_for :title, @acao.titulo %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_acao", rotulo: "Confirmar" } %>
+<% entrada = "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Chamado #{@chamado.codigo}", titulo: @acao.titulo, voltar: ti_operacao_path(@chamado), rodape: rodape,
+                descricao: "#{@chamado.problema.nome} · #{@chamado.solicitante_nome}" } do %>
+  <%= form_with url: acao_ti_operacao_path(@chamado, @acao.chave), method: :post, id: "formulario_acao", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+
+    <% if @acao.chave == "atribuir" %>
+      <%= render "compartilhado/campo_escolha", nome: "alvo_id", id: "alvo", rotulo: "Atribuir a *", opcoes: @operadores, valor: params[:alvo_id],
+            em_branco: "Selecione", obrigatorio: true %>
+      <p class="text-xs text-[var(--text-muted)]">Aparecem os membros dos grupos técnicos desta solicitação.</p>
+    <% elsif @acao.chave == "prioridade" %>
+      <div class="space-y-1.5">
+        <label for="prioridade" class="text-sm font-medium text-[var(--text-secondary)]">Nova prioridade *</label>
+        <%= select_tag :prioridade, options_for_select(Ti::Problema::PRIORIDADES.invert.to_a, params[:prioridade] || @chamado.prioridade), required: true, class: "#{entrada} h-11" %>
+      </div>
+    <% end %>
+
+    <div class="space-y-1.5">
+      <label for="nota" class="text-sm font-medium text-[var(--text-secondary)]"><%= @acao.rotulo_nota %> *</label>
+      <%= text_area_tag :nota, params[:nota], rows: 5, required: true, class: "#{entrada} py-3" %>
+      <p class="text-xs text-[var(--text-muted)]">Fica no histórico do chamado<%= ", e o solicitante vê" if %w[devolver concluir impedir].include?(@acao.chave) %>.</p>
+    </div>
+  <% end %>
+<% end %>

@@ -98,7 +98,7 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
 
       abrir(internet)
 
-      expect(tecnico.notificacoes.sole).to have_attributes(titulo: "Novo chamado na fila", mensagem: "#{Ti::Chamado.sole.codigo} - SEM INTERNET")
+      expect(tecnico.notificacoes.sole).to have_attributes(titulo: "Novo chamado aberto", mensagem: "#{Ti::Chamado.sole.codigo} - SEM INTERNET")
       expect(maria.notificacoes.count + de_fora.notificacoes.count).to eq(0)
     end
   end

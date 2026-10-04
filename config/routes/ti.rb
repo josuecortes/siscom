@@ -1,7 +1,19 @@
 # Rotas do módulo TI.
 namespace :ti do
   # Chamados do solicitante.
-  resources :chamados, only: %i[index show new create]
+  resources :chamados, only: %i[index show new create] do
+    member do
+      get :resposta
+      patch :responder
+    end
+  end
+  # Operação: os chamados que triadores, técnicos e supervisão pegam e atendem.
+  resources :operacao, only: %i[index show], controller: "operacao" do
+    member do
+      get "acoes/:acao", action: :acao, as: :acao
+      post "acoes/:acao", action: :executar
+    end
+  end
   # A TI abre o chamado em nome de outra pessoa (que passa a ser a dona).
   resource :chamado_para_outro, only: %i[new create], path: "chamados-para-outra-pessoa", controller: "chamados_para_outro"
   get "opcoes/usuarios", to: "opcoes#usuarios", as: :opcoes_de_usuarios, defaults: { format: :json }

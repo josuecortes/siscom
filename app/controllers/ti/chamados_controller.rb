@@ -21,6 +21,23 @@ module Ti
       @eventos = @chamado.eventos.em_ordem
     end
 
+    # Resposta do solicitante ao pedido de ajuste da operação.
+    def resposta
+      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
+    end
+
+    def responder
+      @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
+      resultado = Ti::Chamados::Responder.call(chamado: @chamado, user: current_user, nota: params[:nota])
+
+      if resultado.sucesso?
+        concluir_painel(aviso: "Resposta enviada. O chamado #{@chamado.codigo} voltou para a TI.", voltar_para: ti_chamado_path(@chamado))
+      else
+        @erro = resultado.mensagem_de_erro
+        render :resposta, status: :unprocessable_content
+      end
+    end
+
     # O painel recarrega ao escolher a solicitação, para mostrar o formulário dela.
     def new
       lotacoes = Rh::Api.lotacoes_ativas(current_user)

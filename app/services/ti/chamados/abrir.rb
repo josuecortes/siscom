@@ -89,8 +89,10 @@ module Ti
       def avisar(chamado)
         operadores = ::User.ativos.where(id: Ti::MembroGrupo.where(grupo_tecnico_id: @solicitacao.grupos_tecnicos.ativo.select(:id)).select(:user_id))
                            .where.not(id: [ @user.id, @aberto_por&.id ].compact)
-        Core::Api.notificar(destinatarios: operadores, evento: "ti.chamado.aberto", titulo: "Novo chamado na fila",
-                            mensagem: "#{chamado.codigo} - #{@solicitacao.nome}", alvo: chamado, ator: @aberto_por || @user)
+        Core::Api.notificar(destinatarios: operadores, evento: "ti.chamado.aberto", titulo: "Novo chamado aberto",
+                            mensagem: "#{chamado.codigo} - #{@solicitacao.nome}", alvo: chamado, ator: @aberto_por || @user,
+                            url_acao: Rails.application.routes.url_helpers.ti_operacao_path(chamado))
+        Avisos.atualizar_telas(chamado)
         return unless @aberto_por
 
         Core::Api.notificar(destinatarios: [ @user ], evento: "ti.chamado.aberto_em_seu_nome", titulo: "Chamado aberto em seu nome",

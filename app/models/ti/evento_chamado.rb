@@ -3,7 +3,8 @@ module Ti
   class EventoChamado < ApplicationRecord
     self.table_name = "ti_eventos_chamado"
 
-    TIPOS = %w[aberto assumido triado encaminhado etapa_alterada prioridade_alterada reenviado concluido finalizado cancelado reaberto].freeze
+    TIPOS = %w[aberto assumido encaminhado devolvido impedido concluido liberado atribuido reaberto prioridade_alterada respondido
+               finalizado cancelado].freeze
 
     belongs_to :chamado, class_name: "Ti::Chamado", inverse_of: :eventos
     belongs_to :ator, class_name: "User", optional: true

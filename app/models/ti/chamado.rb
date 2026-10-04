@@ -12,6 +12,9 @@ module Ti
     # Estados em que o chamado ainda conta como "em aberto" para o solicitante.
     EM_ANDAMENTO = %w[aberto em_triagem aguardando_solicitante aguardando_tecnico em_atendimento impedido].freeze
 
+    # Mais urgente primeiro (para ordenar as listas da operação).
+    ORDEM_DE_PRIORIDADE = "CASE ti_chamados.prioridade WHEN 'critica' THEN 0 WHEN 'urgente' THEN 1 WHEN 'alta' THEN 2 ELSE 3 END".freeze
+
     belongs_to :problema, class_name: "Ti::Problema", inverse_of: :chamados
     belongs_to :solicitante, class_name: "User"
     belongs_to :aberto_por, class_name: "User", optional: true # quando a TI abre em nome do solicitante
@@ -32,6 +35,11 @@ module Ti
     scope :buscar, ->(termo) {
       padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
       joins(:problema).where("ti_chamados.codigo LIKE :t OR ti_problemas.nome LIKE :t", t: padrao)
+    }
+
+    scope :buscar_na_operacao, ->(termo) {
+      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
+      joins(:problema).where("ti_chamados.codigo LIKE :t OR ti_problemas.nome LIKE :t OR ti_chamados.solicitante_nome LIKE :t OR ti_chamados.unidade_nome LIKE :t", t: padrao)
     }
 
     def nome_do_status = STATUS[status]
