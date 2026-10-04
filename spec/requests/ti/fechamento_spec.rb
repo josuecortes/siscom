@@ -100,7 +100,7 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
       expect(response.body).to include("O atendimento foi concluído", "Finalizar chamado")
 
       get finalizacao_ti_chamado_path(chamado)
-      expect(response.body).to include("O atendimento resolveu o seu pedido? *", "Muito bom", "Péssimo")
+      expect(response.body).to include("O atendimento resolveu o chamado? *", "Muito bom", "Péssimo")
     end
 
     it "exige dizer se resolveu, a avaliação e o comentário quando ela é ruim" do

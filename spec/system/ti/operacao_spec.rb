@@ -95,8 +95,8 @@ RSpec.describe "TI: operação em tempo real", :js do
 
     click_on "Finalizar chamado"
     within("[role='dialog']") do
-      choose "Sim"
-      choose "Muito bom"
+      select "Sim, foi resolvido", from: "O atendimento resolveu o chamado? *"
+      select "Muito bom", from: "Avaliação *"
       print("ti-finalizar")
       click_on "Finalizar chamado"
     end

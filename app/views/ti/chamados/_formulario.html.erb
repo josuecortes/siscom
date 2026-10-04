@@ -11,7 +11,7 @@
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Novo chamado", titulo: (para_outro ? "Abrir chamado para outra pessoa" : "Abrir chamado"), voltar: ti_chamados_path, rodape: rodape,
-                descricao: (para_outro ? "O chamado fica em nome da pessoa escolhida, com o registro de que foi você quem abriu." : "Escolha a solicitação e preencha os dados pedidos.") } do %>
+                descricao: ("O chamado fica em nome da pessoa escolhida, com o registro de que foi você quem abriu." if para_outro) } do %>
   <%# Em nome de outra pessoa não há lista por trás do painel: ao salvar, a página inteira vai para o chamado. %>
   <%= form_with url: url, id: "formulario_chamado", class: "space-y-5", multipart: true, data: ({ turbo_frame: "_top" } if para_outro) do |f| %>
     <% if erros.any? %>
@@ -28,19 +28,20 @@
 
     <% if formulario.lotacoes.size > 1 %>
       <div class="space-y-1.5">
-        <label for="chamado_lotacao_id" class="text-sm font-medium text-[var(--text-secondary)]">Unidade *</label>
+        <label for="chamado_lotacao_id" class="text-sm font-medium text-[var(--text-secondary)]">Unidade de lotação *</label>
         <%= select_tag "chamado[lotacao_id]",
               options_for_select([ [ "Selecione a unidade", "" ] ] + formulario.lotacoes.map { |l| [ "#{[ l.unidade.sigla, l.unidade.nome ].compact_blank.join(' - ')} (#{l.funcao})", l.id ] }, formulario.lotacao_id),
               id: "chamado_lotacao_id", required: true, data: { parametro: "lotacao_id" }, class: entrada %>
         <p class="text-xs text-[var(--text-muted)]"><%= para_outro ? "A pessoa tem" : "Você tem" %> mais de uma lotação: escolha de qual unidade é este pedido.</p>
-        <% if erros["lotacao"] %><p class="text-sm text-[var(--danger-text)]">Unidade <%= erros["lotacao"] %></p><% end %>
+        <% if erros["lotacao"] %><p class="text-sm text-[var(--danger-text)]">Unidade de lotação <%= erros["lotacao"] %></p><% end %>
       </div>
     <% elsif formulario.lotacoes.one? %>
       <% lotacao = formulario.lotacoes.first %>
       <div class="space-y-1.5">
-        <label for="chamado_unidade" class="text-sm font-medium text-[var(--text-secondary)]">Unidade</label>
+        <label for="chamado_unidade" class="text-sm font-medium text-[var(--text-secondary)]">Unidade de lotação</label>
         <input type="text" id="chamado_unidade" readonly value="<%= [ lotacao.unidade.sigla, lotacao.unidade.nome ].compact_blank.join(" - ") %>"
                class="<%= entrada %> text-[var(--text-secondary)]">
+        <% if lotacao.funcao.present? %><p class="text-xs text-[var(--text-muted)]"><%= lotacao.funcao %></p><% end %>
       </div>
     <% end %>
 
@@ -58,7 +59,7 @@
         <%= render "ti/chamados/campo_dinamico", campo: campo, valor: formulario.respostas&.entrada(campo), erro: erros[campo.chave],
               solicitante_id: (solicitante.id if para_outro) %>
       <% end %>
-      <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+      <p class="text-sm text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
     <% elsif solicitacoes.empty? && (!para_outro || solicitante) %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true,
             mensagem: (para_outro ? "Nenhuma solicitação está liberada para esta pessoa. Inclua-a em um perfil de abertura." : "Nenhuma solicitação está liberada para você. Procure a TI.") %>

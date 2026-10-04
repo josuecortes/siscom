@@ -1,9 +1,12 @@
 <% content_for :title, @acao.titulo %>
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_acao", rotulo: "Confirmar" } %>
+<%# Sobretítulos do seed (operationActionCopy em helpdesk-ticket-detail.tsx); "FILA TÉCNICA" virou "Liberação". %>
+<% sobretitulos = { "encaminhar" => "Triagem", "devolver" => "Ajuste", "impedir" => "Impedimento", "concluir" => "Conclusão", "reabrir" => "Reabertura",
+                    "liberar" => "Liberação", "atribuir" => "Atribuição", "prioridade" => "Prioridade" } %>
 <% entrada = "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Chamado #{@chamado.codigo}", titulo: @acao.titulo, voltar: ti_operacao_path(@chamado), rodape: rodape,
+      locals: { sobretitulo: sobretitulos.fetch(@acao.chave, "Chamado"), titulo: "#{@acao.titulo} #{@chamado.codigo}", voltar: ti_operacao_path(@chamado), rodape: rodape,
                 descricao: "#{@chamado.problema.nome} · #{@chamado.solicitante_nome}" } do %>
   <%= form_with url: acao_ti_operacao_path(@chamado, @acao.chave), method: :post, id: "formulario_acao", class: "space-y-5" do |f| %>
     <% if @erro.present? %>
@@ -23,7 +26,7 @@
 
     <div class="space-y-1.5">
       <label for="nota" class="text-sm font-medium text-[var(--text-secondary)]"><%= @acao.rotulo_nota %> *</label>
-      <%= text_area_tag :nota, params[:nota], rows: 5, required: true, class: "#{entrada} py-3" %>
+      <%= text_area_tag :nota, params[:nota], rows: 4, required: true, class: "#{entrada} min-h-28 py-3" %>
       <p class="text-xs text-[var(--text-muted)]">Fica no histórico do chamado<%= ", e o solicitante vê" if %w[devolver concluir impedir].include?(@acao.chave) %>.</p>
     </div>
   <% end %>

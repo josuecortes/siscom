@@ -3,7 +3,7 @@
   <label for="corpo_da_conversa_<%= conversa.id %>" class="sr-only">Mensagem</label>
   <div class="flex items-end gap-2">
     <%= text_area_tag :corpo, local_assigns[:corpo], id: "corpo_da_conversa_#{conversa.id}", rows: 2, required: true, maxlength: Core::Mensagem::TAMANHO_MAXIMO,
-          placeholder: "Escreva sua mensagem", data: { action: "keydown.enter->conversa#enviarComEnter", turbo_permanent: true },
+          placeholder: "Digite sua mensagem", data: { action: "keydown.enter->conversa#enviarComEnter", turbo_permanent: true },
           class: "min-h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
     <button type="submit" title="Enviar mensagem" aria-label="Enviar mensagem" data-turbo-submits-with="…"
             class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)] disabled:opacity-60"><%= icone(:send) %></button>

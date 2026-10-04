@@ -83,7 +83,7 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
       escola = create(:rh_unidade, nome: "Escola A", sigla: "EEA")
       segunda = create(:rh_lotacao, pessoa: primeira.pessoa, unidade: escola, funcao: primeira.funcao)
       abrir(internet)
-      expect(response.body).to include("Unidade deve ser escolhida")
+      expect(response.body).to include("Unidade de lotação deve ser escolhida")
 
       abrir(internet, lotacao_id: segunda.id)
       expect(Ti::Chamado.recentes.first).to have_attributes(rh_unidade_id: escola.id, unidade_nome: "EEA - ESCOLA A")

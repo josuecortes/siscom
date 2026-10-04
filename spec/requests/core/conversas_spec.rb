@@ -79,7 +79,7 @@ RSpec.describe "Conversas" do
       expect(response.body).to include("1 conversa(s)", "TI-000001 · SEM INTERNET", "1 não lida(s)", "Aberta")
 
       get conversa_path(conversa)
-      expect(response.body).to include("Estou indo aí.", "JOAO TECNICO", "Escreva sua mensagem")
+      expect(response.body).to include("Estou indo aí.", "JOAO TECNICO", "Digite sua mensagem")
       expect(conversa.participante(maria).nao_lidas).to eq(0)
     end
 

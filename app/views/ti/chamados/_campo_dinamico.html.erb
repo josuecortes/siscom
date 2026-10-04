@@ -6,7 +6,7 @@
 <% rotulo = campo.obrigatorio? ? "#{campo.rotulo} *" : campo.rotulo %>
 <% borda = erro ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" %>
 <% entrada = "w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda}" %>
-<% caixa = "flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2.5 text-sm text-[var(--text-primary)]" %>
+<% caixa = "flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)]" %>
 <% mascara = campo.tipo == "data" ? "data" : campo.mascara %>
 <% dados = mascara ? { controller: "mascara", mascara_tipo_value: mascara, action: "input->mascara#aplicar" } : {} %>
 
@@ -37,7 +37,7 @@
     <label for="<%= id %>" class="text-sm font-medium text-[var(--text-secondary)]"><%= rotulo %></label>
     <% case campo.tipo %>
     <% when "texto_longo" %>
-      <%= text_area_tag nome, valor, id: id, rows: 4, required: campo.obrigatorio?, placeholder: campo.exemplo, class: "#{entrada} py-3" %>
+      <%= text_area_tag nome, valor, id: id, rows: 4, required: campo.obrigatorio?, placeholder: campo.exemplo, class: "#{entrada} min-h-28 py-3" %>
     <% when "selecao" %>
       <%= select_tag nome, options_for_select([ [ "Selecione", "" ] ] + campo.opcoes, valor), id: id, required: campo.obrigatorio?, class: "#{entrada} h-11" %>
     <% when "arquivo", "arquivos" %>

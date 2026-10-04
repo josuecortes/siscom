@@ -29,16 +29,24 @@
         <tbody>
           <% @chamados.each do |chamado| %>
             <tr id="<%= dom_id(chamado) %>">
-              <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]"><%= chamado.codigo %></td>
-              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= chamado.problema.nome %></p></td>
+              <td class="font-semibold text-[var(--text-primary)]">
+                <%= link_to chamado.codigo, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+              </td>
               <td>
-                <p class="text-sm text-[var(--text-primary)]"><%= chamado.solicitante_nome %></p>
-                <% if chamado.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= chamado.unidade_nome %></p><% end %>
+                <p class="font-semibold text-[var(--text-primary)]">
+                  <%= link_to chamado.problema.nome, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                </p>
+              </td>
+              <td>
+                <div class="min-w-0">
+                  <p><%= chamado.solicitante_nome %></p>
+                  <% if chamado.unidade_nome.present? %><p class="text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
+                </div>
               </td>
               <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
               <td><%= render "compartilhado/selo", texto: chamado.nome_da_prioridade, tom: (chamado.prioridade_normal? ? :neutro : :atencao) %></td>
               <td><%= selo_do_status(chamado) %></td>
-              <td><%= chamado.responsavel&.nome || (chamado.em_triagem? && chamado.triador ? "#{chamado.triador.nome} (triagem)" : "—") %></td>
+              <td><%= chamado.responsavel&.nome || (chamado.em_triagem? && chamado.triador ? "#{chamado.triador.nome} (triagem)" : "Não atribuído") %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
                   <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :description, caminho: ti_operacao_path(chamado) %>

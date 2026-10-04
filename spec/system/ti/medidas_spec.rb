@@ -1,7 +1,8 @@
 require "rails_helper"
 
 # Medidas e textos da TI conferidos contra o seed rodando (/helpdesk/request-categories, /helpdesk/opening-profiles,
-# /helpdesk/technical-groups, /helpdesk/solicitations, /helpdesk/user-accesses; helpdesk-*-module.tsx), em 1400 px e 390 px.
+# /helpdesk/technical-groups, /helpdesk/solicitations, /helpdesk/user-accesses, /helpdesk/tickets, /helpdesk/operation;
+# helpdesk-*-module.tsx e helpdesk-ticket-detail.tsx), em 1400 px e 390 px.
 RSpec.describe "TI com as medidas do seed", :js do
   let(:admin) { create(:user, nome: "ADMIN DA TI").tap { |u| create(:core_concessao, user: u, modulo: "ti", papel: "admin") } }
   let!(:categoria) { create(:ti_categoria, nome: "Rede", descricao: "Demandas de rede e conectividade.") }
@@ -151,6 +152,97 @@ RSpec.describe "TI com as medidas do seed", :js do
       expect(tamanhos(nome: "#registro_nome", descricao: "#registro_descricao")).to eq(nome: [ 317.8, 44 ], descricao: [ 317.8, 112 ])
       expect(sem_rolagem_horizontal?).to be(true)
       print("ti-grupo-painel-celular")
+    end
+  end
+
+  describe "chamados" do
+    before do
+      solicitante = create(:user, nome: "MARIA OLIVEIRA")
+      create(:user, nome: "JOAO TECNICO").tap { |u| create(:core_concessao, user: u, modulo: "ti", papel: "tecnico") }
+      Ti::Chamado.create!(problema: solicitacao, solicitante: solicitante, solicitante_nome: solicitante.nome, solicitante_email: solicitante.email,
+                          unidade_nome: "NÚCLEO DE INFORMÁTICA", aberto_em: Time.current)
+      solicitacao.perfis_abertura << create(:ti_perfil_abertura, nome: "Geral", padrao: true)
+      sign_in solicitante
+    end
+
+    def tecnico = User.find_by!(nome: "JOAO TECNICO")
+    def chamado = Ti::Chamado.sole
+
+    it "Meus chamados: código e solicitação levam ao chamado, selo azul de Aberto e \"Não atribuído\", como no seed" do
+      visit ti_chamados_path
+      usar_tema("light")
+
+      linha = "##{ActionView::RecordIdentifier.dom_id(chamado)}"
+      expect(page).to have_css("#{linha} td:nth-child(1) a", text: chamado.codigo).and have_css("#{linha} td:nth-child(2) a", text: "SEM INTERNET")
+      expect([ estilo("#{linha} td:nth-child(2) p", "fontSize"), estilo("#{linha} td:nth-child(2) p + p", "fontSize") ]).to eq([ "15.2px", "14px" ])
+      expect(page).to have_css("#{linha} td", text: "Não atribuído")
+      selo = "#{linha} td:nth-child(4) span"
+      expect([ find(selo).text, estilo(selo, "backgroundColor"), estilo(selo, "color") ]).to eq([ "Aberto", "rgb(238, 244, 255)", "rgb(49, 92, 207)" ])
+      expect(tamanhos(selo: selo)[:selo].last).to eq(24)
+
+      within(linha) { click_on chamado.codigo }
+      expect(page).to have_css("h1", text: "Chamado #{chamado.codigo}")
+    end
+
+    it "o painel Abrir chamado começa direto nos campos, com 44 px, e os painéis do chamado usam \"<ação> <código>\"" do
+      visit new_ti_chamado_path
+      usar_tema("light")
+      expect(titulos_do_painel).to eq([ "novo chamado", "Abrir chamado" ])
+      expect(tamanhos(cabecalho: "#{painel} > div:first-child", solicitacao: "#chamado_problema")).to eq(cabecalho: [ 542, 81.5 ], solicitacao: [ 502, 44 ])
+      # Sem texto de apoio antes do primeiro campo: 81,5 do cabeçalho + 20 de folga + rótulo.
+      expect(retangulo("#chamado_problema")["y"] - retangulo(painel)["y"]).to be_within(0.5).of(125.3)
+
+      visit edit_ti_chamado_path(chamado)
+      expect(titulos_do_painel).to eq([ "editar chamado", "Atualizar #{chamado.codigo}" ])
+      visit cancelamento_ti_chamado_path(chamado)
+      expect(titulos_do_painel).to eq([ "cancelar chamado", "Cancelar #{chamado.codigo}" ])
+      expect(tamanhos(motivo: "#motivo")).to eq(motivo: [ 502, 112 ])
+
+      chamado.update_columns(status: "concluido", responsavel_id: tecnico.id)
+      visit finalizacao_ti_chamado_path(chamado)
+      expect(titulos_do_painel).to eq([ "finalizar chamado", "Finalizar #{chamado.codigo}" ])
+      expect(tamanhos(resolveu: "#resolvido", avaliacao: "#avaliacao", comentario: "#comentario"))
+        .to eq(resolveu: [ 502, 44 ], avaliacao: [ 502, 44 ], comentario: [ 502, 112 ])
+      print("ti-finalizar-painel")
+    end
+
+    it "o painel de ação da operação usa o sobretítulo do seed e o código no título" do
+      solicitacao.grupos_tecnicos << grupo
+      grupo.vinculos_de_membro.create!(user: tecnico)
+      chamado.update_columns(status: "em_atendimento", responsavel_id: tecnico.id)
+      sign_in tecnico
+
+      visit acao_ti_operacao_path(chamado, "concluir")
+      expect(titulos_do_painel).to eq([ "conclusão", "Concluir atendimento #{chamado.codigo}" ])
+      expect(tamanhos(nota: "#nota")).to eq(nota: [ 502, 112 ])
+      visit acao_ti_operacao_path(chamado, "devolver")
+      expect(titulos_do_painel).to eq([ "ajuste", "Pedir ajuste ao solicitante #{chamado.codigo}" ])
+
+      visit ti_operacao_index_path(status: "meus")
+      linha = "##{ActionView::RecordIdentifier.dom_id(chamado)}"
+      expect(page).to have_css("#{linha} td:nth-child(1) a", text: chamado.codigo).and have_css("#{linha} td:nth-child(2) a", text: "SEM INTERNET")
+      expect(estilo("#{linha} td:nth-child(2) p", "fontSize")).to eq("15.2px")
+      print("ti-operacao")
+    end
+
+    it "no celular a lista, a página do chamado e o painel de abertura não criam rolagem horizontal" do
+      usar_tela_de_celular
+      visit ti_chamados_path
+      expect(tamanhos(abrir: "main section a[title='Abrir chamado']")).to eq(abrir: [ 36, 36 ])
+      expect(sem_rolagem_horizontal?).to be(true)
+      print("ti-chamados-celular")
+
+      visit ti_chamado_path(chamado)
+      expect(page).to have_content("Ninguém pegou este chamado ainda")
+      expect(tamanhos(voltar: "main section a[title='Voltar']")).to eq(voltar: [ 36, 36 ])
+      expect(retangulo("main dl > div:nth-child(1)")).to include("x" => 41, "largura" => 308)
+      expect(sem_rolagem_horizontal?).to be(true)
+      print("ti-chamado-celular")
+
+      visit new_ti_chamado_path
+      expect(retangulo(painel)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      expect(tamanhos(solicitacao: "#chamado_problema")).to eq(solicitacao: [ 317.8, 44 ])
+      expect(sem_rolagem_horizontal?).to be(true)
     end
   end
 end

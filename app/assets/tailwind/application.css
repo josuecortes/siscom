@@ -45,6 +45,11 @@
   --success-badge-text: #1c7f43;
   --info-badge-surface: #e8f0ff;
   --info-badge-text: #315ccf;
+  /* Selo do status do chamado (renderTicketStatus do seed). */
+  --status-aberto-surface: #eef4ff;
+  --status-aguardando-surface: #fff5e8;
+  --status-aguardando-text: #b56a11;
+  --status-andamento-surface: #e9f7ef;
   --success-border: #bfe0c8;
   --success-text: #1c7f43;
   --warning-surface: #fff1e8;

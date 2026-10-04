@@ -28,14 +28,20 @@
         <tbody>
           <% @chamados.each do |chamado| %>
             <tr id="<%= dom_id(chamado) %>">
-              <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]"><%= chamado.codigo %></td>
+              <td class="font-semibold text-[var(--text-primary)]">
+                <%= link_to chamado.codigo, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+              </td>
               <td>
-                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= chamado.problema.nome %></p>
-                <% if chamado.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= chamado.unidade_nome %></p><% end %>
+                <div class="min-w-0">
+                  <p class="truncate font-semibold text-[var(--text-primary)]">
+                    <%= link_to chamado.problema.nome, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                  </p>
+                  <% if chamado.unidade_nome.present? %><p class="truncate text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
+                </div>
               </td>
               <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
               <td><%= selo_do_status(chamado) %></td>
-              <td><%= chamado.responsavel&.nome || "—" %></td>
+              <td><%= chamado.responsavel&.nome || "Não atribuído" %></td>
               <td><%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :description, caminho: ti_chamado_path(chamado) %></td>
             </tr>
           <% end %>
