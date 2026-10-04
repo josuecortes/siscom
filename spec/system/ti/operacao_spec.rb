@@ -87,7 +87,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     Capybara.using_session(:tecnico) do
       click_on "Pedir ajuste ao solicitante"
       fill_in "Orientação para o solicitante *", with: "Qual é a sala?"
-      click_on "Confirmar"
+      within("[role='dialog']") { click_on "Pedir ajuste ao solicitante" }
       expect(page).to have_css("#avisos", text: "ajuste pedido ao solicitante")
     end
 
@@ -102,7 +102,7 @@ RSpec.describe "TI: operação em tempo real", :js do
       click_on "Concluir atendimento"
       fill_in "Resultado do atendimento *", with: "Cabo trocado."
       print("ti-operacao-concluir")
-      click_on "Confirmar"
+      within("[role='dialog']") { click_on "Concluir atendimento" }
       expect(page).to have_css("#avisos", text: "atendimento concluído")
       print("ti-operacao-chamado")
     end

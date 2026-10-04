@@ -25,6 +25,9 @@ module LoginDeSistema
 end
 
 Warden::Manager.on_request do |proxy|
+  if ENV["DEPURAR_LOGIN"] && !proxy.request.path.start_with?("/assets")
+    File.open("tmp/login_hook.log", "a") { |f| f.puts "#{Time.now.strftime('%H:%M:%S.%L')} #{proxy.request.request_method} #{proxy.request.path} ultimo=#{LoginDeSistema.ultimo&.id.inspect} sessoes=#{LoginDeSistema.usuarios.transform_values(&:id)} atual=#{proxy.user(:user)&.id.inspect}" }
+  end
   next unless LoginDeSistema.ultimo
 
   if proxy.request.path == "/users/sign_out"
@@ -40,5 +43,9 @@ end
 
 RSpec.configure do |config|
   config.include LoginDeSistema, type: :system
-  config.after(:each, type: :system) { LoginDeSistema.limpar }
+  config.before(:each, type: :system) { |exemplo| File.open("tmp/login_hook.log", "a") { |f| f.puts "== #{exemplo.full_description}" } if ENV["DEPURAR_LOGIN"] }
+  config.after(:each, type: :system) do |exemplo|
+    File.open("tmp/login_hook.log", "a") { |f| f.puts "-- fim #{exemplo.exception ? 'FALHOU' : 'ok'}" } if ENV["DEPURAR_LOGIN"]
+    LoginDeSistema.limpar
+  end
 end

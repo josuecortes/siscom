@@ -1,5 +1,5 @@
 <% content_for :title, @acao.titulo %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_acao", rotulo: "Confirmar" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_acao", rotulo: @acao.rotulo } %>
 <%# Sobretítulos do seed (operationActionCopy em helpdesk-ticket-detail.tsx); "FILA TÉCNICA" virou "Liberação". %>
 <% sobretitulos = { "encaminhar" => "Triagem", "devolver" => "Ajuste", "impedir" => "Impedimento", "concluir" => "Conclusão", "reabrir" => "Reabertura",
                     "liberar" => "Liberação", "atribuir" => "Atribuição", "prioridade" => "Prioridade" } %>
