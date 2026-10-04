@@ -69,6 +69,33 @@ RSpec.describe "TI: permissões" do
       expect(Core::RegistroAuditoria.recentes.first).to have_attributes(evento: "acesso.papel_concedido", ator: admin, alvo_id: maria.id)
     end
 
+    it "adiciona e remove usuários pelo lado do perfil de abertura, com busca e filtro da lista" do
+      perfil = create(:ti_perfil_abertura, nome: "Escola")
+      joao = create(:user, nome: "JOAO SANTOS")
+
+      get ti_opcoes_de_usuarios_do_perfil_path(perfil_id: perfil.id), params: { q: "maria" }
+      expect(response.parsed_body["opcoes"].pluck("rotulo")).to eq([ "MARIA OLIVEIRA" ])
+
+      post ti_perfil_abertura_usuarios_path(perfil), params: { user_id: maria.id }
+      post ti_perfil_abertura_usuarios_path(perfil), params: { user_id: joao.id }
+      expect(response.body).to include("Gerenciar usuários de ESCOLA", "JOAO SANTOS entrou no perfil.", "Usuários do perfil (2)")
+
+      get edit_ti_perfil_abertura_usuarios_path(perfil), params: { q: "maria" }
+      expect(response.body).to include("Usuários do perfil (1)", "MARIA OLIVEIRA")
+
+      delete ti_perfil_abertura_usuarios_path(perfil), params: { user_id: joao.id }
+      expect(perfil.usuarios).to contain_exactly(maria)
+    end
+
+    it "perfil padrão não tem lista de usuários" do
+      padrao = create(:ti_perfil_abertura, nome: "Geral", padrao: true)
+
+      get edit_ti_perfil_abertura_usuarios_path(padrao)
+      expect(response.body).to include("vale para todos os usuários")
+      post ti_perfil_abertura_usuarios_path(padrao), params: { user_id: maria.id }
+      expect(padrao.usuarios).to be_empty
+    end
+
     it "ignora papel de outro módulo e o automático" do
       patch ti_permissao_path(maria), params: { papeis: %w[superadmin solicitante] }
 

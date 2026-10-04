@@ -22,6 +22,8 @@ namespace :ti do
   resource :chamado_para_outro, only: %i[new create], path: "chamados-para-outra-pessoa", controller: "chamados_para_outro"
   get "opcoes/usuarios", to: "opcoes#usuarios", as: :opcoes_de_usuarios, defaults: { format: :json }
   get "opcoes/operadores", to: "opcoes#operadores", as: :opcoes_de_operadores, defaults: { format: :json }
+  get "opcoes/usuarios-do-perfil", to: "opcoes#usuarios_do_perfil", as: :opcoes_de_usuarios_do_perfil, defaults: { format: :json }
+  get "opcoes/solicitacoes", to: "opcoes#solicitacoes", as: :opcoes_de_solicitacoes, defaults: { format: :json }
   get "opcoes/campos/:campo_id", to: "opcoes#index", as: :opcoes_do_campo, defaults: { format: :json }
 
   # Itens simples do catálogo (mesma tela para os três).
@@ -54,10 +56,11 @@ namespace :ti do
   # Membros de um grupo técnico e perfis de abertura de um usuário.
   resources :grupos_tecnicos, only: [] do
     resource :membros, only: %i[edit create destroy], controller: "membros_do_grupo"
-    resource :solicitacoes, only: %i[edit update], controller: "solicitacoes_do_item", defaults: { tipo: "grupo" }
+    resource :solicitacoes, only: %i[edit create destroy], controller: "solicitacoes_do_item", defaults: { tipo: "grupo" }
   end
   resources :perfis_abertura, only: [] do
-    resource :solicitacoes, only: %i[edit update], controller: "solicitacoes_do_item", defaults: { tipo: "perfil" }
+    resource :solicitacoes, only: %i[edit create destroy], controller: "solicitacoes_do_item", defaults: { tipo: "perfil" }
+    resource :usuarios, only: %i[edit create destroy], controller: "usuarios_do_perfil"
   end
   resources :permissoes, only: %i[index edit update] do
     resource :perfis_abertura, only: %i[edit update], controller: "perfis_do_usuario"

@@ -93,13 +93,14 @@ RSpec.describe "TI: catálogo (categorias, perfis de abertura e grupos técnicos
       expect(Core::RegistroAuditoria.where(evento: "grupo_tecnico.membros_alterados").count).to eq(2)
     end
 
-    it "mostra na lista de grupos a quantidade e os nomes dos membros" do
+    it "mostra na lista de grupos só a quantidade de membros" do
       grupo = create(:ti_grupo_tecnico, nome: "Redes")
       [ tecnico, supervisor ].each { |user| grupo.vinculos_de_membro.create!(user: user) }
 
       get ti_grupos_tecnicos_path
 
-      expect(response.body).to include("2 membro(s)", "SUPERVISOR DA TI e TECNICO DA TI")
+      expect(response.body).to include("2 membro(s)")
+      expect(Nokogiri::HTML(response.body).css("tbody").text).not_to include("TECNICO DA TI")
     end
 
     it "não mexe nos perfis de abertura dos usuários" do

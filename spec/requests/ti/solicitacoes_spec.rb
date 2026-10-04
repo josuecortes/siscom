@@ -78,23 +78,38 @@ RSpec.describe "TI: solicitações do catálogo" do
       expect(Core::RegistroAuditoria.where(evento: %w[solicitacao.perfis_alterados solicitacao.grupos_alterados]).count).to eq(3)
     end
 
-    it "define as solicitações pelo lado do perfil de abertura e do grupo técnico" do
+    it "adiciona e remove solicitações pelo lado do perfil de abertura e do grupo técnico" do
       internet, impressora = create(:ti_problema, nome: "Sem internet", categoria: rede), create(:ti_problema, nome: "Impressora parada", categoria: rede)
-      inativa = create(:ti_problema, status: "inativo")
-      escola = create(:ti_perfil_abertura, nome: "Escola").tap { |perfil| perfil.problemas << inativa }
+      escola = create(:ti_perfil_abertura, nome: "Escola")
       redes = create(:ti_grupo_tecnico, nome: "Redes")
 
-      get edit_ti_perfil_abertura_solicitacoes_path(escola)
-      expect(response.body).to include("Solicitações de ESCOLA", "REDE", "SEM INTERNET", "IMPRESSORA PARADA")
+      post ti_perfil_abertura_solicitacoes_path(escola), params: { problema_id: internet.id }
+      expect(response.body).to include("Gerenciar solicitações de ESCOLA", "SEM INTERNET adicionada.", "Solicitações (1)")
+      post ti_perfil_abertura_solicitacoes_path(escola), params: { problema_id: impressora.id }
+      delete ti_perfil_abertura_solicitacoes_path(escola), params: { problema_id: impressora.id }
+      post ti_grupo_tecnico_solicitacoes_path(redes), params: { problema_id: impressora.id }
 
-      patch ti_perfil_abertura_solicitacoes_path(escola), params: { ids: [ "", internet.id, impressora.id ] }
-      patch ti_perfil_abertura_solicitacoes_path(escola), params: { ids: [ "", internet.id ] }
-      patch ti_grupo_tecnico_solicitacoes_path(redes), params: { ids: [ "", impressora.id ] }
+      expect([ escola.reload.problemas.to_a, redes.reload.problemas.to_a ]).to eq([ [ internet ], [ impressora ] ])
+      expect(Core::RegistroAuditoria.where(evento: "catalogo.solicitacoes_alteradas").count).to eq(4)
+    end
 
-      expect(escola.reload.problemas).to contain_exactly(internet, inativa)
-      expect(redes.reload.problemas).to contain_exactly(impressora)
-      expect(response).to redirect_to(ti_grupos_tecnicos_path)
-      expect(Core::RegistroAuditoria.where(evento: "catalogo.solicitacoes_alteradas").count).to eq(3)
+    it "a busca de solicitações só traz as ativas que ainda não estão no perfil" do
+      internet = create(:ti_problema, nome: "Sem internet", categoria: rede)
+      create(:ti_problema, nome: "Impressora parada", categoria: rede)
+      create(:ti_problema, nome: "Antiga", status: "inativo")
+      escola = create(:ti_perfil_abertura, nome: "Escola").tap { |perfil| perfil.problemas << internet }
+
+      get ti_opcoes_de_solicitacoes_path(tipo: "perfil", id: escola.id)
+
+      expect(response.parsed_body["opcoes"]).to eq([ { "valor" => Ti::Problema.find_by!(nome: "IMPRESSORA PARADA").id, "rotulo" => "IMPRESSORA PARADA", "subtitulo" => "REDE" } ])
+    end
+
+    it "supervisor não mexe nos usuários do perfil" do
+      perfil = create(:ti_perfil_abertura)
+
+      post ti_perfil_abertura_usuarios_path(perfil), params: { user_id: supervisor.id }
+
+      expect(response).to have_http_status(:forbidden)
     end
 
     it "marca um perfil de abertura como padrão e mostra Todos na lista" do

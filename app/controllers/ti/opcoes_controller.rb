@@ -10,27 +10,33 @@ module Ti
     # Usuários ativos, para quem abre chamado em nome de outra pessoa.
     def usuarios
       pode!(Ti::Chamados::Abrir::PERMISSAO_PARA_OUTRO)
-      termo = params[:q].to_s.squish
-      ativos = ::User.ativos.where.not(id: current_user.id).order(:nome, :id)
-      achados = termo.length >= MINIMO ? ativos.buscar(termo) : ativos.none
-      todas = achados.none?
-      escolhidos = todas ? ativos : achados
-
-      render json: { opcoes: escolhidos.limit(LIMITE).map { |user| { valor: user.id, rotulo: user.nome, subtitulo: user.email } },
-                     todas: todas, restantes: [ escolhidos.count - LIMITE, 0 ].max }
+      render json: pessoas(::User.ativos.where.not(id: current_user.id).order(:nome, :id))
     end
 
     # Quem pode entrar em um grupo técnico: usuários com permissão na TI que ainda não são membros dele.
     def operadores
       pode!(Ti::Catalogo::PERMISSAO)
-      termo = params[:q].to_s.squish
-      fora = Ti::Grupos.elegiveis.where.not(id: Ti::MembroGrupo.where(grupo_tecnico_id: params[:grupo_id]).select(:user_id))
-      achados = termo.length >= MINIMO ? fora.buscar(termo) : fora.none
-      todas = achados.none?
-      escolhidos = todas ? fora : achados
+      render json: pessoas(Ti::Grupos.elegiveis.where.not(id: Ti::MembroGrupo.where(grupo_tecnico_id: params[:grupo_id]).select(:user_id)))
+    end
 
-      render json: { opcoes: escolhidos.limit(LIMITE).map { |user| { valor: user.id, rotulo: user.nome, subtitulo: user.email } },
-                     todas: todas, restantes: [ escolhidos.count - LIMITE, 0 ].max }
+    # Usuários ativos que ainda não estão em um perfil de abertura.
+    def usuarios_do_perfil
+      pode!(Ti::Perfis::DefinirDoUsuario::PERMISSAO)
+      render json: pessoas(::User.ativos.where.not(id: Ti::PerfilUsuario.where(perfil_abertura_id: params[:perfil_id]).select(:user_id)).order(:nome, :id))
+    end
+
+    # Solicitações ativas que ainda não estão no perfil de abertura (ou no grupo técnico).
+    def solicitacoes
+      pode!(Ti::Catalogo::PERMISSAO)
+      vinculadas = params[:tipo] == "grupo" ? Ti::ProblemaGrupo.where(grupo_tecnico_id: params[:id]) : Ti::ProblemaPerfil.where(perfil_abertura_id: params[:id])
+      fora = Ti::Problema.ativo.joins(:categoria).where.not(id: vinculadas.select(:problema_id)).order(:nome)
+      termo = params[:q].to_s.squish
+      achadas = termo.length >= MINIMO ? fora.buscar(termo) : fora.none
+      todas = achadas.none?
+      escolhidas = todas ? fora : achadas
+
+      render json: { opcoes: escolhidas.limit(LIMITE).pluck(:id, :nome, "ti_categorias.nome").map { |id, nome, categoria| { valor: id, rotulo: nome, subtitulo: categoria } },
+                     todas: todas, restantes: [ escolhidas.count - LIMITE, 0 ].max }
     end
 
     # Quem abre em nome de outra pessoa (`solicitante_id`) vê os campos das solicitações dela.
@@ -47,6 +53,17 @@ module Ti
     end
 
     private
+
+    # Resposta padrão de uma busca de pessoas: com 3 letras ou mais, quem combina; senão, a lista em ordem.
+    def pessoas(relacao)
+      termo = params[:q].to_s.squish
+      achados = termo.length >= MINIMO ? relacao.buscar(termo) : relacao.none
+      todas = achados.none?
+      escolhidos = todas ? relacao : achados
+
+      { opcoes: escolhidos.limit(LIMITE).map { |user| { valor: user.id, rotulo: user.nome, subtitulo: user.email } },
+        todas: todas, restantes: [ escolhidos.count - LIMITE, 0 ].max }
+    end
 
     def dono_do_chamado
       return current_user if params[:solicitante_id].blank?

@@ -37,7 +37,7 @@ RSpec.describe "TI: catálogo", :js do
     click_on "Concluir"
 
     expect(page).to have_no_css("[role='dialog']")
-    within("tr", text: "REDES") { expect(page).to have_content("1 membro(s)").and have_content("JOAO TECNICO") }
+    within("tr", text: "REDES") { expect(page).to have_content("1 membro(s)") }
     expect(Ti::GrupoTecnico.sole.membros.map(&:nome)).to eq([ "JOAO TECNICO" ])
     print("ti-grupos-lista")
   end
@@ -56,6 +56,34 @@ RSpec.describe "TI: catálogo", :js do
 
     expect(page).to have_css("#avisos", text: "Perfis de abertura de JOAO TECNICO atualizados.")
     within("tr", text: "JOAO TECNICO") { expect(page).to have_content("DIRETOR DE ESCOLA") }
+  end
+
+  it "no perfil de abertura, adiciona usuário e solicitação por busca e remove pelo ×" do
+    create(:ti_perfil_abertura, nome: "Escola")
+    create(:ti_problema, nome: "Sem internet", categoria: create(:ti_categoria, nome: "Rede"))
+
+    visit ti_perfis_abertura_path
+    within("tr", text: "ESCOLA") { click_on "Gerenciar usuários" }
+    escolher_no_autocomplete "Adicionar usuário", digitar: "joao", opcao: "JOAO TECNICO"
+    click_on "Adicionar"
+    expect(page).to have_content("JOAO TECNICO entrou no perfil.")
+    print("ti-perfil-usuarios")
+    click_on "Remover JOAO TECNICO"
+    expect(page).to have_content("JOAO TECNICO saiu do perfil.")
+    escolher_no_autocomplete "Adicionar usuário", digitar: "joao", opcao: "JOAO TECNICO"
+    click_on "Adicionar"
+    expect(page).to have_content("Usuários do perfil (1)")
+    click_on "Concluir"
+
+    within("tr", text: "ESCOLA") { click_on "Gerenciar solicitações" }
+    escolher_no_autocomplete "Adicionar solicitação", digitar: "inter", opcao: "SEM INTERNET"
+    click_on "Adicionar"
+    expect(page).to have_content("SEM INTERNET adicionada.")
+    print("ti-perfil-solicitacoes")
+    click_on "Concluir"
+
+    expect(page).to have_no_css("[role='dialog']")
+    expect(Ti::PerfilAbertura.find_by!(nome: "ESCOLA")).to have_attributes(usuarios: [ User.find_by!(nome: "JOAO TECNICO") ], problemas: [ Ti::Problema.sole ])
   end
 
   it "no celular as listas e os painéis não criam rolagem horizontal" do

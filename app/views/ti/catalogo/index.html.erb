@@ -57,7 +57,6 @@
                   <% quantidade = @contagens.fetch(registro.id, 0) %>
                   <% if @tabela.grupo? %>
                     <p class="text-sm text-[var(--text-primary)]"><%= quantidade %> membro(s)</p>
-                    <% if @nomes_dos_membros[registro.id].present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= @nomes_dos_membros[registro.id].to_sentence %></p><% end %>
                   <% else %>
                     <%= quantidade %>
                   <% end %>
@@ -71,6 +70,10 @@
                     <%= render "compartilhado/botao_acao", titulo: "Gerenciar membros", icone: :people, caminho: edit_ti_grupo_tecnico_membros_path(registro), quadro: "painel" %>
                   <% end %>
                   <% if @tabela.grupo? || @tabela.perfil? %>
+                    <% if @tabela.perfil? %>
+                      <%= render "compartilhado/botao_acao", titulo: "Gerenciar usuários", icone: :people, quadro: "painel",
+                            caminho: edit_ti_perfil_abertura_usuarios_path(registro), desabilitado: registro.padrao? %>
+                    <% end %>
                     <%= render "compartilhado/botao_acao", titulo: "Gerenciar solicitações", icone: :list_rich, quadro: "painel",
                           caminho: (@tabela.grupo? ? edit_ti_grupo_tecnico_solicitacoes_path(registro) : edit_ti_perfil_abertura_solicitacoes_path(registro)) %>
                   <% end %>
