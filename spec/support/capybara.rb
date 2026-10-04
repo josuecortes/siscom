@@ -18,6 +18,7 @@ module TamanhoDeTela
 
   # Posição e tamanho de um elemento na tela, com uma casa decimal: { "x", "y", "largura", "altura" }.
   def retangulo(seletor)
+    page.assert_selector(:css, seletor, visible: :all, minimum: 1) # espera o elemento existir (a página pode estar carregando)
     page.evaluate_script(<<~JS)
       (() => {
         const r = document.querySelector(#{seletor.to_json}).getBoundingClientRect();

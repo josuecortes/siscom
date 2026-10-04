@@ -83,9 +83,12 @@ module Core
     FonteDisponivel = Data.define(:chave, :nome)
 
     def fontes_de_referencia
-      FontesReferencia::Publicar.call unless FonteReferencia.exists? # banco novo: publica as fontes padrão
+      publicar_fontes_padrao unless FonteReferencia.exists? # banco novo
       FonteReferencia.ativo.ordenadas.pluck(:chave, :nome).map { |chave, nome| FonteDisponivel.new(chave:, nome:) }
     end
+
+    # Publica (ou atualiza) a fonte padrão de cada entidade publicável dos módulos. Idempotente.
+    def publicar_fontes_padrao = FontesReferencia::Publicar.call
 
     # Entidades do Core que podem virar fonte de referência (ver Core::FontesReferencia::Entidades).
     def entidades_publicaveis

@@ -40,6 +40,7 @@ module Ti
 
       def call
         ActiveRecord::Base.transaction do
+          Core::Api.publicar_fontes_padrao # os formulários usam as fontes do RH (cargos, funções, unidades)
           categorias = importar_categorias
           importar_solicitacoes(categorias)
           criar_solicitacao_geral

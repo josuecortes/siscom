@@ -50,6 +50,8 @@ RSpec.describe Ti::Importacao::CatalogoInicial do
   end
 
   it "recria os formulários especiais como campos e põe Observações em todas" do
+    Core::FonteReferencia.create!(chave: "antiga", nome: "Antiga", modulo: "core", entidade: "usuarios", campo_rotulo: "nome", campo_valor: "id",
+                                  campos_busca: %w[nome], tipos_de_campo: %w[selecao_unica]) # banco que já tinha fontes, mas não as do RH
     described_class.call
     campos = ->(nome) { Ti::Problema.find_by!(nome: nome).campos.ordenados }
 
