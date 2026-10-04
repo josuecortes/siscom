@@ -15,7 +15,7 @@
   <%= hidden_field_tag nome, local_assigns[:valor], id: "#{id}_valor", data: { autocomplete_target: "valor", action: local_assigns[:acao] }.compact %>
   <div class="<%= "relative" if local_assigns[:flutuante] %>">
     <%= text_field_tag nil, local_assigns[:texto], id: id, autocomplete: "off", role: "combobox", required: local_assigns[:obrigatorio],
-          placeholder: local_assigns.fetch(:placeholder, "Digite 3 letras para procurar"),
+          placeholder: local_assigns.fetch(:placeholder, "Digite sua pesquisa"),
           aria: { autocomplete: "list", expanded: "false", controls: lista, invalid: (erros.any? ? "true" : nil) },
           data: { autocomplete_target: "texto", action: "input->autocomplete#digitar focus->autocomplete#abrir keydown->autocomplete#teclar" },
           class: [ "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]",

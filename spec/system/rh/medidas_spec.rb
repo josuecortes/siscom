@@ -59,7 +59,7 @@ RSpec.describe "RH com as medidas do seed", :js do
       expect(titulos_do_painel).to eq([ "nova lotação", "Conceder lotação" ])
 
       visit edit_rh_permissao_path(admin)
-      expect(titulos_do_painel).to eq([ "editar permissão", "ADMIN DO RH" ])
+      expect(titulos_do_painel).to eq([ "editar permissão", "Atualizar permissão do RH" ])
     end
 
     it "o painel de unidade tem um campo por linha, com 44 px, e o bloco da escola sem folga dupla" do

@@ -107,7 +107,8 @@ RSpec.describe "RH: pessoas", :js do
 
     visit rh_permissoes_path
     within("tr", text: "MARIA OLIVEIRA") { click_on "Gerenciar permissões" }
-    choose "Leitor"
+    expect(find_field("Usuário", readonly: true).value).to start_with("MARIA OLIVEIRA (")
+    within("[role='dialog']") { select "Leitor", from: "Permissão no RH" }
     page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-acessos.png") if ENV["SCREENSHOT_DIR"]
     click_on "Salvar permissão"
 

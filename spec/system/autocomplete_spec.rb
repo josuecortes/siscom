@@ -151,7 +151,7 @@ RSpec.describe "Campo de busca (autocomplete)", :js do
     it "mostra a dica da unidade superior embaixo do campo, sem cortar o texto de ajuda" do
       visit new_rh_unidade_path
 
-      expect(find("#unidade_pai")[:placeholder]).to eq("Digite 3 letras para procurar")
+      expect(find("#unidade_pai")[:placeholder]).to eq("Digite sua pesquisa")
       expect(page).to have_css("#unidade_pai_lista ~ p, div:has(> #unidade_pai) ~ p", text: "Em branco = unidade de primeiro nível.")
     end
 
@@ -192,7 +192,7 @@ RSpec.describe "Campo de busca (autocomplete)", :js do
       usar_tema("light")
 
       conferir_lista_flutuante
-      expect(find("#evento")[:placeholder]).to eq("Todos · digite 3 letras")
+      expect(find("#evento")[:placeholder]).to eq("Todos · digite sua pesquisa")
       expect(page.evaluate_script("(() => { const c = document.getElementById('evento'); return c.scrollWidth <= c.clientWidth })()")).to be(true)
       print("autocomplete-auditoria")
     end

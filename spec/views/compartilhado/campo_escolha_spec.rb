@@ -18,7 +18,7 @@ RSpec.describe "compartilhado/_campo_escolha" do
   it "com mais de 8 opções vira campo de busca, com as opções embutidas e o texto atual" do
     html = renderizar(9)
 
-    expect(html).to include('data-controller="autocomplete"', 'name="unidade[tipo_unidade_id]"', 'value="Opção 2"', "Selecione · digite 3 letras")
+    expect(html).to include('data-controller="autocomplete"', 'name="unidade[tipo_unidade_id]"', 'value="Opção 2"', "Selecione · digite sua pesquisa")
     expect(html).to include("&quot;rotulo&quot;:&quot;Opção 9&quot;")
     expect(html).not_to include("<select")
   end

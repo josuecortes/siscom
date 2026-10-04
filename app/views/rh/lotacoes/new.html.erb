@@ -3,6 +3,6 @@
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Nova lotação", titulo: "Conceder lotação", voltar: rh_lotacoes_path, rodape: rodape,
-                descricao: "Procure a pessoa, a unidade e a função digitando pelo menos 3 letras. A pessoa pode ter mais de uma lotação ativa." } do %>
+                descricao: "Procure a pessoa, a unidade e a função digitando no campo. A pessoa pode ter mais de uma lotação ativa." } do %>
   <%= render "formulario", lotacao: @lotacao, url: rh_lotacoes_path, pessoa: nil %>
 <% end %>

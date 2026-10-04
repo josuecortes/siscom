@@ -10,7 +10,7 @@
   <%= render "compartilhado/campo_autocomplete", nome: nome, id: id, rotulo: rotulo, erros: erros, obrigatorio: local_assigns[:obrigatorio],
         opcoes: opcoes.map { |texto, valor| { valor: valor.to_s, rotulo: texto } }, valor: atual.presence,
         texto: opcoes.find { |_, valor| valor.to_s == atual }&.first, acao: local_assigns[:acao], flutuante: local_assigns[:flutuante],
-        placeholder: (local_assigns[:em_branco] ? "#{em_branco} · digite 3 letras" : "Digite 3 letras para procurar") %>
+        placeholder: (local_assigns[:em_branco] ? "#{em_branco} · digite sua pesquisa" : "Digite sua pesquisa") %>
 <% else %>
   <div class="space-y-1.5">
     <label for="<%= id %>" class="text-sm font-medium text-[var(--text-secondary)]"><%= rotulo %></label>

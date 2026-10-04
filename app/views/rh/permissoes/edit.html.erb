@@ -2,25 +2,27 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_permissao", rotulo: "Salvar permissão" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Editar permissão", titulo: @usuario.nome, voltar: rh_permissoes_path, rodape: rodape,
-                descricao: "Cada usuário tem no máximo uma permissão no RH. Escolher outra substitui a atual; \"Sem permissão\" deixa só a própria ficha." } do %>
+      locals: { sobretitulo: "Editar permissão", titulo: "Atualizar permissão do RH", voltar: rh_permissoes_path, rodape: rodape,
+                descricao: @usuario.email } do %>
   <%= form_with url: rh_permissao_path(@usuario), method: :patch, id: "formulario_permissao", class: "space-y-5" do |f| %>
     <% if @erro.present? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
     <% end %>
 
-    <fieldset class="space-y-2">
-      <legend class="text-sm font-medium text-[var(--text-secondary)]">Permissão no RH</legend>
-      <% ([ [ "", "Sem permissão", "Vê só a própria ficha." ] ] + @papeis.map { |papel| [ papel.chave, papel.nome, "#{papel.permissoes.size} ação(ões) do RH." ] }).each do |chave, nome, detalhe| %>
-        <% pode = chave.blank? || Core::Api.pode_conceder?(current_user, modulo: :rh, papel: chave) %>
-        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm <%= "opacity-60" unless pode %>">
-          <%= radio_button_tag :papel, chave, @papel_atual.to_s == chave, id: "papel_#{chave.presence || 'nenhum'}", disabled: !pode, class: "mt-0.5 h-4 w-4" %>
-          <span>
-            <span class="block font-semibold text-[var(--text-primary)]"><%= nome %></span>
-            <span class="block text-[var(--text-secondary)]"><%= detalhe %></span>
-          </span>
-        </label>
-      <% end %>
-    </fieldset>
+    <div class="space-y-1.5">
+      <label for="permissao_usuario" class="text-sm font-medium text-[var(--text-secondary)]">Usuário</label>
+      <input type="text" id="permissao_usuario" value="<%= "#{@usuario.nome} (#{@usuario.email})" %>" readonly
+             class="h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-secondary)] outline-none">
+    </div>
+
+    <% concedeveis = @papeis.select { |papel| Core::Api.pode_conceder?(current_user, modulo: :rh, papel: papel.chave) } %>
+    <div class="space-y-1.5">
+      <label for="papel" class="text-sm font-medium text-[var(--text-secondary)]">Permissão no RH</label>
+      <%= select_tag :papel,
+            options_for_select([ [ "Sem permissão", "" ] ] + @papeis.map { |papel| [ papel.nome, papel.chave ] }, selected: @papel_atual.to_s,
+                               disabled: (@papeis - concedeveis).map(&:chave)),
+            class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+      <p class="text-xs text-[var(--text-muted)]">Cada usuário tem no máximo uma permissão no RH. "Sem permissão" deixa só a própria ficha.</p>
+    </div>
   <% end %>
 <% end %>
