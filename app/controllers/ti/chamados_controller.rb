@@ -9,13 +9,17 @@ module Ti
       @chamado = Ti::Chamado.where(solicitante: current_user).find(params[:id])
     end
 
+    # Abas por etapa, com a quantidade de cada uma (como no seed).
+    ABAS = { "aberto" => "Abertos", "em_triagem" => "Em triagem", "aguardando_solicitante" => "Ajustes", "aguardando_tecnico" => "Aguardando técnico",
+             "em_atendimento" => "Em andamento", "impedido" => "Impedidos", "concluido" => "Concluídos", "finalizado" => "Finalizados",
+             "cancelado" => "Cancelados" }.freeze
+
     def index
-      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(%w[andamento encerrados]) || "todos" }
-      chamados = Ti::Chamado.where(solicitante: current_user).recentes.includes(:problema, :responsavel)
+      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(ABAS.keys) || "aberto" }
+      chamados = Ti::Chamado.where(solicitante: current_user)
       chamados = chamados.buscar(@filtros[:q]) if @filtros[:q].present?
-      chamados = chamados.em_andamento if @filtros[:status] == "andamento"
-      chamados = chamados.where.not(status: Ti::Chamado::EM_ANDAMENTO) if @filtros[:status] == "encerrados"
-      @pagy, @chamados = pagy(:offset, chamados, limit: POR_PAGINA)
+      @contagens = chamados.group(:status).count
+      @pagy, @chamados = pagy(:offset, chamados.where(status: @filtros[:status]).recentes.includes(:problema, :responsavel), limit: POR_PAGINA)
     end
 
     def show

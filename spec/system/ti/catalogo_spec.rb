@@ -29,11 +29,15 @@ RSpec.describe "TI: catálogo", :js do
     expect(page).to have_css("#avisos", text: "Grupo técnico criado com sucesso.")
     within("tr", text: "REDES") { click_on "Gerenciar membros" }
     expect(page).to have_css("[role='dialog'] h2", text: "Gerenciar membros de REDES")
-    check "JOAO TECNICO"
+    escolher_no_autocomplete "Adicionar membro", digitar: "joao", opcao: "JOAO TECNICO"
+    click_on "Adicionar"
+    expect(page).to have_content("JOAO TECNICO entrou no grupo.")
     print("ti-grupo-membros")
-    click_on "Salvar membros"
+    within("[role='dialog']") { expect(page).to have_button("Remover JOAO TECNICO") }
+    click_on "Concluir"
 
-    expect(page).to have_css("#avisos", text: "Membros de REDES atualizados.")
+    expect(page).to have_no_css("[role='dialog']")
+    within("tr", text: "REDES") { expect(page).to have_content("1 membro(s)").and have_content("JOAO TECNICO") }
     expect(Ti::GrupoTecnico.sole.membros.map(&:nome)).to eq([ "JOAO TECNICO" ])
     print("ti-grupos-lista")
   end

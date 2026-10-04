@@ -20,6 +20,19 @@ module Ti
                      todas: todas, restantes: [ escolhidos.count - LIMITE, 0 ].max }
     end
 
+    # Quem pode entrar em um grupo técnico: usuários com permissão na TI que ainda não são membros dele.
+    def operadores
+      pode!(Ti::Catalogo::PERMISSAO)
+      termo = params[:q].to_s.squish
+      fora = Ti::Grupos.elegiveis.where.not(id: Ti::MembroGrupo.where(grupo_tecnico_id: params[:grupo_id]).select(:user_id))
+      achados = termo.length >= MINIMO ? fora.buscar(termo) : fora.none
+      todas = achados.none?
+      escolhidos = todas ? fora : achados
+
+      render json: { opcoes: escolhidos.limit(LIMITE).map { |user| { valor: user.id, rotulo: user.nome, subtitulo: user.email } },
+                     todas: todas, restantes: [ escolhidos.count - LIMITE, 0 ].max }
+    end
+
     # Quem abre em nome de outra pessoa (`solicitante_id`) vê os campos das solicitações dela.
     def index
       campo = Ti::CampoProblema.ativo.where(problema_id: Ti::Problema.que_pode_abrir(dono_do_chamado).select(:id)).find(params[:campo_id])

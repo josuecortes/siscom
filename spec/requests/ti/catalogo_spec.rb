@@ -15,7 +15,8 @@ RSpec.describe "TI: catálogo (categorias, perfis de abertura e grupos técnicos
       -> { post ti_perfis_abertura_path, params: { registro: { nome: "X" } } },
       -> { patch desativar_ti_grupo_tecnico_path(grupo) },
       -> { get edit_ti_grupo_tecnico_membros_path(grupo) },
-      -> { patch ti_grupo_tecnico_membros_path(grupo), params: { user_ids: [ tecnico.id ] } },
+      -> { post ti_grupo_tecnico_membros_path(grupo), params: { user_id: tecnico.id } },
+      -> { get ti_opcoes_de_operadores_path(grupo_id: grupo.id) },
       -> { patch ti_permissao_perfis_abertura_path(maria), params: { perfil_ids: [] } }
     ].map { |requisicao| requisicao.call && response.status }
 
@@ -64,29 +65,41 @@ RSpec.describe "TI: catálogo (categorias, perfis de abertura e grupos técnicos
       expect(Ti::GrupoTecnico.sole).to have_attributes(nome: "REDES", permite_autoatribuicao: false)
     end
 
-    it "mostra no painel de membros só quem tem permissão na TI" do
+    it "a busca de membros só traz quem tem permissão na TI e ainda não está no grupo" do
       grupo = create(:ti_grupo_tecnico, nome: "Redes")
+      grupo.vinculos_de_membro.create!(user: supervisor)
       tecnico
 
-      get edit_ti_grupo_tecnico_membros_path(grupo)
+      get ti_opcoes_de_operadores_path(grupo_id: grupo.id)
+      expect(response.parsed_body["opcoes"].pluck("rotulo")).to eq([ "TECNICO DA TI" ])
 
-      expect(response.body).to include("Gerenciar membros de REDES", "TECNICO DA TI", "SUPERVISOR DA TI")
-      expect(response.body).not_to include("MARIA OLIVEIRA")
+      get ti_opcoes_de_operadores_path(grupo_id: grupo.id), params: { q: "maria" }
+      expect(response.parsed_body).to include("todas" => true)
+      expect(response.parsed_body["opcoes"].pluck("rotulo")).not_to include("MARIA OLIVEIRA")
     end
 
-    it "define os membros do grupo, avisa quem entrou e audita" do
+    it "adiciona e remove membros na hora, avisa quem entrou e audita" do
       grupo = create(:ti_grupo_tecnico, nome: "Redes")
 
-      patch ti_grupo_tecnico_membros_path(grupo), params: { user_ids: [ "", tecnico.id, maria.id ] }
-      expect(grupo.membros).to contain_exactly(tecnico)
+      post ti_grupo_tecnico_membros_path(grupo), params: { user_id: tecnico.id }
+      expect(response.body).to include("Gerenciar membros de REDES", "TECNICO DA TI entrou no grupo.", "Membros do grupo (1)")
       expect(tecnico.notificacoes.sole.mensagem).to include("grupo técnico REDES")
 
-      patch ti_grupo_tecnico_membros_path(grupo), params: { user_ids: [ "", supervisor.id ] }
-      expect(grupo.reload.membros).to contain_exactly(supervisor)
+      post ti_grupo_tecnico_membros_path(grupo), params: { user_id: maria.id }
+      expect(response.body).to include("Escolha na lista alguém com permissão na TI.")
+
+      delete ti_grupo_tecnico_membros_path(grupo), params: { user_id: tecnico.id }
+      expect(response.body).to include("TECNICO DA TI saiu do grupo.", "Nenhum membro ainda.")
       expect(Core::RegistroAuditoria.where(evento: "grupo_tecnico.membros_alterados").count).to eq(2)
+    end
+
+    it "mostra na lista de grupos a quantidade e os nomes dos membros" do
+      grupo = create(:ti_grupo_tecnico, nome: "Redes")
+      [ tecnico, supervisor ].each { |user| grupo.vinculos_de_membro.create!(user: user) }
 
       get ti_grupos_tecnicos_path
-      expect(Nokogiri::HTML(response.body).css("##{ActionView::RecordIdentifier.dom_id(grupo)} td")[3].text).to eq("1")
+
+      expect(response.body).to include("2 membro(s)", "SUPERVISOR DA TI e TECNICO DA TI")
     end
 
     it "não mexe nos perfis de abertura dos usuários" do

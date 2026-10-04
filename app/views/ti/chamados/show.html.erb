@@ -1,5 +1,5 @@
 <% content_for :title, @chamado.codigo %>
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Chamado #{@chamado.codigo}", icone: :task, migalha: [ "Meus chamados", ti_chamados_path ] } do %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Chamado #{@chamado.codigo}", icone: :task, migalha: [ "Solicitações de TI", ti_chamados_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: ti_chamados_path, secundaria: true %>
 <% end %>
 

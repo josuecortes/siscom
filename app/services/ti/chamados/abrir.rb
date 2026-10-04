@@ -59,7 +59,7 @@ module Ti
       def mensagem_de_repetido
         return "#{@user.nome} já tem um chamado em andamento para esta solicitação." if @aberto_por
 
-        "Você já tem um chamado em andamento para esta solicitação. Acompanhe-o em Meus chamados."
+        "Você já tem um chamado em andamento para esta solicitação. Acompanhe-o em Solicitações de TI."
       end
 
       def gravar(lotacao)

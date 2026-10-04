@@ -102,7 +102,7 @@ RSpec.describe "TI: solicitações do catálogo" do
 
       expect(Ti::PerfilAbertura.sole).to have_attributes(nome: "GERAL", padrao: true)
       get ti_perfis_abertura_path
-      expect(response.body).to include("<td>Todos</td>")
+      expect(Nokogiri::HTML(response.body).css("tbody td").map { |celula| celula.text.strip }).to include("Todos")
     end
   end
 

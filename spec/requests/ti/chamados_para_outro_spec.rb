@@ -45,11 +45,11 @@ RSpec.describe "TI: abrir chamado em nome de outra pessoa" do
       get ti_chamado_path(chamado)
       expect(response.body).to include("Aberto por", "JOAO TECNICO (em nome do solicitante)")
       get ti_chamados_path
-      expect(response.body).to include("0 chamado(s) encontrado(s)")
+      expect(response.body).to include("0 chamado(s) em abertos")
 
       sign_in maria
       get ti_chamados_path
-      expect(response.body).to include("1 chamado(s) encontrado(s)", chamado.codigo)
+      expect(response.body).to include("1 chamado(s) em abertos", chamado.codigo)
     end
 
     it "valem os perfis de abertura da pessoa escolhida, não os de quem abre" do

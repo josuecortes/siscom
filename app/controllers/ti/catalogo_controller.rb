@@ -17,6 +17,7 @@ module Ti
       registros = registros.where(status: @filtros[:status]) unless @filtros[:status] == "todos"
       @pagy, @registros = pagy(:offset, registros, limit: POR_PAGINA)
       @contagens = contagens_de_vinculos(@registros.map(&:id))
+      @nomes_dos_membros = @tabela.grupo? ? nomes_dos_membros(@registros.map(&:id)) : {}
     end
 
     def new
@@ -53,6 +54,12 @@ module Ti
       when "grupos_tecnicos" then Ti::MembroGrupo.where(grupo_tecnico_id: ids).group(:grupo_tecnico_id).count
       else {}
       end
+    end
+
+    # { id do grupo => ["JOAO", "MARIA"] }
+    def nomes_dos_membros(ids)
+      Ti::MembroGrupo.where(grupo_tecnico_id: ids).joins(:user).order("users.nome").pluck(:grupo_tecnico_id, "users.nome")
+                     .group_by(&:first).transform_values { |linhas| linhas.map(&:last) }
     end
 
     def carregar_registro

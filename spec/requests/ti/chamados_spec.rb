@@ -178,20 +178,23 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
   end
 
   describe "meus chamados" do
-    it "lista só os chamados do usuário, com busca e filtro de situação" do
+    it "lista só os chamados do usuário, em abas por etapa com a quantidade, e com busca" do
       abrir(internet)
       meu = Ti::Chamado.sole
       outro = create(:user)
       Ti::Chamado.create!(problema: internet, solicitante: outro, solicitante_nome: outro.nome, solicitante_email: outro.email, aberto_em: Time.current)
 
       get ti_chamados_path
-      expect(response.body).to include("1 chamado(s) encontrado(s)", meu.codigo, "SEM INTERNET", "Aberto")
+      html = Nokogiri::HTML(response.body)
+      expect(response.body).to include("Solicitações de TI", "1 chamado(s) em abertos", meu.codigo, "SEM INTERNET")
+      expect(html.css("nav[aria-label='Etapas dos chamados'] a").map { |aba| aba.text.squish }.first(3)).to eq([ "Abertos 1", "Em triagem 0", "Ajustes 0" ])
+      expect(html.at_css("nav[aria-label='Etapas dos chamados'] a[aria-current='page']").text.squish).to eq("Abertos 1")
 
-      get ti_chamados_path, params: { status: "encerrados" }
-      expect(response.body).to include("0 chamado(s) encontrado(s)")
+      get ti_chamados_path, params: { status: "finalizado" }
+      expect(response.body).to include("0 chamado(s) em finalizados")
 
-      get ti_chamados_path, params: { q: "internet", status: "andamento" }
-      expect(response.body).to include("1 chamado(s) encontrado(s)")
+      get ti_chamados_path, params: { q: "zzz" }
+      expect(response.body).to include("0 chamado(s) em abertos")
     end
 
     it "não mostra o chamado de outra pessoa" do

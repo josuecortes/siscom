@@ -49,7 +49,7 @@
               <td><%= chamado.responsavel&.nome || (chamado.em_triagem? && chamado.triador ? "#{chamado.triador.nome} (triagem)" : "Não atribuído") %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :description, caminho: ti_operacao_path(chamado) %>
+                  <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :eye, caminho: ti_operacao_path(chamado) %>
                   <% if Ti::Chamados::Operar.new(chamado: chamado, acao: "assumir", ator: current_user).permitida? %>
                     <%= render "compartilhado/botao_acao", titulo: "Assumir chamado", icone: :user_follow, caminho: acao_ti_operacao_path(chamado, "assumir"), metodo: :post,
                           confirmar: { mensagem: "Confirme: você assume o chamado #{chamado.codigo} (#{chamado.problema.nome}).", rotulo: "Assumir", tom: "primario" } %>

@@ -53,7 +53,15 @@
                 <% if @tabela.grupo? %>
                   <td><%= render "compartilhado/selo", texto: (registro.permite_autoatribuicao? ? "Permitida" : "Desligada"), tom: (registro.permite_autoatribuicao? ? :info : :neutro) %></td>
                 <% end %>
-                <td><%= @contagens.fetch(registro.id, 0) %></td>
+                <td>
+                  <% quantidade = @contagens.fetch(registro.id, 0) %>
+                  <% if @tabela.grupo? %>
+                    <p class="text-sm text-[var(--text-primary)]"><%= quantidade %> membro(s)</p>
+                    <% if @nomes_dos_membros[registro.id].present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= @nomes_dos_membros[registro.id].to_sentence %></p><% end %>
+                  <% else %>
+                    <%= quantidade %>
+                  <% end %>
+                </td>
                 <td><%= solicitacoes.fetch(registro.id, 0) %></td>
               <% end %>
               <td><%= render "compartilhado/selo", texto: (registro.ativo? ? "Ativ#{@tabela.artigo}" : "Inativ#{@tabela.artigo}"), tom: (registro.ativo? ? :sucesso : :atencao) %></td>

@@ -26,7 +26,7 @@ RSpec.describe "TI: abrir chamado", :js do
     visit root_path
     within("#menu-lateral") do
       find("summary", text: "Minha área").click
-      click_on "Meus chamados"
+      click_on "Solicitações de TI"
     end
     click_on "Abrir chamado"
     expect(page).to have_css("[role='dialog'] h2", text: "Abrir chamado")

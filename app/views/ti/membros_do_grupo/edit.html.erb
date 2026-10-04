@@ -1,30 +1,44 @@
 <% content_for :title, "Membros do grupo" %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_membros", rotulo: "Salvar membros" } %>
 <% nomes = Core::Api.modulo(:ti).papeis.transform_values(&:nome) %>
+<% rodape = capture do %>
+  <%= link_to "Concluir", ti_grupos_tecnicos_path, data: { turbo_frame: "_top" },
+        class: "inline-flex h-10 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+<% end %>
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Membros", titulo: "Gerenciar membros de #{@grupo.nome}", voltar: ti_grupos_tecnicos_path, rodape: rodape,
-                descricao: "Só aparece quem já tem permissão na TI (administrador, supervisor, triador ou técnico)." } do %>
-  <%= form_with url: ti_grupo_tecnico_membros_path(@grupo), method: :patch, id: "formulario_membros", class: "space-y-5" do |f| %>
+                descricao: "Só entra quem já tem permissão na TI (administrador, supervisor, triador ou técnico). As mudanças valem na hora." } do %>
+  <div class="space-y-5">
     <% if @erro.present? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% elsif @aviso.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :sucesso, embutida: true, mensagem: @aviso %>
     <% end %>
 
-    <fieldset class="space-y-2">
-      <legend class="mb-2 text-sm font-medium text-[var(--text-secondary)]">Membros do grupo</legend>
-      <%= hidden_field_tag "user_ids[]", "", id: nil %>
-      <% @elegiveis.each do |usuario| %>
-        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm">
-          <%= check_box_tag "user_ids[]", usuario.id, @marcados.include?(usuario.id), id: "membro_#{usuario.id}", class: "mt-0.5 h-4 w-4" %>
-          <span class="min-w-0">
-            <span class="block font-semibold text-[var(--text-primary)]"><%= usuario.nome %></span>
-            <span class="block break-words text-[var(--text-secondary)]"><%= @papeis.fetch(usuario.id, []).map { |papel| nomes[papel] || papel }.join(", ") %> · <%= usuario.email %></span>
-          </span>
-        </label>
-      <% end %>
-      <% if @elegiveis.empty? %>
-        <p class="text-sm text-[var(--text-secondary)]">Ninguém tem permissão na TI ainda. Conceda em TI → Administração → Permissões.</p>
-      <% end %>
-    </fieldset>
-  <% end %>
+    <%= form_with url: ti_grupo_tecnico_membros_path(@grupo), method: :post, class: "space-y-3" do %>
+      <%= render "compartilhado/campo_autocomplete", nome: "user_id", id: "novo_membro", rotulo: "Adicionar membro", obrigatorio: true,
+            url: ti_opcoes_de_operadores_path(grupo_id: @grupo.id), vazio: "Ninguém com permissão na TI fora deste grupo." %>
+      <button type="submit" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar</button>
+    <% end %>
+
+    <div>
+      <p class="mb-2 text-sm font-medium text-[var(--text-secondary)]">Membros do grupo (<%= @membros.size %>)</p>
+      <ul class="space-y-2" id="membros_do_grupo">
+        <% @membros.each do |membro| %>
+          <li class="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm">
+            <span class="min-w-0">
+              <span class="block font-semibold text-[var(--text-primary)]"><%= membro.nome %></span>
+              <span class="block break-words text-[var(--text-secondary)]"><%= @papeis.fetch(membro.id, []).map { |papel| nomes[papel] || papel }.join(", ").presence || "Sem permissão na TI" %> · <%= membro.email %></span>
+            </span>
+            <%= button_to ti_grupo_tecnico_membros_path(@grupo), method: :delete, params: { user_id: membro.id }, form: { class: "shrink-0" },
+                  title: "Remover #{membro.nome}", aria: { label: "Remover #{membro.nome}" },
+                  class: "inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--danger-border-strong)] hover:text-[var(--danger-text)]" do %><%= icone(:x) %><% end %>
+          </li>
+        <% end %>
+        <% if @membros.empty? %>
+          <li class="rounded-xl border border-dashed border-[var(--border-subtle)] px-4 py-6 text-sm text-[var(--text-secondary)]">Nenhum membro ainda. Procure acima quem vai entrar no grupo.</li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
 <% end %>
