@@ -21,7 +21,7 @@
           opcoes: Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id), valor: @unidade.tipo_local_id, em_branco: "Não informado" %>
     <%= render "compartilhado/campo_autocomplete", nome: "unidade[pai_id]", id: "unidade_pai", rotulo: "Unidade superior",
           url: rh_opcoes_path("unidades", exceto: @unidade.id), valor: @unidade.pai_id, texto: @unidade.pai&.sigla_e_nome,
-          erros: @unidade.errors[:pai_id], placeholder: "Em branco = unidade de primeiro nível. Digite 3 letras para procurar",
+          erros: @unidade.errors[:pai_id], ajuda: "Em branco = unidade de primeiro nível.",
           vazio: "Nenhuma unidade cadastrada." %>
 
     <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">

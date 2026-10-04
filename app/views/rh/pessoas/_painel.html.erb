@@ -29,7 +29,8 @@
     <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
       <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Vínculo funcional</legend>
       <p class="text-xs text-[var(--text-muted)]">Opcional. Se preencher um campo do vínculo, preencha os três.</p>
-      <div class="grid gap-4 sm:grid-cols-2">
+      <%# Um campo de busca por linha (como no seed): lado a lado, o texto de ajuda era cortado e a lista ficava estreita. %>
+      <div class="space-y-4">
         <%= render "compartilhado/campo_autocomplete", nome: "pessoa[vinculo][tipo_vinculo_id]", id: "pessoa_vinculo_tipo_vinculo", rotulo: "Vínculo",
               url: rh_opcoes_path("tipos_vinculo"), valor: vinculo.tipo_vinculo_id, texto: vinculo.tipo_vinculo&.nome,
               erros: ((vinculo.errors[:tipo_vinculo] + vinculo.errors[:tipo_vinculo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum vínculo cadastrado." %>
@@ -37,7 +38,7 @@
               url: rh_opcoes_path("cargos"), valor: vinculo.cargo_id, texto: vinculo.cargo&.nome,
               erros: ((vinculo.errors[:cargo] + vinculo.errors[:cargo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum cargo cadastrado." %>
         <% erros = vinculo.errors[:data_inicio] %>
-        <div class="space-y-1.5">
+        <div class="space-y-1.5 sm:max-w-[14rem]">
           <label for="pessoa_vinculo_data_inicio" class="<%= rotulo %>">Início do vínculo</label>
           <%= text_field_tag "pessoa[vinculo][data_inicio]", DataBr.formatar(vinculo.data_inicio || vinculo.data_inicio_before_type_cast), id: "pessoa_vinculo_data_inicio",
                 placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, class: "#{seletor} #{borda.call(erros)}",

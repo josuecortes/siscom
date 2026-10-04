@@ -13,11 +13,15 @@ export default class extends Controller {
   connect() {
     this.indice = -1
     this.fora = (evento) => { if (!this.element.contains(evento.target)) this.fechar() }
+    // Sair do campo com Tab também fecha a lista (as opções não entram na ordem do Tab).
+    this.saiu = () => setTimeout(() => { if (!this.element.contains(document.activeElement)) this.fechar() }, 0)
     document.addEventListener("click", this.fora)
+    this.element.addEventListener("focusout", this.saiu)
   }
 
   disconnect() {
     document.removeEventListener("click", this.fora)
+    this.element.removeEventListener("focusout", this.saiu)
     clearTimeout(this.espera)
     this.requisicao?.abort()
   }
@@ -32,6 +36,7 @@ export default class extends Controller {
     // Apagar o texto desfaz a escolha (e avisa quem escuta, ex.: um filtro).
     if (tinhaValor && this.textoTarget.value.trim() === "") this.valorTarget.dispatchEvent(new Event("change", { bubbles: true }))
     clearTimeout(this.espera)
+    this.pendente = true // a lista na tela ainda é a da busca anterior
     this.espera = setTimeout(() => this.buscar(), 200)
   }
 
@@ -49,7 +54,10 @@ export default class extends Controller {
       if (!resposta.ok) throw new Error(String(resposta.status))
       this.mostrar(await resposta.json(), texto)
     } catch (erro) {
-      if (erro.name !== "AbortError") this.aviso("Não foi possível carregar as opções. Tente de novo.")
+      if (erro.name !== "AbortError") {
+        this.pendente = false
+        this.aviso("Não foi possível carregar as opções. Tente de novo.")
+      }
     }
   }
 
@@ -63,6 +71,7 @@ export default class extends Controller {
   }
 
   mostrar(dados, texto) {
+    this.pendente = false
     this.listaTarget.replaceChildren()
     this.indice = -1
 
@@ -75,11 +84,13 @@ export default class extends Controller {
       const botao = document.createElement("button")
       botao.type = "button"
       botao.setAttribute("role", "option")
+      botao.setAttribute("aria-selected", "false")
+      botao.tabIndex = -1 // a lista é percorrida com as setas, a partir do campo
       botao.id = `${this.textoTarget.id}_opcao_${posicao}`
       botao.dataset.valor = opcao.valor
       botao.dataset.rotulo = opcao.rotulo
       botao.dataset.action = "autocomplete#escolher"
-      botao.className = "flex w-full flex-col items-start gap-0.5 border-b border-[var(--border-subtle)] px-4 py-3 text-left text-sm text-[var(--text-primary)] last:border-b-0 hover:bg-[var(--surface-subtle)] aria-selected:bg-[var(--surface-subtle)]"
+      botao.className = "flex w-full flex-col items-start gap-0.5 border-b border-[var(--border-subtle)] px-4 py-3 text-left text-sm text-[var(--text-primary)] last:border-b-0 hover:bg-[var(--surface-subtle)] aria-selected:bg-[var(--surface-subtle)] aria-selected:shadow-[inset_3px_0_0_var(--accent-strong)]"
       const rotulo = document.createElement("span")
       rotulo.textContent = opcao.rotulo
       botao.append(rotulo)
@@ -93,8 +104,14 @@ export default class extends Controller {
     })
 
     if (dados.restantes > 0) this.listaTarget.append(this.nota(`Mais ${dados.restantes} na lista. Continue digitando para encontrar.`))
+    this.exibir()
+  }
+
+  exibir() {
     this.listaTarget.hidden = false
     this.textoTarget.setAttribute("aria-expanded", "true")
+    // Dentro de um painel, a lista pode abrir abaixo da parte visível: rola o mínimo para ela aparecer.
+    this.listaTarget.scrollIntoView({ block: "nearest" })
   }
 
   nota(texto) {
@@ -109,7 +126,7 @@ export default class extends Controller {
     aviso.className = "px-4 py-3 text-sm text-[var(--text-secondary)]"
     aviso.textContent = texto
     this.listaTarget.replaceChildren(aviso)
-    this.listaTarget.hidden = false
+    this.exibir()
   }
 
   escolher(evento) {
@@ -126,6 +143,8 @@ export default class extends Controller {
   teclar(evento) {
     const opcoes = [...this.listaTarget.querySelectorAll("[role='option']")]
     if (evento.key === "Escape") return this.fechar()
+    // Enquanto a busca do texto digitado não volta, as setas e o Enter esperam: senão escolheriam da lista antiga.
+    if (this.pendente && [ "ArrowDown", "ArrowUp", "Enter" ].includes(evento.key)) return evento.preventDefault()
     if (evento.key === "ArrowDown" && this.listaTarget.hidden) return this.buscar()
     if (opcoes.length === 0) return
 
