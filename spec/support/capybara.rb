@@ -60,7 +60,9 @@ RSpec.configure do |config|
   end
 
   config.before(:each, :js, type: :system) do
-    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 900 ]
+    # Sem barras de rolagem ocupando espaço: no macOS elas aparecem (15 px) quando há um mouse ligado,
+    # e as medidas dos specs mudariam de uma máquina para outra.
+    driven_by(:selenium, using: :headless_chrome, screen_size: [ 1400, 900 ]) { |opcoes| opcoes.add_argument("--hide-scrollbars") }
     # A janela é reaproveitada entre exemplos; volta ao tamanho de desktop.
     usar_tela(largura: 1400, altura: 900)
   end

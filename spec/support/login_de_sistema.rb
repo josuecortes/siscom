@@ -29,6 +29,9 @@ Warden::Manager.on_request do |proxy|
     File.open("tmp/login_hook.log", "a") { |f| f.puts "#{Time.now.strftime('%H:%M:%S.%L')} #{proxy.request.request_method} #{proxy.request.path} ultimo=#{LoginDeSistema.ultimo&.id.inspect} sessoes=#{LoginDeSistema.usuarios.transform_values(&:id)} atual=#{proxy.user(:user)&.id.inspect}" }
   end
   next unless LoginDeSistema.ultimo
+  # Manifesto e service worker do PWA chegam fora de hora, com o cookie antigo: se mexessem na sessão, a
+  # resposta deles podia sobrescrever o cookie de uma requisição de verdade (e sumir com o login ou o aviso).
+  next if proxy.request.path.start_with?("/manifest", "/service-worker", "/assets", "/cable")
 
   if proxy.request.path == "/users/sign_out"
     # Só quem está saindo deixa de valer: um "sair" atrasado de outro exemplo não derruba o login deste.
@@ -42,7 +45,9 @@ Warden::Manager.on_request do |proxy|
 end
 
 RSpec.configure do |config|
-  config.include LoginDeSistema, type: :system
+  # `prepend`: o rails_helper inclui depois os helpers do Devise, e o `sign_in` deles (que vale só para a
+  # próxima requisição) ficava na frente deste.
+  config.prepend LoginDeSistema, type: :system
   config.before(:each, type: :system) { |exemplo| File.open("tmp/login_hook.log", "a") { |f| f.puts "== #{exemplo.full_description}" } if ENV["DEPURAR_LOGIN"] }
   config.after(:each, type: :system) do |exemplo|
     File.open("tmp/login_hook.log", "a") { |f| f.puts "-- fim #{exemplo.exception ? 'FALHOU' : 'ok'}" } if ENV["DEPURAR_LOGIN"]
