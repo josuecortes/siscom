@@ -4,6 +4,7 @@ module Transporte
   class AcompanhamentoController < ApplicationController
     CHAVE = :transporte_painel_liberado_em
     VALIDADE = 12.hours
+    ATUALIZA_A_CADA = 30 # segundos; além disso, o quadro atualiza na hora quando algo muda na operação
 
     skip_before_action :authenticate_user!
     skip_before_action :exigir_troca_de_senha
@@ -14,13 +15,7 @@ module Transporte
       return render(:desligado, status: :not_found) unless @configuracao.painel_ligado?
       return render(:senha) unless liberado?
 
-      agora = Time.current
-      abertos = Transporte::Servico.abertos.includes(:solicitacao).order(:iniciado_em)
-      @em_andamento = abertos.to_a
-      @solicitadas = Transporte::Solicitacao.solicitada.order(:saida_em).limit(30).to_a
-      @saidas = Transporte::Solicitacao.aprovada.where(saida_em: ..(agora.end_of_day + 1.day)).order(:saida_em).limit(30).to_a
-      @buscas = Transporte::Solicitacao.busca.where.not(id: abertos.select(:solicitacao_id)).order(:busca_prevista_em).limit(30).to_a
-      @agora = agora
+      @quadro = Transporte::Acompanhamento::Quadro.new
     end
 
     def create

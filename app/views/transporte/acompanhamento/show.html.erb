@@ -1,59 +1,73 @@
 <% content_for :title, "Painel de transporte" %>
-<%# Atualiza sozinho: na hora, quando algo muda na operação (Turbo Streams), e a cada minuto por garantia. %>
-<% content_for :head do %><meta http-equiv="refresh" content="60"><% end %>
+<%# Painel de TV (porta de transport-public-tracking-board.tsx): escuro, para ser lido de longe. Cada cartão
+    tem a cor do nível de urgência (classes .tv-* em application.css). Atualiza na hora quando algo muda na
+    operação (Turbo Streams) e a cada N segundos (Stimulus painel-tv), com o relógio andando sozinho. %>
 <%= turbo_stream_from "transporte_operacao" %>
-<% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == @agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
-<% atraso = ->(valor) { valor && valor < @agora } %>
-<% coluna = ->(titulo, itens, vazio, &bloco) do %>
-  <section class="flex min-h-0 flex-col rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
-    <h2 class="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4 text-base font-semibold text-[var(--text-primary)]">
-      <span><%= titulo %></span>
-      <span class="inline-flex min-w-[2rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-sm text-[var(--accent-strong)]"><%= itens.size %></span>
-    </h2>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% itens.each { |item| bloco.call(item) } %>
-      <% if itens.empty? %><li class="px-5 py-6 text-sm text-[var(--text-secondary)]"><%= vazio %></li><% end %>
-    </ul>
-  </section>
-<% end %>
-<% linha = ->(codigo, nome, detalhe, horario, atrasada) do %>
-  <li class="flex items-start justify-between gap-3 px-5 py-3">
-    <div class="min-w-0">
-      <p class="truncate text-base font-semibold text-[var(--text-primary)]"><%= codigo %> · <%= nome %></p>
-      <p class="truncate text-sm text-[var(--text-secondary)]"><%= detalhe %></p>
-    </div>
-    <div class="shrink-0 text-right">
-      <p class="text-lg font-semibold text-[var(--text-primary)]"><%= horario %></p>
-      <% if atrasada %><%= render "compartilhado/selo", texto: "Em atraso", tom: :atencao %><% end %>
-    </div>
-  </li>
-<% end %>
+<% agora = @quadro.agora %>
+<% contagem = @quadro.contagem %>
+<% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
+<% nomes = { "critico" => "Atrasado", "urgente" => "Falta pouco", "atencao" => "Atenção", "normal" => "No prazo" } %>
 
-<div class="w-full space-y-5 px-4 py-6 md:px-0 md:py-0">
-  <header class="flex flex-wrap items-center justify-between gap-3">
-    <div>
-      <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Transporte</p>
-      <h1 class="text-2xl font-semibold text-[var(--text-primary)]">Acompanhamento em tempo real</h1>
+<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= Transporte::AcompanhamentoController::ATUALIZA_A_CADA %>">
+  <header class="tv-cabecalho">
+    <div class="min-w-0">
+      <p class="tv-sobretitulo">Transporte</p>
+      <h1 class="tv-titulo">Acompanhamento em tempo real</h1>
     </div>
-    <div class="flex items-center gap-3">
-      <p class="text-lg font-semibold text-[var(--text-primary)]"><%= l(@agora, format: "%d/%m/%Y %H:%M") %></p>
-      <%= button_to "Sair do painel", transporte_acompanhamento_path, method: :delete,
-            class: "cursor-pointer rounded-md border border-[var(--border-subtle)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" %>
+
+    <ul class="tv-resumo" aria-label="Resumo por urgência">
+      <% nomes.each do |nivel, nome| %>
+        <li class="tv-resumo-item" data-nivel="<%= nivel %>" data-vazio="<%= contagem.fetch(nivel, 0).zero? %>">
+          <span class="tv-resumo-numero"><%= contagem.fetch(nivel, 0) %></span>
+          <span><%= nome %></span>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="tv-relogio">
+      <p class="tv-hora" data-painel-tv-target="hora"><%= l(agora, format: "%H:%M:%S") %></p>
+      <p class="tv-data" data-painel-tv-target="data"><%= l(agora, format: "%d/%m/%Y") %></p>
+      <p class="tv-atualiza">Atualiza em <strong data-painel-tv-target="contagem"><%= Transporte::AcompanhamentoController::ATUALIZA_A_CADA %> s</strong></p>
+      <div class="tv-trilho" aria-hidden="true"><div class="tv-barra" data-painel-tv-target="barra"></div></div>
     </div>
   </header>
 
-  <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
-    <% coluna.call("Aguardando aprovação", @solicitadas, "Nenhuma solicitação aguardando.") do |s| %>
-      <% linha.call(s.codigo, s.solicitante_nome, s.unidade_nome.presence || s.nome_do_tipo, hora.call(s.saida_em), false) %>
+  <main class="tv-colunas">
+    <% @quadro.colunas.each do |coluna| %>
+      <% graves = coluna.itens.count { |item| item.nivel == "critico" } %>
+      <section class="tv-coluna" id="tv_<%= coluna.chave %>">
+        <h2 class="tv-coluna-titulo">
+          <span><%= coluna.titulo %></span>
+          <span class="tv-contadores">
+            <% if graves.positive? %><span class="tv-contador" data-nivel="critico" title="Atrasados"><%= graves %></span><% end %>
+            <span class="tv-contador" data-total><%= coluna.itens.size %></span>
+          </span>
+        </h2>
+        <ul class="tv-lista">
+          <% coluna.itens.each do |item| %>
+            <li class="tv-cartao" data-nivel="<%= item.nivel %>">
+              <div class="tv-cartao-topo">
+                <p class="tv-codigo"><%= item.codigo %></p>
+                <p class="tv-horario"><%= hora.call(item.horario) %></p>
+              </div>
+              <p class="tv-nome"><%= item.nome %></p>
+              <p class="tv-detalhe"><%= item.detalhe %></p>
+              <% if item.aviso %><p class="tv-aviso"><span class="tv-ponto" aria-hidden="true"></span><%= item.aviso %></p><% end %>
+            </li>
+          <% end %>
+          <% if coluna.itens.empty? %><li class="tv-vazio"><%= coluna.vazio %></li><% end %>
+        </ul>
+      </section>
     <% end %>
-    <% coluna.call("Saídas de hoje e amanhã", @saidas, "Nenhuma saída programada.") do |s| %>
-      <% linha.call(s.codigo, s.solicitante_nome, "#{s.nome_do_modo}#{" · #{s.unidade_nome}" if s.unidade_nome.present?}", hora.call(s.saida_em), atraso.call(s.saida_em)) %>
-    <% end %>
-    <% coluna.call("Em andamento", @em_andamento, "Nenhum veículo em serviço.") do |servico| %>
-      <% linha.call(servico.solicitacao.codigo, servico.solicitacao.solicitante_nome, "#{servico.nome_do_trecho} · #{servico.motorista_nome} · #{servico.placa}", hora.call(servico.iniciado_em), false) %>
-    <% end %>
-    <% coluna.call("Aguardando busca", @buscas, "Ninguém aguardando busca.") do |s| %>
-      <% linha.call(s.codigo, s.solicitante_nome, s.unidade_nome.presence || "Busca", hora.call(s.busca_prevista_em), atraso.call(s.busca_prevista_em)) %>
-    <% end %>
-  </div>
+  </main>
+
+  <footer class="tv-rodape">
+    <ul class="tv-legenda" aria-label="Legenda das cores">
+      <li data-nivel="critico"><span class="tv-ponto"></span>Vermelho: passou da hora, alguém está esperando ou ficou sem resposta</li>
+      <li data-nivel="urgente"><span class="tv-ponto"></span>Laranja: falta pouco</li>
+      <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
+      <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
+    </ul>
+    <%= button_to "Sair do painel", transporte_acompanhamento_path, method: :delete, class: "tv-sair" %>
+  </footer>
 </div>

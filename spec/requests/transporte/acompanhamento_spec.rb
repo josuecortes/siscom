@@ -21,18 +21,18 @@ RSpec.describe "Transporte: painel de acompanhamento" do
     it "pede a senha, sem login, e recusa a errada" do
       get transporte_acompanhamento_path
       expect(response.body).to include("Informe a senha de acesso para visualizar o painel.", "Entrar no acompanhamento")
-      expect(response.body).not_to include("Saídas de hoje e amanhã")
+      expect(response.body).not_to include("Saídas aprovadas")
 
       post transporte_acompanhamento_path, params: { senha: "errada" }
       expect(response).to have_http_status(:unprocessable_content)
       expect(response.body).to include("Senha de acesso inválida.")
     end
 
-    it "com a senha certa mostra o quadro por etapa, marcando o que está atrasado" do
+    it "com a senha certa mostra o quadro por etapa, com a cor de cada urgência, o relógio e a contagem" do
       solicitacao(status: "solicitada")
       atrasada = solicitacao(saida_em: 20.minutes.ago)
       solicitacao(saida_em: 5.days.from_now)
-      solicitacao(status: "busca", modo: "buscar_depois", busca_horas: 1, busca_prevista_em: 30.minutes.from_now)
+      solicitacao(status: "busca", modo: "buscar_depois", busca_horas: 1, busca_prevista_em: 20.minutes.from_now)
       em_servico = solicitacao(status: "em_servico")
       em_servico.servicos.create!(trecho: "ida", motorista: maria, motorista_nome: "JOAO MOTORISTA", veiculo: create(:transporte_veiculo, placa: "QLM1A23"),
                                   placa: "QLM1A23", odometro_inicial: 1, iniciado_em: Time.current)
@@ -41,9 +41,11 @@ RSpec.describe "Transporte: painel de acompanhamento" do
       follow_redirect!
 
       html = Nokogiri::HTML(response.body)
-      expect(response.body).to include("Acompanhamento em tempo real", "Aguardando aprovação", "Saídas de hoje e amanhã", "Em andamento", "Aguardando busca",
-                                       "JOAO MOTORISTA · QLM1A23", "Em atraso", atrasada.codigo)
-      expect(html.css("section h2 span:last-child").map { |contador| contador.text.strip }).to eq(%w[1 1 1 1])
+      expect(response.body).to include("Acompanhamento em tempo real", "JOAO MOTORISTA · QLM1A23", "Devia ter saído há 20 min", atrasada.codigo, "Atualiza em")
+      expect(html.css(".tv-coluna").map { |coluna| [ coluna.at_css("h2 span").text, coluna.css(".tv-cartao").pluck("data-nivel") ] })
+        .to eq([ [ "Aguardando aprovação", %w[urgente] ], [ "Saídas aprovadas", %w[critico] ], [ "Em andamento", %w[normal] ], [ "Aguardando busca", %w[urgente] ] ])
+      expect(html.css(".tv-resumo-item").map { |item| item.text.squish }).to eq([ "1 Atrasado", "2 Falta pouco", "0 Atenção", "1 No prazo" ])
+      expect(html.at_css("[data-controller='painel-tv']")["data-painel-tv-intervalo-value"]).to eq("30")
     end
 
     it "sair do painel volta a pedir a senha" do
