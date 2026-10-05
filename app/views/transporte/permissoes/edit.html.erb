@@ -2,7 +2,8 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_permissao", rotulo: "Salvar permissões" } %>
 <% descricoes = { "admin" => "Tudo no Transporte: permissões, configuração, motoristas, veículos, operação e relatórios.",
                   "tecnico" => "Aprova, cancela e reagenda solicitações, abre para outra pessoa, cuida de motoristas e veículos e vê os relatórios.",
-                  "motorista" => "Inicia e finaliza o serviço das solicitações aprovadas." } %>
+                  "motorista" => "Inicia e finaliza o serviço das solicitações aprovadas.",
+                  "solicitante" => "Abre e acompanha as próprias solicitações de transporte." } %>
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Permissões", titulo: "Gerenciar permissões de #{@usuario.nome}", voltar: transporte_permissoes_path, rodape: rodape,
@@ -26,7 +27,7 @@
           </span>
         </label>
       <% end %>
-      <p class="text-xs text-[var(--text-muted)]">Sem nenhuma marcada, o usuário continua como solicitante: abre e acompanha as próprias solicitações de transporte.</p>
+      <p class="text-xs text-[var(--text-muted)]">Sem nenhuma marcada, o usuário não usa o Transporte.</p>
     </fieldset>
   <% end %>
 <% end %>

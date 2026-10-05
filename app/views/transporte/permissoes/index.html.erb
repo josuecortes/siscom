@@ -54,7 +54,7 @@
               <td>
                 <div class="flex flex-nowrap gap-2">
                   <% papeis.each do |papel| %><%= render "compartilhado/selo", texto: nomes[papel] || papel %><% end %>
-                  <% if papeis.empty? %><span class="text-sm text-[var(--text-muted)]">Sem permissão (só abre solicitações)</span><% end %>
+                  <% if papeis.empty? %><span class="text-sm text-[var(--text-muted)]">Sem permissão</span><% end %>
                 </div>
               </td>
               <td>

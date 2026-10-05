@@ -21,18 +21,19 @@ papeis:
     permissoes: "*"
   tecnico:
     nome: "Técnico"
-    permissoes: [solicitacoes.abrir, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver]
+    permissoes: [solicitacoes.abrir, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder]
   motorista:
     nome: "Motorista"
     permissoes: [solicitacoes.abrir, servico.executar]
+  # Não é automático (decisão do Josue): só pede transporte quem tem a permissão, como no siscom antigo
+  # (`req_serv_tp`, migrado por `remaster:transporte:importar_papeis`).
   solicitante:
     nome: "Solicitante"
     permissoes: [solicitacoes.abrir]
-    automatico: true
 
 concessao:
-  admin: [admin, tecnico, motorista]
-  tecnico: [motorista] # ao cadastrar um motorista, a conta dele recebe a permissão
+  admin: [admin, tecnico, motorista, solicitante]
+  tecnico: [motorista, solicitante] # motorista: ao cadastrar um; solicitante: como no seed
 
 menu:
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }

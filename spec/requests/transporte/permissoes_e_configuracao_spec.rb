@@ -9,24 +9,38 @@ RSpec.describe "Transporte: permissões e configuração" do
 
   def concedidos = Core::Api.papeis_concedidos([ maria.id ], modulo: :transporte).fetch(maria.id, [])
 
-  it "todo usuário é solicitante; técnico e motorista somam o que cabe a cada um" do
+  it "só pede transporte quem tem permissão; técnico e motorista somam o que cabe a cada um" do
     pode = ->(user, permissao) { Core::Autorizacao.new(user).pode?("transporte.#{permissao}") }
 
-    expect(Core::Autorizacao.new(maria).papeis(:transporte)).to eq([ "solicitante" ])
-    expect(%w[solicitacoes.abrir solicitacoes.aprovar servico.executar].map { |p| pode.call(maria, p) }).to eq([ true, false, false ])
+    expect(Core::Autorizacao.new(maria).papeis(:transporte)).to be_empty
+    expect([ pode.call(maria, "solicitacoes.abrir"), pode.call(com_papel("solicitante"), "solicitacoes.abrir") ]).to eq([ false, true ])
     expect(%w[solicitacoes.aprovar motoristas.gerenciar configuracoes.gerenciar servico.executar].map { |p| pode.call(tecnico, p) }).to eq([ true, true, false, false ])
     expect(%w[servico.executar solicitacoes.aprovar].map { |p| pode.call(com_papel("motorista"), p) }).to eq([ true, false ])
   end
 
-  it "técnico não concede permissões nem muda a configuração" do
+  it "o técnico dá a permissão de solicitante e de motorista, mas não a de técnico; e não muda a configuração" do
     sign_in tecnico
 
-    respostas = [ -> { get transporte_permissoes_path }, -> { patch transporte_permissao_path(maria), params: { papeis: [ "motorista" ] } },
-                  -> { get transporte_configuracoes_path }, -> { patch transporte_configuracoes_path, params: { configuracao: { espera_max_horas: 9 } } } ]
-                .map { |requisicao| requisicao.call && response.status }
+    patch transporte_permissao_path(maria), params: { papeis: [ "", "solicitante", "motorista" ] }
+    expect(concedidos).to contain_exactly("solicitante", "motorista")
 
-    expect(respostas).to all(eq(403))
-    expect(concedidos).to be_empty
+    patch transporte_permissao_path(maria), params: { papeis: [ "", "solicitante", "motorista", "tecnico" ] }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(concedidos).not_to include("tecnico")
+
+    get transporte_configuracoes_path
+    expect(response).to have_http_status(:forbidden)
+  end
+
+  it "converte os papéis antigos: requisitante vira solicitante e técnico continua técnico" do
+    antigo_tecnico = create(:user)
+    dar_papel_antigo(maria, "req_serv_tp")
+    dar_papel_antigo(antigo_tecnico, "tec_serv_tp")
+
+    Core::Api.importar_papeis("req_serv_tp" => [ %w[transporte solicitante] ], "tec_serv_tp" => [ %w[transporte tecnico] ])
+
+    expect(concedidos).to eq([ "solicitante" ])
+    expect(Core::Autorizacao.new(antigo_tecnico).papeis(:transporte)).to eq([ "tecnico" ])
   end
 
   context "com administrador do Transporte" do
@@ -34,10 +48,10 @@ RSpec.describe "Transporte: permissões e configuração" do
 
     it "lista os usuários e acumula permissões (técnico e motorista)" do
       get transporte_permissoes_path
-      expect(response.body).to include("MARIA OLIVEIRA", "Sem permissão (só abre solicitações)")
+      expect(response.body).to include("MARIA OLIVEIRA", "Sem permissão")
 
       get edit_transporte_permissao_path(maria)
-      expect(response.body).to include("Gerenciar permissões de MARIA OLIVEIRA", "Administrador", "Técnico", "Motorista")
+      expect(response.body).to include("Gerenciar permissões de MARIA OLIVEIRA", "Administrador", "Técnico", "Motorista", "Solicitante")
 
       patch transporte_permissao_path(maria), params: { papeis: [ "", "tecnico", "motorista" ] }
       expect(concedidos).to contain_exactly("tecnico", "motorista")

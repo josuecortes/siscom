@@ -19,6 +19,7 @@ namespace :remaster do
       { nome: "PADRAO TRANSPORTE ADMINISTRADOR", email: "transporte.admin@siscom.dev", papeis: [ %w[transporte admin] ] },
       { nome: "PADRAO TRANSPORTE TECNICO", email: "transporte.tecnico@siscom.dev", papeis: [ %w[transporte tecnico] ] },
       { nome: "PADRAO TRANSPORTE MOTORISTA", email: "transporte.motorista@siscom.dev", papeis: [ %w[transporte motorista] ] },
+      { nome: "PADRAO TRANSPORTE SOLICITANTE", email: "transporte.solicitante@siscom.dev", papeis: [ %w[transporte solicitante] ] },
       { nome: "PADRAO USUARIO COMUM", email: "usuario@siscom.dev", papeis: [] }
     ].freeze
 
