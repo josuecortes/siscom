@@ -9,7 +9,7 @@ module Transporte
     end
 
     def update
-      resultado = Transporte::Configuracoes::Atualizar.call(atributos: params.expect(configuracao: Transporte::Configuracao::CAMPOS),
+      resultado = Transporte::Configuracoes::Atualizar.call(atributos: params.expect(configuracao: Transporte::Configuracao::CAMPOS + [ :senha_do_painel ]),
                                                            atualizado_por: current_user)
       @configuracao = resultado.objeto
 

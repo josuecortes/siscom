@@ -7,7 +7,7 @@ module Transporte
       def self.call(...) = new(...).call
 
       def initialize(atributos:, atualizado_por:)
-        @atributos = atributos.to_h.symbolize_keys.slice(*Transporte::Configuracao::CAMPOS)
+        @atributos = atributos.to_h.symbolize_keys.slice(*Transporte::Configuracao::CAMPOS, :senha_do_painel)
         @atualizado_por = atualizado_por
       end
 
@@ -18,7 +18,8 @@ module Transporte
         end
         return Core::Resultado.falha(configuracao) unless configuracao.update(@atributos)
 
-        mudancas = configuracao.saved_changes.except("updated_at").transform_values { |de, para| { de: de, para: para } }
+        mudancas = configuracao.saved_changes.except("updated_at", "senha_do_painel_digest").transform_values { |de, para| { de: de, para: para } }
+        mudancas[:painel_de_acompanhamento] = "acesso alterado" if configuracao.saved_change_to_senha_do_painel_digest?
         if mudancas.any?
           Core::Api.auditar(evento: "transporte.configuracao.atualizada", alvo: configuracao, ator: @atualizado_por, dados: { mudancas: mudancas })
         end

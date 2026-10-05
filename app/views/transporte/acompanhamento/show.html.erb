@@ -1,0 +1,59 @@
+<% content_for :title, "Painel de transporte" %>
+<%# Atualiza sozinho: na hora, quando algo muda na operação (Turbo Streams), e a cada minuto por garantia. %>
+<% content_for :head do %><meta http-equiv="refresh" content="60"><% end %>
+<%= turbo_stream_from "transporte_operacao" %>
+<% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == @agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
+<% atraso = ->(valor) { valor && valor < @agora } %>
+<% coluna = ->(titulo, itens, vazio, &bloco) do %>
+  <section class="flex min-h-0 flex-col rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <h2 class="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4 text-base font-semibold text-[var(--text-primary)]">
+      <span><%= titulo %></span>
+      <span class="inline-flex min-w-[2rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-sm text-[var(--accent-strong)]"><%= itens.size %></span>
+    </h2>
+    <ul class="divide-y divide-[var(--border-subtle)]">
+      <% itens.each { |item| bloco.call(item) } %>
+      <% if itens.empty? %><li class="px-5 py-6 text-sm text-[var(--text-secondary)]"><%= vazio %></li><% end %>
+    </ul>
+  </section>
+<% end %>
+<% linha = ->(codigo, nome, detalhe, horario, atrasada) do %>
+  <li class="flex items-start justify-between gap-3 px-5 py-3">
+    <div class="min-w-0">
+      <p class="truncate text-base font-semibold text-[var(--text-primary)]"><%= codigo %> · <%= nome %></p>
+      <p class="truncate text-sm text-[var(--text-secondary)]"><%= detalhe %></p>
+    </div>
+    <div class="shrink-0 text-right">
+      <p class="text-lg font-semibold text-[var(--text-primary)]"><%= horario %></p>
+      <% if atrasada %><%= render "compartilhado/selo", texto: "Em atraso", tom: :atencao %><% end %>
+    </div>
+  </li>
+<% end %>
+
+<div class="w-full space-y-5 px-4 py-6 md:px-0 md:py-0">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Transporte</p>
+      <h1 class="text-2xl font-semibold text-[var(--text-primary)]">Acompanhamento em tempo real</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <p class="text-lg font-semibold text-[var(--text-primary)]"><%= l(@agora, format: "%d/%m/%Y %H:%M") %></p>
+      <%= button_to "Sair do painel", transporte_acompanhamento_path, method: :delete,
+            class: "cursor-pointer rounded-md border border-[var(--border-subtle)] px-3 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" %>
+    </div>
+  </header>
+
+  <div class="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+    <% coluna.call("Aguardando aprovação", @solicitadas, "Nenhuma solicitação aguardando.") do |s| %>
+      <% linha.call(s.codigo, s.solicitante_nome, s.unidade_nome.presence || s.nome_do_tipo, hora.call(s.saida_em), false) %>
+    <% end %>
+    <% coluna.call("Saídas de hoje e amanhã", @saidas, "Nenhuma saída programada.") do |s| %>
+      <% linha.call(s.codigo, s.solicitante_nome, "#{s.nome_do_modo}#{" · #{s.unidade_nome}" if s.unidade_nome.present?}", hora.call(s.saida_em), atraso.call(s.saida_em)) %>
+    <% end %>
+    <% coluna.call("Em andamento", @em_andamento, "Nenhum veículo em serviço.") do |servico| %>
+      <% linha.call(servico.solicitacao.codigo, servico.solicitacao.solicitante_nome, "#{servico.nome_do_trecho} · #{servico.motorista_nome} · #{servico.placa}", hora.call(servico.iniciado_em), false) %>
+    <% end %>
+    <% coluna.call("Aguardando busca", @buscas, "Ninguém aguardando busca.") do |s| %>
+      <% linha.call(s.codigo, s.solicitante_nome, s.unidade_nome.presence || "Busca", hora.call(s.busca_prevista_em), atraso.call(s.busca_prevista_em)) %>
+    <% end %>
+  </div>
+</div>

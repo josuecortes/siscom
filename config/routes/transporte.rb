@@ -42,6 +42,8 @@ namespace :transporte do
       end
     end
   end
+  # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
+  resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
   resource :relatorios, only: :show
   resources :permissoes, only: %i[index edit update]
   resource :configuracoes, only: %i[show update]
