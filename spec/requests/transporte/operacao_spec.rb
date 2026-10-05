@@ -64,6 +64,17 @@ RSpec.describe "Transporte: operação" do
       expect(maria.notificacoes.last.mensagem).to include("nova saída em 09/10/2026 14:30", "Veículo em manutenção")
     end
 
+    it "reagenda a previsão da busca quando a solicitação está aguardando busca" do
+      solicitacao.update!(status: "busca", modo: "buscar_depois", busca_horas: 2, busca_prevista_em: Time.zone.local(2026, 10, 8, 11, 0), ultimo_aviso_de_busca_em: Time.current)
+
+      get reagendamento_transporte_operacao_path(solicitacao)
+      expect(response.body).to include("Nova previsão da busca (data e hora) *", "Busca prevista: 08/10/2026 11:00")
+
+      patch reagendar_transporte_operacao_path(solicitacao), params: { busca_em: "08/10/2026 13:30", motivo: "Reunião se estendeu" }
+      expect(solicitacao.reload).to have_attributes(busca_prevista_em: Time.zone.local(2026, 10, 8, 13, 30), ultimo_aviso_de_busca_em: nil)
+      expect(maria.notificacoes.last.titulo).to eq("Busca reagendada")
+    end
+
     it "cancela com motivo, e a solicitação mostra o motivo" do
       patch cancelar_transporte_operacao_path(solicitacao), params: { motivo: " " }
       expect(response).to have_http_status(:unprocessable_content)

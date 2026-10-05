@@ -40,7 +40,7 @@ module Transporte
 
     def reagendar
       responder Transporte::Solicitacoes::Reagendar.call(solicitacao: @solicitacao, ator: current_user, saida_em: params[:saida_em], retorno_em: params[:retorno_em],
-                                                         motivo: params[:motivo]),
+                                                         busca_em: params[:busca_em], motivo: params[:motivo]),
                 :reagendamento, "Solicitação #{@solicitacao.codigo} reagendada."
     end
 
