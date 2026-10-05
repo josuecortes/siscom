@@ -27,6 +27,7 @@ namespace :ti do
   end
   # A TI abre o chamado em nome de outra pessoa (que passa a ser a dona).
   resource :chamado_para_outro, only: %i[new create], path: "chamados-para-outra-pessoa", controller: "chamados_para_outro"
+  get "opcoes/unidades", to: "opcoes#unidades", as: :opcoes_de_unidades, defaults: { format: :json }
   get "opcoes/usuarios", to: "opcoes#usuarios", as: :opcoes_de_usuarios, defaults: { format: :json }
   get "opcoes/operadores", to: "opcoes#operadores", as: :opcoes_de_operadores, defaults: { format: :json }
   get "opcoes/usuarios-do-perfil", to: "opcoes#usuarios_do_perfil", as: :opcoes_de_usuarios_do_perfil, defaults: { format: :json }

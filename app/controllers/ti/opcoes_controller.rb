@@ -39,6 +39,13 @@ module Ti
                      todas: todas, restantes: [ escolhidas.count - LIMITE, 0 ].max }
     end
 
+    # Unidades do RH, para o filtro "Unidade de quem pediu" da Operação.
+    def unidades
+      raise Core::AcessoNegado unless Ti::Chamados::Acesso.opera?(current_user)
+
+      render json: Rh::Api.opcoes_de_unidades(params[:q])
+    end
+
     # Quem abre em nome de outra pessoa (`solicitante_id`) vê os campos das solicitações dela.
     def index
       campo = Ti::CampoProblema.ativo.where(problema_id: Ti::Problema.que_pode_abrir(dono_do_chamado).select(:id)).find(params[:campo_id])

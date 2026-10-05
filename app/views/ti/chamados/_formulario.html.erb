@@ -10,7 +10,7 @@
 <% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Novo chamado", titulo: (para_outro ? "Abrir chamado para outra pessoa" : "Abrir chamado"), voltar: ti_chamados_path, rodape: rodape,
+      locals: { sobretitulo: "Novo chamado", titulo: (para_outro ? "Abrir chamado para outra pessoa" : "Abrir chamado"), voltar: (para_outro ? ti_operacao_index_path : ti_chamados_path), rodape: rodape,
                 descricao: ("O chamado fica em nome da pessoa escolhida, com o registro de que foi você quem abriu." if para_outro) } do %>
   <%# Em nome de outra pessoa não há lista por trás do painel: ao salvar, a página inteira vai para o chamado. %>
   <%= form_with url: url, id: "formulario_chamado", class: "space-y-5", multipart: true, data: ({ turbo_frame: "_top" } if para_outro) do |f| %>

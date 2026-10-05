@@ -4,7 +4,12 @@ module Ti
   # fazer (ou a supervisão atribui).
   class OperacaoController < BaseController
     POR_PAGINA = 20
-    VISOES = { "disponiveis" => "Sem responsável", "meus" => "Comigo", "andamento" => "Todos em andamento", "encerrados" => "Encerrados" }.freeze
+    # Abas por etapa. "Solicitadas" mostra tudo o que ninguém assumiu (o que a pessoa pode pegar já vem com o botão);
+    # as outras mostram só o que é da pessoa, ou de todos quando ela liga "De todos" (aí ela vê, mas só mexe no que é dela).
+    ABAS = { "solicitada" => [ "Solicitadas", %w[aberto aguardando_tecnico] ], "em_triagem" => [ "Em triagem", %w[em_triagem] ],
+             "em_atendimento" => [ "Em atendimento", %w[em_atendimento] ], "parado" => [ "Parados", %w[aguardando_solicitante impedido] ],
+             "concluido" => [ "Concluídos", %w[concluido] ], "finalizado" => [ "Finalizados", %w[finalizado] ], "cancelado" => [ "Cancelados", %w[cancelado] ] }.freeze
+    SEM_DONO = "solicitada".freeze
 
     FEITO = { "assumir" => "assumido por você", "encaminhar" => "encaminhado para atendimento técnico", "devolver" => "ajuste pedido ao solicitante",
               "impedir" => "marcado como impedido", "concluir" => "atendimento concluído", "liberar" => "liberado para outro profissional",
@@ -17,16 +22,19 @@ module Ti
     before_action :carregar_chamado, only: %i[show etapa acao executar]
 
     def index
-      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(VISOES.keys) || "disponiveis" }
-      chamados = filtrar(Ti::Chamados::Acesso.visiveis(current_user), @filtros[:status]).includes(:problema, :responsavel, :triador)
-      chamados = chamados.buscar_na_operacao(@filtros[:q]) if @filtros[:q].present?
-      @pagy, @chamados = pagy(:offset, chamados.order(Arel.sql(Ti::Chamado::ORDEM_DE_PRIORIDADE), :aberto_em, :id), limit: POR_PAGINA)
+      @filtros = filtros
+      visiveis = filtrar(Ti::Chamados::Acesso.visiveis(current_user))
+      @contagens = ABAS.to_h { |aba, _| [ aba, da_aba(visiveis, aba).count ] }
+      # Com algum filtro, as abas viram uma só ("Resultado"), com tudo o que a pessoa enxerga, de todas as etapas.
+      chamados = @filtros[:filtrando] ? visiveis : da_aba(visiveis, @filtros[:status])
+      @unidade = Rh::Api.unidade(@filtros[:unidade_id]) if @filtros[:unidade_id]
+      @pagy, @chamados = pagy(:offset, chamados.includes(:problema, :responsavel, :triador).order(ordem), limit: POR_PAGINA)
     end
 
     def show
       @valores = @chamado.valores.em_ordem.with_attached_arquivos
       @eventos = @chamado.eventos.em_ordem
-      abrir_sobre(ti_operacao_index_path(status: (@chamado.em_andamento? ? "andamento" : "encerrados")))
+      abrir_sobre(ti_operacao_index_path(status: ABAS.find { |_, (_, status)| status.include?(@chamado.status) }&.first, de: "todos"))
     end
 
     # Painel que mostra as mudanças de etapa possíveis; cada uma abre o painel da ação.
@@ -67,13 +75,39 @@ module Ti
       Ti::Chamados::Operar.disponiveis(@chamado, current_user).find { |acao| acao.chave == params[:acao] } || raise(Core::AcessoNegado)
     end
 
-    def filtrar(chamados, visao)
-      case visao
-      when "meus" then chamados.em_andamento.where(responsavel: current_user).or(chamados.em_andamento.where(triador: current_user, responsavel: nil))
-      when "andamento" then chamados.em_andamento
-      when "encerrados" then chamados.where.not(status: Ti::Chamado::EM_ANDAMENTO)
-      else chamados.where(status: %w[aberto aguardando_tecnico], responsavel: nil)
+    def filtros
+      valores = { q: params[:q].to_s.strip, categoria_id: params[:categoria_id].presence&.to_i, unidade_id: params[:unidade_id].presence&.to_i,
+                  aberto_de: DataBr.interpretar(params[:aberto_de]), aberto_ate: DataBr.interpretar(params[:aberto_ate]) }
+      valores.merge(status: params[:status].presence_in(ABAS.keys) || SEM_DONO, de: params[:de].presence_in(%w[meus todos]) || "meus",
+                    ordem: params[:ordem].presence_in(%w[aberto]), direcao: params[:direcao].presence_in(%w[asc desc]) || "asc",
+                    filtrando: valores.values.any?(&:present?))
+    end
+
+    def filtrar(chamados)
+      f = @filtros
+      chamados = chamados.buscar_na_operacao(f[:q]) if f[:q].present?
+      chamados = chamados.where(problema_id: Ti::Problema.where(categoria_id: f[:categoria_id]).select(:id)) if f[:categoria_id]
+      chamados = chamados.where(rh_unidade_id: f[:unidade_id]) if f[:unidade_id]
+      if f[:aberto_de] || f[:aberto_ate]
+        chamados = chamados.where(aberto_em: (f[:aberto_de]&.in_time_zone&.beginning_of_day)..(f[:aberto_ate]&.in_time_zone&.end_of_day))
       end
+      chamados
+    end
+
+    def da_aba(chamados, aba)
+      chamados = chamados.where(status: ABAS.fetch(aba).last)
+      return chamados.where(responsavel_id: nil) if aba == SEM_DONO
+      return chamados if @filtros[:de] == "todos"
+
+      # "Meu": sou o responsável, ou sou o triador e ainda não há responsável.
+      chamados.where(responsavel: current_user).or(chamados.where(triador: current_user, responsavel_id: nil))
+    end
+
+    # Sem escolha no cabeçalho da coluna: o mais urgente primeiro, depois o mais antigo.
+    def ordem
+      return { aberto_em: @filtros[:direcao].to_sym, id: :asc } if @filtros[:ordem] == "aberto"
+
+      [ Arel.sql(Ti::Chamado::ORDEM_DE_PRIORIDADE), :aberto_em, :id ]
     end
   end
 end

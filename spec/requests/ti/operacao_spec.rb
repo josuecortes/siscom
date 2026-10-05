@@ -26,7 +26,7 @@ RSpec.describe "TI: operação" do
     sign_in com_papel("tecnico", "DE FORA")
 
     get ti_operacao_index_path
-    expect(response.body).to include("0 chamado(s) encontrado(s)")
+    expect(response.body).to include("0 chamado(s) que ninguém assumiu ainda")
     get ti_operacao_path(chamado)
     expect(response).to have_http_status(:not_found)
   end
@@ -34,16 +34,61 @@ RSpec.describe "TI: operação" do
   context "com técnico do grupo" do
     before { sign_in tecnico }
 
-    it "lista os chamados sem responsável, com busca, e as outras visões" do
+    def abas = Nokogiri::HTML(response.body).css("nav[aria-label='Etapas dos chamados'] a, nav[aria-label='Etapas dos chamados'] [aria-current]").map { |aba| aba.text.squish }.uniq
+    def codigos = Nokogiri::HTML(response.body).css("tbody tr[id] td:first-child").map { |celula| celula.text.strip }
+
+    it "Solicitadas mostra o que ninguém assumiu, já com o botão de assumir; abrir para outra pessoa fica aqui, não no menu" do
       get ti_operacao_index_path
-      expect(response.body).to include("1 chamado(s) encontrado(s)", chamado.codigo, "SEM INTERNET", "MARIA OLIVEIRA", "NUINFO - NÚCLEO DE INFORMÁTICA", "Assumir chamado")
 
-      get ti_operacao_index_path, params: { q: "maria", status: "meus" }
-      expect(response.body).to include("0 chamado(s) encontrado(s)")
+      html = Nokogiri::HTML(response.body)
+      expect(response.body).to include("1 chamado(s) que ninguém assumiu ainda", chamado.codigo, "SEM INTERNET", "MARIA OLIVEIRA", "NUINFO - NÚCLEO DE INFORMÁTICA", "Assumir chamado")
+      expect(abas).to eq([ "Solicitadas 1", "Em triagem 0", "Em atendimento 0", "Parados 0", "Concluídos 0", "Finalizados 0", "Cancelados 0" ])
+      expect(html.at_css("main a[title='Abrir para outra pessoa']")["href"]).to eq(new_ti_chamado_para_outro_path)
+      expect(html.css("#menu-lateral a").map { |link| link.text.squish }).not_to include("Abrir para outra pessoa")
+      expect(html.at_css("[role='switch']")).to be_nil # em Solicitadas aparece tudo: o liga/desliga não se aplica
+    end
 
+    it "nas outras abas vejo só os meus; ligando Ver os de todos vejo os dos outros, sem poder mexer neles" do
+      pedro = com_papel("tecnico", "PEDRO TECNICO").tap { |user| redes.vinculos_de_membro.create!(user: user) }
+      do_pedro = Ti::Chamado.create!(problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email, aberto_em: Time.current)
+      Ti::Chamados::Operar.call(chamado: do_pedro, acao: "assumir", ator: pedro)
       post acao_ti_operacao_path(chamado, "assumir")
-      get ti_operacao_index_path, params: { status: "meus" }
-      expect(response.body).to include("1 chamado(s) encontrado(s)", "Em trabalho", "JOAO TECNICO")
+
+      get ti_operacao_index_path, params: { status: "em_atendimento" }
+      so_meus = [ codigos, abas[2], Nokogiri::HTML(response.body).at_css("[role='switch']")["aria-checked"] ]
+      get ti_operacao_index_path, params: { status: "em_atendimento", de: "todos" }
+      html = Nokogiri::HTML(response.body)
+
+      expect(so_meus).to eq([ [ chamado.codigo ], "Em atendimento 1", "false" ])
+      expect([ codigos, abas[2], html.at_css("[role='switch']")["aria-checked"] ]).to eq([ [ chamado.codigo, do_pedro.codigo ], "Em atendimento 2", "true" ])
+      expect(html.css("tr##{ActionView::RecordIdentifier.dom_id(do_pedro)} td:last-child [title]").pluck("title")).to eq([ "Visualizar chamado" ])
+      expect(response.body).to include("2 chamado(s) em em atendimento, de todos")
+    end
+
+    it "com filtro, as abas viram Resultado, com tudo o que enxergo; filtra por texto, categoria, unidade e data de abertura" do
+      post acao_ti_operacao_path(chamado, "assumir")
+      resultado = ->(filtros) { get(ti_operacao_index_path, params: filtros) && codigos }
+
+      expect(resultado.call(q: "maria")).to eq([ chamado.codigo ])
+      expect([ abas, response.body.include?("1 chamado(s) encontrado(s), de todas as etapas") ]).to eq([ [ "Resultado 1" ], true ])
+      expect([ resultado.call(categoria_id: solicitacao.categoria_id), resultado.call(categoria_id: 0), resultado.call(unidade_id: chamado.rh_unidade_id || 0),
+               resultado.call(aberto_de: I18n.l(Date.current)), resultado.call(aberto_ate: I18n.l(Date.yesterday)) ])
+        .to eq([ [ chamado.codigo ], [], (chamado.rh_unidade_id ? [ chamado.codigo ] : []), [ chamado.codigo ], [] ])
+      get ti_opcoes_de_unidades_path
+      expect(response.parsed_body).to include("opcoes", "todas")
+    end
+
+    it "a ordem troca pelo cabeçalho Aberto em; o padrão é o mais urgente primeiro" do
+      urgente = Ti::Chamado.create!(problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email, aberto_em: 1.minute.from_now, prioridade: "urgente")
+
+      get ti_operacao_index_path
+      padrao = codigos
+      get ti_operacao_index_path, params: { ordem: "aberto" }
+      mais_antigo = codigos
+      get ti_operacao_index_path, params: { ordem: "aberto", direcao: "desc" }
+
+      expect([ padrao, mais_antigo, codigos ]).to eq([ [ urgente.codigo, chamado.codigo ], [ chamado.codigo, urgente.codigo ], [ urgente.codigo, chamado.codigo ] ])
+      expect(Nokogiri::HTML(response.body).at_css("th[aria-sort]")["aria-sort"]).to eq("descending")
     end
 
     it "a linha da lista traz as ações que cabem a ele em cada etapa; ver é só leitura, no painel" do
@@ -54,7 +99,7 @@ RSpec.describe "TI: operação" do
 
       post acao_ti_operacao_path(chamado, "assumir")
       expect(response).to redirect_to(ti_operacao_index_path)
-      get ti_operacao_index_path, params: { status: "meus" }
+      get ti_operacao_index_path, params: { status: "em_atendimento" }
       expect(acoes_da_linha.call).to eq([ "Visualizar chamado", "Abrir conversa", "Mudar etapa", "Mudar prioridade" ])
 
       ver_no_painel ti_operacao_path(chamado)

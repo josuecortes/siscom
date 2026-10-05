@@ -29,7 +29,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     Capybara.using_session(:tecnico) do
       sign_in tecnico
       visit ti_operacao_index_path
-      expect(page).to have_content("0 chamado(s) encontrado(s)")
+      expect(page).to have_content("0 chamado(s) que ninguém assumiu ainda")
     end
 
     sign_in maria
@@ -46,7 +46,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     end
 
     Capybara.using_session(:tecnico) do
-      expect(page).to have_content("1 chamado(s) encontrado(s)") # apareceu sozinho
+      expect(page).to have_content("1 chamado(s) que ninguém assumiu ainda") # apareceu sozinho
       print("ti-operacao-lista")
       within("tr", text: codigo) { click_on "Visualizar chamado" }
       within("[role='dialog']") do
@@ -57,7 +57,8 @@ RSpec.describe "TI: operação em tempo real", :js do
       within("tr", text: codigo) { click_on "Assumir chamado" } # as ações ficam na linha da lista
       within("#confirmacao") { click_on "Assumir" }
       expect(page).to have_css("#avisos", text: "assumido por você")
-      select "Comigo", from: "Status"
+      expect(page).to have_css("nav a", text: /Em atendimento\s*1/)
+      click_on "Em atendimento" # as outras abas mostram só o que é dele
       expect(page).to have_css("tr", text: codigo)
     end
 
@@ -148,7 +149,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     end
 
     Capybara.using_session(:tecnico) do
-      select "Encerrados", from: "Status"
+      click_on "Finalizados"
       expect(page).to have_css("tr", text: "Finalizado") # o técnico vê o desfecho
     end
   end
@@ -158,7 +159,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     sign_in tecnico
     usar_tela_de_celular
     visit ti_operacao_index_path
-    expect(page).to have_content("1 chamado(s) encontrado(s)")
+    expect(page).to have_content("1 chamado(s) que ninguém assumiu ainda")
     expect(sem_rolagem_horizontal?).to be(true)
 
     click_on "Visualizar chamado"

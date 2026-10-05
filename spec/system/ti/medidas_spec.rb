@@ -220,7 +220,7 @@ RSpec.describe "TI com as medidas do seed", :js do
       visit acao_ti_operacao_path(chamado, "devolver")
       expect(titulos_do_painel).to eq([ "ajuste", "Pedir ajuste ao solicitante #{chamado.codigo}" ])
 
-      visit ti_operacao_index_path(status: "meus")
+      visit ti_operacao_index_path(status: "em_atendimento")
       linha = "##{ActionView::RecordIdentifier.dom_id(chamado)}"
       expect(page).to have_css("#{linha} td:nth-child(1) a", text: chamado.codigo).and have_css("#{linha} td:nth-child(2) a", text: "SEM INTERNET")
       expect(estilo("#{linha} td:nth-child(2) p", "fontSize")).to eq("15.2px")

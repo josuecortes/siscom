@@ -88,8 +88,10 @@ RSpec.describe "TI: abrir chamado", :js do
     visit root_path
     within("#menu-lateral") do
       find("summary", text: "TI").click
-      click_on "Abrir para outra pessoa"
+      expect(page).to have_no_link("Abrir para outra pessoa") # saiu do menu: fica dentro da Operação
+      click_on "Operação"
     end
+    click_on "Abrir para outra pessoa"
     expect(page).to have_css("[role='dialog'] h2", text: "Abrir chamado para outra pessoa")
     expect(page).to have_no_field("Solicitação *")
 
