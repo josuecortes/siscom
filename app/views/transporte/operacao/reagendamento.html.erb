@@ -5,7 +5,7 @@
 
 <%= render layout: "compartilhado/painel_formulario",
       locals: { sobretitulo: "Transporte", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_index_path, rodape: rodape,
-                descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. A solicitação fica como reagendada até o solicitante aceitar ou recusar o novo horário.") } do %>
+                descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. A solicitação fica como reagendada até o solicitante aceitar ou recusar o novo horário. Só dá para reagendar uma vez.") } do %>
   <%= form_with url: reagendar_transporte_operacao_path(@solicitacao), method: :patch, id: "formulario_reagendamento", class: "space-y-5" do |f| %>
     <% if @erro.present? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>

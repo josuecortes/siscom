@@ -2,7 +2,8 @@ module Transporte
   module Solicitacoes
     # A operação propõe outro horário para uma solicitação aprovada (regra do siscom antigo): informa o
     # motivo e a nova saída (e o novo retorno, na viagem). A solicitação fica "reagendada" até o
-    # solicitante aceitar ou recusar (ResponderReagendamento).
+    # solicitante aceitar ou recusar (ResponderReagendamento). Cada solicitação só pode ser reagendada
+    # uma vez (decisão do Josue, 2026-10-05, como no siscom antigo).
     #
     # Quando a solicitação está aguardando busca, muda só a hora prevista da busca, sem aceite
     # (porta de requests/reschedule_service.rb do seed).
@@ -26,6 +27,7 @@ module Transporte
         return reagendar_busca if @solicitacao.busca?
         return falha("Esta solicitação já foi reagendada e aguarda a resposta do solicitante.") if @solicitacao.reagendada?
         return falha("Só dá para reagendar uma solicitação aprovada, antes de o serviço começar, ou a busca enquanto ela é aguardada.") unless @solicitacao.aprovada?
+        return falha("Esta solicitação já foi reagendada uma vez e não pode ser reagendada de novo.") if @solicitacao.ja_reagendada?
         return falha("Informe a nova saída ou o novo retorno.") if @saida.nil? && @retorno.nil?
         return falha("Motivo deve ser preenchido.") unless @motivo
 

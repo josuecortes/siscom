@@ -52,6 +52,9 @@ module Transporte
     def em_andamento? = EM_ANDAMENTO.include?(status)
     def antes_do_servico? = ANTES_DO_SERVICO.include?(status)
 
+    # Só dá para reagendar uma vez (a hora da busca não conta: é outro ajuste).
+    def ja_reagendada? = reagendada_em.present?
+
     # Linha do histórico (dentro da transação de quem muda a solicitação).
     def registrar_evento(tipo, ator, nota = nil)
       eventos.create!(tipo: tipo, ator: ator, ator_nome: ator&.nome, nota: nota.to_s.squish.presence, ocorrido_em: Time.current)

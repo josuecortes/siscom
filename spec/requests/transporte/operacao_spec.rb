@@ -167,6 +167,19 @@ RSpec.describe "Transporte: operação" do
       expect(solicitacao.eventos.em_ordem.pluck(:tipo)).to eq(%w[aberta reagendada reagendamento_aceito])
     end
 
+    it "reagendar é uma vez só: aceita e aprovada de novo, a operação não reagenda outra vez" do
+      solicitacao.update!(status: "aprovada")
+      Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao, ator: tecnico, saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção")
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "aceitar" }
+
+      resultado = Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao.reload, ator: tecnico, saida_em: "10/10/2026 08:00", motivo: "De novo")
+
+      expect(resultado.mensagem_de_erro).to include("já foi reagendada uma vez")
+      sign_in tecnico
+      get transporte_operacao_index_path, params: { status: "aprovada" }
+      expect(response.body).not_to include("reagendamento")
+    end
+
     it "recusa o reagendamento só com motivo: os horários antigos voltam e a solicitação é cancelada" do
       solicitacao.update!(status: "aprovada")
       Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao, ator: tecnico, saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção")
@@ -180,7 +193,10 @@ RSpec.describe "Transporte: operação" do
       expect(solicitacao.reload).to have_attributes(status: "cancelada", saida_em: Time.zone.local(2026, 10, 8, 9, 0), motivo_recusa_reagendamento: "Nesse dia não posso",
                                                     cancelada_por: maria, motivo_cancelamento: "Reagendamento recusado pelo solicitante: Nesse dia não posso")
       expect(tecnico.notificacoes.last).to have_attributes(titulo: "Reagendamento recusado")
-      expect(solicitacao.eventos.em_ordem.last).to have_attributes(tipo: "reagendamento_recusado", ator_nome: "MARIA OLIVEIRA")
+      expect(solicitacao.eventos.em_ordem.last).to have_attributes(
+        tipo: "reagendamento_recusado", ator_nome: "MARIA OLIVEIRA",
+        nota: "Saída original: 08/10/2026 09:00; saída proposta e recusada: 09/10/2026 14:30. Motivo: Nesse dia não posso. A solicitação foi cancelada."
+      )
     end
 
     it "só o solicitante responde, e só enquanto está reagendada" do

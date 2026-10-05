@@ -21,7 +21,7 @@
       <%= render "compartilhado/botao_acao", titulo: "Aprovar solicitação", icone: :check_circle, caminho: aprovar_transporte_operacao_path(s), metodo: :patch,
             confirmar: { mensagem: "Confirme a aprovação de #{s.codigo}, com saída em #{data_e_hora(s.saida_em)}.", rotulo: "Aprovar", tom: "primario" } %>
     <% end %>
-    <% if s.aprovada? || s.busca? %>
+    <% if (s.aprovada? && !s.ja_reagendada?) || s.busca? %>
       <%= render "compartilhado/botao_acao", titulo: (s.busca? ? "Reagendar busca" : "Reagendar"), icone: :clock, caminho: reagendamento_transporte_operacao_path(s), quadro: "painel" %>
     <% end %>
     <%= render "compartilhado/botao_acao", titulo: "Registrar observação", icone: :notes, caminho: new_transporte_solicitacao_observacao_path(s), quadro: "painel" %>
