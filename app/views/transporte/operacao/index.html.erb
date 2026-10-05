@@ -19,45 +19,62 @@
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%# Qualquer filtro preenchido troca as abas por uma só, "Resultado", com todas as etapas (a etapa vira coluna).
       A ordem não é filtro: vale também nas abas. "Limpar filtros" devolve as abas. %>
-  <%= form_with url: transporte_operacao_index_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+  <%= form_with url: transporte_operacao_index_path, method: :get, id: "filtros_da_operacao", class: "border-b border-[var(--border-subtle)] px-6 py-5",
         data: { controller: "filtro", turbo_frame: "operacao_lista", turbo_action: "advance" } do |f| %>
-    <%= hidden_field_tag :status, @filtros[:status], id: nil %>
-    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4 xl:items-end">
-      <div class="space-y-1.5 md:col-span-2">
-        <%= f.label :q, "Buscar por código, resumo ou solicitante", class: rotulo %>
-        <div class="relative">
-          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
-          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: TR-000001 ou Maria", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+    <% extras = @filtros.slice(:tipo, :unidade, :pedido_de, :pedido_ate, :saida_de, :saida_ate).values.count(&:present?) %>
+    <%# No celular só a busca fica à vista; os outros campos recolhem atrás de "Mais filtros" (a partir de md aparecem sempre). %>
+    <div class="space-y-4" data-controller="recolher">
+      <div class="flex items-end gap-2">
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <%# No celular o rótulo fica só para leitor de tela (o exemplo dentro do campo já explica), para a área ocupar menos. %>
+          <%= f.label :q, "Buscar por código, resumo ou solicitante", class: "sr-only md:not-sr-only #{rotulo}" %>
+          <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+            <%= f.text_field :q, value: @filtros[:q], placeholder: "Código, resumo ou solicitante", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+          </div>
         </div>
-      </div>
-      <div class="space-y-1.5">
-        <%= f.label :tipo, "Tipo", class: rotulo %>
-        <%= f.select :tipo, [ [ "Todos", "" ] ] + Transporte::Solicitacao::TIPOS.invert.to_a, { selected: @filtros[:tipo] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
-      </div>
-      <%= render "compartilhado/campo_autocomplete", nome: "unidade", id: "filtro_unidade", rotulo: "Unidade de quem pediu", flutuante: true,
-            opcoes: @unidades.map { |nome| { valor: nome, rotulo: nome } }, valor: @filtros[:unidade], texto: @filtros[:unidade],
-            acao: "change->filtro#aplicar", placeholder: "Todas", vazio: "Nenhuma unidade nas solicitações." %>
-      <% campo_de_data.call(:pedido_de, "Pedido de") %>
-      <% campo_de_data.call(:pedido_ate, "Pedido até") %>
-      <% campo_de_data.call(:saida_de, "Saída de") %>
-      <% campo_de_data.call(:saida_ate, "Saída até") %>
-      <div class="space-y-1.5 md:col-span-2 xl:col-span-3">
-        <%= f.label :ordem, "Ordenar por", class: rotulo %>
-        <%= f.select :ordem, [ [ "Data de saída (quem sai primeiro)", "saida" ], [ "Data do pedido (quem pediu primeiro)", "pedido" ] ], { selected: @filtros[:ordem] },
-              data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4 xl:max-w-sm" %>
-      </div>
-      <div class="flex flex-row gap-2 xl:justify-end">
         <button type="submit" title="Filtrar solicitações" aria-label="Filtrar solicitações"
-                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+                class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
         <%= link_to transporte_operacao_index_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
-              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+              class: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
           <%= icone(:x) %>
         <% end %>
+      </div>
+      <button type="button" data-recolher-target="botao" data-action="recolher#alternar" aria-expanded="false" aria-controls="mais_filtros"
+              class="group inline-flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm font-semibold text-[var(--text-primary)] md:hidden">
+        <span class="inline-flex items-center gap-2">
+          Mais filtros
+          <% if extras.positive? %><span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[11px] text-[var(--accent-strong)]"><%= extras %></span><% end %>
+        </span>
+        <span class="text-[var(--text-secondary)] transition-transform group-aria-expanded:rotate-180"><%= icone(:chevron_right, classe: "h-4 w-4 rotate-90") %></span>
+      </button>
+      <div id="mais_filtros" data-recolher-target="bloco" class="hidden gap-4 md:grid md:grid-cols-3 xl:grid-cols-6 xl:items-end">
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%= f.label :tipo, "Tipo", class: rotulo %>
+          <%= f.select :tipo, [ [ "Todos", "" ] ] + Transporte::Solicitacao::TIPOS.invert.to_a, { selected: @filtros[:tipo] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 md:mb-0">
+          <%= render "compartilhado/campo_autocomplete", nome: "unidade", id: "filtro_unidade", rotulo: "Unidade de quem pediu", flutuante: true,
+                opcoes: @unidades.map { |nome| { valor: nome, rotulo: nome } }, valor: @filtros[:unidade], texto: @filtros[:unidade],
+                acao: "change->filtro#aplicar", placeholder: "Todas", vazio: "Nenhuma unidade nas solicitações." %>
+        </div>
+        <div class="mb-4 grid grid-cols-2 gap-4 md:contents">
+          <% campo_de_data.call(:pedido_de, "Pedido de") %>
+          <% campo_de_data.call(:pedido_ate, "Pedido até") %>
+        </div>
+        <div class="grid grid-cols-2 gap-4 md:contents">
+          <% campo_de_data.call(:saida_de, "Saída de") %>
+          <% campo_de_data.call(:saida_ate, "Saída até") %>
+        </div>
       </div>
     </div>
   <% end %>
 
   <%= turbo_frame_tag "operacao_lista", data: { turbo_action: "advance" } do %>
+    <%# A aba e a ordem em uso acompanham os filtros: os campos ficam aqui (dentro do quadro, sempre atuais) e pertencem ao formulário de cima. %>
+    <% { status: @filtros[:status], ordem: @filtros[:ordem], direcao: @filtros[:direcao] }.each do |nome, valor| %>
+      <%= hidden_field_tag nome, valor, id: nil, form: "filtros_da_operacao" %>
+    <% end %>
     <% aba = "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" %>
     <% contador = "inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]" %>
     <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas das solicitações">
@@ -66,7 +83,7 @@
           <span class="<%= aba %>" aria-current="page"><span>Resultado</span> <span class="<%= contador %>"><%= @pagy.count %></span></span>
         <% else %>
           <% Transporte::OperacaoController::ABAS.each do |chave, titulo| %>
-            <%= link_to transporte_operacao_index_path(status: chave, ordem: (@filtros[:ordem] unless @filtros[:ordem] == "saida")), aria: { current: (chave == @filtros[:status] ? "page" : nil) }, class: aba do %>
+            <%= link_to transporte_operacao_index_path(status: chave, ordem: (@filtros[:ordem] unless @filtros[:ordem] == "saida"), direcao: (@filtros[:direcao] unless @filtros[:direcao] == "asc")), aria: { current: (chave == @filtros[:status] ? "page" : nil) }, class: aba do %>
               <span><%= titulo %></span>
               <span class="<%= contador %>"><%= @contagens.fetch(chave, 0) %></span>
             <% end %>
@@ -74,7 +91,20 @@
         <% end %>
       </div>
     </nav>
-    <% ordem = Transporte::OperacaoController::ORDENS.fetch(@filtros[:ordem]).first.downcase %>
+    <% ordem = "#{@filtros[:ordem] == 'pedido' ? 'data do pedido' : (de_busca ? 'hora da busca' : 'data de saída')}, #{@filtros[:direcao] == 'asc' ? 'da mais antiga para a mais nova' : 'da mais nova para a mais antiga'}" %>
+    <%# Cabeçalho de coluna de data: clicar ordena por ela; clicar de novo inverte. A seta mostra a ordem em uso. %>
+    <% ordenavel = ->(titulo, chave) do %>
+      <% ativa = @filtros[:ordem] == chave %>
+      <% proxima = ativa && @filtros[:direcao] == "asc" ? "desc" : "asc" %>
+      <th scope="col" aria-sort="<%= ativa ? (@filtros[:direcao] == "asc" ? "ascending" : "descending") : "none" %>">
+        <%= link_to url_for(request.query_parameters.except("page").merge(ordem: chave, direcao: proxima)),
+              title: "Ordenar por #{titulo.downcase} (#{proxima == 'asc' ? 'mais antiga primeiro' : 'mais nova primeiro'})",
+              class: "inline-flex items-center gap-1.5 hover:text-[var(--accent-strong)] #{'text-[var(--accent-strong)]' if ativa}" do %>
+          <span><%= titulo %></span>
+          <span class="text-xs leading-none <%= "opacity-40" unless ativa %>" aria-hidden="true"><%= ativa ? (@filtros[:direcao] == "asc" ? "▲" : "▼") : "▲▼" %></span>
+        <% end %>
+      </th>
+    <% end %>
     <%= render "compartilhado/resumo_tabela", texto: (filtrando ? "#{@pagy.count} solicitação(ões) encontrada(s), de todas as etapas, por #{ordem}" : "#{@pagy.count} solicitação(ões) em #{Transporte::OperacaoController::ABAS.fetch(@filtros[:status]).downcase}, por #{ordem}") %>
 
     <div class="overflow-x-auto">
@@ -84,8 +114,8 @@
             <th scope="col">Código</th>
             <th scope="col">Resumo</th>
             <th scope="col">Solicitante</th>
-            <th scope="col">Pedido em</th>
-            <th scope="col"><%= de_busca ? "Buscar até" : "Saída" %></th>
+            <% ordenavel.call("Pedido em", "pedido") %>
+            <% ordenavel.call((de_busca ? "Buscar até" : "Saída"), "saida") %>
             <th scope="col">Destino</th>
             <% if filtrando %><th scope="col">Etapa</th><% end %>
             <th scope="col" class="!pl-2">Ações</th>

@@ -6,8 +6,8 @@ module Transporte
     ABAS = { "solicitada" => "Solicitadas", "aprovada" => "Aprovadas", "reagendada" => "Reagendadas", "em_servico" => "Em serviço", "busca" => "Aguardando busca",
              "concluida" => "Concluídas", "cancelada" => "Canceladas" }.freeze
 
-    # Ordem da lista: quem sai primeiro, ou quem pediu primeiro.
-    ORDENS = { "saida" => [ "Data de saída", { saida_em: :asc, id: :asc } ], "pedido" => [ "Data do pedido", { created_at: :asc, id: :asc } ] }.freeze
+    # Ordem da lista, escolhida no cabeçalho das colunas de data: quem sai primeiro, ou quem pediu primeiro.
+    ORDENS = { "saida" => "saida_em", "pedido" => "created_at" }.freeze
     FILTROS = %i[q tipo unidade pedido_de pedido_ate saida_de saida_ate].freeze
 
     before_action { pode!(Transporte::Solicitacoes::Reagendar::PERMISSAO) }
@@ -20,7 +20,7 @@ module Transporte
       # Com algum filtro, as abas viram uma só ("Resultado"), com todas as etapas; a etapa vira coluna.
       solicitacoes = solicitacoes.where(status: @filtros[:status]) unless @filtros[:filtrando]
       @unidades = Transporte::Solicitacao.where.not(unidade_nome: [ nil, "" ]).distinct.order(:unidade_nome).pluck(:unidade_nome)
-      @pagy, @solicitacoes = pagy(:offset, solicitacoes.order(ORDENS.fetch(@filtros[:ordem]).last).includes(:destinos), limit: POR_PAGINA)
+      @pagy, @solicitacoes = pagy(:offset, solicitacoes.order(ordem).includes(:destinos), limit: POR_PAGINA)
     end
 
     def show
@@ -56,8 +56,15 @@ module Transporte
     def filtros
       valores = { q: params[:q].to_s.strip, tipo: params[:tipo].presence_in(Transporte::Solicitacao::TIPOS.keys), unidade: params[:unidade].to_s.strip.presence }
       %i[pedido_de pedido_ate saida_de saida_ate].each { |campo| valores[campo] = DataBr.interpretar(params[campo]) }
-      valores.merge(status: params[:status].presence_in(ABAS.keys) || "solicitada", ordem: params[:ordem].presence_in(ORDENS.keys) || "saida",
+      valores.merge(status: params[:status].presence_in(ABAS.keys) || "solicitada", ordem: params[:ordem].presence_in(ORDENS.keys) || "saida", direcao: params[:direcao].presence_in(%w[asc desc]) || "asc",
                     filtrando: valores.values.any?(&:present?))
+    end
+
+    # Na aba "Aguardando busca" a coluna de saída mostra a hora da busca, e é por ela que se ordena.
+    def ordem
+      coluna = ORDENS.fetch(@filtros[:ordem])
+      coluna = "busca_prevista_em" if coluna == "saida_em" && !@filtros[:filtrando] && @filtros[:status] == "busca"
+      { coluna => @filtros[:direcao].to_sym, id: :asc }
     end
 
     def filtrar(solicitacoes)

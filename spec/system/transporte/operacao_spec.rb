@@ -79,6 +79,52 @@ RSpec.describe "Transporte: operação em tempo real", :js do
     end
   end
 
+  it "no celular os filtros ficam recolhidos atrás de Mais filtros; a busca continua à vista" do
+    Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados)
+    sign_in tecnico
+    usar_tela_de_celular
+    visit transporte_operacao_index_path
+
+    expect(page).to have_field("Buscar por código, resumo ou solicitante")
+    expect(page).to have_no_field("Tipo").and have_no_field("Pedido de")
+    altura_recolhido = retangulo("#filtros_da_operacao")["altura"]
+
+    click_on "Mais filtros"
+    expect(page).to have_field("Tipo").and have_field("Unidade de quem pediu").and have_field("Pedido de").and have_field("Saída até")
+    expect(retangulo("#filtros_da_operacao")["altura"]).to be > altura_recolhido + 200
+    expect(sem_rolagem_horizontal?).to be(true)
+    print("transporte-operacao-filtros-celular")
+
+    select "Normal", from: "Tipo" # o filtro aplica e o bloco continua aberto, com o contador no botão ao recarregar
+    expect(page).to have_css("nav [aria-current='page']", text: /Resultado\s*1/)
+    expect(page).to have_field("Tipo")
+    click_on "Mais filtros"
+    expect(page).to have_no_field("Tipo")
+    expect(altura_recolhido).to be < 160
+  end
+
+  it "no computador os filtros aparecem sempre e a ordem troca pelo cabeçalho da coluna" do
+    primeira = Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto
+    segunda = Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados.merge(saida_em: 55.hours.from_now)).objeto # pedida depois, sai antes
+    sign_in tecnico
+    visit transporte_operacao_index_path
+
+    codigos = -> { all("#operacao_lista tbody tr td:first-child a").map(&:text) }
+    expect(page).to have_field("Tipo").and have_no_button("Mais filtros")
+    expect(codigos.call).to eq([ segunda.codigo, primeira.codigo ])
+
+    click_on "Pedido em"
+    expect(page).to have_css("th[aria-sort='ascending']", text: "Pedido em")
+    expect(codigos.call).to eq([ primeira.codigo, segunda.codigo ])
+    click_on "Pedido em"
+    expect(page).to have_css("th[aria-sort='descending']", text: "Pedido em")
+    expect(codigos.call).to eq([ segunda.codigo, primeira.codigo ])
+
+    fill_in "Buscar por código, resumo ou solicitante", with: "maria" # a busca mantém a ordem escolhida
+    expect(page).to have_css("nav [aria-current='page']", text: /Resultado\s*2/)
+    expect(page).to have_css("th[aria-sort='descending']", text: "Pedido em")
+  end
+
   it "no celular a operação não cria rolagem horizontal" do
     Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados)
     sign_in tecnico

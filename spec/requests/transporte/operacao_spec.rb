@@ -72,6 +72,21 @@ RSpec.describe "Transporte: operação" do
         expect(abas.first).to eq("Solicitadas 2") # a ordem não é filtro: as abas continuam
       end
 
+      it "a ordem é escolhida no cabeçalho das colunas de data: clicar ordena, clicar de novo inverte" do
+        cabecalhos = lambda do
+          Nokogiri::HTML(response.body).css("thead th[aria-sort]").map { |th| [ th.text.squish, th["aria-sort"], Rack::Utils.parse_query(URI(th.at_css("a")["href"]).query).slice("ordem", "direcao") ] }
+        end
+
+        get transporte_operacao_index_path
+        expect(cabecalhos.call).to eq([ [ "Pedido em ▲▼", "none", { "ordem" => "pedido", "direcao" => "asc" } ],
+                                        [ "Saída ▲", "ascending", { "ordem" => "saida", "direcao" => "desc" } ] ])
+        expect(Nokogiri::HTML(response.body).at_css("select[name='ordem']")).to be_nil # não fica mais junto com a busca
+
+        get transporte_operacao_index_path, params: { ordem: "saida", direcao: "desc" }
+        expect([ codigos, cabecalhos.call.last.first(2) ]).to eq([ [ solicitacao.codigo, viagem.codigo ], [ "Saída ▼", "descending" ] ])
+        expect(response.body).to include("da mais nova para a mais antiga")
+      end
+
       it "com filtro, as abas viram uma só (Resultado), com todas as etapas e a etapa em coluna" do
         solicitacao.update!(status: "aprovada")
 
@@ -79,7 +94,7 @@ RSpec.describe "Transporte: operação" do
 
         html = Nokogiri::HTML(response.body)
         expect(abas).to eq([ "Resultado 1" ])
-        expect(html.css("thead th").map(&:text)).to eq([ "Código", "Resumo", "Solicitante", "Pedido em", "Saída", "Destino", "Etapa", "Ações" ])
+        expect(html.css("thead th").map { |th| th.text.squish.delete("▲▼").strip }).to eq([ "Código", "Resumo", "Solicitante", "Pedido em", "Saída", "Destino", "Etapa", "Ações" ])
         expect(html.css("tbody tr td:nth-child(7)").map { |celula| celula.text.strip }).to eq([ "Aprovada" ])
         expect(response.body).to include("1 solicitação(ões) encontrada(s), de todas as etapas")
       end
