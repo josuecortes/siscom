@@ -30,7 +30,7 @@
 
   <%= turbo_frame_tag "chamados_lista", data: { turbo_action: "advance" } do %>
     <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas dos chamados">
-      <div class="flex gap-1 overflow-x-auto">
+      <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
         <% Ti::ChamadosController::ABAS.each do |status, titulo| %>
           <% ativa = status == @filtros[:status] %>
           <%= link_to ti_chamados_path(status: status, q: @filtros[:q].presence), aria: { current: (ativa ? "page" : nil) },

@@ -120,8 +120,8 @@ RSpec.describe "Transporte com as medidas do seed", :js do
 
       linha = "##{ActionView::RecordIdentifier.dom_id(atrasada)}"
       expect(all("#operacao_lista thead th").map(&:text)).to include("Buscar até")
-      expect(page).to have_css("#{linha} td:nth-child(4) span", text: "Atrasada")
-      expect([ estilo("#{linha} td:nth-child(4) span", "fontSize"), tamanhos(selo: "#{linha} td:nth-child(4) span")[:selo].last ]).to eq([ "11px", 22.5 ])
+      expect(page).to have_css("#{linha} td:nth-child(5) span", text: "Atrasada")
+      expect([ estilo("#{linha} td:nth-child(5) span", "fontSize"), tamanhos(selo: "#{linha} td:nth-child(5) span")[:selo].last ]).to eq([ "11px", 22.5 ])
       # Tabela com o mínimo de 980 px do seed: em 1400 px cabe no cartão, sem esconder a coluna Ações.
       expect(retangulo("#operacao_lista table")["largura"]).to eq(retangulo("#operacao_lista")["largura"])
       print("transporte-medidas-operacao-busca")

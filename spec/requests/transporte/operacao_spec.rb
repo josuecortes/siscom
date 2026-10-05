@@ -47,6 +47,60 @@ RSpec.describe "Transporte: operação" do
       expect(html.at_css("a[title='Visualizar solicitação']")["data-turbo-frame"]).to eq("painel")
     end
 
+    describe "ordem, tipo e filtros da lista" do
+      let!(:viagem) do # pedida depois, mas sai antes
+        pedro = com_papel("solicitante", "PEDRO SANTOS")
+        travel_to(Time.zone.local(2026, 10, 5, 9, 0)) do
+          Transporte::Solicitacao.new(tipo: "viagem", modo: "so_deixar", status: "solicitada", resumo: "Viagem a Oiapoque", saida_em: Time.zone.local(2026, 10, 7, 6, 0),
+                                      retorno_em: Time.zone.local(2026, 10, 9, 18, 0), solicitante: pedro, solicitante_nome: pedro.nome, solicitante_email: pedro.email,
+                                      unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA").tap { |s| s.save!(validate: false) }
+        end
+      end
+
+      def codigos = Nokogiri::HTML(response.body).css("tbody tr[id] td:first-child a").map { |link| link.text.strip }
+      def abas = Nokogiri::HTML(response.body).css("nav[aria-label='Etapas das solicitações'] [aria-current], nav[aria-label='Etapas das solicitações'] a").map { |aba| aba.text.squish }.uniq
+
+      it "ordena por quem sai primeiro (padrão) ou por quem pediu primeiro, mostrando o pedido, a saída e o tipo" do
+        get transporte_operacao_index_path
+        primeira = codigos
+        expect(response.body).to include("Pedido em", "05/10/2026 09:00", "07/10/2026 06:00", "Viagem", "Normal", "por data de saída")
+
+        get transporte_operacao_index_path, params: { ordem: "pedido" }
+
+        expect([ primeira, codigos ]).to eq([ [ viagem.codigo, solicitacao.codigo ], [ solicitacao.codigo, viagem.codigo ] ])
+        expect(response.body).to include("por data do pedido")
+        expect(abas.first).to eq("Solicitadas 2") # a ordem não é filtro: as abas continuam
+      end
+
+      it "com filtro, as abas viram uma só (Resultado), com todas as etapas e a etapa em coluna" do
+        solicitacao.update!(status: "aprovada")
+
+        get transporte_operacao_index_path, params: { q: "oliveira" }
+
+        html = Nokogiri::HTML(response.body)
+        expect(abas).to eq([ "Resultado 1" ])
+        expect(html.css("thead th").map(&:text)).to eq([ "Código", "Resumo", "Solicitante", "Pedido em", "Saída", "Destino", "Etapa", "Ações" ])
+        expect(html.css("tbody tr td:nth-child(7)").map { |celula| celula.text.strip }).to eq([ "Aprovada" ])
+        expect(response.body).to include("1 solicitação(ões) encontrada(s), de todas as etapas")
+      end
+
+      it "filtra por tipo, unidade de quem pediu, data do pedido e data de saída" do
+        resultado = ->(filtros) { get(transporte_operacao_index_path, params: filtros) && codigos }
+
+        expect([ resultado.call(tipo: "viagem"), resultado.call(unidade: "NUINFO - NÚCLEO DE INFORMÁTICA"), resultado.call(pedido_de: "05/10/2026", pedido_ate: "05/10/2026"),
+                 resultado.call(saida_de: "08/10/2026"), resultado.call(saida_ate: "07/10/2026"), resultado.call(tipo: "normal", saida_ate: "07/10/2026") ])
+          .to eq([ [ viagem.codigo ], [ viagem.codigo ], [ viagem.codigo, solicitacao.codigo ], [ solicitacao.codigo ], [ viagem.codigo ], [] ])
+        expect(Nokogiri::HTML(response.body).at_css("[data-controller='autocomplete']")["data-autocomplete-opcoes-value"]).to include("NUINFO")
+      end
+
+      it "sem filtro, voltam as abas e a coluna Etapa some" do
+        get transporte_operacao_index_path, params: { q: "", tipo: "", ordem: "saida" }
+
+        expect(abas.first(2)).to eq([ "Solicitadas 2", "Aprovadas 0" ])
+        expect(Nokogiri::HTML(response.body).css("thead th").map(&:text)).not_to include("Etapa")
+      end
+    end
+
     it "aprova e o solicitante é avisado" do
       patch aprovar_transporte_operacao_path(solicitacao)
 

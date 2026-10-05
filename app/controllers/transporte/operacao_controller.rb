@@ -6,15 +6,21 @@ module Transporte
     ABAS = { "solicitada" => "Solicitadas", "aprovada" => "Aprovadas", "reagendada" => "Reagendadas", "em_servico" => "Em serviço", "busca" => "Aguardando busca",
              "concluida" => "Concluídas", "cancelada" => "Canceladas" }.freeze
 
+    # Ordem da lista: quem sai primeiro, ou quem pediu primeiro.
+    ORDENS = { "saida" => [ "Data de saída", { saida_em: :asc, id: :asc } ], "pedido" => [ "Data do pedido", { created_at: :asc, id: :asc } ] }.freeze
+    FILTROS = %i[q tipo unidade pedido_de pedido_ate saida_de saida_ate].freeze
+
     before_action { pode!(Transporte::Solicitacoes::Reagendar::PERMISSAO) }
     before_action(except: :index) { @solicitacao = Transporte::Solicitacao.find(params[:id]) }
 
     def index
-      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(ABAS.keys) || "solicitada" }
-      solicitacoes = Transporte::Solicitacao.all
-      solicitacoes = solicitacoes.buscar(@filtros[:q]) if @filtros[:q].present?
+      @filtros = filtros
+      solicitacoes = filtrar(Transporte::Solicitacao.all)
       @contagens = solicitacoes.group(:status).count
-      @pagy, @solicitacoes = pagy(:offset, solicitacoes.where(status: @filtros[:status]).order(:saida_em, :id).includes(:destinos), limit: POR_PAGINA)
+      # Com algum filtro, as abas viram uma só ("Resultado"), com todas as etapas; a etapa vira coluna.
+      solicitacoes = solicitacoes.where(status: @filtros[:status]) unless @filtros[:filtrando]
+      @unidades = Transporte::Solicitacao.where.not(unidade_nome: [ nil, "" ]).distinct.order(:unidade_nome).pluck(:unidade_nome)
+      @pagy, @solicitacoes = pagy(:offset, solicitacoes.order(ORDENS.fetch(@filtros[:ordem]).last).includes(:destinos), limit: POR_PAGINA)
     end
 
     def show
@@ -46,6 +52,26 @@ module Transporte
     end
 
     private
+
+    def filtros
+      valores = { q: params[:q].to_s.strip, tipo: params[:tipo].presence_in(Transporte::Solicitacao::TIPOS.keys), unidade: params[:unidade].to_s.strip.presence }
+      %i[pedido_de pedido_ate saida_de saida_ate].each { |campo| valores[campo] = DataBr.interpretar(params[campo]) }
+      valores.merge(status: params[:status].presence_in(ABAS.keys) || "solicitada", ordem: params[:ordem].presence_in(ORDENS.keys) || "saida",
+                    filtrando: valores.values.any?(&:present?))
+    end
+
+    def filtrar(solicitacoes)
+      f = @filtros
+      solicitacoes = solicitacoes.buscar(f[:q]) if f[:q].present?
+      solicitacoes = solicitacoes.where(tipo: f[:tipo]) if f[:tipo]
+      solicitacoes = solicitacoes.where(unidade_nome: f[:unidade]) if f[:unidade]
+      solicitacoes = solicitacoes.where(created_at: periodo(f[:pedido_de], f[:pedido_ate])) if f[:pedido_de] || f[:pedido_ate]
+      solicitacoes = solicitacoes.where(saida_em: periodo(f[:saida_de], f[:saida_ate])) if f[:saida_de] || f[:saida_ate]
+      solicitacoes
+    end
+
+    # Dias inteiros, no fuso do sistema.
+    def periodo(de, ate) = (de&.in_time_zone&.beginning_of_day)..(ate&.in_time_zone&.end_of_day)
 
     def responder(resultado, tela, aviso)
       if resultado.sucesso?
