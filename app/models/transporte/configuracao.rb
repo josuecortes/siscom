@@ -1,3 +1,5 @@
+require "bcrypt"
+
 module Transporte
   # Configurações do módulo (porta das colunas transport_* de system_setting.rb do seed).
   # Existe uma única linha; use Transporte::Configuracao.atual.
