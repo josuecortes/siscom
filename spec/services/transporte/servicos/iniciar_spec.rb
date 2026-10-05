@@ -38,6 +38,46 @@ RSpec.describe Transporte::Servicos::Iniciar do
     expect(iniciar.mensagem_de_erro).to include("sem serviço em andamento")
   end
 
+  describe "saída em grupo" do
+    let(:outra) do
+      pedro = com_papel("solicitante", "PEDRO SANTOS")
+      criar_solicitacao(solicitante: pedro, solicitante_nome: pedro.nome, solicitante_email: pedro.email)
+    end
+
+    it "leva várias solicitações no mesmo veículo e avisa todos de que o serviço é compartilhado" do
+      tecnico = com_papel("tecnico", "TECNICO")
+
+      resultado = described_class.call(solicitacao: solicitacao, ator: joao, veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ])
+
+      expect(resultado).to be_sucesso
+      expect([ solicitacao.reload.status, outra.reload.status ]).to eq(%w[em_servico em_servico])
+      expect(solicitacao.servico_aberto.companheiros.map(&:solicitacao)).to eq([ outra ])
+      expect(maria.notificacoes.last).to have_attributes(titulo: "Seu transporte saiu (serviço compartilhado)", mensagem: include("leva também #{outra.codigo} (PEDRO SANTOS)"))
+      expect([ outra.solicitante.notificacoes.last.titulo, tecnico.notificacoes.last.titulo ]).to eq([ "Seu transporte saiu (serviço compartilhado)", "Saída em grupo" ])
+    end
+
+    it "cada solicitação é finalizada no seu destino; o veículo só fica livre quando todas terminam" do
+      described_class.call(solicitacao: solicitacao, ator: joao, veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ])
+
+      finalizar(solicitacao, odometro: 12_060)
+      terceira = criar_solicitacao
+      expect(iniciar(terceira, odometro: 12_070).mensagem_de_erro).to include("já está em serviço")
+
+      finalizar(outra, odometro: 12_075)
+      expect([ solicitacao.reload.status, outra.reload.status, hilux.reload.odometro_atual ]).to eq([ "concluida", "concluida", 12_075 ])
+      expect(iniciar(terceira, odometro: 12_080)).to be_sucesso
+    end
+
+    it "não mistura etapas diferentes nem solicitação que já está em serviço" do
+      outra.update!(status: "solicitada")
+
+      resultado = described_class.call(solicitacao: solicitacao, ator: joao, veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ])
+
+      expect(resultado.mensagem_de_erro).to include("Para sair em grupo")
+      expect(solicitacao.reload.status).to eq("aprovada")
+    end
+  end
+
   it "só inicia solicitação aprovada ou aguardando busca" do
     solicitacao.update!(status: "solicitada")
 

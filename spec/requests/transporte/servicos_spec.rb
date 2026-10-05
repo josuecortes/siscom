@@ -56,6 +56,19 @@ RSpec.describe "Transporte: serviços do motorista" do
       expect(response.body).to include(solicitacao.codigo)
     end
 
+    it "oferece levar junto outras solicitações aprovadas e mostra o serviço compartilhado" do
+      pedro = com_papel("solicitante", "PEDRO SANTOS")
+      outra = Transporte::Solicitacao.create!(tipo: "normal", modo: "so_deixar", status: "aprovada", resumo: "Entrega de documentos", saida_em: 2.hours.from_now,
+                                              solicitante: pedro, solicitante_nome: pedro.nome, solicitante_email: pedro.email)
+
+      get inicio_transporte_servico_path(solicitacao)
+      expect(response.body).to include("Levar junto na mesma viagem", outra.codigo, "PEDRO SANTOS")
+
+      patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ] }
+      get transporte_servico_path(outra)
+      expect(response.body).to include("Serviço compartilhado com #{solicitacao.codigo}", "Em serviço")
+    end
+
     it "registra observação com anexo na solicitação que atendeu" do
       get new_transporte_solicitacao_observacao_path(solicitacao)
       expect(response).to have_http_status(:forbidden)

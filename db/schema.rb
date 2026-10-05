@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1266,10 +1266,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
     t.datetime "finalizado_em"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "grupo"
+    t.index ["grupo"], name: "index_transporte_servicos_on_grupo"
     t.index ["motorista_id"], name: "index_transporte_servicos_on_motorista_id"
     t.index ["solicitacao_id"], name: "idx_transporte_servicos_solicitacao_em_uso", unique: true, where: "(finalizado_em IS NULL)"
     t.index ["solicitacao_id"], name: "index_transporte_servicos_on_solicitacao_id"
-    t.index ["veiculo_id"], name: "idx_transporte_servicos_veiculo_em_uso", unique: true, where: "(finalizado_em IS NULL)"
+    t.index ["veiculo_id"], name: "idx_transporte_servicos_veiculo_aberto", where: "(finalizado_em IS NULL)"
     t.index ["veiculo_id"], name: "index_transporte_servicos_on_veiculo_id"
   end
 

@@ -18,6 +18,9 @@ module Transporte
     scope :abertos, -> { where(finalizado_em: nil) }
     scope :em_ordem, -> { order(:iniciado_em, :id) }
 
+    # Os outros trechos da mesma viagem (saída em grupo).
+    def companheiros = grupo.present? ? Transporte::Servico.where(grupo: grupo).where.not(id: id).includes(:solicitacao) : Transporte::Servico.none
+
     def aberto? = finalizado_em.nil?
     def nome_do_trecho = TRECHOS[trecho]
     def km_rodados = odometro_final ? odometro_final - odometro_inicial : nil

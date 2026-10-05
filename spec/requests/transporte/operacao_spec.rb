@@ -11,11 +11,14 @@ RSpec.describe "Transporte: operação" do
     { tipo: "normal", modo: "so_deixar", resumo: "Reunião na SEAD", saida_em: "08/10/2026 09:00", passageiros: [ { cpf: "529.982.247-25", nome: "Maria" } ],
       destinos: [ { nome: "SEAD", logradouro: "Avenida FAB", numero: "96", bairro: "Central", cidade: "Macapá", uf: "AP" } ] }
   end
-  let!(:solicitacao) { Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto }
+  let(:solicitacao) { Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto }
 
+  # O relógio é fixado antes de criar a solicitação: senão ela nasce com a hora de verdade, que pode
+  # ser depois da hora fixada, e a ordem "mais recente primeiro" fica trocada.
   before do
     Rh::Tabelas.garantir_padroes
     travel_to Time.zone.local(2026, 10, 5, 8, 0)
+    solicitacao
   end
 
   it "solicitante e motorista não entram na operação" do

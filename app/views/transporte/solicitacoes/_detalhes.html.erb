@@ -82,6 +82,8 @@
               <% if servico.aberto? %>· <strong class="text-[var(--text-primary)]">em andamento</strong>
               <% else %>· chegou em <%= data_e_hora(servico.finalizado_em) %> (<%= number_with_delimiter(servico.odometro_final) %> km, <%= number_with_delimiter(servico.km_rodados) %> km rodados)<% end %>
             </p>
+            <% juntos = servico.companheiros.map { |outro| outro.solicitacao.codigo } %>
+            <% if juntos.any? %><p class="mt-1 text-xs text-[var(--text-muted)]">Serviço compartilhado com <%= juntos.to_sentence %>.</p><% end %>
           </li>
         <% end %>
       </ol>

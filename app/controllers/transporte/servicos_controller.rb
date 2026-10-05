@@ -18,10 +18,12 @@ module Transporte
     end
 
     def inicio
+      carregar_candidatas
     end
 
     def iniciar
-      responder Transporte::Servicos::Iniciar.call(solicitacao: @solicitacao, ator: current_user, veiculo_id: params[:veiculo_id], odometro: params[:odometro]),
+      responder Transporte::Servicos::Iniciar.call(solicitacao: @solicitacao, ator: current_user, veiculo_id: params[:veiculo_id], odometro: params[:odometro],
+                                                      outras_ids: params[:outras_ids]),
                 :inicio, "Serviço iniciado. Boa viagem!"
     end
 
@@ -52,6 +54,11 @@ module Transporte
       Transporte::Solicitacao.where(status: %w[aprovada busca]).or(Transporte::Solicitacao.where(id: Transporte::Servico.where(motorista: current_user).select(:solicitacao_id)))
     end
 
+    # Outras solicitações que podem ir na mesma viagem (mesma etapa, sem serviço em andamento).
+    def carregar_candidatas
+      @candidatas = da_aba(@solicitacao.busca? ? "buscas" : "saidas").where.not(id: @solicitacao.id).includes(:destinos).order(:saida_em, :id).limit(30)
+    end
+
     def da_aba(aba)
       abertos = Transporte::Servico.abertos
       case aba
@@ -67,6 +74,7 @@ module Transporte
         concluir_painel(aviso: aviso, voltar_para: transporte_servico_path(@solicitacao))
       else
         @erro = resultado.mensagem_de_erro
+        carregar_candidatas if tela == :inicio
         render tela, status: :unprocessable_content
       end
     end
