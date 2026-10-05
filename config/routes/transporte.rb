@@ -42,6 +42,7 @@ namespace :transporte do
       end
     end
   end
+  resource :relatorios, only: :show
   resources :permissoes, only: %i[index edit update]
   resource :configuracoes, only: %i[show update]
 end
