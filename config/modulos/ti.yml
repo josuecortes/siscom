@@ -46,3 +46,4 @@ menu:
   - { rotulo: "Grupos técnicos", rota: ti_grupos_tecnicos_path, permissao: catalogo.gerenciar, icone: group, grupo: "Administração" }
   - { rotulo: "Solicitações", rota: ti_solicitacoes_path, permissao: catalogo.gerenciar, icone: list-rich, grupo: "Administração" }
   - { rotulo: "Permissões", rota: ti_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }
+  - { rotulo: "Configuração", rota: ti_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings, grupo: "Administração" }

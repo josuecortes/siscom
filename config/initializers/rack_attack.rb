@@ -20,9 +20,12 @@ class Rack::Attack
   end
 
   # Teto geral por IP contra abuso automatizado (não conta arquivos estáticos).
-  # Senha do painel de acompanhamento do Transporte (tela sem login).
+  # Senha dos painéis de acompanhamento (telas sem login).
   throttle("transporte/painel/ip", limit: 10, period: 5.minutes) do |req|
     req.ip if req.post? && req.path == "/transporte/acompanhamento"
+  end
+  throttle("ti/painel/ip", limit: 10, period: 5.minutes) do |req|
+    req.ip if req.post? && req.path == "/ti/acompanhamento"
   end
 
   throttle("geral/ip", limit: 1200, period: 1.minute) do |req|

@@ -1,0 +1,32 @@
+<% content_for :title, "Configuração da TI" %>
+<% bloco = "space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Configuração", icone: :settings, migalha: [ "TI", ti_configuracoes_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with model: @configuracao, scope: :configuracao, url: ti_configuracoes_path, method: :patch, class: "space-y-6 px-6 py-5" do |f| %>
+    <% if @configuracao.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
+    <% end %>
+
+    <section class="<%= bloco %>">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Painel de acompanhamento</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">
+          Tela para deixar numa TV, sem login, em <strong class="text-[var(--text-primary)]"><%= ti_acompanhamento_path %></strong>.
+          <%= @configuracao.painel_ligado? ? "Está ligado: abre com a senha definida aqui." : "Está desligado: defina uma senha para ligar." %>
+        </p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= render "compartilhado/campo", f: f, campo: :senha_do_painel, rotulo: (@configuracao.painel_ligado? ? "Nova senha do painel (em branco, mantém a atual)" : "Senha do painel"),
+              tipo: :password, html: { autocomplete: "new-password", minlength: 6, value: nil } %>
+      </div>
+    </section>
+
+    <div class="flex justify-end border-t border-[var(--border-subtle)] pt-4">
+      <%= f.button "Salvar configurações", type: "submit", data: { turbo_submits_with: "Salvando..." },
+            class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" %>
+    </div>
+  <% end %>
+</section>

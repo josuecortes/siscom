@@ -1,11 +1,11 @@
-<% content_for :title, "Painel de transporte" %>
+<% content_for :title, "Painel de acompanhamento · #{@textos[:modulo]}" %>
 <%# Porta da tela de senha de transport-public-tracking-board.tsx (cartão de 36rem, 24 px de respiro), nas cores do tema claro. %>
 <div class="w-full px-4 py-10 md:px-0 md:py-0">
   <section class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
-    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Transporte</p>
+    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]"><%= @textos[:modulo] %></p>
     <h1 class="mt-2 text-2xl font-semibold text-[var(--text-primary)]">Acompanhamento em tempo real</h1>
     <p class="mt-2 text-sm text-[var(--text-secondary)]">Informe a senha de acesso para visualizar o painel.</p>
-    <%= form_with url: transporte_acompanhamento_path, method: :post, class: "mt-6 space-y-3" do %>
+    <%= form_with url: @textos[:caminho], method: :post, class: "mt-6 space-y-3" do %>
       <% if @erro.present? %>
         <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
       <% end %>

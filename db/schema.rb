@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -938,6 +938,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_160000) do
     t.index ["solicitante_id"], name: "index_ti_chamados_on_solicitante_id"
     t.index ["status"], name: "index_ti_chamados_on_status"
     t.index ["triador_id"], name: "index_ti_chamados_on_triador_id"
+  end
+
+  create_table "ti_configuracoes", force: :cascade do |t|
+    t.string "senha_do_painel_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "ti_eventos_chamado", force: :cascade do |t|

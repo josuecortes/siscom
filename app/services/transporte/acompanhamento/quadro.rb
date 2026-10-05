@@ -3,12 +3,10 @@ module Transporte
     # O quadro do painel de TV: as solicitações por etapa, cada uma com o nível de urgência e o aviso
     # que explica por que ela pede atenção. Em cada coluna, o mais urgente vem primeiro.
     #
-    # Níveis (do mais grave para o mais calmo): critico (passou da hora: alguém está esperando ou
-    # ficou sem resposta), urgente (falta pouco), atencao (convém olhar), normal.
+    # Níveis e peças comuns em PainelTv.
     class Quadro
-      NIVEIS = %w[critico urgente atencao normal].freeze
-      Item = Data.define(:codigo, :nome, :detalhe, :horario, :nivel, :aviso)
-      Coluna = Data.define(:chave, :titulo, :vazio, :itens)
+      Item = PainelTv::Item
+      Coluna = PainelTv::Coluna
 
       # Minutos até a hora marcada que mudam o nível (pedido sem aprovação, saída aprovada, busca).
       SEM_APROVACAO = { urgente: 120, atencao: 24 * 60 }.freeze
@@ -35,7 +33,7 @@ module Transporte
       end
 
       # Quantos itens em cada nível, no quadro todo (para o resumo do cabeçalho).
-      def contagem = colunas.flat_map(&:itens).map(&:nivel).tally
+      def contagem = PainelTv.contagem(colunas)
 
       private
 
@@ -107,21 +105,10 @@ module Transporte
         end
       end
 
-      def ordenar(itens) = itens.sort_by.with_index { |item, indice| [ NIVEIS.index(item.nivel), indice ] }
-
-      def minutos_ate(momento) = ((momento - agora) / 60).round
-
-      # "em 45 min", "há 2 h 10 min", "há 2 dias".
-      def quando(minutos) = minutos.negative? ? "há #{duracao(-minutos)}" : "em #{duracao(minutos)}"
-
-      def duracao(minutos)
-        return "menos de 1 min" if minutos < 1
-        return "#{minutos} min" if minutos < 60
-        return "#{minutos / 1440} dia#{'s' if minutos >= 2880}" if minutos >= 1440
-
-        resto = minutos % 60
-        resto.zero? ? "#{minutos / 60} h" : "#{minutos / 60} h #{resto} min"
-      end
+      def ordenar(itens) = PainelTv.ordenar(itens)
+      def minutos_ate(momento) = PainelTv.minutos_ate(momento, agora)
+      def quando(minutos) = PainelTv.quando(minutos)
+      def duracao(minutos) = PainelTv.duracao(minutos)
     end
   end
 end

@@ -1,18 +1,18 @@
-<% content_for :title, "Painel de transporte" %>
-<%# Painel de TV (porta de transport-public-tracking-board.tsx): escuro, para ser lido de longe. Cada cartão
+<% content_for :title, "Painel de acompanhamento · #{@textos[:modulo]}" %>
+<%# Painel de TV do módulo (Transporte, TI; porta de transport-public-tracking-board.tsx): escuro, para ser lido de longe. Cada cartão
     tem a cor do nível de urgência (classes .tv-* em application.css). O Stimulus painel-tv faz o relógio andar,
     rola as colunas sozinho até o fim e só então atualiza a tela (no mínimo a cada N segundos). Além disso, o
     quadro atualiza na hora quando algo muda na operação (Turbo Streams), sem interromper a rolagem. %>
-<%= turbo_stream_from "transporte_operacao" %>
+<%= turbo_stream_from @textos[:canal] %>
 <% agora = @quadro.agora %>
 <% contagem = @quadro.contagem %>
 <% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
 <% nomes = { "critico" => "Atrasado", "urgente" => "Falta pouco", "atencao" => "Atenção", "normal" => "No prazo" } %>
 
-<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= Transporte::AcompanhamentoController::ATUALIZA_A_CADA %>">
+<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>">
   <header class="tv-cabecalho">
     <div class="min-w-0">
-      <p class="tv-sobretitulo">Transporte</p>
+      <p class="tv-sobretitulo"><%= @textos[:modulo] %></p>
       <h1 class="tv-titulo">Acompanhamento em tempo real</h1>
     </div>
 
@@ -28,7 +28,7 @@
     <div class="tv-relogio">
       <p class="tv-hora" data-painel-tv-target="hora"><%= l(agora, format: "%H:%M:%S") %></p>
       <p class="tv-data" data-painel-tv-target="data"><%= l(agora, format: "%d/%m/%Y") %></p>
-      <p class="tv-atualiza">Atualiza em <strong data-painel-tv-target="contagem"><%= Transporte::AcompanhamentoController::ATUALIZA_A_CADA %> s</strong></p>
+      <p class="tv-atualiza">Atualiza em <strong data-painel-tv-target="contagem"><%= PainelDeTv::ATUALIZA_A_CADA %> s</strong></p>
       <div class="tv-trilho" aria-hidden="true"><div class="tv-barra" data-painel-tv-target="barra"></div></div>
     </div>
   </header>
@@ -64,11 +64,11 @@
 
   <footer class="tv-rodape">
     <ul class="tv-legenda" aria-label="Legenda das cores">
-      <li data-nivel="critico"><span class="tv-ponto"></span>Vermelho: passou da hora, alguém está esperando ou ficou sem resposta</li>
+      <li data-nivel="critico"><span class="tv-ponto"></span>Vermelho: passou da hora ou do limite, alguém está esperando</li>
       <li data-nivel="urgente"><span class="tv-ponto"></span>Laranja: falta pouco</li>
       <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
       <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
     </ul>
-    <%= button_to "Sair do painel", transporte_acompanhamento_path, method: :delete, class: "tv-sair" %>
+    <%= button_to "Sair do painel", @textos[:caminho], method: :delete, class: "tv-sair" %>
   </footer>
 </div>
