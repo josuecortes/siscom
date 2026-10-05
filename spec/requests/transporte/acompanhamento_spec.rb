@@ -20,8 +20,8 @@ RSpec.describe "Transporte: painel de acompanhamento" do
 
     it "pede a senha, sem login, e recusa a errada" do
       get transporte_acompanhamento_path
-      expect(response.body).to include("Informe a senha de acesso para visualizar o painel.")
-      expect(response.body).not_to include("Acompanhamento em tempo real")
+      expect(response.body).to include("Informe a senha de acesso para visualizar o painel.", "Entrar no acompanhamento")
+      expect(response.body).not_to include("Saídas de hoje e amanhã")
 
       post transporte_acompanhamento_path, params: { senha: "errada" }
       expect(response).to have_http_status(:unprocessable_content)

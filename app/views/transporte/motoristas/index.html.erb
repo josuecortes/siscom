@@ -6,20 +6,21 @@
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%= render "compartilhado/filtro_busca_status", url: transporte_motoristas_path, quadro: "motoristas_lista", rotulo_busca: "Buscar por nome, CPF ou CNH",
-        exemplo: "Ex.: João ou 529.982", busca: @filtros[:q], status: @filtros[:status],
+        exemplo: "Ex.: Maria ou 12345678901", grade: "lg:grid-cols-[1fr_220px_auto]", busca: @filtros[:q], status: @filtros[:status],
         opcoes_status: [ [ "Todos", "todos" ], [ "Ativos", "ativo" ], [ "Inativos", "inativo" ] ], titulo_filtrar: "Filtrar motoristas" %>
 
   <%= turbo_frame_tag "motoristas_lista", data: { turbo_action: "advance" } do %>
-    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} motorista(s) registrado(s)" %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} motorista(s)" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[980px]">
+      <table class="collection-table min-w-[1080px]">
         <thead>
           <tr>
-            <th scope="col">Motorista</th>
+            <th scope="col">Nome</th>
             <th scope="col">CPF</th>
+            <th scope="col">E-mail</th>
             <th scope="col">CNH</th>
-            <th scope="col">Validade da CNH</th>
+            <th scope="col">Validade CNH</th>
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
           </tr>
@@ -27,11 +28,9 @@
         <tbody>
           <% @motoristas.each do |motorista| %>
             <tr id="<%= dom_id(motorista) %>">
-              <td>
-                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= motorista.nome %></p>
-                <p class="mt-1 text-xs text-[var(--text-muted)]"><%= motorista.user.email %></p>
-              </td>
+              <td class="font-semibold text-[var(--text-primary)]"><%= motorista.nome %></td>
               <td class="whitespace-nowrap"><%= Cpf.formatar(motorista.cpf) %></td>
+              <td><%= motorista.user.email %></td>
               <td><%= motorista.cnh_numero %> · <%= motorista.cnh_categoria %></td>
               <td class="whitespace-nowrap">
                 <%= l(motorista.cnh_validade) %>
@@ -53,7 +52,7 @@
             </tr>
           <% end %>
           <% if @motoristas.empty? %>
-            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado para os filtros informados.</td></tr>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum motorista encontrado.</td></tr>
           <% end %>
         </tbody>
       </table>

@@ -38,11 +38,11 @@ RSpec.describe "Transporte: relatórios" do
     it "lista as solicitações do período com o resumo por status" do
       get transporte_relatorios_path, params: { inicio: "01/10/2026", fim: "31/10/2026" }
 
-      expect(response.body).to include("Relatórios", "2 linha(s) de 01/10/2026 a 31/10/2026", "MARIA OLIVEIRA", "JOAO MOTORISTA", "QLM1A23", "Concluída", "Exportar Excel")
+      expect(response.body).to include("Relatórios", "2 registro(s) de 01/10/2026 a 31/10/2026", "MARIA OLIVEIRA", "JOAO MOTORISTA", "QLM1A23", "Concluída", "Exportar Excel")
       expect(Nokogiri::HTML(response.body).css("tbody").text).not_to include("Cancelada")
 
       get transporte_relatorios_path, params: { inicio: "01/09/2026", fim: "31/10/2026", status: "cancelada" }
-      expect(response.body).to include("1 linha(s)")
+      expect(response.body).to include("1 registro(s)")
     end
 
     it "por veículo e por motorista, a saída em grupo conta como uma viagem e os quilômetros não dobram" do

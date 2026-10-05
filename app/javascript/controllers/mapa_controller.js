@@ -12,7 +12,8 @@ export default class extends Controller {
 
   connect() {
     const ponto = this.ponto()
-    this.mapa = L.map(this.quadroTarget, { scrollWheelZoom: true }).setView(ponto || this.centroValue, ponto ? 16 : 14)
+    // Zoom inicial do seed: 17 no centro de Macapá, 15 quando o destino já tem ponto.
+    this.mapa = L.map(this.quadroTarget, { scrollWheelZoom: true }).setView(ponto || this.centroValue, ponto ? 15 : 17)
     L.tileLayer(this.tilesValue, { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(this.mapa)
     this.mapa.on("click", (evento) => this.escolher(evento.latlng.lat, evento.latlng.lng))
     if (ponto) this.marcar(...ponto)

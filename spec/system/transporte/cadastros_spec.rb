@@ -59,7 +59,7 @@ RSpec.describe "Transporte: motoristas e veículos", :js do
     create(:transporte_veiculo)
     usar_tela_de_celular
     visit transporte_veiculos_path
-    expect(page).to have_content("1 veículo(s) registrado(s)")
+    expect(page).to have_content("1 veículo(s)")
     expect(sem_rolagem_horizontal?).to be(true)
 
     visit new_transporte_motorista_path

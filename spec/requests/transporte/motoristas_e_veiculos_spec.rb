@@ -63,9 +63,9 @@ RSpec.describe "Transporte: motoristas e veículos" do
         motorista = create(:transporte_motorista, nome: "João da Silva", cnh_validade: Date.yesterday)
 
         get transporte_motoristas_path, params: { q: "joao" }
-        expect(response.body).to include("0 motorista(s) registrado(s)")
+        expect(response.body).to include("0 motorista(s)")
         get transporte_motoristas_path, params: { q: "joão" }
-        expect(response.body).to include("1 motorista(s) registrado(s)", "JOÃO DA SILVA", "Vencida")
+        expect(response.body).to include("1 motorista(s)", "JOÃO DA SILVA", "Vencida")
 
         patch transporte_motorista_path(motorista), params: { motorista: { cnh_validade: "01/01/2031" } }
         patch desativar_transporte_motorista_path(motorista)
@@ -101,7 +101,7 @@ RSpec.describe "Transporte: motoristas e veículos" do
         create(:transporte_veiculo, placa: "ABC1234", marca: "Fiat", modelo: "Uno")
 
         get transporte_veiculos_path, params: { q: "hilux" }
-        expect(response.body).to include("1 veículo(s) registrado(s)", "QLM1A23", "12.000 km")
+        expect(response.body).to include("1 veículo(s)", "QLM1A23", "12.000 km")
 
         patch transporte_veiculo_path(hilux), params: { veiculo: { cor: "Prata" } }
         patch desativar_transporte_veiculo_path(hilux)

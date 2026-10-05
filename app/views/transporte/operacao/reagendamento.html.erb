@@ -1,10 +1,10 @@
 <% content_for :title, "Reagendar" %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_reagendamento", rotulo: "Reagendar" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_reagendamento", rotulo: "Salvar horários" } %>
 <% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
 <% data_hora = { controller: "mascara", mascara_tipo_value: "data_hora", action: "input->mascara#aplicar" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Reagendamento", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_path(@solicitacao), rodape: rodape,
+      locals: { sobretitulo: "Transporte", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_path(@solicitacao), rodape: rodape,
                 descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. O solicitante é avisado da mudança.") } do %>
   <%= form_with url: reagendar_transporte_operacao_path(@solicitacao), method: :patch, id: "formulario_reagendamento", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

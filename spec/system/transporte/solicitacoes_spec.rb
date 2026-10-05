@@ -35,7 +35,7 @@ RSpec.describe "Transporte: solicitar transporte", :js do
       click_on "Solicitações de transporte"
     end
     click_on "Nova solicitação"
-    expect(page).to have_css("[role='dialog'] h2", text: "Solicitar transporte")
+    expect(page).to have_css("[role='dialog'] h2", text: "Nova solicitação de transporte")
     expect(page).to have_no_field("Retorno (data e hora) *")
     expect(page).to have_css(".leaflet-container")
 
@@ -53,7 +53,7 @@ RSpec.describe "Transporte: solicitar transporte", :js do
     expect(page).to have_content("Ponto marcado no mapa.")
     expect(find("input[name$='[latitude]']", visible: :all).value).to eq("0.034934")
     print("transporte-nova-solicitacao")
-    click_on "Enviar solicitação"
+    click_on "Abrir solicitação"
 
     expect(page).to have_css("#avisos", text: /Solicitação TR-\d{6} aberta com sucesso\./)
     solicitacao = Transporte::Solicitacao.sole

@@ -33,7 +33,7 @@ RSpec.describe "Transporte: serviços do motorista" do
 
     it "mostra o painel de saída e recusa odômetro menor que o do veículo" do
       get inicio_transporte_servico_path(solicitacao)
-      expect(response.body).to include("Iniciar #{solicitacao.codigo}", "Veículo *", "Odômetro inicial (km) *")
+      expect(response.body).to include("Iniciar serviço #{solicitacao.codigo}", "Veículo *", "Odômetro inicial (km) *")
 
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 11_000 }
       expect(response).to have_http_status(:unprocessable_content)
@@ -43,11 +43,11 @@ RSpec.describe "Transporte: serviços do motorista" do
     it "inicia, chega ao destino e depois faz a busca: a solicitação termina concluída" do
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 }
       get transporte_servico_path(solicitacao)
-      expect(response.body).to include("Em serviço", "Cheguei ao destino", "JOAO MOTORISTA", "QLM1A23", "em andamento")
+      expect(response.body).to include("Em serviço", "Finalizar trecho", "JOAO MOTORISTA", "QLM1A23", "em andamento")
 
       patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_080 }
       get transporte_servicos_path, params: { status: "buscas" }
-      expect(response.body).to include(solicitacao.codigo, "Aguardando busca")
+      expect(response.body).to include(solicitacao.codigo, "Aguardando busca", "Buscar até")
 
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_100 }
       patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_130 }

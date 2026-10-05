@@ -1,16 +1,18 @@
 <% content_for :title, "Painel de transporte" %>
-<section class="w-full max-w-md rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-8 shadow-[var(--shadow-card)]">
-  <h1 class="text-xl font-semibold text-[var(--text-primary)]">Painel de transporte</h1>
-  <p class="mt-2 text-sm text-[var(--text-secondary)]">Informe a senha de acesso para visualizar o painel.</p>
-  <%= form_with url: transporte_acompanhamento_path, method: :post, class: "mt-5 space-y-4" do %>
-    <% if @erro.present? %>
-      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+<%# Porta da tela de senha de transport-public-tracking-board.tsx (cartão de 36rem, 24 px de respiro), nas cores do tema claro. %>
+<div class="w-full px-4 py-10 md:px-0 md:py-0">
+  <section class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Transporte</p>
+    <h1 class="mt-2 text-2xl font-semibold text-[var(--text-primary)]">Acompanhamento em tempo real</h1>
+    <p class="mt-2 text-sm text-[var(--text-secondary)]">Informe a senha de acesso para visualizar o painel.</p>
+    <%= form_with url: transporte_acompanhamento_path, method: :post, class: "mt-6 space-y-3" do %>
+      <% if @erro.present? %>
+        <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+      <% end %>
+      <label for="senha" class="sr-only">Senha de acesso</label>
+      <%= password_field_tag :senha, nil, required: true, autofocus: true, autocomplete: "off", placeholder: "Senha de acesso",
+            class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+      <button type="submit" class="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]">Entrar no acompanhamento</button>
     <% end %>
-    <div class="space-y-1.5">
-      <label for="senha" class="text-sm font-medium text-[var(--text-secondary)]">Senha de acesso</label>
-      <%= password_field_tag :senha, nil, required: true, autofocus: true, autocomplete: "off",
-            class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
-    </div>
-    <button type="submit" class="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]">Abrir painel</button>
-  <% end %>
-</section>
+  </section>
+</div>

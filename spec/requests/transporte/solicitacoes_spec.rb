@@ -32,7 +32,7 @@ RSpec.describe "Transporte: solicitações do solicitante" do
       get new_transporte_solicitacao_path
 
       html = Nokogiri::HTML(response.body)
-      expect(response.body).to include("Solicitar transporte", "48 a 100 horas de antecedência", "Esperar no local", "Buscar depois", "Só deixar", "Adicionar passageiro", "Adicionar destino")
+      expect(response.body).to include("Nova solicitação de transporte", "48 a 100 horas de antecedência", "Esperar no local", "Buscar depois", "Só deixar", "Adicionar passageiro", "Adicionar destino")
       expect(html.at_css("[data-controller='cep mapa']")["data-mapa-tiles-value"]).to eq("/mapa/tiles/{z}/{x}/{y}")
       expect(html.css("template[data-lista-target='modelo']").size).to eq(2)
     end

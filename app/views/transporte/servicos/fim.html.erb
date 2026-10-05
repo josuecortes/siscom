@@ -1,8 +1,10 @@
-<% content_for :title, "Finalizar trecho" %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_fim", rotulo: "Finalizar" } %>
+<%# Como no seed: "Finalizar trecho" quando ainda falta a busca; "Concluir serviço" quando o trecho encerra a solicitação. %>
+<% acao = (@servico&.de_ida? && @solicitacao.buscar_depois? ? "Finalizar trecho" : "Concluir serviço") %>
+<% content_for :title, acao %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_fim", rotulo: acao } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Chegada", titulo: "Finalizar #{@solicitacao.codigo}", voltar: transporte_servico_path(@solicitacao), rodape: rodape,
+      locals: { sobretitulo: "Transporte", titulo: "#{acao} #{@solicitacao.codigo}", voltar: transporte_servico_path(@solicitacao), rodape: rodape,
                 descricao: (@servico ? "Veículo #{@servico.placa}. Odômetro na saída: #{number_with_delimiter(@servico.odometro_inicial)} km." : nil) } do %>
   <%= form_with url: finalizar_transporte_servico_path(@solicitacao), method: :patch, id: "formulario_fim", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

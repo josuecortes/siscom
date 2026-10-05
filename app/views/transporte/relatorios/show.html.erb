@@ -5,73 +5,66 @@
 <% data = { controller: "mascara", mascara_tipo_value: "data", action: "input->mascara#aplicar" } %>
 <% consulta = @filtros.merge(tipo: r.tipo, inicio: DataBr.formatar(r.inicio), fim: DataBr.formatar(r.fim)).compact_blank %>
 
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Relatórios", icone: :chart_pie, migalha: [ "Transporte", transporte_relatorios_path ] } do %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Relatórios", icone: :list_rich, migalha: [ "Transporte", transporte_relatorios_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, caminho: transporte_relatorios_path(consulta.merge(format: :xlsx)), opcoes: { data: { turbo: false } } %>
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
-  <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Tipos de relatório">
-    <div class="flex gap-1 overflow-x-auto">
+  <%# Como no seed (transport-reports-module.tsx): os tipos são botões e ficam no mesmo bloco dos filtros. %>
+  <div class="border-b border-[var(--border-subtle)] px-6 pt-5">
+    <nav class="flex flex-wrap gap-2" aria-label="Tipos de relatório">
       <% Transporte::Relatorios::Consultar::TIPOS.each do |tipo, titulo| %>
         <%= link_to titulo, transporte_relatorios_path(tipo: tipo, inicio: consulta[:inicio], fim: consulta[:fim]), aria: { current: (tipo == r.tipo ? "page" : nil) },
-              class: "inline-flex min-w-fit items-center border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" %>
+              class: "inline-flex h-10 items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm font-semibold text-[var(--text-secondary)] hover:border-[var(--accent-strong)] aria-[current]:border-[var(--accent-strong)] aria-[current]:bg-[var(--accent-soft)] aria-[current]:text-[var(--accent-strong)]" %>
       <% end %>
-    </div>
-  </nav>
+    </nav>
 
-  <%= form_with url: transporte_relatorios_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5" do |f| %>
-    <%= hidden_field_tag :tipo, r.tipo, id: nil %>
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[10rem_10rem_1fr_1fr_auto] lg:items-end">
-      <div class="space-y-1.5">
-        <label for="inicio" class="<%= rotulo %>">Início</label>
-        <%= text_field_tag :inicio, consulta[:inicio], placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, autocomplete: "off", data: data, class: campo %>
-      </div>
-      <div class="space-y-1.5">
-        <label for="fim" class="<%= rotulo %>">Fim</label>
-        <%= text_field_tag :fim, consulta[:fim], placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, autocomplete: "off", data: data, class: campo %>
-      </div>
-      <% if r.tipo == "solicitacoes" %>
+    <%= form_with url: transporte_relatorios_path, method: :get, class: "py-5" do |f| %>
+      <%= hidden_field_tag :tipo, r.tipo, id: nil %>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[180px_180px_1fr_1fr_auto] lg:items-end">
         <div class="space-y-1.5">
-          <label for="q" class="<%= rotulo %>">Código, resumo ou solicitante</label>
-          <%= text_field_tag :q, @filtros[:q], autocomplete: "off", class: campo %>
+          <label for="inicio" class="<%= rotulo %>">Início</label>
+          <%= text_field_tag :inicio, consulta[:inicio], placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, autocomplete: "off", data: data, class: campo %>
         </div>
         <div class="space-y-1.5">
-          <label for="status" class="<%= rotulo %>">Status</label>
-          <%= select_tag :status, options_for_select([ [ "Todos", "" ] ] + Transporte::Solicitacao::STATUS.invert.to_a, @filtros[:status]), class: campo %>
+          <label for="fim" class="<%= rotulo %>">Fim</label>
+          <%= text_field_tag :fim, consulta[:fim], placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, autocomplete: "off", data: data, class: campo %>
         </div>
-      <% else %>
-        <div class="space-y-1.5">
-          <label for="motorista_id" class="<%= rotulo %>">Motorista</label>
-          <%= select_tag :motorista_id, options_for_select([ [ "Todos", "" ] ] + Transporte::Motorista.ordenados.pluck(:nome, :user_id), @filtros[:motorista_id]), class: campo %>
-        </div>
-        <div class="space-y-1.5">
-          <label for="veiculo_id" class="<%= rotulo %>">Veículo</label>
-          <%= select_tag :veiculo_id, options_for_select([ [ "Todos", "" ] ] + Transporte::Veiculo.ordenados.map { |v| [ v.descricao, v.id ] }, @filtros[:veiculo_id]), class: campo %>
-        </div>
-      <% end %>
-      <div class="flex flex-row gap-2">
-        <button type="submit" title="Gerar relatório" aria-label="Gerar relatório"
-                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
-        <%= link_to transporte_relatorios_path(tipo: r.tipo), title: "Limpar filtros", aria: { label: "Limpar filtros" },
-              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
-          <%= icone(:x) %>
+        <% if r.tipo == "solicitacoes" %>
+          <div class="space-y-1.5">
+            <label for="q" class="<%= rotulo %>">Código, resumo ou solicitante</label>
+            <%= text_field_tag :q, @filtros[:q], autocomplete: "off", class: campo %>
+          </div>
+          <div class="space-y-1.5">
+            <label for="status" class="<%= rotulo %>">Status</label>
+            <%= select_tag :status, options_for_select([ [ "Todos", "" ] ] + Transporte::Solicitacao::STATUS.invert.to_a, @filtros[:status]), class: campo %>
+          </div>
+        <% else %>
+          <div class="space-y-1.5">
+            <label for="motorista_id" class="<%= rotulo %>">Motorista</label>
+            <%= select_tag :motorista_id, options_for_select([ [ "Todos", "" ] ] + Transporte::Motorista.ordenados.pluck(:nome, :user_id), @filtros[:motorista_id]), class: campo %>
+          </div>
+          <div class="space-y-1.5">
+            <label for="veiculo_id" class="<%= rotulo %>">Veículo</label>
+            <%= select_tag :veiculo_id, options_for_select([ [ "Todos", "" ] ] + Transporte::Veiculo.ordenados.map { |v| [ v.descricao, v.id ] }, @filtros[:veiculo_id]), class: campo %>
+          </div>
         <% end %>
-      </div>
-    </div>
-  <% end %>
-
-  <dl class="grid gap-3 border-b border-[var(--border-subtle)] px-6 py-5 sm:grid-cols-2 lg:grid-cols-4">
-    <% r.resumo.each do |nome, valor| %>
-      <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
-        <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= nome %></dt>
-        <dd class="mt-1 text-lg font-semibold text-[var(--text-primary)]"><%= valor.is_a?(Numeric) ? number_with_delimiter(valor) : valor %></dd>
+        <div class="flex flex-row gap-2">
+          <button type="submit" title="Gerar relatório" aria-label="Gerar relatório"
+                  class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+          <%= link_to transporte_relatorios_path(tipo: r.tipo), title: "Limpar filtros", aria: { label: "Limpar filtros" },
+                class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+            <%= icone(:x) %>
+          <% end %>
+        </div>
       </div>
     <% end %>
-  </dl>
-  <%= render "compartilhado/resumo_tabela", texto: "#{r.linhas.size} linha(s) de #{DataBr.formatar(r.inicio)} a #{DataBr.formatar(r.fim)}" %>
+  </div>
+
+  <%= render "compartilhado/resumo_tabela", texto: "#{r.linhas.size} registro(s) de #{DataBr.formatar(r.inicio)} a #{DataBr.formatar(r.fim)}" %>
 
   <div class="overflow-x-auto">
-    <table class="collection-table min-w-[980px]">
+    <table class="collection-table min-w-[1120px]">
       <thead>
         <tr><% r.colunas.each do |coluna| %><th scope="col"><%= coluna %></th><% end %></tr>
       </thead>
@@ -80,9 +73,19 @@
           <tr><% linha.each do |valor| %><td><%= valor.is_a?(Numeric) ? number_with_delimiter(valor) : valor %></td><% end %></tr>
         <% end %>
         <% if r.linhas.empty? %>
-          <tr><td colspan="<%= r.colunas.size %>" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro no período.</td></tr>
+          <tr><td colspan="<%= r.colunas.size %>" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro encontrado.</td></tr>
         <% end %>
       </tbody>
     </table>
   </div>
+
+  <%# Totais depois da tabela, como o ReportSummary do seed. %>
+  <dl class="grid gap-3 border-t border-[var(--border-subtle)] px-6 py-5 sm:grid-cols-2 lg:grid-cols-4">
+    <% r.resumo.each do |nome, valor| %>
+      <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+        <dt class="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]"><%= nome %></dt>
+        <dd class="mt-1 text-xl font-semibold text-[var(--text-primary)]"><%= valor.is_a?(Numeric) ? number_with_delimiter(valor) : valor %></dd>
+      </div>
+    <% end %>
+  </dl>
 </section>

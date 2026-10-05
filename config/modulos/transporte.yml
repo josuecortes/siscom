@@ -42,6 +42,6 @@ menu:
   - { rotulo: "Abrir para outra pessoa", rota: new_transporte_solicitacao_para_outro_path, permissao: solicitacoes.operar, icone: user-follow }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
   - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
-  - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: chart-pie }
+  - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich }
   - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }
   - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }

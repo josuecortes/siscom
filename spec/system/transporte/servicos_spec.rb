@@ -42,9 +42,9 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
     expect(page).to have_content("JOAO MOTORISTA · QLM1A23")
 
     Capybara.using_session(:motorista) do
-      click_on "Finalizar serviço"
+      click_on "Concluir serviço"
       fill_in "Odômetro final (km) *", with: "12080"
-      click_on "Finalizar"
+      within("[role='dialog']") { click_on "Concluir serviço" }
       expect(page).to have_css("#avisos", text: "Trecho finalizado.")
       expect(page).to have_content("30 km rodados")
       print("transporte-servico")

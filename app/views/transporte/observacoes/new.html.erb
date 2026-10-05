@@ -2,7 +2,7 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_observacao", rotulo: "Registrar observação" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Observação", titulo: "Observação em #{@solicitacao.codigo}", voltar: @volta, rodape: rodape,
+      locals: { sobretitulo: "Transporte", titulo: "Observação · #{@solicitacao.codigo}", voltar: @volta, rodape: rodape,
                 descricao: "Fica no histórico da solicitação. Só a operação e os motoristas veem." } do %>
   <%= form_with url: transporte_solicitacao_observacoes_path(@solicitacao), id: "formulario_observacao", class: "space-y-5", multipart: true do |f| %>
     <% if @erro.present? %>

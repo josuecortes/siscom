@@ -1,10 +1,11 @@
 <% content_for :title, "Operação de transporte" %>
 
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Operação de transporte", icone: :group, migalha: [ "Transporte", transporte_operacao_index_path ] } do %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Operação de transporte", icone: :car_alt, migalha: [ "Transporte", transporte_operacao_index_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir para outra pessoa", icone: :user_follow, caminho: new_transporte_solicitacao_para_outro_path %>
 <% end %>
 
 <%= turbo_stream_from "transporte_operacao" %>
+<% de_busca = @filtros[:status] == "busca" %>
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%= form_with url: transporte_operacao_index_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
         data: { controller: "filtro", turbo_frame: "operacao_lista", turbo_action: "advance" } do |f| %>
@@ -43,13 +44,13 @@
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} solicitação(ões) em #{Transporte::OperacaoController::ABAS.fetch(@filtros[:status]).downcase}" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[1180px]">
+      <table class="collection-table min-w-[980px]">
         <thead>
           <tr>
             <th scope="col">Código</th>
             <th scope="col">Resumo</th>
             <th scope="col">Solicitante</th>
-            <th scope="col">Saída</th>
+            <th scope="col"><%= de_busca ? "Buscar até" : "Saída" %></th>
             <th scope="col">Destino</th>
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
@@ -69,7 +70,19 @@
                 <p class="text-sm text-[var(--text-primary)]"><%= solicitacao.solicitante_nome %></p>
                 <% if solicitacao.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= solicitacao.unidade_nome %></p><% end %>
               </td>
-              <td class="whitespace-nowrap"><%= data_e_hora(solicitacao.saida_em) %></td>
+              <td class="whitespace-nowrap">
+                <% if de_busca %>
+                  <%# Como no seed: na aba de busca a coluna mostra até quando buscar, com o selo "Atrasada". %>
+                  <div class="space-y-1">
+                    <p><%= data_e_hora(solicitacao.busca_prevista_em) || "Não definido" %></p>
+                    <% if solicitacao.busca_prevista_em&.past? %>
+                      <span class="inline-flex rounded-full border border-[var(--danger-border-strong)] bg-[var(--danger-surface)] px-2 py-0.5 text-[11px] font-semibold text-[var(--danger-text)]">Atrasada</span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <%= data_e_hora(solicitacao.saida_em) %>
+                <% end %>
+              </td>
               <td><%= solicitacao.destinos.first&.nome %><%= " (+#{solicitacao.destinos.size - 1})" if solicitacao.destinos.size > 1 %></td>
               <td><%= selo_da_solicitacao(solicitacao) %></td>
               <td>
@@ -84,7 +97,7 @@
             </tr>
           <% end %>
           <% if @solicitacoes.empty? %>
-            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação nesta etapa.</td></tr>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação encontrada para os filtros atuais.</td></tr>
           <% end %>
         </tbody>
       </table>

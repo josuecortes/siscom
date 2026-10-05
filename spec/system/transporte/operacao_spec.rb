@@ -43,7 +43,7 @@ RSpec.describe "Transporte: operação em tempo real", :js do
     Capybara.using_session(:tecnico) do
       click_on "Reagendar"
       fill_in "Motivo *", with: "Veículo em manutenção"
-      within("[role='dialog']") { click_on "Reagendar" }
+      within("[role='dialog']") { click_on "Salvar horários" }
       expect(page).to have_css("#avisos", text: "reagendada")
       print("transporte-operacao-solicitacao")
     end

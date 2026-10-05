@@ -4,7 +4,7 @@
 <% para_outro = local_assigns[:para_outro] %>
 <% solicitante = local_assigns[:solicitante] %>
 <% url = para_outro ? transporte_solicitacao_para_outro_path : transporte_solicitacoes_path %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: "Enviar solicitação" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: "Abrir solicitação" } %>
 <% entrada = "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" %>
 <% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
 <% borda = ->(campo) { s.errors[campo].any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
@@ -13,7 +13,7 @@
 <% c = configuracao %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Nova solicitação", titulo: (para_outro ? "Solicitar transporte para outra pessoa" : "Solicitar transporte"),
+      locals: { sobretitulo: "Transporte", titulo: (para_outro ? "Solicitar transporte para outra pessoa" : "Nova solicitação de transporte"),
                 voltar: (para_outro ? transporte_operacao_index_path : transporte_solicitacoes_path), rodape: rodape,
                 descricao: "A saída precisa ser marcada com #{c.normal_antecedencia_min_horas} a #{c.normal_antecedencia_max_horas} horas de antecedência (viagem: #{c.viagem_antecedencia_min_horas} a #{c.viagem_antecedencia_max_horas})." } do %>
   <%# Em nome de outra pessoa não há lista por trás do painel: ao salvar, a página inteira vai para a solicitação. %>
@@ -119,7 +119,7 @@
         <% s.passageiros.each_with_index do |passageiro, indice| %><%= render "transporte/solicitacoes/passageiro", passageiro: passageiro, indice: indice %><% end %>
       </div>
       <template data-lista-target="modelo"><%= render "transporte/solicitacoes/passageiro", passageiro: Transporte::Passageiro.new, indice: "NOVO" %></template>
-      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar passageiro</button>
+      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar passageiro</button>
     </fieldset>
 
     <fieldset class="space-y-3" data-controller="lista">
@@ -129,7 +129,7 @@
         <% s.destinos.each_with_index do |destino, indice| %><%= render "transporte/solicitacoes/destino", destino: destino, indice: indice %><% end %>
       </div>
       <template data-lista-target="modelo"><%= render "transporte/solicitacoes/destino", destino: Transporte::Destino.new, indice: "NOVO" %></template>
-      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar destino</button>
+      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar destino</button>
     </fieldset>
 
     <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>

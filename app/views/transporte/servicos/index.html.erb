@@ -4,6 +4,7 @@
 <% end %>
 
 <%= turbo_stream_from "transporte_operacao" %>
+<% de_busca = @filtros[:status] == "buscas" %>
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
   <%= turbo_frame_tag "servicos_lista", data: { turbo_action: "advance" } do %>
     <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas das solicitações">
@@ -20,13 +21,13 @@
     <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} solicitação(ões): #{Transporte::ServicosController::ABAS.fetch(@filtros[:status]).downcase}" %>
 
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[1180px]">
+      <table class="collection-table min-w-[980px]">
         <thead>
           <tr>
             <th scope="col">Código</th>
             <th scope="col">Resumo</th>
             <th scope="col">Solicitante</th>
-            <th scope="col">Saída</th>
+            <th scope="col"><%= de_busca ? "Buscar até" : "Saída" %></th>
             <th scope="col">Destino</th>
             <th scope="col">Status</th>
             <th scope="col">Ações</th>
@@ -46,7 +47,19 @@
                 <p class="text-sm text-[var(--text-primary)]"><%= solicitacao.solicitante_nome %></p>
                 <% if solicitacao.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= solicitacao.unidade_nome %></p><% end %>
               </td>
-              <td class="whitespace-nowrap"><%= data_e_hora(solicitacao.saida_em) %></td>
+              <td class="whitespace-nowrap">
+                <% if de_busca %>
+                  <%# Como no seed: na aba de busca a coluna mostra até quando buscar, com o selo "Atrasada". %>
+                  <div class="space-y-1">
+                    <p><%= data_e_hora(solicitacao.busca_prevista_em) || "Não definido" %></p>
+                    <% if solicitacao.busca_prevista_em&.past? %>
+                      <span class="inline-flex rounded-full border border-[var(--danger-border-strong)] bg-[var(--danger-surface)] px-2 py-0.5 text-[11px] font-semibold text-[var(--danger-text)]">Atrasada</span>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <%= data_e_hora(solicitacao.saida_em) %>
+                <% end %>
+              </td>
               <td><%= solicitacao.destinos.first&.nome %><%= " (+#{solicitacao.destinos.size - 1})" if solicitacao.destinos.size > 1 %></td>
               <td><%= selo_da_solicitacao(solicitacao) %></td>
               <td>
@@ -57,7 +70,7 @@
             </tr>
           <% end %>
           <% if @solicitacoes.empty? %>
-            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação nesta etapa.</td></tr>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação encontrada para os filtros atuais.</td></tr>
           <% end %>
         </tbody>
       </table>
