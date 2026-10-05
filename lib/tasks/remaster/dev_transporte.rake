@@ -2,12 +2,12 @@
 # com todo tipo de situação: pedidos sem aprovação com a saída chegando ou já passada, saídas atrasadas,
 # serviços na rua há tempo demais, buscas vencidas. Pedido do Josue (2026-10-05).
 #
-# SÓ em desenvolvimento. APAGA todas as solicitações de transporte e recria o cenário com horários
-# relativos a agora (rode de novo para "renovar" os atrasos). Grava com validate: false, porque várias
+# SÓ em desenvolvimento. Apaga as solicitações deste cenário (as dos usuários caos.*@siscom.dev) e recria com
+# horários relativos a agora (rode de novo para "renovar" os atrasos); as outras solicitações ficam como estão. Grava com validate: false, porque várias
 # situações (saída no passado) não passam nas regras da tela. Não manda notificações.
 namespace :remaster do
   namespace :dev do
-    desc "Transporte: apaga as solicitações e cria o cenário de caos para o painel de acompanhamento (só desenvolvimento)"
+    desc "Transporte: cria o cenário de caos para o painel de acompanhamento (só desenvolvimento)"
     task transporte_caos: :environment do
       abort "Só roda em desenvolvimento." unless Rails.env.development?
 
@@ -29,13 +29,12 @@ namespace :remaster do
       end
 
       Transporte::Solicitacao.transaction do
-        apagadas = Transporte::Solicitacao.count
-        Transporte::Solicitacao.destroy_all
-
         pessoas = [ "ANA PAULA LIMA", "BRUNO COSTA FERREIRA", "CARLA MENDES SOUZA", "DANIEL ROCHA ALVES", "ELAINE BARBOSA NUNES", "FABIO TEIXEIRA GOMES",
                     "GABRIELA PINTO RAMOS", "HENRIQUE DIAS MOURA", "ISABELA CASTRO REIS", "JORGE ALMEIDA PIRES" ].each_with_index.map do |nome, i|
           usuario.call(nome, "caos.pessoa#{i + 1}@siscom.dev", "solicitante")
         end
+        # Apaga só as solicitações deste cenário (as dos usuários caos.*): as migradas do siscom antigo e as de verdade ficam.
+        apagadas = Transporte::Solicitacao.where(solicitante: pessoas).destroy_all.size
         motoristas = [ "MARCOS VIEIRA", "NILSON BATISTA", "OTAVIO CARDOSO", "PAULO HENRIQUE SALES", "RAIMUNDO NONATO", "SERGIO LOBATO", "TIAGO FURTADO", "VALDIR MONTEIRO" ]
                      .each_with_index.map do |nome, i|
           user = usuario.call("MOTORISTA #{nome}", "caos.motorista#{i + 1}@siscom.dev", "motorista")
@@ -147,8 +146,9 @@ namespace :remaster do
         cancelada.eventos.create!(tipo: "cancelada", ator: tecnico, ator_nome: tecnico.nome, ocorrido_em: agora - 2.hours, nota: "Motivo: Sem veículo disponível.")
 
         Transporte::Configuracao.atual.update!(senha_do_painel: ENV.fetch("SENHA_DO_PAINEL", "painel2026"))
-        puts "Apagadas #{apagadas} solicitações; criadas #{Transporte::Solicitacao.count} " \
-             "(#{Transporte::Solicitacao.group(:status).count.map { |status, n| "#{n} #{status}" }.join(', ')})."
+        cenario = Transporte::Solicitacao.where(solicitante: pessoas)
+        puts "Apagadas #{apagadas} solicitações do cenário; criadas #{cenario.count} " \
+             "(#{cenario.group(:status).count.map { |status, n| "#{n} #{status}" }.join(', ')})."
         puts "Painel: /transporte/acompanhamento (senha do painel em USUARIOS-PADRAO.md)."
       end
     end
