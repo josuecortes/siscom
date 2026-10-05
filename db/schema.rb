@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1198,6 +1198,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_100000) do
     t.index ["transportador_id"], name: "index_transporte_escolar_veiculos_on_transportador_id"
   end
 
+  create_table "transporte_motoristas", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "nome", null: false
+    t.string "cpf", null: false
+    t.date "data_nascimento", null: false
+    t.string "cnh_numero", null: false
+    t.string "cnh_categoria", null: false
+    t.date "cnh_validade", null: false
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cnh_numero"], name: "index_transporte_motoristas_on_cnh_numero", unique: true
+    t.index ["cpf"], name: "index_transporte_motoristas_on_cpf", unique: true
+    t.index ["user_id"], name: "index_transporte_motoristas_on_user_id", unique: true
+  end
+
+  create_table "transporte_veiculos", force: :cascade do |t|
+    t.string "placa", null: false
+    t.string "marca", null: false
+    t.string "modelo", null: false
+    t.integer "ano", null: false
+    t.string "cor", null: false
+    t.integer "capacidade", null: false
+    t.string "combustivel", null: false
+    t.decimal "consumo_km_por_litro", precision: 10, scale: 2, null: false
+    t.bigint "odometro_atual", default: 0, null: false
+    t.string "status", default: "ativo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["placa"], name: "index_transporte_veiculos_on_placa", unique: true
+  end
+
   create_table "unidades", force: :cascade do |t|
     t.string "nome"
     t.string "sigla"
@@ -1368,6 +1400,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_100000) do
   add_foreign_key "transporte_escolar_transportadores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_condutores", column: "condutor_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_transportadores", column: "transportador_id"
+  add_foreign_key "transporte_motoristas", "users"
   add_foreign_key "unidades", "tipo_unidades"
   add_foreign_key "users", "funcoes"
   add_foreign_key "users", "unidades"

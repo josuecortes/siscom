@@ -32,7 +32,10 @@ papeis:
 
 concessao:
   admin: [admin, tecnico, motorista]
+  tecnico: [motorista] # ao cadastrar um motorista, a conta dele recebe a permissão
 
 menu:
+  - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
+  - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
   - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }
   - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }
