@@ -22,6 +22,9 @@ namespace :ti do
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
   resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
   resource :configuracoes, only: %i[show update]
+  resource :estatisticas, only: :show do
+    get :tecnicos, defaults: { format: :json }
+  end
   # A TI abre o chamado em nome de outra pessoa (que passa a ser a dona).
   resource :chamado_para_outro, only: %i[new create], path: "chamados-para-outra-pessoa", controller: "chamados_para_outro"
   get "opcoes/usuarios", to: "opcoes#usuarios", as: :opcoes_de_usuarios, defaults: { format: :json }
