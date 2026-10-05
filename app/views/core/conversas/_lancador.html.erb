@@ -1,7 +1,7 @@
 <%# Ícone flutuante das conversas (porta de chat-launcher.tsx): botão fixo no canto inferior direito, com o
     contador de não lidas, e o painel que mostra a lista e a conversa escolhida (turbo-frame).
     O controller Stimulus `lancador` fica no <body>, para qualquer botão da página poder abrir uma conversa:
-      data-action="lancador#abrirConversa" data-lancador-url-param="<%= painel_conversa_path(conversa) %>" %>
+      data-action="lancador#abrirConversa" data-lancador-url-param (com o caminho de painel_conversa_path(conversa)). %>
 <%= turbo_stream_from current_user, :conversas %>
 <div data-lancador-target="painel" hidden
      class="fixed inset-x-3 bottom-24 z-[70] flex max-h-[calc(100vh-7rem)] items-end justify-end sm:inset-x-auto sm:right-6 sm:w-[26rem] sm:max-w-[calc(100vw-3rem)]">

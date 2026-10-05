@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1216,6 +1216,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_150000) do
     t.index ["transportador_id"], name: "index_transporte_escolar_veiculos_on_transportador_id"
   end
 
+  create_table "transporte_eventos", force: :cascade do |t|
+    t.bigint "solicitacao_id", null: false
+    t.string "tipo", null: false
+    t.text "nota"
+    t.bigint "ator_id"
+    t.string "ator_nome"
+    t.datetime "ocorrido_em", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ator_id"], name: "index_transporte_eventos_on_ator_id"
+    t.index ["solicitacao_id"], name: "index_transporte_eventos_on_solicitacao_id"
+  end
+
   create_table "transporte_motoristas", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "nome", null: false
@@ -1304,10 +1317,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "concluida_em"
+    t.datetime "saida_anterior_em"
+    t.datetime "retorno_anterior_em"
+    t.text "motivo_reagendamento"
+    t.bigint "reagendada_por_id"
+    t.datetime "reagendada_em"
+    t.text "motivo_recusa_reagendamento"
+    t.datetime "reagendamento_respondido_em"
     t.index ["aberto_por_id"], name: "index_transporte_solicitacoes_on_aberto_por_id"
     t.index ["aprovada_por_id"], name: "index_transporte_solicitacoes_on_aprovada_por_id"
     t.index ["cancelada_por_id"], name: "index_transporte_solicitacoes_on_cancelada_por_id"
     t.index ["codigo"], name: "index_transporte_solicitacoes_on_codigo", unique: true
+    t.index ["reagendada_por_id"], name: "index_transporte_solicitacoes_on_reagendada_por_id"
     t.index ["saida_em"], name: "index_transporte_solicitacoes_on_saida_em"
     t.index ["solicitante_id"], name: "index_transporte_solicitacoes_on_solicitante_id"
     t.index ["status"], name: "index_transporte_solicitacoes_on_status"
@@ -1500,6 +1521,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_150000) do
   add_foreign_key "transporte_escolar_transportadores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_condutores", column: "condutor_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_transportadores", column: "transportador_id"
+  add_foreign_key "transporte_eventos", "transporte_solicitacoes", column: "solicitacao_id"
+  add_foreign_key "transporte_eventos", "users", column: "ator_id"
   add_foreign_key "transporte_motoristas", "users"
   add_foreign_key "transporte_observacoes", "transporte_solicitacoes", column: "solicitacao_id"
   add_foreign_key "transporte_observacoes", "users", column: "autor_id"
@@ -1510,6 +1533,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_150000) do
   add_foreign_key "transporte_solicitacoes", "users", column: "aberto_por_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "aprovada_por_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "cancelada_por_id"
+  add_foreign_key "transporte_solicitacoes", "users", column: "reagendada_por_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "solicitante_id"
   add_foreign_key "unidades", "tipo_unidades"
   add_foreign_key "users", "funcoes"

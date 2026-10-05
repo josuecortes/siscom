@@ -1,11 +1,11 @@
 <% content_for :title, "Reagendar" %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_reagendamento", rotulo: "Salvar horários" } %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_reagendamento", rotulo: (@solicitacao.busca? ? "Salvar horário da busca" : "Enviar reagendamento") } %>
 <% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
 <% data_hora = { controller: "mascara", mascara_tipo_value: "data_hora", action: "input->mascara#aplicar" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Transporte", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_path(@solicitacao), rodape: rodape,
-                descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. O solicitante é avisado da mudança.") } do %>
+      locals: { sobretitulo: "Transporte", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_index_path, rodape: rodape,
+                descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. A solicitação fica como reagendada até o solicitante aceitar ou recusar o novo horário.") } do %>
   <%= form_with url: reagendar_transporte_operacao_path(@solicitacao), method: :patch, id: "formulario_reagendamento", class: "space-y-5" do |f| %>
     <% if @erro.present? %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>

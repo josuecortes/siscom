@@ -44,6 +44,9 @@ module Transporte
             item.servicos.create!(trecho: trecho, motorista: @ator, motorista_nome: @ator.nome, veiculo: @veiculo, placa: @veiculo.placa,
                                   odometro_inicial: @odometro, iniciado_em: Time.current, grupo: grupo)
             item.update!(status: "em_servico") if trecho == "ida"
+            outras = juntas - [ item ]
+            item.registrar_evento("servico_iniciado", @ator, "#{trecho == 'ida' ? 'Saída' : 'Saída para a busca'} com o veículo #{@veiculo.placa}." \
+                                                             "#{" Serviço compartilhado com #{outras.map(&:codigo).to_sentence}." if outras.any?}")
           end
           @veiculo.update!(odometro_atual: @odometro)
           Core::Api.auditar(evento: "transporte.servico.iniciado", alvo: @solicitacao, ator: @ator,

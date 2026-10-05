@@ -70,6 +70,12 @@ RSpec.describe "Transporte: motoristas e veículos" do
         patch transporte_motorista_path(motorista), params: { motorista: { cnh_validade: "01/01/2031" } }
         patch desativar_transporte_motorista_path(motorista)
         expect(motorista.reload).to have_attributes(cnh_validade: Date.new(2031, 1, 1), status: "inativo")
+
+        # A lista abre em "Ativos" (como no seed); o inativo aparece em "Todos" e "Inativos".
+        get transporte_motoristas_path
+        expect(response.body).to include("0 motorista(s)")
+        get transporte_motoristas_path, params: { status: "todos" }
+        expect(response.body).to include("1 motorista(s)")
       end
     end
 

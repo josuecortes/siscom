@@ -17,6 +17,7 @@ module Transporte
 
         Transporte::Solicitacao.transaction do
           @solicitacao.update!(status: "aprovada", aprovada_por: @ator, aprovada_em: Time.current)
+          @solicitacao.registrar_evento("aprovada", @ator)
           Core::Api.auditar(evento: "transporte.solicitacao.aprovada", alvo: @solicitacao, ator: @ator, dados: { codigo: @solicitacao.codigo })
         end
         Avisos.notificar(@solicitacao.solicitante, @solicitacao, @ator, :solicitante, "Solicitação de transporte aprovada",

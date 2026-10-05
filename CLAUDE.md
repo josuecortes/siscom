@@ -57,6 +57,10 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
   no formulário `render "compartilhado/campo_data"` (nunca `date_field`), em filtros `DataBr.interpretar(params[...])`
   e para exibir `DataBr.formatar(valor)` ou `l(data)`. Máscaras (data, CPF, telefone): Stimulus `mascara`.
 - Painéis (`compartilhado/_painel_formulario`) e confirmações fecham só pelos botões (Cancelar/Fechar/×).
+- **"Ver" abre sempre em painel (modal), nunca em página própria**, e é só leitura: `show` renderiza
+  `painel_formulario` com `largo: true` e `compartilhado/rodape_fechar`, e chama `abrir_sobre(lista)` (aberto direto
+  pela URL, vai para a lista, que abre o painel por `?painel=`). **As ações do registro ficam na linha da lista**
+  (`compartilhado/_botao_acao`, com `quadro: "painel"`), nunca dentro do "ver". Regra do Josue (2026-10-05), vale para todos os módulos.
 - Auditoria: toda ação que altera dados chama `Core::Api.auditar` (ou `Core::Auditoria::Registrar` dentro do Core);
   notificações por `Core::Api.notificar`; fontes de referência por `Core::Api.opcoes_da_fonte`. Um módulo publica
   entidades para fontes definindo `entidades_publicaveis` e `registros_da_entidade` na sua `Api`.

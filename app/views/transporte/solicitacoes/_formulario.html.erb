@@ -1,10 +1,14 @@
 <%# Painel de solicitação de transporte. locals: solicitacao, lotacoes, configuracao,
-    para_outro (bool: a operação abre em nome de outra pessoa), solicitante (a pessoa escolhida, ou nil). %>
+    para_outro (bool: a operação abre em nome de outra pessoa), solicitante (a pessoa escolhida, ou nil),
+    original (edição: a solicitação gravada; `solicitacao` traz os valores do formulário). %>
 <% s = solicitacao %>
 <% para_outro = local_assigns[:para_outro] %>
 <% solicitante = local_assigns[:solicitante] %>
-<% url = para_outro ? transporte_solicitacao_para_outro_path : transporte_solicitacoes_path %>
-<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: "Abrir solicitação" } %>
+<% original = local_assigns[:original] %>
+<% url = if original then transporte_solicitacao_path(original) elsif para_outro then transporte_solicitacao_para_outro_path else transporte_solicitacoes_path end %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: (original ? "Salvar alterações" : "Abrir solicitação") } %>
+<% lotacao_marcada = params.dig(:solicitacao, :lotacao_id) || lotacoes.find { |l| l.unidade.id == s.rh_unidade_id }&.id %>
+<% tem_documento = original&.documento_da_viagem&.attached? %>
 <% entrada = "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" %>
 <% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
 <% borda = ->(campo) { s.errors[campo].any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
@@ -13,11 +17,11 @@
 <% c = configuracao %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Transporte", titulo: (para_outro ? "Solicitar transporte para outra pessoa" : "Nova solicitação de transporte"),
+      locals: { sobretitulo: "Transporte", titulo: (if original then "Editar solicitação #{original.codigo}" elsif para_outro then "Solicitar transporte para outra pessoa" else "Nova solicitação de transporte" end),
                 voltar: (para_outro ? transporte_operacao_index_path : transporte_solicitacoes_path), rodape: rodape,
                 descricao: "A saída precisa ser marcada com #{c.normal_antecedencia_min_horas} a #{c.normal_antecedencia_max_horas} horas de antecedência (viagem: #{c.viagem_antecedencia_min_horas} a #{c.viagem_antecedencia_max_horas})." } do %>
   <%# Em nome de outra pessoa não há lista por trás do painel: ao salvar, a página inteira vai para a solicitação. %>
-  <%= form_with url: url, id: "formulario_solicitacao", class: "space-y-5", multipart: true, data: ({ turbo_frame: "_top" } if para_outro) do |f| %>
+  <%= form_with url: url, method: (original ? :patch : :post), id: "formulario_solicitacao", class: "space-y-5", multipart: true, data: ({ turbo_frame: "_top" } if para_outro) do |f| %>
     <% if s.errors.any? || (s.passageiros + s.destinos).any? { |item| item.errors.any? } %>
       <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (s.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
     <% end %>
@@ -42,7 +46,7 @@
       <div class="space-y-1.5">
         <label for="solicitacao_lotacao_id" class="<%= rotulo %>">Unidade *</label>
         <%= select_tag "solicitacao[lotacao_id]",
-              options_for_select([ [ "Selecione a unidade", "" ] ] + lotacoes.map { |l| [ "#{[ l.unidade.sigla, l.unidade.nome ].compact_blank.join(' - ')} (#{l.funcao})", l.id ] }, params.dig(:solicitacao, :lotacao_id)),
+              options_for_select([ [ "Selecione a unidade", "" ] ] + lotacoes.map { |l| [ "#{[ l.unidade.sigla, l.unidade.nome ].compact_blank.join(' - ')} (#{l.funcao})", l.id ] }, lotacao_marcada),
               id: "solicitacao_lotacao_id", required: true, class: "#{entrada} #{borda.call(:lotacao_id)}" %>
         <%= erro.call(:lotacao_id, "Unidade") %>
       </div>
@@ -74,10 +78,10 @@
         <%= erro.call(:retorno_em, "Retorno") %>
       </div>
       <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="viagem">
-        <label for="solicitacao_documento_da_viagem" class="<%= rotulo %>">Documento da viagem *</label>
-        <%= file_field_tag "solicitacao[documento_da_viagem]", id: "solicitacao_documento_da_viagem", required: true,
+        <label for="solicitacao_documento_da_viagem" class="<%= rotulo %>">Documento da viagem<%= " *" unless tem_documento %></label>
+        <%= file_field_tag "solicitacao[documento_da_viagem]", id: "solicitacao_documento_da_viagem", required: !tem_documento,
               class: "block w-full rounded-xl border bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white #{borda.call(:documento_da_viagem)}" %>
-        <p class="text-xs text-[var(--text-muted)]">Ofício, portaria ou outro documento que autoriza a viagem. Até 10 MB.</p>
+        <p class="text-xs text-[var(--text-muted)]">Ofício, portaria ou outro documento que autoriza a viagem. Até 10 MB.<%= " Já anexado: #{original.documento_da_viagem.filename}. Escolha outro arquivo só se quiser trocar." if tem_documento %></p>
         <%= erro.call(:documento_da_viagem, "Documento da viagem") %>
       </div>
     </div>

@@ -28,6 +28,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # As telas de "ver" abrem sempre no painel, por cima da lista, nunca numa página própria. Quando
+  # o endereço é aberto direto (link de notificação, favorito), vai para a lista, que abre o painel.
+  # Devolve true quando redirecionou.
+  def abrir_sobre(lista)
+    return false if turbo_frame_request?
+
+    flash.keep # o aviso de quem mandou para cá aparece na lista
+    redirect_to "#{lista}#{lista.include?('?') ? '&' : '?'}painel=#{CGI.escape(request.fullpath)}", status: :see_other
+    true
+  end
+
   # Senha temporária ou padrão antiga: só a tela de troca fica disponível.
   def exigir_troca_de_senha
     return unless current_user&.deve_trocar_senha?

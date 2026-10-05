@@ -29,7 +29,8 @@
       <%= render "compartilhado/flash" %>
       <%= render "compartilhado/confirmacao" %>
       <%# Painel de formulário: as views new/edit entregam o próprio quadro. %>
-      <%= turbo_frame_tag "painel" unless content_for?(:tem_painel) %>
+      <%# Com ?painel=/caminho (link de notificação para uma tela de "ver"), o painel abre sozinho por cima da lista. %>
+      <%= turbo_frame_tag "painel", src: painel_inicial unless content_for?(:tem_painel) %>
 
       <%# Menu no celular (gaveta). %>
       <div data-menu-lateral-target="gaveta" class="fixed inset-0 z-50 hidden bg-[#08111fcc] lg:hidden">

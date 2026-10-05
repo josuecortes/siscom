@@ -1,113 +1,125 @@
-<%# Cartões da solicitação: resumo, passageiros e destinos. locals: solicitacao,
-    observacoes (bool: mostra as observações da operação e dos motoristas). O bloco entra antes dos cartões. %>
+<%# Miolo do painel "ver solicitação": resumo, passageiros, destinos, serviço e histórico.
+    locals: solicitacao, observacoes (bool: mostra as observações, que só a operação e os motoristas veem). %>
 <% s = solicitacao %>
-<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<% titulo = "text-sm font-semibold text-[var(--text-primary)]" %>
+<% caixa = "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]" %>
 <% detalhe = ->(rotulo, valor) do %>
-  <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+  <div class="<%= caixa %> px-4 py-3">
     <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
     <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "—" %></dd>
   </div>
 <% end %>
 
-<div class="mt-6 space-y-6">
-  <%= yield %>
-  <section class="<%= cartao %>">
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
-      <div>
-        <h2 class="text-base font-semibold text-[var(--text-primary)]"><%= s.nome_do_tipo %> · <%= s.nome_do_modo %></h2>
-        <p class="mt-1 whitespace-pre-line text-sm text-[var(--text-secondary)]"><%= s.resumo %></p>
-      </div>
-      <%= selo_da_solicitacao(s) %>
+<section class="space-y-3" id="resumo_da_solicitacao">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 class="<%= titulo %>"><%= s.nome_do_tipo %> · <%= s.nome_do_modo %></h3>
+      <p class="mt-1 whitespace-pre-line break-words text-sm text-[var(--text-secondary)]"><%= s.resumo %></p>
     </div>
-    <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
-      <% detalhe.call("Saída", data_e_hora(s.saida_em)) %>
-      <% if s.viagem? %><% detalhe.call("Retorno", data_e_hora(s.retorno_em)) %><% end %>
-      <% if s.esperar_no_local? %><% detalhe.call("Espera no local", "#{s.espera_horas} hora(s)") %><% end %>
-      <% if s.buscar_depois? %><% detalhe.call("Buscar depois de", "#{s.busca_horas} hora(s)") %><% end %>
-      <% detalhe.call("Solicitante", s.solicitante_nome) %>
-      <% detalhe.call("Unidade", s.unidade_nome) %>
-      <% if s.aberto_por %><% detalhe.call("Aberta por", "#{s.aberto_por.nome} (em nome do solicitante#{', fora do prazo' if s.fora_do_padrao?})") %><% end %>
-      <% if s.cancelada? %><% detalhe.call("Motivo do cancelamento", s.motivo_cancelamento) %><% end %>
-      <% if s.busca? && s.busca_prevista_em %><% detalhe.call("Busca prevista para", data_e_hora(s.busca_prevista_em)) %><% end %>
-      <% if s.concluida_em %><% detalhe.call("Concluída em", data_e_hora(s.concluida_em)) %><% end %>
-      <% if s.documento_da_viagem.attached? %>
-        <% detalhe.call("Documento da viagem", link_to(s.documento_da_viagem.filename.to_s, rails_blob_path(s.documento_da_viagem, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false })) %>
-      <% end %>
-    </dl>
-  </section>
+    <%= selo_da_solicitacao(s) %>
+  </div>
+  <% if s.reagendada? %>
+    <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]" id="aviso_de_reagendamento">
+      Reagendada por <%= s.reagendada_por&.nome || "setor de transporte" %> em <%= data_e_hora(s.reagendada_em) %>. Motivo: <%= s.motivo_reagendamento %>
+      Aguardando o solicitante aceitar ou recusar.
+    </p>
+  <% end %>
+  <dl class="grid gap-3 sm:grid-cols-2">
+    <% detalhe.call("Saída", data_e_hora(s.saida_em)) %>
+    <% if s.reagendada? && s.saida_anterior_em && s.saida_anterior_em != s.saida_em %><% detalhe.call("Saída anterior", data_e_hora(s.saida_anterior_em)) %><% end %>
+    <% if s.viagem? %><% detalhe.call("Retorno", data_e_hora(s.retorno_em)) %><% end %>
+    <% if s.esperar_no_local? %><% detalhe.call("Espera no local", "#{s.espera_horas} hora(s)") %><% end %>
+    <% if s.buscar_depois? %><% detalhe.call("Buscar depois de", "#{s.busca_horas} hora(s)") %><% end %>
+    <% detalhe.call("Solicitante", s.solicitante_nome) %>
+    <% detalhe.call("Unidade", s.unidade_nome) %>
+    <% if s.aberto_por %><% detalhe.call("Aberta por", "#{s.aberto_por.nome} (em nome do solicitante#{', fora do prazo' if s.fora_do_padrao?})") %><% end %>
+    <% if s.cancelada? %><% detalhe.call("Motivo do cancelamento", s.motivo_cancelamento) %><% end %>
+    <% if s.busca? && s.busca_prevista_em %><% detalhe.call("Busca prevista para", data_e_hora(s.busca_prevista_em)) %><% end %>
+    <% if s.concluida_em %><% detalhe.call("Concluída em", data_e_hora(s.concluida_em)) %><% end %>
+    <% if s.documento_da_viagem.attached? %>
+      <% detalhe.call("Documento da viagem", link_to(s.documento_da_viagem.filename.to_s, rails_blob_path(s.documento_da_viagem, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false })) %>
+    <% end %>
+  </dl>
+</section>
 
-  <section class="<%= cartao %>">
-    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Passageiros (<%= s.passageiros.size %>)</h2>
-    </div>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% s.passageiros.each do |passageiro| %>
-        <li class="flex flex-wrap items-baseline gap-x-3 px-6 py-3 text-sm">
-          <span class="font-semibold text-[var(--text-primary)]"><%= passageiro.nome %></span>
-          <span class="text-[var(--text-secondary)]"><%= Cpf.formatar(passageiro.cpf) %></span>
-        </li>
-      <% end %>
-    </ul>
-  </section>
+<section class="space-y-2" id="passageiros_da_solicitacao">
+  <h3 class="<%= titulo %>">Passageiros (<%= s.passageiros.size %>)</h3>
+  <ul class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+    <% s.passageiros.each do |passageiro| %>
+      <li class="flex flex-wrap items-baseline gap-x-3 px-4 py-2.5 text-sm">
+        <span class="font-semibold text-[var(--text-primary)]"><%= passageiro.nome %></span>
+        <span class="text-[var(--text-secondary)]"><%= Cpf.formatar(passageiro.cpf) %></span>
+      </li>
+    <% end %>
+  </ul>
+</section>
 
-  <section class="<%= cartao %>">
-    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Destinos (<%= s.destinos.size %>)</h2>
-    </div>
-    <ol class="divide-y divide-[var(--border-subtle)]">
-      <% s.destinos.each_with_index do |destino, indice| %>
-        <li class="px-6 py-3 text-sm">
-          <p class="font-semibold text-[var(--text-primary)]"><%= indice + 1 %>. <%= destino.nome %></p>
-          <p class="mt-1 text-[var(--text-secondary)]"><%= destino.endereco %><%= " · CEP #{destino.cep}" if destino.cep.present? %></p>
-          <% if destino.no_mapa? %>
-            <p class="mt-1"><%= link_to "Abrir no mapa", "https://www.openstreetmap.org/?mlat=#{destino.latitude}&mlon=#{destino.longitude}#map=17/#{destino.latitude}/#{destino.longitude}",
-                  target: "_blank", rel: "noopener", class: "text-[var(--accent-strong)] hover:underline" %></p>
-          <% end %>
+<section class="space-y-2" id="destinos_da_solicitacao">
+  <h3 class="<%= titulo %>">Destinos (<%= s.destinos.size %>)</h3>
+  <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+    <% s.destinos.each_with_index do |destino, indice| %>
+      <li class="px-4 py-2.5 text-sm">
+        <p class="font-semibold text-[var(--text-primary)]"><%= indice + 1 %>. <%= destino.nome %></p>
+        <p class="mt-1 text-[var(--text-secondary)]"><%= destino.endereco %><%= " · CEP #{destino.cep}" if destino.cep.present? %></p>
+        <% if destino.no_mapa? %>
+          <p class="mt-1"><%= link_to "Abrir no mapa", "https://www.openstreetmap.org/?mlat=#{destino.latitude}&mlon=#{destino.longitude}#map=17/#{destino.latitude}/#{destino.longitude}",
+                target: "_blank", rel: "noopener", class: "text-[var(--accent-strong)] hover:underline" %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</section>
+
+<% servicos = s.servicos.em_ordem.to_a %>
+<% if servicos.any? %>
+  <section class="space-y-2" id="servico_da_solicitacao">
+    <h3 class="<%= titulo %>">Serviço</h3>
+    <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+      <% servicos.each do |servico| %>
+        <li class="px-4 py-2.5 text-sm">
+          <p class="font-semibold text-[var(--text-primary)]"><%= servico.nome_do_trecho %> · <%= servico.motorista_nome %> · <%= servico.placa %></p>
+          <p class="mt-1 text-[var(--text-secondary)]">
+            Saiu em <%= data_e_hora(servico.iniciado_em) %> (<%= number_with_delimiter(servico.odometro_inicial) %> km)
+            <% if servico.aberto? %>· <strong class="text-[var(--text-primary)]">em andamento</strong>
+            <% else %>· chegou em <%= data_e_hora(servico.finalizado_em) %> (<%= number_with_delimiter(servico.odometro_final) %> km, <%= number_with_delimiter(servico.km_rodados) %> km rodados)<% end %>
+          </p>
+          <% juntos = servico.companheiros.map { |outro| outro.solicitacao.codigo } %>
+          <% if juntos.any? %><p class="mt-1 text-xs text-[var(--text-muted)]">Serviço compartilhado com <%= juntos.to_sentence %>.</p><% end %>
         </li>
       <% end %>
     </ol>
   </section>
-  <% servicos = s.servicos.em_ordem.to_a %>
-  <% if servicos.any? %>
-    <section class="<%= cartao %>" id="servico_da_solicitacao">
-      <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Serviço</h2>
-      </div>
-      <ol class="divide-y divide-[var(--border-subtle)]">
-        <% servicos.each do |servico| %>
-          <li class="px-6 py-3 text-sm">
-            <p class="font-semibold text-[var(--text-primary)]"><%= servico.nome_do_trecho %> · <%= servico.motorista_nome %> · <%= servico.placa %></p>
-            <p class="mt-1 text-[var(--text-secondary)]">
-              Saiu em <%= data_e_hora(servico.iniciado_em) %> (<%= number_with_delimiter(servico.odometro_inicial) %> km)
-              <% if servico.aberto? %>· <strong class="text-[var(--text-primary)]">em andamento</strong>
-              <% else %>· chegou em <%= data_e_hora(servico.finalizado_em) %> (<%= number_with_delimiter(servico.odometro_final) %> km, <%= number_with_delimiter(servico.km_rodados) %> km rodados)<% end %>
-            </p>
-            <% juntos = servico.companheiros.map { |outro| outro.solicitacao.codigo } %>
-            <% if juntos.any? %><p class="mt-1 text-xs text-[var(--text-muted)]">Serviço compartilhado com <%= juntos.to_sentence %>.</p><% end %>
-          </li>
-        <% end %>
-      </ol>
-    </section>
-  <% end %>
+<% end %>
 
-  <% if local_assigns[:observacoes] %>
-    <section class="<%= cartao %>" id="observacoes_da_solicitacao">
-      <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Observações (<%= s.observacoes.size %>)</h2>
-        <p class="mt-1 text-xs text-[var(--text-muted)]">Só a operação e os motoristas veem.</p>
-      </div>
-      <ol class="divide-y divide-[var(--border-subtle)]">
-        <% s.observacoes.em_ordem.with_attached_anexos.each do |observacao| %>
-          <li class="px-6 py-3 text-sm">
-            <p class="text-xs text-[var(--text-muted)]"><%= data_e_hora(observacao.created_at) %> · <%= observacao.autor_nome %> (<%= observacao.nome_do_papel %>)</p>
-            <p class="mt-1 whitespace-pre-line break-words text-[var(--text-primary)]"><%= observacao.corpo %></p>
-            <% observacao.anexos.each do |anexo| %>
-              <p class="mt-1"><%= link_to anexo.filename.to_s, rails_blob_path(anexo, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false } %></p>
-            <% end %>
-          </li>
-        <% end %>
-        <% if s.observacoes.empty? %><li class="px-6 py-5 text-sm text-[var(--text-secondary)]">Nenhuma observação.</li><% end %>
-      </ol>
-    </section>
-  <% end %>
-</div>
+<section class="space-y-2" id="historico_da_solicitacao">
+  <h3 class="<%= titulo %>">Histórico</h3>
+  <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+    <% s.eventos.em_ordem.each do |evento| %>
+      <li class="px-4 py-2.5 text-sm">
+        <p class="font-semibold text-[var(--text-primary)]"><%= evento.titulo %></p>
+        <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= data_e_hora(evento.ocorrido_em) %> · <%= evento.ator_nome.presence || "Sistema" %></p>
+        <% if evento.nota.present? %><p class="mt-1 break-words text-[var(--text-secondary)]"><%= evento.nota %></p><% end %>
+      </li>
+    <% end %>
+    <% if s.eventos.empty? %><li class="px-4 py-4 text-sm text-[var(--text-secondary)]">Nenhum registro.</li><% end %>
+  </ol>
+</section>
+
+<% if local_assigns[:observacoes] %>
+  <section class="space-y-2" id="observacoes_da_solicitacao">
+    <h3 class="<%= titulo %>">Observações (<%= s.observacoes.size %>)</h3>
+    <p class="text-xs text-[var(--text-muted)]">Só a operação e os motoristas veem.</p>
+    <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+      <% s.observacoes.em_ordem.with_attached_anexos.each do |observacao| %>
+        <li class="px-4 py-2.5 text-sm">
+          <p class="text-xs text-[var(--text-muted)]"><%= data_e_hora(observacao.created_at) %> · <%= observacao.autor_nome %> (<%= observacao.nome_do_papel %>)</p>
+          <p class="mt-1 whitespace-pre-line break-words text-[var(--text-primary)]"><%= observacao.corpo %></p>
+          <% observacao.anexos.each do |anexo| %>
+            <p class="mt-1"><%= link_to anexo.filename.to_s, rails_blob_path(anexo, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false } %></p>
+          <% end %>
+        </li>
+      <% end %>
+      <% if s.observacoes.empty? %><li class="px-4 py-4 text-sm text-[var(--text-secondary)]">Nenhuma observação.</li><% end %>
+    </ol>
+  </section>
+<% end %>

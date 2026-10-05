@@ -1,0 +1,46 @@
+<% content_for :title, "Veículos agora" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Veículos agora", icone: :location_pin, migalha: [ "Transporte", transporte_veiculos_agora_path ] } do %>
+<% end %>
+
+<%= turbo_stream_from "transporte_operacao" %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+  <section class="<%= cartao %>" id="veiculos_livres">
+    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-base font-semibold text-[var(--text-primary)]">Livres</h2>
+      <%= render "compartilhado/selo", texto: @livres.size.to_s, tom: :sucesso %>
+    </div>
+    <ul class="divide-y divide-[var(--border-subtle)]">
+      <% @livres.each do |veiculo| %>
+        <li class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-6 py-3 text-sm">
+          <span class="font-semibold text-[var(--text-primary)]"><%= veiculo.descricao %></span>
+          <span class="text-[var(--text-secondary)]"><%= veiculo.cor %> · <%= veiculo.capacidade %> lugar(es) · <%= number_with_delimiter(veiculo.odometro_atual) %> km</span>
+        </li>
+      <% end %>
+      <% if @livres.empty? %><li class="px-6 py-8 text-center text-sm text-[var(--text-secondary)]">Nenhum veículo livre no momento.</li><% end %>
+    </ul>
+  </section>
+
+  <section class="<%= cartao %>" id="veiculos_em_servico">
+    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-base font-semibold text-[var(--text-primary)]">Em serviço</h2>
+      <%= render "compartilhado/selo", texto: @em_servico.size.to_s, tom: :atencao %>
+    </div>
+    <ul class="divide-y divide-[var(--border-subtle)]">
+      <% @em_servico.each do |veiculo, servicos| %>
+        <% primeiro = servicos.first %>
+        <li class="px-6 py-3 text-sm">
+          <p class="font-semibold text-[var(--text-primary)]"><%= veiculo.descricao %></p>
+          <p class="mt-1 text-[var(--text-secondary)]"><%= primeiro.motorista_nome %> · <%= primeiro.de_busca? ? "saiu para buscar" : "saiu" %> em <%= data_e_hora(primeiro.iniciado_em) %></p>
+          <p class="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+            <% servicos.each do |servico| %>
+              <%= link_to "#{servico.solicitacao.codigo} · #{servico.solicitacao.solicitante_nome}", transporte_operacao_path(servico.solicitacao), data: { turbo_frame: "painel" }, class: "text-[var(--accent-strong)] hover:underline" %>
+            <% end %>
+          </p>
+        </li>
+      <% end %>
+      <% if @em_servico.empty? %><li class="px-6 py-8 text-center text-sm text-[var(--text-secondary)]">Nenhum veículo em serviço no momento.</li><% end %>
+    </ul>
+  </section>
+</div>

@@ -51,14 +51,14 @@
             <th scope="col">Saída</th>
             <th scope="col">Destino</th>
             <th scope="col">Status</th>
-            <th scope="col">Ações</th>
+            <th scope="col" class="!pl-2">Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @solicitacoes.each do |solicitacao| %>
             <tr id="<%= dom_id(solicitacao) %>">
               <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]">
-                <%= link_to solicitacao.codigo, transporte_solicitacao_path(solicitacao), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                <%= link_to solicitacao.codigo, transporte_solicitacao_path(solicitacao), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
               </td>
               <td>
                 <p class="font-semibold text-[var(--text-primary)]"><%= truncate(solicitacao.resumo, length: 80) %></p>
@@ -67,7 +67,7 @@
               <td class="whitespace-nowrap"><%= data_e_hora(solicitacao.saida_em) %></td>
               <td><%= solicitacao.destinos.first&.nome %><%= " (+#{solicitacao.destinos.size - 1})" if solicitacao.destinos.size > 1 %></td>
               <td><%= selo_da_solicitacao(solicitacao) %></td>
-              <td><%= render "compartilhado/botao_acao", titulo: "Visualizar solicitação", icone: :eye, caminho: transporte_solicitacao_path(solicitacao) %></td>
+              <td class="!pl-2 !pr-4"><%= render "transporte/solicitacoes/acoes", solicitacao: solicitacao, visao: :solicitante %></td>
             </tr>
           <% end %>
           <% if @solicitacoes.empty? %>

@@ -2,14 +2,17 @@ module Transporte
   module Servicos
     # Fecha o trecho em andamento com o odômetro final (porta de requests/finish_service.rb do seed).
     # Ida de "buscar depois" → aguardando busca (com a hora prevista); nos outros casos → concluída.
-    # Fecha o motorista do trecho, ou a operação.
+    # Fecha o motorista do trecho, ou a operação. Quem fecha pode deixar uma observação com anexos
+    # (opcional, como no seed): serve para dizer se houve algo errado no trajeto ou no serviço.
     class Finalizar
       def self.call(...) = new(...).call
 
-      def initialize(solicitacao:, ator:, odometro:)
+      def initialize(solicitacao:, ator:, odometro:, observacao: nil, anexos: [])
         @solicitacao = solicitacao
         @ator = ator
         @odometro = Integer(odometro.to_s.delete("."), exception: false)
+        @observacao = observacao.to_s.strip.presence
+        @anexos = (anexos.is_a?(Array) ? anexos : [ anexos ]).select { |item| item.respond_to?(:original_filename) }
       end
 
       def call
@@ -20,11 +23,17 @@ module Transporte
         end
         return falha("Odômetro final deve ser um número.") unless @odometro
         return falha("Odômetro final não pode ser menor que o inicial (#{servico.odometro_inicial} km).") if @odometro < servico.odometro_inicial
+        return falha("Para enviar anexos, escreva a observação.") if @anexos.any? && @observacao.nil?
+        return falha("Observação pode ter no máximo 2000 caracteres.") if @observacao.to_s.length > 2000
+        return falha("Cada anexo pode ter no máximo 10 MB.") if @anexos.any? { |anexo| anexo.size > Transporte::Observacao::TAMANHO_MAXIMO }
 
         Transporte::Servico.transaction do
           servico.update!(odometro_final: @odometro, finalizado_em: Time.current)
           servico.veiculo.update!(odometro_atual: [ servico.veiculo.odometro_atual, @odometro ].max)
           @solicitacao.update!(proximo_estado(servico))
+          @solicitacao.registrar_evento(@solicitacao.concluida? ? "concluida" : "trecho_finalizado", @ator,
+                                        "Veículo #{servico.placa}, #{servico.km_rodados} km rodados.#{' Com observação.' if @observacao}")
+          observar(servico)
           Core::Api.auditar(evento: "transporte.servico.finalizado", alvo: @solicitacao, ator: @ator,
                             dados: { codigo: @solicitacao.codigo, trecho: servico.trecho, placa: servico.placa, odometro: @odometro, km: servico.km_rodados })
         end
@@ -34,6 +43,14 @@ module Transporte
       end
 
       private
+
+      def observar(servico)
+        return unless @observacao
+
+        papel = servico.motorista_id == @ator.id ? "motorista" : "tecnico"
+        observacao = @solicitacao.observacoes.create!(autor: @ator, autor_nome: @ator.nome, papel: papel, corpo: @observacao)
+        observacao.anexos.attach(@anexos) if @anexos.any?
+      end
 
       def proximo_estado(servico)
         if servico.de_ida? && @solicitacao.buscar_depois?

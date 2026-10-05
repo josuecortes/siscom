@@ -149,6 +149,7 @@ module Transporte
         Transporte::Solicitacao.transaction do
           @solicitacao.save!
           ator = @aberto_por || @user
+          @solicitacao.registrar_evento("aberta", ator, ("Em nome de #{@user.nome}#{', fora do prazo' if @fora_do_padrao}." if @aberto_por))
           Core::Api.auditar(evento: "transporte.solicitacao.aberta", alvo: @solicitacao, ator: ator,
                             dados: { codigo: @solicitacao.codigo, tipo: @solicitacao.tipo, fora_do_padrao: @fora_do_padrao.presence,
                                      em_nome_de: (@user.id if @aberto_por) }.compact)

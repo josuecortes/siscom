@@ -53,20 +53,20 @@
             <th scope="col"><%= de_busca ? "Buscar até" : "Saída" %></th>
             <th scope="col">Destino</th>
             <th scope="col">Status</th>
-            <th scope="col">Ações</th>
+            <th scope="col" class="!pl-2">Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @solicitacoes.each do |solicitacao| %>
             <tr id="<%= dom_id(solicitacao) %>">
               <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]">
-                <%= link_to solicitacao.codigo, transporte_operacao_path(solicitacao), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                <%= link_to solicitacao.codigo, transporte_operacao_path(solicitacao), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
               </td>
-              <td>
+              <td class="!whitespace-normal">
                 <p class="font-semibold text-[var(--text-primary)]"><%= truncate(solicitacao.resumo, length: 80) %></p>
                 <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= solicitacao.nome_do_tipo %> · <%= solicitacao.nome_do_modo %></p>
               </td>
-              <td>
+              <td class="!whitespace-normal"><%# nome e unidade quebram a linha: as ações têm de caber sem rolagem %>
                 <p class="text-sm text-[var(--text-primary)]"><%= solicitacao.solicitante_nome %></p>
                 <% if solicitacao.unidade_nome.present? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= solicitacao.unidade_nome %></p><% end %>
               </td>
@@ -83,17 +83,9 @@
                   <%= data_e_hora(solicitacao.saida_em) %>
                 <% end %>
               </td>
-              <td><%= solicitacao.destinos.first&.nome %><%= " (+#{solicitacao.destinos.size - 1})" if solicitacao.destinos.size > 1 %></td>
+              <td class="!whitespace-normal"><%= solicitacao.destinos.first&.nome %><%= " (+#{solicitacao.destinos.size - 1})" if solicitacao.destinos.size > 1 %></td>
               <td><%= selo_da_solicitacao(solicitacao) %></td>
-              <td>
-                <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Visualizar solicitação", icone: :eye, caminho: transporte_operacao_path(solicitacao) %>
-                  <% if solicitacao.solicitada? && pode?("transporte.solicitacoes.aprovar") %>
-                    <%= render "compartilhado/botao_acao", titulo: "Aprovar solicitação", icone: :check_circle, caminho: aprovar_transporte_operacao_path(solicitacao), metodo: :patch,
-                          confirmar: { mensagem: "Confirme a aprovação de #{solicitacao.codigo}, com saída em #{data_e_hora(solicitacao.saida_em)}.", rotulo: "Aprovar", tom: "primario" } %>
-                  <% end %>
-                </div>
-              </td>
+              <td class="!pl-2 !pr-4"><%= render "transporte/solicitacoes/acoes", solicitacao: solicitacao, visao: :operacao %></td>
             </tr>
           <% end %>
           <% if @solicitacoes.empty? %>

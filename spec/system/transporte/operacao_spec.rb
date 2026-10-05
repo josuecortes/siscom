@@ -25,37 +25,57 @@ RSpec.describe "Transporte: operação em tempo real", :js do
 
     solicitacao = Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto
     sign_in maria
-    visit transporte_solicitacao_path(solicitacao)
-    expect(page).to have_content("Aguardando a aprovação do setor de transporte")
+    visit transporte_solicitacoes_path
+    expect(page).to have_content("1 solicitação(ões) em solicitadas")
 
     Capybara.using_session(:tecnico) do
       expect(page).to have_content("1 solicitação(ões) em solicitadas") # chegou sozinha
       print("transporte-operacao")
       within("tr", text: solicitacao.codigo) { click_on "Visualizar solicitação" }
-      expect(page).to have_css("h1", text: "Solicitação #{solicitacao.codigo}")
-      click_on "Aprovar solicitação"
+      within("[role='dialog']") do # "ver" abre no painel, por cima da lista
+        expect(page).to have_css("h2", text: "Solicitação #{solicitacao.codigo}").and have_content("Histórico")
+        print("transporte-operacao-solicitacao")
+        click_on "Fechar"
+      end
+      within("tr", text: solicitacao.codigo) { click_on "Aprovar solicitação" }
+      within("#confirmacao") { click_on "Aprovar" }
       expect(page).to have_css("#avisos", text: "aprovada")
     end
 
-    expect(page).to have_content("Solicitação aprovada") # mudou sozinha para a Maria
-    expect(page).to have_content("Aprovada")
+    expect(page).to have_css("nav a", text: /Aprovadas\s*1/) # mudou sozinha para a Maria
 
     Capybara.using_session(:tecnico) do
-      click_on "Reagendar"
+      click_on "Aprovadas"
+      within("tr", text: solicitacao.codigo) { click_on "Reagendar" }
+      fill_in "Nova saída (data e hora) *", with: I18n.l(70.hours.from_now, format: "%d%m%Y%H%M")
       fill_in "Motivo *", with: "Veículo em manutenção"
-      within("[role='dialog']") { click_on "Salvar horários" }
-      expect(page).to have_css("#avisos", text: "reagendada")
-      print("transporte-operacao-solicitacao")
+      within("[role='dialog']") { click_on "Enviar reagendamento" }
+      expect(page).to have_css("#avisos", text: "aguardando a resposta do solicitante")
+      expect(page).to have_css("nav a", text: /Reagendadas\s*1/)
     end
 
-    click_on "Cancelar solicitação"
+    # O solicitante vê o reagendamento chegar e aceita o novo horário.
+    expect(page).to have_css("nav a", text: /Reagendadas\s*1/)
+    click_on "Reagendadas"
+    within("tr", text: solicitacao.codigo) { click_on "Responder ao reagendamento" }
+    within("[role='dialog']") do
+      expect(page).to have_content("Veículo em manutenção").and have_content("TECNICO DO TRANSPORTE")
+      print("transporte-responder-reagendamento")
+      click_on "Aceitar novo horário"
+    end
+    expect(page).to have_css("#avisos", text: "Reagendamento aceito")
+
+    click_on "Aprovadas"
+    within("tr", text: solicitacao.codigo) { click_on "Cancelar solicitação" }
     fill_in "Motivo *", with: "Reunião desmarcada"
     within("[role='dialog']") { click_on "Cancelar solicitação" }
     expect(page).to have_css("#avisos", text: "cancelada")
 
     Capybara.using_session(:tecnico) do
-      expect(page).to have_content("Cancelada") # o técnico vê o cancelamento sem recarregar
-      expect(page).to have_content("Reunião desmarcada")
+      expect(page).to have_css("nav a", text: /Canceladas\s*1/) # o técnico vê o cancelamento sem recarregar
+      click_on "Canceladas"
+      within("tr", text: solicitacao.codigo) { click_on "Visualizar solicitação" }
+      expect(page).to have_css("[role='dialog']", text: "Reunião desmarcada")
     end
   end
 

@@ -2,7 +2,7 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_inicio", rotulo: "Iniciar serviço" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Transporte", titulo: "Iniciar serviço #{@solicitacao.codigo}", voltar: transporte_servico_path(@solicitacao), rodape: rodape,
+      locals: { sobretitulo: "Transporte", titulo: "Iniciar serviço #{@solicitacao.codigo}", voltar: transporte_servicos_path, rodape: rodape,
                 descricao: "Escolha o veículo e informe o odômetro que está no painel agora. Ele não pode ser menor que o último registrado do veículo." } do %>
   <%= form_with url: iniciar_transporte_servico_path(@solicitacao), method: :patch, id: "formulario_inicio", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

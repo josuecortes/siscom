@@ -18,8 +18,8 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
 
   it "inicia com veículo e odômetro, finaliza, e o solicitante acompanha sem recarregar" do
     sign_in maria
-    visit transporte_solicitacao_path(solicitacao)
-    expect(page).to have_content("Aprovada")
+    visit transporte_solicitacoes_path(status: "aprovada")
+    expect(page).to have_content("1 solicitação(ões) em aprovadas")
 
     Capybara.using_session(:motorista) do
       sign_in joao
@@ -28,29 +28,36 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
         find("summary", text: "Transporte").click
         click_on "Meus serviços"
       end
-      within("tr", text: solicitacao.codigo) { click_on "Visualizar solicitação" }
-      click_on "Iniciar serviço"
+      within("tr", text: solicitacao.codigo) { click_on "Iniciar serviço" } # as ações ficam na linha da lista
       escolher_no_autocomplete "Veículo *", digitar: "qlm", opcao: "QLM1A23 · TOYOTA HILUX"
       fill_in "Odômetro inicial (km) *", with: "12050"
       print("transporte-iniciar-servico")
       within("[role='dialog']") { click_on "Iniciar serviço" }
       expect(page).to have_css("#avisos", text: "Serviço iniciado. Boa viagem!")
-      expect(page).to have_content("em andamento")
+      expect(page).to have_css("nav a", text: /Comigo agora\s*1/)
     end
 
-    expect(page).to have_content("Em serviço") # mudou sozinha para a Maria
-    expect(page).to have_content("JOAO MOTORISTA · QLM1A23")
+    expect(page).to have_css("nav a", text: /Em serviço\s*1/) # mudou sozinha para a Maria
+    click_on "Em serviço"
+    within("tr", text: solicitacao.codigo) { click_on "Visualizar solicitação" }
+    within("[role='dialog']") do
+      expect(page).to have_content("JOAO MOTORISTA · QLM1A23").and have_content("Serviço iniciado")
+      click_on "Fechar"
+    end
 
     Capybara.using_session(:motorista) do
-      click_on "Concluir serviço"
+      click_on "Comigo agora"
+      within("tr", text: solicitacao.codigo) { click_on "Concluir serviço" }
       fill_in "Odômetro final (km) *", with: "12080"
+      fill_in "Observação", with: "Tudo certo no trajeto."
+      print("transporte-servico")
       within("[role='dialog']") { click_on "Concluir serviço" }
       expect(page).to have_css("#avisos", text: "Trecho finalizado.")
-      expect(page).to have_content("30 km rodados")
-      print("transporte-servico")
+      expect(page).to have_css("nav a", text: /Feitos por mim\s*1/)
     end
 
-    expect(page).to have_content("Concluída")
+    expect(page).to have_css("nav a", text: /Concluídas\s*1/)
+    expect(solicitacao.observacoes.sole.corpo).to eq("Tudo certo no trajeto.")
   end
 
   it "no celular a lista do motorista não cria rolagem horizontal" do

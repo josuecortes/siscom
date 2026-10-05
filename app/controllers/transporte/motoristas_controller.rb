@@ -7,7 +7,7 @@ module Transporte
     before_action(only: %i[edit update ativar desativar]) { @motorista = Transporte::Motorista.find(params[:id]) }
 
     def index
-      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(%w[ativo inativo]) || "todos" }
+      @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(%w[ativo inativo todos]) || "ativo" } # abre em "Ativos", como no seed
       motoristas = Transporte::Motorista.ordenados.includes(:user)
       motoristas = motoristas.buscar(@filtros[:q]) if @filtros[:q].present?
       motoristas = motoristas.where(status: @filtros[:status]) unless @filtros[:status] == "todos"

@@ -21,7 +21,7 @@ module Transporte
       @solicitacao = resultado.objeto
 
       if resultado.sucesso?
-        redirect_to transporte_operacao_path(@solicitacao), status: :see_other, notice: "Solicitação #{@solicitacao.codigo} aberta em nome de #{@solicitante.nome}."
+        redirect_to transporte_operacao_index_path, status: :see_other, notice: "Solicitação #{@solicitacao.codigo} aberta em nome de #{@solicitante.nome}."
       else
         @solicitacao.passageiros.build if @solicitacao.passageiros.empty?
         @solicitacao.destinos.build if @solicitacao.destinos.empty?

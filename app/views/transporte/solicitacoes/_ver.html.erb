@@ -1,0 +1,6 @@
+<%# Painel "ver solicitação" (só leitura; as ações ficam na linha da lista). locals: solicitacao, sobretitulo, voltar, observacoes %>
+<% content_for :title, solicitacao.codigo %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: sobretitulo, titulo: "Solicitação #{solicitacao.codigo}", voltar: voltar, largo: true, rodape: render("compartilhado/rodape_fechar") } do %>
+  <%= render "transporte/solicitacoes/detalhes", solicitacao: solicitacao, observacoes: local_assigns[:observacoes] %>
+<% end %>

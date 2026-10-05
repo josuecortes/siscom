@@ -6,7 +6,7 @@ module Transporte
       @papel = Transporte::Solicitacoes::Observar.papel_de(@solicitacao, current_user)
       raise Core::AcessoNegado unless @papel
 
-      @volta = @papel == "tecnico" ? transporte_operacao_path(@solicitacao) : transporte_servico_path(@solicitacao)
+      @volta = @papel == "tecnico" ? transporte_operacao_index_path : transporte_servicos_path
     end
 
     def new

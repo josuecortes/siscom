@@ -42,8 +42,10 @@ RSpec.describe "Transporte: serviços do motorista" do
 
     it "inicia, chega ao destino e depois faz a busca: a solicitação termina concluída" do
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 }
-      get transporte_servico_path(solicitacao)
-      expect(response.body).to include("Em serviço", "Finalizar trecho", "JOAO MOTORISTA", "QLM1A23", "em andamento")
+      ver_no_painel transporte_servico_path(solicitacao)
+      expect(response.body).to include("Em serviço", "JOAO MOTORISTA", "QLM1A23", "em andamento", "Serviço iniciado")
+      get transporte_servicos_path, params: { status: "andamento" }
+      expect(response.body).to include("Finalizar trecho", "Registrar observação")
 
       patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_080 }
       get transporte_servicos_path, params: { status: "buscas" }
@@ -65,7 +67,7 @@ RSpec.describe "Transporte: serviços do motorista" do
       expect(response.body).to include("Levar junto na mesma viagem", outra.codigo, "PEDRO SANTOS")
 
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ] }
-      get transporte_servico_path(outra)
+      ver_no_painel transporte_servico_path(outra)
       expect(response.body).to include("Serviço compartilhado com #{solicitacao.codigo}", "Em serviço")
     end
 
@@ -76,10 +78,43 @@ RSpec.describe "Transporte: serviços do motorista" do
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 }
       post transporte_solicitacao_observacoes_path(solicitacao), params: { corpo: "Trânsito parado na FAB" }
 
-      expect(response).to redirect_to(transporte_servico_path(solicitacao))
-      get transporte_servico_path(solicitacao)
+      expect(response).to redirect_to(transporte_servicos_path)
+      ver_no_painel transporte_servico_path(solicitacao)
       expect(response.body).to include("Observações (1)", "Trânsito parado na FAB", "JOAO MOTORISTA (Motorista)")
     end
+  end
+
+  it "ao finalizar, quem fecha pode deixar uma observação com anexo (anexo só junto com a observação)" do
+    Transporte::Servicos::Iniciar.call(solicitacao: solicitacao, ator: joao, veiculo_id: hilux.id, odometro: 12_050)
+    foto = Rack::Test::UploadedFile.new(StringIO.new("foto"), "image/jpeg", original_filename: "pneu.jpg")
+    sign_in joao
+
+    patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_080, anexos: [ foto ] }
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include("Para enviar anexos, escreva a observação.")
+
+    patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_080, observacao: "Pneu furou", anexos: [ foto ] }
+    expect(solicitacao.reload).to be_busca
+    expect(solicitacao.observacoes.sole).to have_attributes(corpo: "Pneu furou", papel: "motorista", autor: joao)
+    expect(solicitacao.observacoes.sole.anexos.sole.filename.to_s).to eq("pneu.jpg")
+  end
+
+  it "Veículos agora mostra os livres e os que estão em serviço, com motorista e solicitação" do
+    create(:transporte_veiculo, placa: "ABC1D23", marca: "FIAT", modelo: "STRADA")
+    Transporte::Servicos::Iniciar.call(solicitacao: solicitacao, ator: joao, veiculo_id: hilux.id, odometro: 12_050)
+
+    sign_in com_papel("tecnico", "TECNICO")
+    get transporte_veiculos_agora_path
+
+    html = Nokogiri::HTML(response.body)
+    expect(html.css("#veiculos_livres li").map { |item| item.text.squish }).to eq([ "ABC1D23 · FIAT STRADA BRANCA · 4 lugar(es) · 12.000 km" ])
+    expect(html.at_css("#veiculos_em_servico").text.squish).to include("QLM1A23 · TOYOTA HILUX", "JOAO MOTORISTA", "#{solicitacao.codigo} · MARIA OLIVEIRA")
+  end
+
+  it "Veículos agora é só da operação" do
+    sign_in joao
+    get transporte_veiculos_agora_path
+    expect(response).to have_http_status(:forbidden)
   end
 
   it "o solicitante vê o serviço, mas não as observações; a operação vê as duas coisas" do
@@ -87,12 +122,13 @@ RSpec.describe "Transporte: serviços do motorista" do
     Transporte::Solicitacoes::Observar.call(solicitacao: solicitacao, ator: joao, corpo: "Trânsito parado na FAB")
 
     sign_in maria
-    get transporte_solicitacao_path(solicitacao)
-    expect(response.body).to include("Serviço", "JOAO MOTORISTA", "QLM1A23")
+    ver_no_painel transporte_solicitacao_path(solicitacao)
+    expect(response.body).to include("Serviço", "JOAO MOTORISTA", "QLM1A23", "Histórico")
     expect(response.body).not_to include("Trânsito parado na FAB")
 
     sign_in com_papel("tecnico", "TECNICO")
-    get transporte_operacao_path(solicitacao)
-    expect(response.body).to include("Trânsito parado na FAB", "Registrar observação")
+    ver_no_painel transporte_operacao_path(solicitacao)
+    expect(response.body).to include("Trânsito parado na FAB", "Observações (1)")
+    expect(response.body).not_to include("Registrar observação") # as ações ficam na linha da lista
   end
 end

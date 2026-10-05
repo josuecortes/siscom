@@ -15,6 +15,7 @@ module Transporte
     end
 
     def show
+      abrir_sobre(transporte_servicos_path)
     end
 
     def inicio
@@ -33,7 +34,9 @@ module Transporte
 
     def finalizar
       @servico = @solicitacao.servico_aberto
-      responder Transporte::Servicos::Finalizar.call(solicitacao: @solicitacao, ator: current_user, odometro: params[:odometro]), :fim, "Trecho finalizado."
+      responder Transporte::Servicos::Finalizar.call(solicitacao: @solicitacao, ator: current_user, odometro: params[:odometro], observacao: params[:observacao],
+                                                      anexos: params[:anexos]),
+                :fim, "Trecho finalizado."
     end
 
     # Veículos ativos e livres, para o campo de busca (JSON).
@@ -71,7 +74,7 @@ module Transporte
 
     def responder(resultado, tela, aviso)
       if resultado.sucesso?
-        concluir_painel(aviso: aviso, voltar_para: transporte_servico_path(@solicitacao))
+        concluir_painel(aviso: aviso, voltar_para: transporte_servicos_path)
       else
         @erro = resultado.mensagem_de_erro
         carregar_candidatas if tela == :inicio

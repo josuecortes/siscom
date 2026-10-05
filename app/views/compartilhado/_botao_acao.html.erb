@@ -2,10 +2,10 @@
     locals: titulo, icone, e UM destes:
       caminho + quadro  -> link que abre num turbo-frame (ex.: "painel")
       caminho + metodo  -> button_to (com confirmar: { mensagem:, rotulo:, tom: } opcional)
-    desabilitado: true mostra o botão apagado. Sem `quadro`, usa "_top". %>
+    desabilitado: true mostra o botão apagado. Sem `quadro`, usa "_top". perigo: true pinta de vermelho (cancelar, excluir). %>
 <%# Fora de um quadro específico, a ação vale para a página inteira (mesmo dentro de um turbo-frame de listagem). %>
 <% quadro = local_assigns[:quadro] || "_top" %>
-<% classe = "inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)]" %>
+<% classe = "inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border-subtle)] #{local_assigns[:perigo] ? "text-[var(--danger-text)]" : "text-[var(--text-secondary)]"}" %>
 <% if local_assigns[:desabilitado] %>
   <span class="<%= classe %> cursor-not-allowed opacity-50" title="<%= titulo %>" aria-label="<%= titulo %>" aria-disabled="true"><%= icone(icone) %></span>
 <% elsif local_assigns[:metodo] %>

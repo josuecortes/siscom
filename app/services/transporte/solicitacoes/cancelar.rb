@@ -1,7 +1,7 @@
 module Transporte
   module Solicitacoes
     # Cancela a solicitação, com motivo (porta de requests/cancel_service.rb do seed): a operação
-    # cancela enquanto não terminou; o solicitante, só enquanto está solicitada ou aprovada.
+    # cancela enquanto não terminou; o solicitante, só antes de o serviço começar.
     class Cancelar
       def self.call(...) = new(...).call
 
@@ -14,13 +14,14 @@ module Transporte
       def call
         return falha("Você não pode cancelar esta solicitação.") unless da_operacao? || do_solicitante?
         return falha("Esta solicitação já terminou e não pode ser cancelada.") if @solicitacao.concluida? || @solicitacao.cancelada?
-        unless da_operacao? || @solicitacao.solicitada? || @solicitacao.aprovada?
+        unless da_operacao? || @solicitacao.antes_do_servico?
           return falha("O serviço já começou: só o setor de transporte pode cancelar agora.")
         end
         return falha("Motivo deve ser preenchido.") unless @motivo
 
         Transporte::Solicitacao.transaction do
           @solicitacao.update!(status: "cancelada", cancelada_por: @ator, cancelada_em: Time.current, motivo_cancelamento: @motivo)
+          @solicitacao.registrar_evento("cancelada", @ator, "Motivo: #{@motivo}")
           Core::Api.auditar(evento: "transporte.solicitacao.cancelada", alvo: @solicitacao, ator: @ator, dados: { codigo: @solicitacao.codigo, motivo: @motivo })
         end
         avisar

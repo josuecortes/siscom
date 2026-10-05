@@ -6,7 +6,7 @@
 <% end %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Transporte", titulo: "Cancelar #{@solicitacao.codigo}", voltar: transporte_solicitacao_path(@solicitacao), rodape: rodape,
+      locals: { sobretitulo: "Transporte", titulo: "Cancelar #{@solicitacao.codigo}", voltar: transporte_solicitacoes_path, rodape: rodape,
                 descricao: "A solicitação é encerrada e o transporte não é feito. O setor de transporte é avisado." } do %>
   <%= form_with url: cancelar_transporte_solicitacao_path(@solicitacao), method: :patch, id: "formulario_cancelamento", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

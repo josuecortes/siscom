@@ -53,7 +53,7 @@ RSpec.describe "Transporte com as medidas do seed", :js do
 
       visit reagendamento_transporte_operacao_path(pedido)
       expect(titulos_do_painel).to eq([ "transporte", "Reagendar #{pedido.codigo}" ])
-      expect(page).to have_button("Salvar horários")
+      expect(page).to have_button("Enviar reagendamento")
 
       visit new_transporte_solicitacao_observacao_path(pedido)
       expect(titulos_do_painel).to eq([ "transporte", "Observação · #{pedido.codigo}" ])
@@ -82,8 +82,8 @@ RSpec.describe "Transporte com as medidas do seed", :js do
       pedido = solicitacao(modo: "so_deixar", busca_horas: nil)
       Transporte::Servicos::Iniciar.call(solicitacao: pedido, ator: admin, veiculo_id: veiculo.id, odometro: 12_050)
 
-      visit transporte_servico_path(pedido)
-      click_on "Concluir serviço"
+      visit transporte_servicos_path(status: "andamento")
+      within("tr", text: pedido.codigo) { click_on "Concluir serviço" }
       expect(titulos_do_painel).to eq([ "transporte", "Concluir serviço #{pedido.codigo}" ])
     end
   end
@@ -143,6 +143,26 @@ RSpec.describe "Transporte com as medidas do seed", :js do
     end
   end
 
+  describe "ver a solicitação" do
+    it "abre num painel de 768 px por cima da lista, só para leitura, com o histórico" do
+      pedido = Transporte::Solicitacoes::Abrir.call(user: maria, aberto_por: admin, fora_do_padrao: true,
+                                                    atributos: { tipo: "normal", modo: "so_deixar", resumo: "Reunião na SEAD", saida_em: 2.hours.from_now,
+                                                                 passageiros: [ { cpf: "529.982.247-25", nome: "Maria" } ],
+                                                                 destinos: [ { nome: "SEAD", logradouro: "Avenida FAB", numero: "96", bairro: "Central", cidade: "Macapá", uf: "AP" } ] }).objeto
+      visit transporte_operacao_index_path
+
+      within("tr", text: pedido.codigo) { click_on "Visualizar solicitação" }
+      expect(titulos_do_painel).to eq([ "operação", "Solicitação #{pedido.codigo}" ])
+      expect(page).to have_current_path(transporte_operacao_index_path) # continua na lista
+      expect(retangulo(painel)["largura"]).to eq(768)
+      within(painel) do
+        expect(page).to have_content("Histórico").and have_content("Solicitação aberta").and have_content("Observações (0)")
+        expect(all("a, button").map { |item| item.text.presence || item[:"aria-label"] }).to eq([ "×", "Fechar" ]) # nenhuma ação dentro do painel
+      end
+      print("transporte-medidas-ver-solicitacao")
+    end
+  end
+
   describe "painel de acompanhamento" do
     before { Transporte::Configuracao.atual.update!(senha_do_painel: "painel123") }
 
@@ -190,12 +210,17 @@ RSpec.describe "Transporte com as medidas do seed", :js do
       print("transporte-medidas-nova-solicitacao-celular")
     end
 
-    it "a página da solicitação e os relatórios cabem na tela" do
+    it "ver a solicitação abre no painel de altura inteira (nunca numa página) e os relatórios cabem na tela" do
       pedido = solicitacao
-      visit transporte_operacao_path(pedido)
-      expect(tamanhos(voltar: "main section a[title='Voltar']")).to eq(voltar: [ 36, 36 ])
-      expect(retangulo("main dl > div:nth-child(1)")).to include("x" => 41, "largura" => 308)
+      visit transporte_operacao_path(pedido) # aberto direto pela URL: vai para a lista, que abre o painel
+      expect(page).to have_current_path(transporte_operacao_index_path(status: "aprovada"))
+      expect(titulos_do_painel).to eq([ "operação", "Solicitação #{pedido.codigo}" ])
+      expect(retangulo(painel)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      expect(retangulo("#resumo_da_solicitacao dl > div:nth-child(1)")).to include("largura" => 317.8)
+      expect(sem_rolagem_horizontal?).to be(true)
       print("transporte-medidas-operacao-solicitacao-celular")
+      within(painel) { click_on "Fechar" }
+      expect(page).to have_no_css(painel)
 
       visit transporte_relatorios_path
       expect(tamanhos(exportar: "main section a[title='Exportar Excel']")).to eq(exportar: [ 36, 36 ])

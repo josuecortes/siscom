@@ -1,10 +1,13 @@
 # Rotas do módulo Transporte.
 namespace :transporte do
   # Solicitações do solicitante.
-  resources :solicitacoes, only: %i[index show new create] do
+  resources :solicitacoes, only: %i[index show new create edit update] do
     member do
       get :cancelamento
       patch :cancelar
+      # O solicitante aceita ou recusa o reagendamento proposto pela operação.
+      get :reagendamento
+      patch :responder_reagendamento
     end
   end
   # Operação: o técnico vê todas, aprova, cancela, reagenda e abre em nome de outra pessoa.
@@ -42,6 +45,8 @@ namespace :transporte do
       end
     end
   end
+  # Veículos agora: quais estão livres e quais estão em serviço (o lugar do antigo "pátio").
+  resource :veiculos_agora, only: :show, path: "veiculos-agora", controller: "veiculos_agora"
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
   resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
   resource :relatorios, only: :show

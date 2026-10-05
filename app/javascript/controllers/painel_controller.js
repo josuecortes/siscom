@@ -12,6 +12,12 @@ export default class extends Controller {
     if (this.hasMioloTarget) this.mioloTarget.scrollTop = 0
     // O navegador não aplica o atributo autofocus em conteúdo que chega por turbo-frame.
     this.element.querySelector("[autofocus]")?.focus({ preventScroll: true })
+    // Aberto por ?painel=/caminho: tira o parâmetro do endereço, senão um refresh reabriria o painel.
+    const endereco = new URL(window.location.href)
+    if (endereco.searchParams.has("painel")) {
+      endereco.searchParams.delete("painel")
+      window.history.replaceState(window.history.state, "", endereco)
+    }
   }
 
   disconnect() {
