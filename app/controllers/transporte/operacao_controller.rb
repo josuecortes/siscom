@@ -8,7 +8,7 @@ module Transporte
 
     # Ordem da lista, escolhida no cabeçalho das colunas de data: quem sai primeiro, ou quem pediu primeiro.
     ORDENS = { "saida" => "saida_em", "pedido" => "created_at" }.freeze
-    FILTROS = %i[q tipo unidade pedido_de pedido_ate saida_de saida_ate].freeze
+    FILTROS = %i[q tipo unidade_id pedido_de pedido_ate saida_de saida_ate].freeze
 
     before_action { pode!(Transporte::Solicitacoes::Reagendar::PERMISSAO) }
     before_action(except: :index) { @solicitacao = Transporte::Solicitacao.find(params[:id]) }
@@ -19,7 +19,7 @@ module Transporte
       @contagens = solicitacoes.group(:status).count
       # Com algum filtro, as abas viram uma só ("Resultado"), com todas as etapas; a etapa vira coluna.
       solicitacoes = solicitacoes.where(status: @filtros[:status]) unless @filtros[:filtrando]
-      @unidades = Transporte::Solicitacao.where.not(unidade_nome: [ nil, "" ]).distinct.order(:unidade_nome).pluck(:unidade_nome)
+      @unidade = Rh::Api.unidade(@filtros[:unidade_id]) if @filtros[:unidade_id]
       @pagy, @solicitacoes = pagy(:offset, solicitacoes.order(ordem).includes(:destinos), limit: POR_PAGINA)
     end
 
@@ -54,7 +54,7 @@ module Transporte
     private
 
     def filtros
-      valores = { q: params[:q].to_s.strip, tipo: params[:tipo].presence_in(Transporte::Solicitacao::TIPOS.keys), unidade: params[:unidade].to_s.strip.presence }
+      valores = { q: params[:q].to_s.strip, tipo: params[:tipo].presence_in(Transporte::Solicitacao::TIPOS.keys), unidade_id: params[:unidade_id].presence&.to_i }
       %i[pedido_de pedido_ate saida_de saida_ate].each { |campo| valores[campo] = DataBr.interpretar(params[campo]) }
       valores.merge(status: params[:status].presence_in(ABAS.keys) || "solicitada", ordem: params[:ordem].presence_in(ORDENS.keys) || "saida", direcao: params[:direcao].presence_in(%w[asc desc]) || "asc",
                     filtrando: valores.values.any?(&:present?))
@@ -71,7 +71,7 @@ module Transporte
       f = @filtros
       solicitacoes = solicitacoes.buscar(f[:q]) if f[:q].present?
       solicitacoes = solicitacoes.where(tipo: f[:tipo]) if f[:tipo]
-      solicitacoes = solicitacoes.where(unidade_nome: f[:unidade]) if f[:unidade]
+      solicitacoes = solicitacoes.where(rh_unidade_id: f[:unidade_id]) if f[:unidade_id]
       solicitacoes = solicitacoes.where(created_at: periodo(f[:pedido_de], f[:pedido_ate])) if f[:pedido_de] || f[:pedido_ate]
       solicitacoes = solicitacoes.where(saida_em: periodo(f[:saida_de], f[:saida_ate])) if f[:saida_de] || f[:saida_ate]
       solicitacoes

@@ -45,6 +45,7 @@ namespace :transporte do
       end
     end
   end
+  get "opcoes/unidades", to: "opcoes#unidades", as: :opcoes_de_unidades, defaults: { format: :json }
   # Veículos agora: quais estão livres e quais estão em serviço (o lugar do antigo "pátio").
   resource :veiculos_agora, only: :show, path: "veiculos-agora", controller: "veiculos_agora"
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.

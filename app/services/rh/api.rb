@@ -27,6 +27,18 @@ module Rh
       registro && unidade_de(registro)
     end
 
+    # Opções para um campo de busca de unidade (regra dos campos de busca: com 3 letras ou mais, o que
+    # combina; se nada combina, a lista em ordem alfabética). Devolve { opcoes:, todas:, restantes: }.
+    def opcoes_de_unidades(termo, limite: 50)
+      ativas = Rh::Unidade.ativo.ordenadas
+      achadas = termo.to_s.squish.length >= 3 ? ativas.buscar(termo) : ativas.none
+      todas = achadas.none?
+      escolhidas = todas ? ativas : achadas
+
+      { opcoes: escolhidas.limit(limite).map { |registro| { valor: registro.id, rotulo: unidade_de(registro).sigla_e_nome } }, todas: todas,
+        restantes: [ escolhidas.count - limite, 0 ].max }
+    end
+
     def buscar_unidades(termo, limite: 20)
       Rh::Unidade.ativo.buscar(termo).ordenadas.limit(limite.to_i.clamp(1, 50)).map { |registro| unidade_de(registro) }
     end

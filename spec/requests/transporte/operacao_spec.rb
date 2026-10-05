@@ -50,10 +50,11 @@ RSpec.describe "Transporte: operação" do
     describe "ordem, tipo e filtros da lista" do
       let!(:viagem) do # pedida depois, mas sai antes
         pedro = com_papel("solicitante", "PEDRO SANTOS")
+        nuinfo = create(:rh_unidade, nome: "Núcleo de Informática", sigla: "NUINFO")
         travel_to(Time.zone.local(2026, 10, 5, 9, 0)) do
           Transporte::Solicitacao.new(tipo: "viagem", modo: "so_deixar", status: "solicitada", resumo: "Viagem a Oiapoque", saida_em: Time.zone.local(2026, 10, 7, 6, 0),
                                       retorno_em: Time.zone.local(2026, 10, 9, 18, 0), solicitante: pedro, solicitante_nome: pedro.nome, solicitante_email: pedro.email,
-                                      unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA").tap { |s| s.save!(validate: false) }
+                                      rh_unidade_id: nuinfo.id, unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA").tap { |s| s.save!(validate: false) }
         end
       end
 
@@ -102,10 +103,21 @@ RSpec.describe "Transporte: operação" do
       it "filtra por tipo, unidade de quem pediu, data do pedido e data de saída" do
         resultado = ->(filtros) { get(transporte_operacao_index_path, params: filtros) && codigos }
 
-        expect([ resultado.call(tipo: "viagem"), resultado.call(unidade: "NUINFO - NÚCLEO DE INFORMÁTICA"), resultado.call(pedido_de: "05/10/2026", pedido_ate: "05/10/2026"),
+        expect([ resultado.call(tipo: "viagem"), resultado.call(unidade_id: viagem.rh_unidade_id), resultado.call(pedido_de: "05/10/2026", pedido_ate: "05/10/2026"),
                  resultado.call(saida_de: "08/10/2026"), resultado.call(saida_ate: "07/10/2026"), resultado.call(tipo: "normal", saida_ate: "07/10/2026") ])
           .to eq([ [ viagem.codigo ], [ viagem.codigo ], [ viagem.codigo, solicitacao.codigo ], [ solicitacao.codigo ], [ viagem.codigo ], [] ])
-        expect(Nokogiri::HTML(response.body).at_css("[data-controller='autocomplete']")["data-autocomplete-opcoes-value"]).to include("NUINFO")
+      end
+
+      it "a unidade é um campo de busca: com 3 letras filtra; se nada combina, lista em ordem alfabética" do
+        create(:rh_unidade, nome: "Assessoria Jurídica", sigla: "ASJUR")
+        opcoes = ->(termo) { get(transporte_opcoes_de_unidades_path, params: { q: termo }) && [ response.parsed_body["opcoes"].pluck("rotulo"), response.parsed_body["todas"] ] }
+
+        expect([ opcoes.call("nui"), opcoes.call("xyz"), opcoes.call("nu") ])
+          .to eq([ [ [ "NUINFO - NÚCLEO DE INFORMÁTICA" ], false ], [ [ "ASJUR - ASSESSORIA JURÍDICA", "NUINFO - NÚCLEO DE INFORMÁTICA" ], true ],
+                   [ [ "ASJUR - ASSESSORIA JURÍDICA", "NUINFO - NÚCLEO DE INFORMÁTICA" ], true ] ])
+        get transporte_operacao_index_path, params: { unidade_id: viagem.rh_unidade_id }
+        campo = Nokogiri::HTML(response.body).at_css("[data-controller='autocomplete']")
+        expect([ campo["data-autocomplete-url-value"], campo.at_css("input[role='combobox']")["value"] ]).to eq([ "/transporte/opcoes/unidades", "NUINFO - NÚCLEO DE INFORMÁTICA" ])
       end
 
       it "sem filtro, voltam as abas e a coluna Etapa some" do

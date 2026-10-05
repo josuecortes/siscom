@@ -21,7 +21,7 @@
       A ordem não é filtro: vale também nas abas. "Limpar filtros" devolve as abas. %>
   <%= form_with url: transporte_operacao_index_path, method: :get, id: "filtros_da_operacao", class: "border-b border-[var(--border-subtle)] px-6 py-5",
         data: { controller: "filtro", turbo_frame: "operacao_lista", turbo_action: "advance" } do |f| %>
-    <% extras = @filtros.slice(:tipo, :unidade, :pedido_de, :pedido_ate, :saida_de, :saida_ate).values.count(&:present?) %>
+    <% extras = @filtros.slice(:tipo, :unidade_id, :pedido_de, :pedido_ate, :saida_de, :saida_ate).values.count(&:present?) %>
     <%# No celular só a busca fica à vista; os outros campos recolhem atrás de "Mais filtros" (a partir de md aparecem sempre). %>
     <div class="space-y-4" data-controller="recolher">
       <div class="flex items-end gap-2">
@@ -54,9 +54,10 @@
           <%= f.select :tipo, [ [ "Todos", "" ] ] + Transporte::Solicitacao::TIPOS.invert.to_a, { selected: @filtros[:tipo] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
         </div>
         <div class="mb-4 md:mb-0">
-          <%= render "compartilhado/campo_autocomplete", nome: "unidade", id: "filtro_unidade", rotulo: "Unidade de quem pediu", flutuante: true,
-                opcoes: @unidades.map { |nome| { valor: nome, rotulo: nome } }, valor: @filtros[:unidade], texto: @filtros[:unidade],
-                acao: "change->filtro#aplicar", placeholder: "Todas", vazio: "Nenhuma unidade nas solicitações." %>
+          <%# Campo de busca padrão (com 3 letras filtra; se nada combina, lista em ordem alfabética), com as unidades do RH. %>
+          <%= render "compartilhado/campo_autocomplete", nome: "unidade_id", id: "filtro_unidade", rotulo: "Unidade de quem pediu", flutuante: true,
+                url: transporte_opcoes_de_unidades_path, valor: @filtros[:unidade_id], texto: @unidade&.sigla_e_nome,
+                acao: "change->filtro#aplicar", placeholder: "Digite para buscar a unidade", vazio: "Nenhuma unidade cadastrada." %>
         </div>
         <div class="mb-4 grid grid-cols-2 gap-4 md:contents">
           <% campo_de_data.call(:pedido_de, "Pedido de") %>
