@@ -46,16 +46,32 @@ RSpec.describe "TI: operação" do
       expect(response.body).to include("1 chamado(s) encontrado(s)", "Em trabalho", "JOAO TECNICO")
     end
 
-    it "mostra o chamado com as ações que cabem a ele em cada etapa" do
-      get ti_operacao_path(chamado)
-      expect(response.body).to include("O que fazer", "Assumir chamado")
-      expect(response.body).not_to include("Concluir atendimento", "Atribuir a alguém")
+    it "a linha da lista traz as ações que cabem a ele em cada etapa; ver é só leitura, no painel" do
+      acoes_da_linha = -> { Nokogiri::HTML(response.body).css("tbody td:last-child [title]").pluck("title") }
+
+      get ti_operacao_index_path
+      expect(acoes_da_linha.call).to eq([ "Visualizar chamado", "Assumir chamado" ])
 
       post acao_ti_operacao_path(chamado, "assumir")
-      expect(response).to redirect_to(ti_operacao_path(chamado))
-      get ti_operacao_path(chamado)
-      expect(response.body).to include("Concluir atendimento", "Pedir ajuste ao solicitante", "Marcar impedimento", "Liberar chamado", "Mudar prioridade",
-                                       "Chamado assumido para atendimento por JOAO TECNICO.")
+      expect(response).to redirect_to(ti_operacao_index_path)
+      get ti_operacao_index_path, params: { status: "meus" }
+      expect(acoes_da_linha.call).to eq([ "Visualizar chamado", "Abrir conversa", "Mudar etapa", "Mudar prioridade" ])
+
+      ver_no_painel ti_operacao_path(chamado)
+      expect(response.body).to include("Chamado #{chamado.codigo}", "Chamado assumido para atendimento por JOAO TECNICO.")
+      expect(response.body).not_to include("Concluir atendimento", "O que fazer")
+    end
+
+    it "Mudar etapa mostra as mudanças possíveis, e cada uma abre o painel da ação" do
+      get etapa_ti_operacao_path(chamado)
+      expect(response).to have_http_status(:forbidden) # ninguém assumiu: não há etapa para mudar
+
+      post acao_ti_operacao_path(chamado, "assumir")
+      get etapa_ti_operacao_path(chamado)
+
+      opcoes = Nokogiri::HTML(response.body).css("#etapas_do_chamado a")
+      expect(opcoes.map { |opcao| opcao.text.squish }).to eq([ "Pedir ajuste ao solicitante", "Marcar impedimento", "Concluir atendimento", "Liberar chamado" ])
+      expect(opcoes.map { |opcao| opcao["href"] }).to include(acao_ti_operacao_path(chamado, "concluir"))
     end
 
     it "conclui pelo painel, exigindo o resultado do atendimento" do
@@ -102,17 +118,18 @@ RSpec.describe "TI: operação" do
     end
 
     it "vê o pedido de ajuste no chamado e responde pelo painel" do
-      get ti_chamado_path(chamado)
-      expect(response.body).to include("A TI precisa de uma resposta sua", "Qual é a sala?", "Ajustar solicitação")
+      ver_no_painel ti_chamado_path(chamado)
+      expect(response.body).to include("A TI pediu um ajuste ao solicitante: Qual é a sala?")
+      get ti_chamados_path, params: { status: "aguardando_solicitante" }
+      expect(response.body).to include("Responder à TI", "Corrigir os dados e reenviar")
 
       patch responder_ti_chamado_path(chamado), params: { nota: "" }
-      expect(response).to have_http_status(:unprocessable_content)
-
+      sem_resposta = response.status
       patch responder_ti_chamado_path(chamado), params: { nota: "Sala 12." }
-      expect(chamado.reload.status).to eq("em_atendimento")
-      get ti_chamado_path(chamado)
+      expect([ sem_resposta, chamado.reload.status ]).to eq([ 422, "em_atendimento" ])
+      ver_no_painel ti_chamado_path(chamado)
       expect(response.body).to include("Solicitante respondeu: Sala 12.")
-      expect(response.body).not_to include("A TI precisa de uma resposta sua")
+      expect(response.body).not_to include("A TI pediu um ajuste")
     end
   end
 end

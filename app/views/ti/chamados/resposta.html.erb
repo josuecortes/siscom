@@ -2,7 +2,7 @@
 <% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_resposta", rotulo: "Enviar resposta" } %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Ajustar solicitação", titulo: "Responder #{@chamado.codigo}", voltar: ti_chamado_path(@chamado), rodape: rodape,
+      locals: { sobretitulo: "Ajustar solicitação", titulo: "Responder #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
                 descricao: @chamado.nota_triagem } do %>
   <%= form_with url: responder_ti_chamado_path(@chamado), method: :patch, id: "formulario_resposta", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

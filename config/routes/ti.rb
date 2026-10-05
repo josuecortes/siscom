@@ -14,6 +14,7 @@ namespace :ti do
   # Operação: os chamados que triadores, técnicos e supervisão pegam e atendem.
   resources :operacao, only: %i[index show], controller: "operacao" do
     member do
+      get :etapa # escolhe a mudança de etapa (as ações ficam na linha da lista)
       get "acoes/:acao", action: :acao, as: :acao
       post "acoes/:acao", action: :executar
     end

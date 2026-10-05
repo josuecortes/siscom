@@ -4,7 +4,7 @@
 <% entrada = "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Finalizar chamado", titulo: "Finalizar #{@chamado.codigo}", voltar: ti_chamado_path(@chamado), rodape: rodape,
+      locals: { sobretitulo: "Finalizar chamado", titulo: "Finalizar #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
                 descricao: "Sua avaliação ajuda a TI a melhorar o atendimento." } do %>
   <%= form_with url: finalizar_ti_chamado_path(@chamado), method: :patch, id: "formulario_finalizacao", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

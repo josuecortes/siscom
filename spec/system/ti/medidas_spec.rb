@@ -181,7 +181,9 @@ RSpec.describe "TI com as medidas do seed", :js do
       expect(tamanhos(selo: selo)[:selo].last).to eq(24)
 
       within(linha) { click_on chamado.codigo }
-      expect(page).to have_css("h1", text: "Chamado #{chamado.codigo}")
+      expect(titulos_do_painel).to eq([ "solicitações de ti", "Chamado #{chamado.codigo}" ])
+      expect(retangulo(painel)["largura"]).to eq(768)
+      expect(page).to have_current_path(ti_chamados_path) # continua na lista
     end
 
     it "o painel Abrir chamado começa direto nos campos, com 44 px, e os painéis do chamado usam \"<ação> <código>\"" do
@@ -225,17 +227,17 @@ RSpec.describe "TI com as medidas do seed", :js do
       print("ti-operacao")
     end
 
-    it "no celular a lista, a página do chamado e o painel de abertura não criam rolagem horizontal" do
+    it "no celular a lista, o painel do chamado e o painel de abertura não criam rolagem horizontal" do
       usar_tela_de_celular
       visit ti_chamados_path
       expect(tamanhos(abrir: "main section a[title='Abrir chamado']")).to eq(abrir: [ 36, 36 ])
       expect(sem_rolagem_horizontal?).to be(true)
       print("ti-chamados-celular")
 
-      visit ti_chamado_path(chamado)
-      expect(page).to have_content("Ninguém pegou este chamado ainda")
-      expect(tamanhos(voltar: "main section a[title='Voltar']")).to eq(voltar: [ 36, 36 ])
-      expect(retangulo("main dl > div:nth-child(1)")).to include("x" => 41, "largura" => 308)
+      visit ti_chamado_path(chamado) # aberto direto pela URL: vai para a lista, que abre o painel
+      expect(page).to have_css("#{painel} h2", text: "Chamado #{chamado.codigo}")
+      expect(retangulo(painel)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      expect(retangulo("#resumo_do_chamado dl > div:nth-child(1)")).to include("largura" => 317.8)
       expect(sem_rolagem_horizontal?).to be(true)
       print("ti-chamado-celular")
 

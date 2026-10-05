@@ -51,7 +51,7 @@ RSpec.describe "TI: abrir chamado", :js do
       expect(page).to have_content("SIGDOC - SOLICITAR ACESSO").and have_content("Aberto")
       click_on "Visualizar chamado"
     end
-    expect(page).to have_css("h1", text: "Chamado #{chamado.codigo}")
+    expect(page).to have_css("[role='dialog'] h2", text: "Chamado #{chamado.codigo}") # "ver" abre no painel
     expect(page).to have_content("Ana Paula").and have_content("(96) 99123-4567").and have_content("NÚCLEO DE INFORMÁTICA").and have_content("Editor")
     print("ti-chamado")
   end
@@ -101,7 +101,7 @@ RSpec.describe "TI: abrir chamado", :js do
     click_on "Abrir chamado"
 
     expect(page).to have_css("#avisos", text: /aberto em nome de MARIA OLIVEIRA\./)
-    expect(page).to have_css("h1", text: "Chamado #{Ti::Chamado.sole.codigo}")
+    expect(page).to have_css("[role='dialog'] h2", text: "Chamado #{Ti::Chamado.sole.codigo}")
     expect(page).to have_content("JOAO TECNICO (em nome do solicitante)")
     expect(Ti::Chamado.sole).to have_attributes(solicitante: maria, aberto_por: tecnico)
   end

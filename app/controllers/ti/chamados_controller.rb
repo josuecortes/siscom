@@ -26,6 +26,7 @@ module Ti
       @chamado = Ti::Chamado.where(solicitante: current_user).or(Ti::Chamado.where(aberto_por: current_user)).find(params[:id])
       @valores = @chamado.valores.em_ordem.with_attached_arquivos
       @eventos = @chamado.eventos.em_ordem
+      abrir_sobre(ti_chamados_path(status: @chamado.status))
     end
 
     # Resposta do solicitante ao pedido de ajuste da operação.
@@ -36,7 +37,7 @@ module Ti
       resultado = Ti::Chamados::Responder.call(chamado: @chamado, user: current_user, nota: params[:nota])
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Resposta enviada. O chamado #{@chamado.codigo} voltou para a TI.", voltar_para: ti_chamado_path(@chamado))
+        concluir_painel(aviso: "Resposta enviada. O chamado #{@chamado.codigo} voltou para a TI.", voltar_para: ti_chamados_path)
       else
         @erro = resultado.mensagem_de_erro
         render :resposta, status: :unprocessable_content
@@ -55,7 +56,7 @@ module Ti
       resultado = Ti::Chamados::Ajustar.call(chamado: @chamado, user: current_user, respostas: params[:campos])
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Chamado #{@chamado.codigo} atualizado.", voltar_para: ti_chamado_path(@chamado))
+        concluir_painel(aviso: "Chamado #{@chamado.codigo} atualizado.", voltar_para: ti_chamados_path)
       else
         raise Core::AcessoNegado if resultado.objeto.nil?
 
@@ -108,7 +109,7 @@ module Ti
 
     def encerrar(resultado, tela, aviso)
       if resultado.sucesso?
-        concluir_painel(aviso: aviso, voltar_para: ti_chamado_path(@chamado))
+        concluir_painel(aviso: aviso, voltar_para: ti_chamados_path)
       else
         @erro = resultado.mensagem_de_erro
         render tela, status: :unprocessable_content

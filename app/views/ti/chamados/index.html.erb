@@ -52,19 +52,19 @@
             <th scope="col">Aberto em</th>
             <th scope="col">Status</th>
             <th scope="col">Responsável</th>
-            <th scope="col">Ações</th>
+            <th scope="col" class="!pl-2">Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @chamados.each do |chamado| %>
             <tr id="<%= dom_id(chamado) %>">
               <td class="font-semibold text-[var(--text-primary)]">
-                <%= link_to chamado.codigo, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                <%= link_to chamado.codigo, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
               </td>
               <td>
                 <div class="min-w-0">
                   <p class="truncate font-semibold text-[var(--text-primary)]">
-                    <%= link_to chamado.problema.nome, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                    <%= link_to chamado.problema.nome, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
                   </p>
                   <% if chamado.unidade_nome.present? %><p class="truncate text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
                 </div>
@@ -72,7 +72,7 @@
               <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
               <td><%= selo_do_status(chamado) %></td>
               <td><%= chamado.responsavel&.nome || "Não atribuído" %></td>
-              <td><%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :eye, caminho: ti_chamado_path(chamado) %></td>
+              <td class="!pl-2 !pr-4"><%= render "ti/chamados/acoes", chamado: chamado, visao: :solicitante %></td>
             </tr>
           <% end %>
           <% if @chamados.empty? %>

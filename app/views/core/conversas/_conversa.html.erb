@@ -1,9 +1,11 @@
 <%# A conversa de um registro, na página dele. locals: conversa (Core::Api.conversa_de(alvo), pode ser nil),
     ver_sem_participar (bool: supervisão lê o histórico sem participar).
     Quem participa conversa pelo ícone flutuante: aqui aparece só o botão que abre o painel nela.
-    Quem não participa e não supervisiona não vê nada. %>
+    Quem não participa e não supervisiona não vê nada.
+    sem_botao: true esconde o botão de quem participa (no painel de "ver", o botão fica na linha da lista). %>
 <% participante = conversa&.participante(current_user) %>
-<% if conversa && participante&.pode_ler? %>
+<% if conversa && participante&.pode_ler? && local_assigns[:sem_botao] %>
+<% elsif conversa && participante&.pode_ler? %>
   <% nao_lidas = participante.nao_lidas %>
   <section class="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] px-6 py-5 shadow-[var(--shadow-card)]">
     <div>

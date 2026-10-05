@@ -11,7 +11,10 @@ module Ti
               "atribuir" => "atribuído", "reabrir" => "reaberto", "prioridade" => "prioridade alterada" }.freeze
 
     before_action { raise Core::AcessoNegado unless Ti::Chamados::Acesso.opera?(current_user) }
-    before_action :carregar_chamado, only: %i[show acao executar]
+    # Mudanças de etapa: na linha da lista ficam atrás de um botão só ("Mudar etapa", como o "Trocar estágio" do seed).
+    ETAPAS = %w[encaminhar devolver impedir concluir liberar reabrir].freeze
+
+    before_action :carregar_chamado, only: %i[show etapa acao executar]
 
     def index
       @filtros = { q: params[:q].to_s.strip, status: params[:status].presence_in(VISOES.keys) || "disponiveis" }
@@ -23,7 +26,13 @@ module Ti
     def show
       @valores = @chamado.valores.em_ordem.with_attached_arquivos
       @eventos = @chamado.eventos.em_ordem
-      @acoes = Ti::Chamados::Operar.disponiveis(@chamado, current_user)
+      abrir_sobre(ti_operacao_index_path(status: (@chamado.em_andamento? ? "andamento" : "encerrados")))
+    end
+
+    # Painel que mostra as mudanças de etapa possíveis; cada uma abre o painel da ação.
+    def etapa
+      @acoes = Ti::Chamados::Operar.disponiveis(@chamado, current_user).select { |acao| ETAPAS.include?(acao.chave) }
+      raise Core::AcessoNegado if @acoes.empty?
     end
 
     # Painel da ação (as que pedem uma anotação, um destinatário ou a prioridade).
@@ -38,13 +47,13 @@ module Ti
                                             alvo: ::User.ativos.find_by(id: params[:alvo_id]), prioridade: params[:prioridade])
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Chamado #{@chamado.codigo}: #{FEITO.fetch(@acao.chave)}.", voltar_para: ti_operacao_path(@chamado))
+        concluir_painel(aviso: "Chamado #{@chamado.codigo}: #{FEITO.fetch(@acao.chave)}.", voltar_para: ti_operacao_index_path)
       elsif @acao.pede_nota
         @erro = resultado.mensagem_de_erro
         @operadores = Ti::Chamados::Acesso.operadores_do(@chamado).pluck(:nome, :id) if @acao.chave == "atribuir"
         render :acao, status: :unprocessable_content
       else
-        redirect_to ti_operacao_path(@chamado), status: :see_other, alert: resultado.mensagem_de_erro
+        redirect_back_or_to ti_operacao_index_path, status: :see_other, alert: resultado.mensagem_de_erro
       end
     end
 

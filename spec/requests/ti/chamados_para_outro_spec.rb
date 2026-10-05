@@ -31,18 +31,18 @@ RSpec.describe "TI: abrir chamado em nome de outra pessoa" do
       abrir(internet)
 
       chamado = Ti::Chamado.sole
-      expect(response).to redirect_to(ti_chamado_path(chamado))
+      expect(response).to redirect_to(ti_chamado_path(chamado)) # que abre no painel, por cima da lista
       expect(chamado).to have_attributes(solicitante: maria, solicitante_nome: "MARIA OLIVEIRA", aberto_por: tecnico)
       expect(chamado.eventos.sole).to have_attributes(ator: tecnico, nota: "Chamado aberto por JOAO TECNICO em nome de MARIA OLIVEIRA.")
       expect(maria.notificacoes.sole).to have_attributes(titulo: "Chamado aberto em seu nome")
       expect(Core::RegistroAuditoria.recentes.first).to have_attributes(evento: "chamado.aberto", ator: tecnico, dados: include("em_nome_de" => maria.id))
     end
 
-    it "a pessoa vê o chamado em Meus chamados; quem abriu também consegue abrir a página dele" do
+    it "a pessoa vê o chamado em Meus chamados; quem abriu também consegue ver o chamado" do
       abrir(internet)
       chamado = Ti::Chamado.sole
 
-      get ti_chamado_path(chamado)
+      ver_no_painel ti_chamado_path(chamado)
       expect(response.body).to include("Aberto por", "JOAO TECNICO (em nome do solicitante)")
       get ti_chamados_path
       expect(response.body).to include("0 chamado(s) em abertos")

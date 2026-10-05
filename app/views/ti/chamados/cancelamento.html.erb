@@ -6,7 +6,7 @@
 <% end %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Cancelar chamado", titulo: "Cancelar #{@chamado.codigo}", voltar: ti_chamado_path(@chamado), rodape: rodape,
+      locals: { sobretitulo: "Cancelar chamado", titulo: "Cancelar #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
                 descricao: "O chamado é encerrado sem atendimento. Se precisar de novo, abra outro." } do %>
   <%= form_with url: cancelar_ti_chamado_path(@chamado), method: :patch, id: "formulario_cancelamento", class: "space-y-5" do |f| %>
     <% if @erro.present? %>

@@ -27,7 +27,7 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
 
       patch ti_chamado_path(chamado), params: { campos: { sala: "Sala 12" } }
 
-      expect(response).to redirect_to(ti_chamado_path(chamado))
+      expect(response).to redirect_to(ti_chamados_path)
       expect(chamado.reload.valores.em_ordem.map { |valor| [ valor.rotulo, valor.valor_texto ] }).to eq([ [ "Sala", "Sala 12" ], [ "Foto", "tela.png" ] ])
       expect(chamado.valores.find_by!(rotulo: "Foto").arquivos.sole.filename.to_s).to eq("tela.png")
       expect(chamado).to have_attributes(status: "aberto", eventos: include(have_attributes(nota: "Solicitante editou os dados do chamado.")))
@@ -74,8 +74,9 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
 
       expect(chamado.reload).to have_attributes(status: "cancelado", em_andamento?: false)
       expect(chamado.eventos.last).to have_attributes(tipo: "cancelado", nota: "Chamado cancelado pelo solicitante: A internet voltou.")
-      get ti_chamado_path(chamado)
-      expect(response.body).to include("Cancelado")
+      ver_no_painel ti_chamado_path(chamado)
+      expect(response.body).to include("Cancelado", "A internet voltou.")
+      get ti_chamados_path, params: { status: "cancelado" }
       expect(response.body).not_to include("Editar chamado")
     end
 
@@ -95,9 +96,9 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
       operar("concluir", nota: "Cabo trocado.")
     end
 
-    it "mostra o convite para finalizar e o painel de avaliação" do
-      get ti_chamado_path(chamado)
-      expect(response.body).to include("O atendimento foi concluído", "Finalizar chamado")
+    it "a lista oferece finalizar, e o painel pede a avaliação" do
+      get ti_chamados_path, params: { status: "concluido" }
+      expect(Nokogiri::HTML(response.body).css("tbody td:last-child [title]").pluck("title")).to eq([ "Visualizar chamado", "Abrir conversa", "Finalizar chamado" ])
 
       get finalizacao_ti_chamado_path(chamado)
       expect(response.body).to include("O atendimento resolveu o chamado? *", "Muito bom", "Péssimo")
@@ -116,7 +117,7 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
 
       expect(chamado.reload).to have_attributes(status: "finalizado", avaliacao: 5, avaliacao_resolvido: true, avaliacao_comentario: "Rápido!", finalizado_em: be_present)
       expect(tecnico.notificacoes.last).to have_attributes(titulo: "Chamado finalizado pelo solicitante")
-      get ti_chamado_path(chamado)
+      ver_no_painel ti_chamado_path(chamado)
       expect(response.body).to include("Finalizado", "Muito bom · resolveu o pedido", "Rápido!", "Avaliação: Muito bom.")
     end
 

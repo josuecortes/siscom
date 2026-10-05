@@ -1,0 +1,41 @@
+<%# Ações do chamado na linha da lista (nunca dentro do "ver"). locals: chamado, visao (:solicitante ou :operacao) %>
+<div class="flex flex-nowrap items-center gap-1.5">
+  <% if visao == :solicitante %>
+    <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :eye, caminho: ti_chamado_path(chamado), quadro: "painel" %>
+    <%= render "core/conversas/botao", conversa: Core::Api.conversa_de(chamado) %>
+    <% if chamado.solicitante_id == current_user.id %>
+      <% if chamado.aguardando_solicitante? %>
+        <%= render "compartilhado/botao_acao", titulo: "Responder à TI", icone: :send, caminho: resposta_ti_chamado_path(chamado), quadro: "painel" %>
+      <% end %>
+      <% if chamado.editavel_pelo_solicitante? %>
+        <%= render "compartilhado/botao_acao", titulo: (chamado.aguardando_solicitante? ? "Corrigir os dados e reenviar" : "Editar chamado"), icone: :pencil, caminho: edit_ti_chamado_path(chamado), quadro: "painel" %>
+      <% end %>
+      <% if chamado.concluido? %>
+        <%= render "compartilhado/botao_acao", titulo: "Finalizar chamado", icone: :check_circle, caminho: finalizacao_ti_chamado_path(chamado), quadro: "painel" %>
+      <% end %>
+      <% if chamado.cancelavel_pelo_solicitante? %>
+        <%= render "compartilhado/botao_acao", titulo: "Cancelar chamado", icone: :ban, perigo: true, caminho: cancelamento_ti_chamado_path(chamado), quadro: "painel" %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <% acoes = Ti::Chamados::Operar.disponiveis(chamado, current_user).index_by(&:chave) %>
+    <% etapas = acoes.values_at(*Ti::OperacaoController::ETAPAS).compact %>
+    <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :eye, caminho: ti_operacao_path(chamado), quadro: "painel" %>
+    <%= render "core/conversas/botao", conversa: Core::Api.conversa_de(chamado) %>
+    <% if acoes["assumir"] %>
+      <%= render "compartilhado/botao_acao", titulo: "Assumir chamado", icone: :user_follow, caminho: acao_ti_operacao_path(chamado, "assumir"), metodo: :post,
+            confirmar: { mensagem: "Confirme: você assume o chamado #{chamado.codigo} (#{chamado.problema.nome}).", rotulo: "Assumir", tom: "primario" } %>
+    <% end %>
+    <% if acoes["atribuir"] %>
+      <%= render "compartilhado/botao_acao", titulo: "Atribuir a alguém", icone: :people, caminho: acao_ti_operacao_path(chamado, "atribuir"), quadro: "painel" %>
+    <% end %>
+    <% if etapas.one? %>
+      <%= render "compartilhado/botao_acao", titulo: etapas.first.rotulo, icone: etapas.first.icone, caminho: acao_ti_operacao_path(chamado, etapas.first.chave), quadro: "painel" %>
+    <% elsif etapas.any? %>
+      <%= render "compartilhado/botao_acao", titulo: "Mudar etapa", icone: :reload, caminho: etapa_ti_operacao_path(chamado), quadro: "painel" %>
+    <% end %>
+    <% if acoes["prioridade"] %>
+      <%= render "compartilhado/botao_acao", titulo: "Mudar prioridade", icone: :warning, caminho: acao_ti_operacao_path(chamado, "prioridade"), quadro: "painel" %>
+    <% end %>
+  <% end %>
+</div>

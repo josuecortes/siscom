@@ -23,21 +23,21 @@
             <th scope="col">Prioridade</th>
             <th scope="col">Status</th>
             <th scope="col">Responsável</th>
-            <th scope="col">Ações</th>
+            <th scope="col" class="!pl-2">Ações</th>
           </tr>
         </thead>
         <tbody>
           <% @chamados.each do |chamado| %>
             <tr id="<%= dom_id(chamado) %>">
               <td class="font-semibold text-[var(--text-primary)]">
-                <%= link_to chamado.codigo, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                <%= link_to chamado.codigo, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
               </td>
-              <td>
+              <td class="!whitespace-normal"><%# solicitação e solicitante quebram a linha: as ações têm de caber sem rolagem %>
                 <p class="font-semibold text-[var(--text-primary)]">
-                  <%= link_to chamado.problema.nome, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "_top" } %>
+                  <%= link_to chamado.problema.nome, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
                 </p>
               </td>
-              <td>
+              <td class="!whitespace-normal">
                 <div class="min-w-0">
                   <p><%= chamado.solicitante_nome %></p>
                   <% if chamado.unidade_nome.present? %><p class="text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
@@ -47,15 +47,7 @@
               <td><%= render "compartilhado/selo", texto: chamado.nome_da_prioridade, tom: (chamado.prioridade_normal? ? :neutro : :atencao) %></td>
               <td><%= selo_do_status(chamado) %></td>
               <td><%= chamado.responsavel&.nome || (chamado.em_triagem? && chamado.triador ? "#{chamado.triador.nome} (triagem)" : "Não atribuído") %></td>
-              <td>
-                <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Visualizar chamado", icone: :eye, caminho: ti_operacao_path(chamado) %>
-                  <% if Ti::Chamados::Operar.new(chamado: chamado, acao: "assumir", ator: current_user).permitida? %>
-                    <%= render "compartilhado/botao_acao", titulo: "Assumir chamado", icone: :user_follow, caminho: acao_ti_operacao_path(chamado, "assumir"), metodo: :post,
-                          confirmar: { mensagem: "Confirme: você assume o chamado #{chamado.codigo} (#{chamado.problema.nome}).", rotulo: "Assumir", tom: "primario" } %>
-                  <% end %>
-                </div>
-              </td>
+              <td class="!pl-2 !pr-4"><%= render "ti/chamados/acoes", chamado: chamado, visao: :operacao %></td>
             </tr>
           <% end %>
           <% if @chamados.empty? %>

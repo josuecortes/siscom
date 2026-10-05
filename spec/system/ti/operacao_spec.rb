@@ -39,23 +39,34 @@ RSpec.describe "TI: operação em tempo real", :js do
     within("[role='dialog']") { click_on "Abrir chamado" }
     expect(page).to have_css("#avisos", text: "aberto com sucesso")
     codigo = Ti::Chamado.sole.codigo
-    click_on "Visualizar chamado"
-    expect(page).to have_content("Ainda sem responsável")
+    within("tr", text: codigo) { click_on "Visualizar chamado" }
+    within("[role='dialog']") do # "ver" abre no painel, só para leitura
+      expect(page).to have_content("Ainda sem responsável")
+      click_on "Fechar"
+    end
 
     Capybara.using_session(:tecnico) do
       expect(page).to have_content("1 chamado(s) encontrado(s)") # apareceu sozinho
       print("ti-operacao-lista")
       within("tr", text: codigo) { click_on "Visualizar chamado" }
-      expect(page).to have_css("h1", text: "Chamado #{codigo}")
-      click_on "Assumir chamado"
-      expect(page).to have_content("Chamado assumido para atendimento por JOAO TECNICO.")
+      within("[role='dialog']") do
+        expect(page).to have_css("h2", text: "Chamado #{codigo}")
+        print("ti-operacao-chamado")
+        click_on "Fechar"
+      end
+      within("tr", text: codigo) { click_on "Assumir chamado" } # as ações ficam na linha da lista
+      within("#confirmacao") { click_on "Assumir" }
+      expect(page).to have_css("#avisos", text: "assumido por você")
+      select "Comigo", from: "Status"
+      expect(page).to have_css("tr", text: codigo)
     end
 
-    expect(page).to have_content("Em trabalho") # a página da Maria mudou sozinha
-    expect(page).to have_content("JOAO TECNICO")
+    expect(page).to have_css("nav a", text: /Em andamento\s*1/) # a lista da Maria mudou sozinha
+    click_on "Em andamento"
+    expect(page).to have_css("tr", text: "JOAO TECNICO")
 
     # A conversa começa quando o técnico assume. Ela abre pelo ícone flutuante; as mensagens chegam sem recarregar.
-    click_on "Abrir conversa"
+    within("tr", text: codigo) { click_on "Abrir conversa" }
     within("#lancador_conversas") do
       expect(page).to have_content("JOAO TECNICO assumiu o chamado. Use esta conversa para falar com Joao.")
       fill_in "Mensagem", with: "É na sala 12."
@@ -85,32 +96,37 @@ RSpec.describe "TI: operação em tempo real", :js do
     fechar_conversa
 
     Capybara.using_session(:tecnico) do
-      click_on "Pedir ajuste ao solicitante"
+      within("tr", text: codigo) { click_on "Mudar etapa" }
+      within("[role='dialog']") do
+        expect(page).to have_css("h2", text: "Mudar etapa #{codigo}")
+        print("ti-operacao-etapa")
+        click_on "Pedir ajuste ao solicitante"
+      end
       fill_in "Orientação para o solicitante *", with: "Qual é a sala?"
       within("[role='dialog']") { click_on "Pedir ajuste ao solicitante" }
       expect(page).to have_css("#avisos", text: "ajuste pedido ao solicitante")
     end
 
-    expect(page).to have_content("A TI precisa de uma resposta sua")
-    click_on "Responder"
+    expect(page).to have_css("nav a", text: /Ajustes\s*1/)
+    click_on "Ajustes"
+    within("tr", text: codigo) { click_on "Responder à TI" }
     fill_in "Sua resposta *", with: "Sala 12."
     click_on "Enviar resposta"
     expect(page).to have_css("#avisos", text: "Resposta enviada")
 
     Capybara.using_session(:tecnico) do
-      expect(page).to have_content("Solicitante respondeu: Sala 12.")
-      click_on "Concluir atendimento"
+      expect(page).to have_css("tr", text: "Em trabalho") # voltou para ele sem recarregar
+      within("tr", text: codigo) { click_on "Mudar etapa" }
+      within("[role='dialog']") { click_on "Concluir atendimento" }
       fill_in "Resultado do atendimento *", with: "Cabo trocado."
       print("ti-operacao-concluir")
       within("[role='dialog']") { click_on "Concluir atendimento" }
       expect(page).to have_css("#avisos", text: "atendimento concluído")
-      print("ti-operacao-chamado")
     end
 
-    expect(page).to have_content("Concluído")
-    expect(page).to have_content("Atendimento concluído: Cabo trocado.")
-
-    click_on "Finalizar chamado"
+    expect(page).to have_css("nav a", text: /Concluídos\s*1/)
+    click_on "Concluídos"
+    within("tr", text: codigo) { click_on "Finalizar chamado" }
     within("[role='dialog']") do
       select "Sim, foi resolvido", from: "O atendimento resolveu o chamado? *"
       select "Muito bom", from: "Avaliação *"
@@ -118,17 +134,22 @@ RSpec.describe "TI: operação em tempo real", :js do
       click_on "Finalizar chamado"
     end
     expect(page).to have_css("#avisos", text: "finalizado. Obrigado pela avaliação.")
-    expect(page).to have_content("Muito bom · resolveu o pedido")
 
-    click_on "Abrir conversa"
+    click_on "Finalizados"
+    within("tr", text: codigo) { click_on "Visualizar chamado" }
+    within("[role='dialog']") do
+      expect(page).to have_content("Muito bom · resolveu o pedido").and have_content("Atendimento concluído: Cabo trocado.")
+      click_on "Fechar"
+    end
+    within("tr", text: codigo) { click_on "Abrir conversa" }
     within("#lancador_conversas") do
       expect(page).to have_content("só leitura")
       expect(page).to have_no_field("Mensagem")
     end
 
     Capybara.using_session(:tecnico) do
-      expect(page).to have_content("Finalizado") # o técnico vê a avaliação sem recarregar
-      expect(page).to have_content("Muito bom · resolveu o pedido")
+      select "Encerrados", from: "Status"
+      expect(page).to have_css("tr", text: "Finalizado") # o técnico vê o desfecho
     end
   end
 
@@ -141,7 +162,7 @@ RSpec.describe "TI: operação em tempo real", :js do
     expect(sem_rolagem_horizontal?).to be(true)
 
     click_on "Visualizar chamado"
-    expect(page).to have_content("O que fazer")
+    expect(page).to have_css("[role='dialog'] h2", text: "Chamado")
     expect(sem_rolagem_horizontal?).to be(true)
   end
 end

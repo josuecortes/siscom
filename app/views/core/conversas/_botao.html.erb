@@ -1,0 +1,12 @@
+<%# Botão de linha (36×36) que abre a conversa de um registro no ícone flutuante. locals: conversa
+    (Core::Api.conversa_de(alvo), pode ser nil). Só aparece para quem participa da conversa. %>
+<% participante = conversa&.participante(current_user) %>
+<% if participante&.pode_ler? %>
+  <% nao_lidas = participante.nao_lidas %>
+  <% titulo = nao_lidas.positive? ? "Abrir conversa (#{nao_lidas} não lida(s))" : "Abrir conversa" %>
+  <button type="button" title="<%= titulo %>" aria-label="<%= titulo %>" data-action="lancador#abrirConversa" data-lancador-url-param="<%= painel_conversa_path(conversa) %>"
+          class="relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">
+    <%= icone(:chat_bubble) %>
+    <% if nao_lidas.positive? %><span class="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[var(--danger-solid)]" aria-hidden="true"></span><% end %>
+  </button>
+<% end %>

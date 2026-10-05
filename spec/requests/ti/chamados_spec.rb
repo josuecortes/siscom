@@ -131,7 +131,7 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
       )
     end
 
-    it "guarda as respostas com o nome do campo e mostra na página do chamado" do
+    it "guarda as respostas com o nome do campo e mostra no painel do chamado" do
       nuinfo = create(:rh_unidade, nome: "Núcleo de Informática", sigla: "NUINFO")
       carta = Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.4 carta"), "application/pdf", original_filename: "carta.pdf")
 
@@ -146,7 +146,7 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
       expect(chamado.valores.find_by!(rotulo: "Unidade").valor_json).to eq("valor" => nuinfo.id, "rotulo" => "NÚCLEO DE INFORMÁTICA")
       expect(chamado.valores.find_by!(rotulo: "Carta").arquivos.sole.filename.to_s).to eq("carta.pdf")
 
-      get ti_chamado_path(chamado)
+      ver_no_painel ti_chamado_path(chamado)
       expect(response.body).to include("Chamado #{chamado.codigo}", "SEM INTERNET", "Ana Paula", "Prodoc, Siscom", "carta.pdf", "Chamado aberto pelo solicitante.")
     end
 

@@ -4,7 +4,7 @@
 <% com_anexo = @chamado.valores.with_attached_arquivos.select { |valor| valor.arquivos.attached? }.index_by(&:campo_problema_id) %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: (@chamado.aguardando_solicitante? ? "Ajustar solicitação" : "Editar chamado"), titulo: "Atualizar #{@chamado.codigo}", voltar: ti_chamado_path(@chamado), rodape: rodape,
+      locals: { sobretitulo: (@chamado.aguardando_solicitante? ? "Ajustar solicitação" : "Editar chamado"), titulo: "Atualizar #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
                 descricao: (@chamado.aguardando_solicitante? ? "A TI pediu: #{@chamado.nota_triagem} Ao salvar, o chamado volta para a TI." : @chamado.problema.nome) } do %>
   <%= form_with url: ti_chamado_path(@chamado), method: :patch, id: "formulario_chamado", class: "space-y-5", multipart: true do |f| %>
     <% if erros.any? %>
