@@ -1,0 +1,32 @@
+<% content_for :title, "Gerenciar permissões" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_permissao", rotulo: "Salvar permissões" } %>
+<% descricoes = { "admin" => "Tudo no Transporte: permissões, configuração, motoristas, veículos, operação e relatórios.",
+                  "tecnico" => "Aprova, cancela e reagenda solicitações, abre para outra pessoa, cuida de motoristas e veículos e vê os relatórios.",
+                  "motorista" => "Inicia e finaliza o serviço das solicitações aprovadas." } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Permissões", titulo: "Gerenciar permissões de #{@usuario.nome}", voltar: transporte_permissoes_path, rodape: rodape,
+                descricao: @usuario.email } do %>
+  <%= form_with url: transporte_permissao_path(@usuario), method: :patch, id: "formulario_permissao", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+
+    <fieldset class="space-y-2">
+      <legend class="mb-2 text-sm font-medium text-[var(--text-secondary)]">Permissões no Transporte</legend>
+      <%= hidden_field_tag "papeis[]", "", id: nil %>
+      <% @papeis.each do |papel| %>
+        <% marcado = @papeis_atuais.include?(papel.chave) %>
+        <% pode = marcado || Core::Api.pode_conceder?(current_user, modulo: :transporte, papel: papel.chave) %>
+        <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm <%= "opacity-60" unless pode %>">
+          <%= check_box_tag "papeis[]", papel.chave, marcado, id: "papel_#{papel.chave}", disabled: !pode, class: "mt-0.5 h-4 w-4" %>
+          <span>
+            <span class="block font-semibold text-[var(--text-primary)]"><%= papel.nome %></span>
+            <span class="block text-[var(--text-secondary)]"><%= descricoes[papel.chave] %></span>
+          </span>
+        </label>
+      <% end %>
+      <p class="text-xs text-[var(--text-muted)]">Sem nenhuma marcada, o usuário continua como solicitante: abre e acompanha as próprias solicitações de transporte.</p>
+    </fieldset>
+  <% end %>
+<% end %>

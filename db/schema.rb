@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_04_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1058,6 +1058,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_04_140000) do
 
   create_table "tipo_unidades", force: :cascade do |t|
     t.string "nome"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "transporte_configuracoes", force: :cascade do |t|
+    t.integer "normal_antecedencia_min_horas", default: 48, null: false
+    t.integer "normal_antecedencia_max_horas", default: 100, null: false
+    t.integer "viagem_antecedencia_min_horas", default: 48, null: false
+    t.integer "viagem_antecedencia_max_horas", default: 100, null: false
+    t.integer "espera_min_horas", default: 1, null: false
+    t.integer "espera_max_horas", default: 2, null: false
+    t.integer "busca_min_horas", default: 1, null: false
+    t.integer "busca_max_horas", default: 24, null: false
+    t.integer "lembrete_saida_minutos", default: 30, null: false
+    t.integer "aviso_busca_atrasada_minutos", default: 10, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -16,6 +16,9 @@ namespace :remaster do
       { nome: "PADRAO TI SUPERVISOR", email: "ti.supervisor@siscom.dev", papeis: [ %w[ti supervisor] ] },
       { nome: "PADRAO TI TRIADOR", email: "ti.triador@siscom.dev", papeis: [ %w[ti triagem] ] },
       { nome: "PADRAO TI TECNICO", email: "ti.tecnico@siscom.dev", papeis: [ %w[ti tecnico] ] },
+      { nome: "PADRAO TRANSPORTE ADMINISTRADOR", email: "transporte.admin@siscom.dev", papeis: [ %w[transporte admin] ] },
+      { nome: "PADRAO TRANSPORTE TECNICO", email: "transporte.tecnico@siscom.dev", papeis: [ %w[transporte tecnico] ] },
+      { nome: "PADRAO TRANSPORTE MOTORISTA", email: "transporte.motorista@siscom.dev", papeis: [ %w[transporte motorista] ] },
       { nome: "PADRAO USUARIO COMUM", email: "usuario@siscom.dev", papeis: [] }
     ].freeze
 

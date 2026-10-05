@@ -1,0 +1,58 @@
+<% content_for :title, "Configuração do Transporte" %>
+<% bloco = "space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4" %>
+<% numero = ->(f, campo, rotulo, minimo) { render "compartilhado/campo", f: f, campo: campo, rotulo: rotulo, tipo: :number, html: { required: true, min: minimo, step: 1, inputmode: "numeric" } } %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Configuração", icone: :settings, migalha: [ "Transporte", transporte_configuracoes_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with model: @configuracao, scope: :configuracao, url: transporte_configuracoes_path, method: :patch, class: "space-y-6 px-6 py-5" do |f| %>
+    <% if @configuracao.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
+    <% end %>
+
+    <section class="<%= bloco %>">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Antecedência para pedir</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Com quantas horas de antecedência, no mínimo e no máximo, a saída pode ser marcada. Pedido fora dessa janela só a operação abre.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= numero.call(f, :normal_antecedencia_min_horas, "Solicitação normal: mínimo (horas) *", 0) %>
+        <%= numero.call(f, :normal_antecedencia_max_horas, "Solicitação normal: máximo (horas) *", 1) %>
+        <%= numero.call(f, :viagem_antecedencia_min_horas, "Viagem: mínimo (horas) *", 0) %>
+        <%= numero.call(f, :viagem_antecedencia_max_horas, "Viagem: máximo (horas) *", 1) %>
+      </div>
+    </section>
+
+    <section class="<%= bloco %>">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Tempo no destino</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Faixa de horas que o solicitante pode informar em "esperar no local" e em "buscar depois".</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= numero.call(f, :espera_min_horas, "Esperar no local: mínimo (horas) *", 1) %>
+        <%= numero.call(f, :espera_max_horas, "Esperar no local: máximo (horas) *", 1) %>
+        <%= numero.call(f, :busca_min_horas, "Buscar depois: mínimo (horas) *", 1) %>
+        <%= numero.call(f, :busca_max_horas, "Buscar depois: máximo (horas) *", 1) %>
+      </div>
+    </section>
+
+    <section class="<%= bloco %>">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Alertas</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Avisos automáticos para o técnico e o solicitante.</p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= numero.call(f, :lembrete_saida_minutos, "Lembrete antes da saída (minutos) *", 1) %>
+        <%= numero.call(f, :aviso_busca_atrasada_minutos, "Repetir aviso de busca atrasada a cada (minutos) *", 1) %>
+      </div>
+    </section>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+
+    <div class="flex justify-end border-t border-[var(--border-subtle)] pt-4">
+      <%= f.button "Salvar configurações", type: "submit", data: { turbo_submits_with: "Salvando..." },
+            class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" %>
+    </div>
+  <% end %>
+</section>

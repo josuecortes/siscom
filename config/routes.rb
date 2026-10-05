@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     draw :core
     draw :rh
     draw :ti
+    draw :transporte
   end
 
   # App instalável (PWA): manifesto e service worker (views em app/views/pwa).

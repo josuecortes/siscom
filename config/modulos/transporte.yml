@@ -1,0 +1,38 @@
+# Catálogo do módulo Transporte (porta do Transport do seed; plano 02 §5). Decisões do Josue em 2026-10-05:
+# motorista é um usuário com o papel `motorista` (como no seed); não existe tipo "urgente" (pedido fora do
+# prazo é aberto pela operação); motoristas e veículos são recadastrados; transporte escolar fica fora.
+nome: "Transporte"
+icone: "car-alt"
+
+permissoes:
+  solicitacoes.abrir: "Abrir e acompanhar as próprias solicitações de transporte"
+  solicitacoes.operar: "Ver a operação, abrir para outra pessoa, reagendar e registrar observações"
+  solicitacoes.aprovar: "Aprovar e cancelar solicitações"
+  servico.executar: "Iniciar e finalizar o serviço como motorista"
+  motoristas.gerenciar: "Cadastrar e editar motoristas"
+  veiculos.gerenciar: "Cadastrar e editar veículos"
+  relatorios.ver: "Ver relatórios do transporte"
+  configuracoes.gerenciar: "Gerenciar as configurações do transporte (janelas e alertas)"
+  permissoes.conceder: "Conceder permissões no Transporte"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  tecnico:
+    nome: "Técnico"
+    permissoes: [solicitacoes.abrir, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver]
+  motorista:
+    nome: "Motorista"
+    permissoes: [solicitacoes.abrir, servico.executar]
+  solicitante:
+    nome: "Solicitante"
+    permissoes: [solicitacoes.abrir]
+    automatico: true
+
+concessao:
+  admin: [admin, tecnico, motorista]
+
+menu:
+  - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }
+  - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }
