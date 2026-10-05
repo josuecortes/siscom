@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1077,6 +1077,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "transporte_destinos", force: :cascade do |t|
+    t.bigint "solicitacao_id", null: false
+    t.string "nome", null: false
+    t.string "cep"
+    t.string "logradouro", null: false
+    t.string "numero", null: false
+    t.string "bairro", null: false
+    t.string "cidade", null: false
+    t.string "uf", null: false
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.integer "posicao", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["solicitacao_id"], name: "index_transporte_destinos_on_solicitacao_id"
+  end
+
   create_table "transporte_escolar_condutores", force: :cascade do |t|
     t.string "nome"
     t.string "cpf"
@@ -1212,6 +1229,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
     t.index ["cnh_numero"], name: "index_transporte_motoristas_on_cnh_numero", unique: true
     t.index ["cpf"], name: "index_transporte_motoristas_on_cpf", unique: true
     t.index ["user_id"], name: "index_transporte_motoristas_on_user_id", unique: true
+  end
+
+  create_table "transporte_passageiros", force: :cascade do |t|
+    t.bigint "solicitacao_id", null: false
+    t.string "cpf", null: false
+    t.string "nome", null: false
+    t.integer "posicao", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["solicitacao_id"], name: "index_transporte_passageiros_on_solicitacao_id"
+  end
+
+  create_table "transporte_solicitacoes", force: :cascade do |t|
+    t.string "codigo"
+    t.string "tipo", default: "normal", null: false
+    t.string "modo", null: false
+    t.string "status", default: "solicitada", null: false
+    t.text "resumo", null: false
+    t.datetime "saida_em", null: false
+    t.datetime "retorno_em"
+    t.integer "espera_horas"
+    t.integer "busca_horas"
+    t.datetime "busca_prevista_em"
+    t.boolean "fora_do_padrao", default: false, null: false
+    t.bigint "solicitante_id", null: false
+    t.string "solicitante_nome", null: false
+    t.string "solicitante_email", null: false
+    t.bigint "rh_unidade_id"
+    t.string "unidade_nome"
+    t.bigint "aberto_por_id"
+    t.bigint "aprovada_por_id"
+    t.datetime "aprovada_em"
+    t.bigint "cancelada_por_id"
+    t.datetime "cancelada_em"
+    t.text "motivo_cancelamento"
+    t.datetime "lembrete_enviado_em"
+    t.datetime "ultimo_aviso_de_busca_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aberto_por_id"], name: "index_transporte_solicitacoes_on_aberto_por_id"
+    t.index ["aprovada_por_id"], name: "index_transporte_solicitacoes_on_aprovada_por_id"
+    t.index ["cancelada_por_id"], name: "index_transporte_solicitacoes_on_cancelada_por_id"
+    t.index ["codigo"], name: "index_transporte_solicitacoes_on_codigo", unique: true
+    t.index ["saida_em"], name: "index_transporte_solicitacoes_on_saida_em"
+    t.index ["solicitante_id"], name: "index_transporte_solicitacoes_on_solicitante_id"
+    t.index ["status"], name: "index_transporte_solicitacoes_on_status"
   end
 
   create_table "transporte_veiculos", force: :cascade do |t|
@@ -1391,6 +1454,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
   add_foreign_key "ti_problemas_perfis", "ti_problemas", column: "problema_id"
   add_foreign_key "ti_valores_campo", "ti_campos_problema", column: "campo_problema_id"
   add_foreign_key "ti_valores_campo", "ti_chamados", column: "chamado_id"
+  add_foreign_key "transporte_destinos", "transporte_solicitacoes", column: "solicitacao_id"
   add_foreign_key "transporte_escolar_condutores", "transporte_escolar_municipios", column: "municipio_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_contratos", column: "veiculo_id"
   add_foreign_key "transporte_escolar_contratos", "transporte_escolar_escolas", column: "escola_id"
@@ -1401,6 +1465,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_110000) do
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_condutores", column: "condutor_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_transportadores", column: "transportador_id"
   add_foreign_key "transporte_motoristas", "users"
+  add_foreign_key "transporte_passageiros", "transporte_solicitacoes", column: "solicitacao_id"
+  add_foreign_key "transporte_solicitacoes", "users", column: "aberto_por_id"
+  add_foreign_key "transporte_solicitacoes", "users", column: "aprovada_por_id"
+  add_foreign_key "transporte_solicitacoes", "users", column: "cancelada_por_id"
+  add_foreign_key "transporte_solicitacoes", "users", column: "solicitante_id"
   add_foreign_key "unidades", "tipo_unidades"
   add_foreign_key "users", "funcoes"
   add_foreign_key "users", "unidades"

@@ -6,6 +6,13 @@ Rails.application.routes.draw do
   # Consulta de CEP para formulários com endereço.
   get "cep/:cep", to: "core/cep#show", as: :cep, constraints: { cep: /\d{5}-?\d{3}/ }, defaults: { format: :json }
 
+  # Apoio aos campos com mapa: busca de lugar, endereço de um ponto e imagens do mapa.
+  scope "mapa", controller: "core/mapa" do
+    get "buscar", action: :buscar, as: :mapa_buscar, defaults: { format: :json }
+    get "reverso", action: :reverso, as: :mapa_reverso, defaults: { format: :json }
+    get "tiles/:z/:x/:y", action: :tile, as: :mapa_tile, constraints: { z: /\d+/, x: /\d+/, y: /\d+/ }
+  end
+
   resource :meu_perfil, path: "minha-area/perfil", only: %i[show update], controller: "core/meu_perfil"
   resources :notificacoes, path: "minha-area/notificacoes", only: :index, controller: "core/notificacoes" do
     patch :abrir, on: :member

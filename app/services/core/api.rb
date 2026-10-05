@@ -20,7 +20,12 @@ module Core
     end
 
     # Ids (como subconsulta) dos usuários com algum papel concedido no módulo.
-    def ids_dos_usuarios_com_papel(modulo:) = Concessao.ativo.where(modulo: modulo.to_s).select(:user_id)
+    # Com `papeis`, só os que têm algum deles (ex.: quem avisar quando chega um pedido).
+    def ids_dos_usuarios_com_papel(modulo:, papeis: nil)
+      concessoes = Concessao.ativo.where(modulo: modulo.to_s)
+      concessoes = concessoes.where(papel: Array(papeis).map(&:to_s)) if papeis
+      concessoes.select(:user_id)
+    end
 
     # Deixa o usuário com um único papel no módulo (ou nenhum, com papel em branco):
     # revoga os outros e concede o escolhido. Vale a regra de quem pode conceder.
