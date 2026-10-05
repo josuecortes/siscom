@@ -380,7 +380,7 @@ select {
 }
 .tv-contador[data-nivel="critico"] { background: var(--tv-critico); color: #fff; }
 
-.tv-lista { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 0.6rem; overflow-y: auto; padding: 0.75rem; scrollbar-width: thin; }
+.tv-lista { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 0.6rem; overflow-y: auto; padding: 0.75rem; scrollbar-width: none; }
 .tv-cartao {
   border: 1px solid var(--tv-borda);
   border-left: 6px solid var(--tv-cor);

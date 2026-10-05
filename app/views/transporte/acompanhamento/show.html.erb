@@ -1,7 +1,8 @@
 <% content_for :title, "Painel de transporte" %>
 <%# Painel de TV (porta de transport-public-tracking-board.tsx): escuro, para ser lido de longe. Cada cartão
-    tem a cor do nível de urgência (classes .tv-* em application.css). Atualiza na hora quando algo muda na
-    operação (Turbo Streams) e a cada N segundos (Stimulus painel-tv), com o relógio andando sozinho. %>
+    tem a cor do nível de urgência (classes .tv-* em application.css). O Stimulus painel-tv faz o relógio andar,
+    rola as colunas sozinho até o fim e só então atualiza a tela (no mínimo a cada N segundos). Além disso, o
+    quadro atualiza na hora quando algo muda na operação (Turbo Streams), sem interromper a rolagem. %>
 <%= turbo_stream_from "transporte_operacao" %>
 <% agora = @quadro.agora %>
 <% contagem = @quadro.contagem %>
@@ -43,7 +44,7 @@
             <span class="tv-contador" data-total><%= coluna.itens.size %></span>
           </span>
         </h2>
-        <ul class="tv-lista">
+        <ul class="tv-lista" data-painel-tv-target="lista">
           <% coluna.itens.each do |item| %>
             <li class="tv-cartao" data-nivel="<%= item.nivel %>">
               <div class="tv-cartao-topo">

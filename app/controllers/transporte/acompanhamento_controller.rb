@@ -4,7 +4,9 @@ module Transporte
   class AcompanhamentoController < ApplicationController
     CHAVE = :transporte_painel_liberado_em
     VALIDADE = 12.hours
-    ATUALIZA_A_CADA = 30 # segundos; além disso, o quadro atualiza na hora quando algo muda na operação
+    # Segundos entre atualizações quando tudo cabe na tela; com colunas compridas o painel espera a rolagem
+    # chegar ao fim (painel_tv_controller.js). Além disso, o quadro atualiza na hora quando algo muda na operação.
+    ATUALIZA_A_CADA = 30
 
     skip_before_action :authenticate_user!
     skip_before_action :exigir_troca_de_senha

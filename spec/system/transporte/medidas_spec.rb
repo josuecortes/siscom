@@ -175,6 +175,26 @@ RSpec.describe "Transporte com as medidas do seed", :js do
       print("transporte-medidas-acompanhamento-senha")
     end
 
+    it "com muitos cartões, a coluna rola sozinha até o fim e a atualização espera a rolagem" do
+      25.times { |n| solicitacao(saida_em: (n + 1).hours.ago) }
+      usar_tela(largura: 1600, altura: 900)
+      visit transporte_acompanhamento_path
+      fill_in "Senha de acesso", with: "painel123"
+      click_on "Entrar no acompanhamento"
+
+      lista = "#tv_saidas .tv-lista"
+      expect(page).to have_css("#tv_saidas .tv-cartao", count: 25)
+      sobra = page.evaluate_script("document.querySelector(#{lista.to_json}).scrollHeight - document.querySelector(#{lista.to_json}).clientHeight")
+      expect(sobra).to be > 1000
+      # O ciclo cresce: 5 s no topo + a sobra a 30 px/s + 4 s no fim (bem mais que os 30 s padrão).
+      expect(find("[data-painel-tv-target='contagem']").text).to match(/\A[1-9] min \d+ s\z/)
+      expect(page.evaluate_script("document.querySelector(#{lista.to_json}).scrollTop")).to eq(0) # parada no topo para leitura
+
+      rolou = 20.times.any? { sleep 0.5; page.evaluate_script("document.querySelector(#{lista.to_json}).scrollTop") > 20 }
+      expect(rolou).to be(true)
+      expect(page.evaluate_script("document.querySelector('#tv_aprovacao .tv-lista').scrollTop")).to eq(0) # coluna que cabe na tela não rola
+    end
+
     it "no celular o cartão fica a 16 px das bordas e a 40 px do topo" do
       usar_tela_de_celular
       visit transporte_acompanhamento_path
