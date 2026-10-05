@@ -36,6 +36,7 @@ concessao:
   tecnico: [motorista, solicitante] # motorista: ao cadastrar um; solicitante: como no seed
 
 menu:
+  - { rotulo: "Solicitações de transporte", rota: transporte_solicitacoes_path, permissao: solicitacoes.abrir, icone: car-alt, minha_area: true }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
   - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
   - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }

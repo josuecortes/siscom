@@ -1,5 +1,8 @@
 # Rotas do módulo Transporte.
 namespace :transporte do
+  # Solicitações do solicitante.
+  resources :solicitacoes, only: %i[index show new create]
+
   %i[motoristas veiculos].each do |recurso|
     resources recurso, only: %i[index new create edit update] do
       member do

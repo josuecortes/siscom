@@ -28,6 +28,7 @@ export default class extends Controller {
       this.ufTarget.value = dados.uf || ""
       this.avisar("Endereço preenchido pelo CEP. Informe o número.")
       this.numeroTarget.focus()
+      this.dispatch("preenchido") // quem tiver um mapa junto (controller `mapa`) pode ir até o endereço
     } catch (_) {
       this.avisar("Não foi possível consultar o CEP agora. Preencha o endereço à mão.", true)
     }
