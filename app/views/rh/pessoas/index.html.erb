@@ -82,8 +82,11 @@
               </td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pessoa) %>
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pessoa), quadro: "painel" %>
                   <%= render "compartilhado/botao_acao", titulo: "Editar pessoa", icone: :pencil, caminho: edit_rh_pessoa_path(pessoa), quadro: "painel", desabilitado: !gerencia %>
+                  <% if pode?("rh.lotacoes.gerenciar") %>
+                    <%= render "compartilhado/botao_acao", titulo: "Nova lotação", icone: :sitemap, caminho: new_rh_pessoa_lotacao_path(pessoa), quadro: "painel" %>
+                  <% end %>
                 </div>
               </td>
             </tr>

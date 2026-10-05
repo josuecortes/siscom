@@ -1,6 +1,7 @@
-<%# Ficha da pessoa: dados, conta, vínculo e lotações. locals: pessoa, lotacoes, pendencias (opcional), acoes (bool) %>
-<% acoes = local_assigns.fetch(:acoes, false) && pode?("rh.lotacoes.gerenciar") %>
-<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<%# Ficha da pessoa: dados, conta, vínculo e lotações (só leitura). locals: pessoa, lotacoes, pendencias (opcional),
+    no_painel (bool: dentro do painel de "ver", sem sombra nem margem de página). %>
+<% no_painel = local_assigns[:no_painel] %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] #{'shadow-[var(--shadow-card)]' unless no_painel}" %>
 <% detalhe = ->(rotulo, valor) do %>
   <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
     <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
@@ -8,7 +9,7 @@
   </div>
 <% end %>
 
-<div class="mt-6 space-y-6">
+<div class="<%= no_painel ? "space-y-5" : "mt-6 space-y-6" %>">
   <% if local_assigns[:pendencias].present? %>
     <section class="<%= cartao %>">
       <div class="border-b border-[var(--border-subtle)] px-6 py-5">
@@ -59,15 +60,9 @@
         <h2 class="text-sm font-semibold text-[var(--text-primary)]">Lotações</h2>
         <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= lotacoes.count(&:ativo?) %> ativa(s) de <%= lotacoes.size %> registrada(s)</p>
       </div>
-      <% if acoes %>
-        <%= link_to new_rh_pessoa_lotacao_path(pessoa), data: { turbo_frame: "painel" },
-              class: "inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" do %>
-          <%= icone(:plus) %> Nova lotação
-        <% end %>
-      <% end %>
     </div>
     <div class="overflow-x-auto">
-      <table class="collection-table min-w-[860px]">
+      <table class="collection-table <%= no_painel ? "min-w-[640px]" : "min-w-[860px]" %>">
         <thead>
           <tr>
             <th scope="col">Unidade</th>
@@ -75,7 +70,6 @@
             <th scope="col">Início</th>
             <th scope="col">Fim</th>
             <th scope="col">Situação</th>
-            <% if acoes %><th scope="col">Ações</th><% end %>
           </tr>
         </thead>
         <tbody>
@@ -86,17 +80,10 @@
               <td><%= DataBr.formatar(lotacao.data_inicio) %></td>
               <td><%= DataBr.formatar(lotacao.data_fim).presence || "—" %></td>
               <td><%= render "compartilhado/selo", texto: (lotacao.ativo? ? "Ativa" : "Encerrada"), tom: (lotacao.ativo? ? :sucesso : :neutro) %></td>
-              <% if acoes %>
-                <td>
-                  <%= render "compartilhado/botao_acao", titulo: "Encerrar lotação", icone: :ban, caminho: encerrar_rh_lotacao_path(lotacao), metodo: :patch,
-                        desabilitado: lotacao.inativo?,
-                        confirmar: { mensagem: "Confirme o encerramento da lotação de #{pessoa.nome} em #{lotacao.unidade.sigla_e_nome}. A data de fim será hoje.", rotulo: "Encerrar" } %>
-                </td>
-              <% end %>
             </tr>
           <% end %>
           <% if lotacoes.empty? %>
-            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma lotação registrada.</td></tr>
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma lotação registrada.</td></tr>
           <% end %>
         </tbody>
       </table>

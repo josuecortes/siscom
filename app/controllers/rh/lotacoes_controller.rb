@@ -47,7 +47,7 @@ module Rh
       raise Core::AcessoNegado, Rh::Lotacoes::Lotar::PERMISSAO if resultado.falha? && !pode?(Rh::Lotacoes::Lotar::PERMISSAO)
 
       opcoes = resultado.sucesso? ? { notice: "Lotação encerrada." } : { alert: resultado.mensagem_de_erro }
-      redirect_back_or_to rh_pessoa_path(lotacao.pessoa), status: :see_other, **opcoes
+      redirect_back_or_to rh_lotacoes_path, status: :see_other, **opcoes
     end
   end
 end

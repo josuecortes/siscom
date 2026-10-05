@@ -101,26 +101,27 @@ RSpec.describe "RH com as medidas do seed", :js do
   end
 
   describe "ficha da pessoa" do
-    it "tem os cartões separados por 24 px e a grade de detalhes em duas colunas de 66 px" do
-      visit rh_pessoa_path(pessoa)
+    it "abre num painel de 768 px por cima da lista, só para leitura, com os detalhes em duas colunas de 66 px" do
+      visit rh_pessoas_path
       usar_tema("light")
+      within("tr", text: "MARIA OLIVEIRA") { click_on "Ver ficha" }
 
-      expect(retangulo("main section + div > section:nth-child(1)")).to include("x" => 284, "y" => 153, "largura" => 1084)
-      primeiro = retangulo("main section + div > section:nth-child(1)")
-      expect(retangulo("main section + div > section:nth-child(2)")["y"]).to be_within(0.2).of(primeiro["y"] + primeiro["altura"] + 24)
-      expect(retangulo("main dl > div:nth-child(1)")).to include("x" => 309, "largura" => 509, "altura" => 66)
-      expect(retangulo("main dl > div:nth-child(2)")).to include("x" => 834, "largura" => 509, "altura" => 66)
-      expect(estilo("main dl dt", "letterSpacing")).to eq("1.44px")
+      expect(find("#painel_titulo").text).to eq("MARIA OLIVEIRA")
+      expect(page).to have_current_path(rh_pessoas_path)
+      expect(retangulo(painel)["largura"]).to eq(768)
+      expect(tamanhos(nome: "#{painel} dl > div:nth-child(1)", email: "#{painel} dl > div:nth-child(2)")).to eq(nome: [ 330, 66 ], email: [ 330, 66 ])
+      expect(estilo("#{painel} dl dt", "letterSpacing")).to eq("1.44px")
+      within(painel) { expect(all("a, button").map(&:text)).to eq([ "×", "Fechar" ]) } # editar e lotar ficam na linha da lista
+      print("rh-medidas-ficha")
     end
 
-    it "no celular empilha os detalhes e mostra as ações do cabeçalho só com ícone" do
+    it "no celular o painel ocupa a altura inteira e empilha os detalhes" do
       usar_tela_de_celular
-      visit rh_pessoa_path(pessoa)
+      visit rh_pessoa_path(pessoa) # aberto direto pela URL: vai para a lista, que abre o painel
 
-      expect(retangulo("main dl > div:nth-child(1)")).to include("x" => 41, "largura" => 308, "altura" => 66)
-      expect(retangulo("main dl > div:nth-child(2)")).to include("x" => 41)
-      expect(tamanhos(voltar: "main section a[title='Voltar']", editar: "main section a[title='Editar pessoa']"))
-        .to eq(voltar: [ 36, 36 ], editar: [ 36, 36 ])
+      expect(retangulo(painel)).to eq("x" => 31.2, "y" => 0, "largura" => 358.8, "altura" => 844)
+      expect(tamanhos(nome: "#{painel} dl > div:nth-child(1)")[:nome].first).to eq(267.8)
+      expect(retangulo("#{painel} dl > div:nth-child(2)")["x"]).to eq(retangulo("#{painel} dl > div:nth-child(1)")["x"])
       expect(sem_rolagem_horizontal?).to be(true)
     end
   end

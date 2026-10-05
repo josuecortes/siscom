@@ -1,5 +1,5 @@
 module Rh
-  # Nova lotação a partir da ficha da pessoa.
+  # Nova lotação a partir da linha da pessoa na lista.
   class LotacoesDaPessoaController < BaseController
     before_action { pode!("rh.lotacoes.gerenciar") }
     before_action { @pessoa = Rh::Pessoa.find(params[:pessoa_id]) }
@@ -14,7 +14,7 @@ module Rh
       @lotacao = resultado.objeto
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Lotação registrada com sucesso.", voltar_para: rh_pessoa_path(@pessoa))
+        concluir_painel(aviso: "Lotação registrada com sucesso.", voltar_para: rh_pessoas_path)
       else
         render :new, status: :unprocessable_content
       end

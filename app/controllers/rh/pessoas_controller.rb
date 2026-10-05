@@ -22,6 +22,7 @@ module Rh
 
     def show
       carregar_ficha(@pessoa)
+      abrir_sobre(rh_pessoas_path)
     end
 
     def new
@@ -38,7 +39,7 @@ module Rh
         response.headers["Cache-Control"] = "no-store"
         render :conta_criada
       else
-        concluir_painel(aviso: "Pessoa cadastrada e ligada à conta que já existia com este e-mail.", voltar_para: rh_pessoa_path(@pessoa))
+        concluir_painel(aviso: "Pessoa cadastrada e ligada à conta que já existia com este e-mail.", voltar_para: rh_pessoas_path)
       end
     end
 
@@ -50,7 +51,7 @@ module Rh
       @pessoa = resultado.objeto
 
       if resultado.sucesso?
-        concluir_painel(aviso: "Pessoa atualizada com sucesso.", voltar_para: rh_pessoa_path(@pessoa))
+        concluir_painel(aviso: "Pessoa atualizada com sucesso.", voltar_para: rh_pessoas_path)
       else
         render :edit, status: :unprocessable_content
       end

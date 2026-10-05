@@ -1,10 +1,6 @@
 <% content_for :title, @pessoa.nome %>
-
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: @pessoa.nome, icone: :user, migalha: [ "Pessoas", rh_pessoas_path ] } do %>
-  <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: rh_pessoas_path, secundaria: true %>
-  <% if pode?("rh.pessoas.gerenciar") %>
-    <%= render "compartilhado/acao_cabecalho", rotulo: "Editar pessoa", icone: :pencil, caminho: edit_rh_pessoa_path(@pessoa), opcoes: { data: { turbo_frame: "painel" } } %>
-  <% end %>
+<%# Ficha da pessoa no painel (só leitura): editar e lotar ficam na linha da lista. %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Ficha da pessoa", titulo: @pessoa.nome, voltar: rh_pessoas_path, largo: true, rodape: render("compartilhado/rodape_fechar") } do %>
+  <%= render "ficha", pessoa: @pessoa, lotacoes: @lotacoes, pendencias: @pendencias, no_painel: true %>
 <% end %>
-
-<%= render "ficha", pessoa: @pessoa, lotacoes: @lotacoes, pendencias: @pendencias, acoes: true %>

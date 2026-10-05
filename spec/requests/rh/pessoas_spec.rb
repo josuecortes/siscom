@@ -82,8 +82,8 @@ RSpec.describe "RH: pessoas, ficha e lotações" do
       expect(response.headers["Cache-Control"]).to include("no-store")
       expect(ana.user.valid_password?(senha)).to be(true)
 
-      get rh_pessoa_path(ana)
-      expect(response.body).to include("ANA PAULA LIMA", "111.444.777-35", "(96) 99123-4567", "02/03/1990", "Feminino", "Nenhuma lotação registrada.")
+      ver_no_painel rh_pessoa_path(ana)
+      expect(response.body).to include("Ficha da pessoa", "ANA PAULA LIMA", "111.444.777-35", "(96) 99123-4567", "02/03/1990", "Feminino", "Nenhuma lotação registrada.")
     end
 
     it "mostra os erros por campo com 422 e devolve a data como foi digitada" do
@@ -102,13 +102,13 @@ RSpec.describe "RH: pessoas, ficha e lotações" do
       expect(response.body).to include('value="529.982.247-25"', 'value="(96) 99123-4567"', 'value="15/01/1985"')
 
       patch rh_pessoa_path(maria), params: { pessoa: { nome: "Maria Oliveira Souza" } }
-      expect(response).to redirect_to(rh_pessoa_path(maria))
+      expect(response).to redirect_to(rh_pessoas_path)
       expect(maria.reload.nome).to eq("MARIA OLIVEIRA SOUZA")
     end
 
-    it "lota pela ficha e encerra a lotação" do
+    it "lota pela linha da pessoa e encerra a lotação" do
       post rh_pessoa_lotacoes_path(maria), params: { lotacao: { unidade_id: nuinfo.id, funcao_id: tecnico.id, data_inicio: "01/03/2024" } }
-      expect(response).to redirect_to(rh_pessoa_path(maria))
+      expect(response).to redirect_to(rh_pessoas_path)
       lotacao = maria.lotacoes.sole
 
       get rh_lotacoes_path, params: { q: "nuinfo" }

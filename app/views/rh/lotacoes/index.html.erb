@@ -39,7 +39,7 @@
               <td><%= render "compartilhado/selo", texto: (lotacao.ativo? ? "Ativa" : "Encerrada"), tom: (lotacao.ativo? ? :sucesso : :neutro) %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(lotacao.pessoa), desabilitado: !pode?("rh.pessoas.ver") %>
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(lotacao.pessoa), quadro: "painel", desabilitado: !pode?("rh.pessoas.ver") %>
                   <%= render "compartilhado/botao_acao", titulo: "Encerrar lotação", icone: :ban, caminho: encerrar_rh_lotacao_path(lotacao), metodo: :patch,
                         desabilitado: !gerencia || lotacao.inativo?,
                         confirmar: { mensagem: "Confirme o encerramento da lotação de #{lotacao.pessoa.nome} em #{lotacao.unidade.sigla_e_nome}. A data de fim será hoje.", rotulo: "Encerrar" } %>

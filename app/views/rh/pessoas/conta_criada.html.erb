@@ -1,11 +1,11 @@
 <% content_for :title, "Conta criada" %>
 <% rodape = capture do %>
-  <%= link_to "Concluir", rh_pessoa_path(@pessoa), data: { turbo_frame: "_top" },
+  <%= link_to "Concluir", rh_pessoas_path, data: { turbo_frame: "_top" },
         class: "inline-flex h-10 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
 <% end %>
 
 <%= render layout: "compartilhado/painel_formulario",
-      locals: { sobretitulo: "Pessoa cadastrada", titulo: "Conta de acesso criada", voltar: rh_pessoa_path(@pessoa), rodape: rodape,
+      locals: { sobretitulo: "Pessoa cadastrada", titulo: "Conta de acesso criada", voltar: rh_pessoas_path, rodape: rodape,
                 descricao: "Entregue esta senha a #{@pessoa.nome}. Ela não será mostrada de novo e precisa ser trocada no primeiro acesso." } do %>
   <div class="rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-5 py-4">
     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">E-mail</p>

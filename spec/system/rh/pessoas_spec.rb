@@ -29,21 +29,27 @@ RSpec.describe "RH: pessoas", :js do
     expect(User.find_by!(email: "ana@seed.ap.gov.br").valid_password?(senha)).to be(true)
     click_on "Concluir"
 
-    expect(page).to have_css("h1", text: "ANA PAULA LIMA")
-    expect(page).to have_content("02/03/1990")
-
-    click_on "Nova lotação"
+    # De volta à lista: lotar fica na linha da pessoa, e a ficha abre no painel, só para leitura.
+    expect(page).to have_css("h1", text: "Pessoas")
+    within("tr", text: "ANA PAULA LIMA") { click_on "Nova lotação" }
     escolher_no_autocomplete "Unidade *", digitar: "informát", opcao: "NUINFO - NÚCLEO DE INFORMÁTICA"
     escolher_no_autocomplete "Função *", digitar: "téc", opcao: "TÉCNICO"
     click_on "Salvar lotação"
     expect(page).to have_css("#avisos", text: "Lotação registrada com sucesso.")
-    expect(page).to have_content("1 ativa(s) de 1 registrada(s)")
-    page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-ficha.png") if ENV["SCREENSHOT_DIR"]
 
-    click_on "Encerrar lotação"
+    within("tr", text: "ANA PAULA LIMA") { click_on "Ver ficha" }
+    within("[role='dialog']") do
+      expect(page).to have_css("h2", text: "ANA PAULA LIMA")
+      expect(page).to have_content("02/03/1990").and have_content("1 ativa(s) de 1 registrada(s)")
+      page.save_screenshot("#{ENV['SCREENSHOT_DIR']}/rh-ficha.png") if ENV["SCREENSHOT_DIR"]
+      click_on "Fechar"
+    end
+
+    visit rh_lotacoes_path
+    within("tr", text: "ANA PAULA LIMA") { click_on "Encerrar lotação" }
     within("#confirmacao") { click_on "Encerrar" }
     expect(page).to have_css("#avisos", text: "Lotação encerrada.")
-    expect(page).to have_content("0 ativa(s) de 1 registrada(s)")
+    expect(page).to have_content("0 lotação(ões) registrada(s)")
   end
 
   it "o usuário comum chega à própria ficha pelo menu" do

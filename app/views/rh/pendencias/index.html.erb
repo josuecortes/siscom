@@ -55,7 +55,7 @@
               <td><%= pendencia.descricao %></td>
               <td>
                 <div class="flex flex-nowrap items-center gap-2">
-                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pendencia.pessoa), desabilitado: !pode?("rh.pessoas.ver") %>
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pendencia.pessoa), quadro: "painel", desabilitado: !pode?("rh.pessoas.ver") %>
                   <%= render "compartilhado/botao_acao", titulo: "Marcar como resolvida", icone: :check_circle, caminho: resolver_rh_pendencia_path(pendencia, request.query_parameters), metodo: :patch,
                         confirmar: { mensagem: "Confirme que a pendência \"#{pendencia.rotulo}\" de #{pendencia.pessoa.nome} não precisa mais de correção.", rotulo: "Marcar como resolvida", tom: "primario" } %>
                 </div>
