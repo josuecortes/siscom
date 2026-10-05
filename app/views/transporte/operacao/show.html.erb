@@ -7,7 +7,7 @@
 <% end %>
 
 <%= turbo_stream_from s %>
-<%= render layout: "transporte/solicitacoes/detalhes", locals: { solicitacao: s } do %>
+<%= render layout: "transporte/solicitacoes/detalhes", locals: { solicitacao: s, observacoes: true } do %>
   <% if s.em_andamento? %>
     <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] px-6 py-5 shadow-[var(--shadow-card)]" id="acoes_da_solicitacao">
       <h2 class="text-sm font-semibold text-[var(--text-primary)]">O que fazer</h2>
@@ -19,6 +19,7 @@
         <% if s.solicitada? || s.aprovada? %>
           <%= link_to reagendamento_transporte_operacao_path(s), class: botao, data: { turbo_frame: "painel" } do %><%= icone(:clock) %> Reagendar<% end %>
         <% end %>
+        <%= link_to new_transporte_solicitacao_observacao_path(s), class: botao, data: { turbo_frame: "painel" } do %><%= icone(:notes) %> Registrar observação<% end %>
         <% if pode?("transporte.solicitacoes.aprovar") %>
           <%= link_to cancelamento_transporte_operacao_path(s), class: botao, data: { turbo_frame: "painel" } do %><%= icone(:ban) %> Cancelar solicitação<% end %>
         <% end %>

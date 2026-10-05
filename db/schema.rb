@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1231,6 +1231,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
     t.index ["user_id"], name: "index_transporte_motoristas_on_user_id", unique: true
   end
 
+  create_table "transporte_observacoes", force: :cascade do |t|
+    t.bigint "solicitacao_id", null: false
+    t.bigint "autor_id", null: false
+    t.string "autor_nome", null: false
+    t.string "papel", null: false
+    t.text "corpo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["autor_id"], name: "index_transporte_observacoes_on_autor_id"
+    t.index ["solicitacao_id"], name: "index_transporte_observacoes_on_solicitacao_id"
+  end
+
   create_table "transporte_passageiros", force: :cascade do |t|
     t.bigint "solicitacao_id", null: false
     t.string "cpf", null: false
@@ -1239,6 +1251,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["solicitacao_id"], name: "index_transporte_passageiros_on_solicitacao_id"
+  end
+
+  create_table "transporte_servicos", force: :cascade do |t|
+    t.bigint "solicitacao_id", null: false
+    t.string "trecho", default: "ida", null: false
+    t.bigint "motorista_id", null: false
+    t.string "motorista_nome", null: false
+    t.bigint "veiculo_id", null: false
+    t.string "placa", null: false
+    t.bigint "odometro_inicial", null: false
+    t.bigint "odometro_final"
+    t.datetime "iniciado_em", null: false
+    t.datetime "finalizado_em"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["motorista_id"], name: "index_transporte_servicos_on_motorista_id"
+    t.index ["solicitacao_id"], name: "idx_transporte_servicos_solicitacao_em_uso", unique: true, where: "(finalizado_em IS NULL)"
+    t.index ["solicitacao_id"], name: "index_transporte_servicos_on_solicitacao_id"
+    t.index ["veiculo_id"], name: "idx_transporte_servicos_veiculo_em_uso", unique: true, where: "(finalizado_em IS NULL)"
+    t.index ["veiculo_id"], name: "index_transporte_servicos_on_veiculo_id"
   end
 
   create_table "transporte_solicitacoes", force: :cascade do |t|
@@ -1268,6 +1300,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
     t.datetime "ultimo_aviso_de_busca_em"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "concluida_em"
     t.index ["aberto_por_id"], name: "index_transporte_solicitacoes_on_aberto_por_id"
     t.index ["aprovada_por_id"], name: "index_transporte_solicitacoes_on_aprovada_por_id"
     t.index ["cancelada_por_id"], name: "index_transporte_solicitacoes_on_cancelada_por_id"
@@ -1465,7 +1498,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_condutores", column: "condutor_id"
   add_foreign_key "transporte_escolar_veiculos", "transporte_escolar_transportadores", column: "transportador_id"
   add_foreign_key "transporte_motoristas", "users"
+  add_foreign_key "transporte_observacoes", "transporte_solicitacoes", column: "solicitacao_id"
+  add_foreign_key "transporte_observacoes", "users", column: "autor_id"
   add_foreign_key "transporte_passageiros", "transporte_solicitacoes", column: "solicitacao_id"
+  add_foreign_key "transporte_servicos", "transporte_solicitacoes", column: "solicitacao_id"
+  add_foreign_key "transporte_servicos", "transporte_veiculos", column: "veiculo_id"
+  add_foreign_key "transporte_servicos", "users", column: "motorista_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "aberto_por_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "aprovada_por_id"
   add_foreign_key "transporte_solicitacoes", "users", column: "cancelada_por_id"

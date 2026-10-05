@@ -16,6 +16,8 @@ module Transporte
     belongs_to :cancelada_por, class_name: "User", optional: true
     has_many :passageiros, -> { order(:posicao, :id) }, class_name: "Transporte::Passageiro", foreign_key: :solicitacao_id, inverse_of: :solicitacao, dependent: :destroy
     has_many :destinos, -> { order(:posicao, :id) }, class_name: "Transporte::Destino", foreign_key: :solicitacao_id, inverse_of: :solicitacao, dependent: :destroy
+    has_many :servicos, class_name: "Transporte::Servico", foreign_key: :solicitacao_id, inverse_of: :solicitacao, dependent: :destroy
+    has_many :observacoes, class_name: "Transporte::Observacao", foreign_key: :solicitacao_id, inverse_of: :solicitacao, dependent: :destroy
     has_one_attached :documento_da_viagem
 
     enum :tipo, TIPOS.keys.index_by(&:itself), validate: true
@@ -44,6 +46,12 @@ module Transporte
     def nome_do_modo = MODOS[modo]
     def nome_do_status = STATUS[status]
     def em_andamento? = EM_ANDAMENTO.include?(status)
+
+    # O trecho em andamento (ida ou busca), se houver.
+    def servico_aberto = servicos.abertos.first
+
+    # Pode sair: aprovada (ida) ou aguardando busca sem ninguém a caminho.
+    def pode_iniciar_servico? = (aprovada? || busca?) && servico_aberto.nil?
 
     private
 

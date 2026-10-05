@@ -1,0 +1,19 @@
+<% content_for :title, "Iniciar serviço" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_inicio", rotulo: "Iniciar serviço" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (@solicitacao.busca? ? "Busca" : "Saída"), titulo: "Iniciar #{@solicitacao.codigo}", voltar: transporte_servico_path(@solicitacao), rodape: rodape,
+                descricao: "Escolha o veículo e informe o odômetro que está no painel agora. Ele não pode ser menor que o último registrado do veículo." } do %>
+  <%= form_with url: iniciar_transporte_servico_path(@solicitacao), method: :patch, id: "formulario_inicio", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <% veiculo = Transporte::Veiculo.find_by(id: params[:veiculo_id]) %>
+    <%= render "compartilhado/campo_autocomplete", nome: "veiculo_id", id: "veiculo", rotulo: "Veículo *", obrigatorio: true, url: veiculos_transporte_servicos_path,
+          valor: veiculo&.id, texto: veiculo&.descricao, placeholder: "Digite a placa", vazio: "Nenhum veículo livre no momento." %>
+    <div class="space-y-1.5">
+      <label for="odometro" class="text-sm font-medium text-[var(--text-secondary)]">Odômetro inicial (km) *</label>
+      <%= number_field_tag :odometro, params[:odometro], required: true, min: 0, step: 1, inputmode: "numeric", class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+    </div>
+  <% end %>
+<% end %>

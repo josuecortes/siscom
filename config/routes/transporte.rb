@@ -17,6 +17,19 @@ namespace :transporte do
       patch :reagendar
     end
   end
+  # Motorista: o que está para sair, as buscas e os serviços dele.
+  resources :servicos, only: %i[index show] do
+    get :veiculos, on: :collection, defaults: { format: :json }
+    member do
+      get :inicio
+      patch :iniciar
+      get :fim
+      patch :finalizar
+    end
+  end
+  resources :solicitacoes, only: [] do
+    resources :observacoes, only: %i[new create]
+  end
   resource :solicitacao_para_outro, only: %i[new create], path: "solicitacoes-para-outra-pessoa", controller: "solicitacoes_para_outro" do
     get :pessoas, defaults: { format: :json }
   end

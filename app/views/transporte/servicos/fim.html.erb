@@ -1,0 +1,19 @@
+<% content_for :title, "Finalizar trecho" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_fim", rotulo: "Finalizar" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Chegada", titulo: "Finalizar #{@solicitacao.codigo}", voltar: transporte_servico_path(@solicitacao), rodape: rodape,
+                descricao: (@servico ? "Veículo #{@servico.placa}. Odômetro na saída: #{number_with_delimiter(@servico.odometro_inicial)} km." : nil) } do %>
+  <%= form_with url: finalizar_transporte_servico_path(@solicitacao), method: :patch, id: "formulario_fim", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="odometro" class="text-sm font-medium text-[var(--text-secondary)]">Odômetro final (km) *</label>
+      <%= number_field_tag :odometro, params[:odometro], required: true, min: @servico&.odometro_inicial, step: 1, inputmode: "numeric", class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+      <% if @solicitacao.buscar_depois? && @servico&.de_ida? %>
+        <p class="text-xs text-[var(--text-muted)]">Depois disso a solicitação fica aguardando a busca, prevista para daqui a <%= @solicitacao.busca_horas %> hora(s).</p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
