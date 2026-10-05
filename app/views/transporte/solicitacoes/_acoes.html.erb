@@ -16,28 +16,29 @@
       <% end %>
     <% end %>
   <% when :operacao %>
+    <%# A operação aprova, reagenda e cancela; o motorista inicia e finaliza o serviço. Quem tem as duas permissões vê tudo. %>
+    <% opera = pode?("transporte.solicitacoes.operar") %>
+    <% aberto = s.servico_aberto %>
     <%= render "compartilhado/botao_acao", titulo: "Visualizar solicitação", icone: :eye, caminho: transporte_operacao_path(s), quadro: "painel" %>
-    <% if s.solicitada? && pode?("transporte.solicitacoes.aprovar") %>
+    <% if opera && s.solicitada? && pode?("transporte.solicitacoes.aprovar") %>
       <%= render "compartilhado/botao_acao", titulo: "Aprovar solicitação", icone: :check_circle, caminho: aprovar_transporte_operacao_path(s), metodo: :patch,
             confirmar: { mensagem: "Confirme a aprovação de #{s.codigo}, com saída em #{data_e_hora(s.saida_em)}.", rotulo: "Aprovar", tom: "primario" } %>
     <% end %>
-    <% if (s.aprovada? && !s.ja_reagendada?) || s.busca? %>
+    <% if pode?("transporte.servico.executar") %>
+      <% if s.pode_iniciar_servico? %>
+        <%= render "compartilhado/botao_acao", titulo: (s.busca? ? "Sair para buscar" : "Iniciar serviço"), icone: :media_play, caminho: inicio_transporte_servico_path(s), quadro: "painel" %>
+      <% elsif aberto && aberto.motorista_id == current_user.id %>
+        <%= render "compartilhado/botao_acao", titulo: (aberto.de_busca? || !s.buscar_depois? ? "Concluir serviço" : "Finalizar trecho"), icone: :media_stop, caminho: fim_transporte_servico_path(s), quadro: "painel" %>
+      <% end %>
+    <% end %>
+    <% if opera && ((s.aprovada? && !s.ja_reagendada?) || s.busca?) %>
       <%= render "compartilhado/botao_acao", titulo: (s.busca? ? "Reagendar busca" : "Reagendar"), icone: :clock, caminho: reagendamento_transporte_operacao_path(s), quadro: "painel" %>
-    <% end %>
-    <%= render "compartilhado/botao_acao", titulo: "Registrar observação", icone: :notes, caminho: new_transporte_solicitacao_observacao_path(s), quadro: "painel" %>
-    <% if s.em_andamento? && pode?("transporte.solicitacoes.aprovar") %>
-      <%= render "compartilhado/botao_acao", titulo: "Cancelar solicitação", icone: :ban, perigo: true, caminho: cancelamento_transporte_operacao_path(s), quadro: "painel" %>
-    <% end %>
-  <% when :motorista %>
-    <% aberto = s.servico_aberto %>
-    <%= render "compartilhado/botao_acao", titulo: "Visualizar solicitação", icone: :eye, caminho: transporte_servico_path(s), quadro: "painel" %>
-    <% if s.pode_iniciar_servico? %>
-      <%= render "compartilhado/botao_acao", titulo: (s.busca? ? "Sair para buscar" : "Iniciar serviço"), icone: :media_play, caminho: inicio_transporte_servico_path(s), quadro: "painel" %>
-    <% elsif aberto && aberto.motorista_id == current_user.id %>
-      <%= render "compartilhado/botao_acao", titulo: (aberto.de_busca? || !s.buscar_depois? ? "Concluir serviço" : "Finalizar trecho"), icone: :media_stop, caminho: fim_transporte_servico_path(s), quadro: "painel" %>
     <% end %>
     <% if Transporte::Solicitacoes::Observar.papel_de(s, current_user) %>
       <%= render "compartilhado/botao_acao", titulo: "Registrar observação", icone: :notes, caminho: new_transporte_solicitacao_observacao_path(s), quadro: "painel" %>
+    <% end %>
+    <% if opera && s.em_andamento? && pode?("transporte.solicitacoes.aprovar") %>
+      <%= render "compartilhado/botao_acao", titulo: "Cancelar solicitação", icone: :ban, perigo: true, caminho: cancelamento_transporte_operacao_path(s), quadro: "painel" %>
     <% end %>
   <% end %>
 </div>

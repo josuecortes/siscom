@@ -10,12 +10,17 @@ module Transporte
     ORDENS = { "saida" => "saida_em", "pedido" => "created_at" }.freeze
     FILTROS = %i[q tipo unidade_id pedido_de pedido_ate saida_de saida_ate].freeze
 
-    before_action { pode!(Transporte::Solicitacoes::Reagendar::PERMISSAO) }
-    before_action(except: :index) { @solicitacao = Transporte::Solicitacao.find(params[:id]) }
+    # Entram a operação e o motorista; aprovar, cancelar e reagendar são só da operação.
+    before_action { raise Core::AcessoNegado unless Transporte::Operacao.opera?(current_user) || Transporte::Operacao.dirige?(current_user) }
+    before_action(except: %i[index show]) { pode!(Transporte::Operacao::OPERAR) }
+    before_action(except: :index) { @solicitacao = Transporte::Operacao.visiveis(current_user).find(params[:id]) }
 
     def index
       @filtros = filtros
-      solicitacoes = filtrar(Transporte::Solicitacao.all)
+      @opera = Transporte::Operacao.opera?(current_user)
+      @abas = @opera ? ABAS : ABAS.slice(*Transporte::Operacao::ABAS_DO_MOTORISTA)
+      @filtros[:status] = @abas.keys.first unless @abas.key?(@filtros[:status])
+      solicitacoes = filtrar(Transporte::Operacao.visiveis(current_user))
       @contagens = solicitacoes.group(:status).count
       # Com algum filtro, as abas viram uma só ("Resultado"), com todas as etapas; a etapa vira coluna.
       solicitacoes = solicitacoes.where(status: @filtros[:status]) unless @filtros[:filtrando]

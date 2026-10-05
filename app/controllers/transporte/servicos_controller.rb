@@ -1,22 +1,8 @@
 module Transporte
-  # Transporte → Meus serviços (visão do motorista de transport-requests-module.tsx): o que está
-  # para sair, as buscas, o que ele está fazendo e o que já fez; inicia e finaliza os trechos.
+  # O motorista inicia e finaliza os trechos do serviço, pelos botões da linha na Operação.
   class ServicosController < BaseController
-    POR_PAGINA = 20
-    ABAS = { "saidas" => "Para sair", "buscas" => "Buscas", "andamento" => "Comigo agora", "feitos" => "Feitos por mim" }.freeze
-
     before_action { pode!(Transporte::Servicos::Iniciar::PERMISSAO) }
-    before_action(except: %i[index veiculos]) { @solicitacao = visiveis.find(params[:id]) }
-
-    def index
-      @filtros = { status: params[:status].presence_in(ABAS.keys) || "saidas" }
-      @contagens = ABAS.keys.index_with { |aba| da_aba(aba).count }
-      @pagy, @solicitacoes = pagy(:offset, da_aba(@filtros[:status]).includes(:destinos).order(:saida_em, :id), limit: POR_PAGINA)
-    end
-
-    def show
-      abrir_sobre(transporte_servicos_path)
-    end
+    before_action(except: :veiculos) { @solicitacao = Transporte::Operacao.do_motorista(current_user).find(params[:id]) }
 
     def inicio
       carregar_candidatas
@@ -52,29 +38,15 @@ module Transporte
 
     private
 
-    # O motorista vê o que está aprovado ou aguardando busca (para pegar) e tudo em que ele trabalhou.
-    def visiveis
-      Transporte::Solicitacao.where(status: %w[aprovada busca]).or(Transporte::Solicitacao.where(id: Transporte::Servico.where(motorista: current_user).select(:solicitacao_id)))
-    end
-
     # Outras solicitações que podem ir na mesma viagem (mesma etapa, sem serviço em andamento).
     def carregar_candidatas
-      @candidatas = da_aba(@solicitacao.busca? ? "buscas" : "saidas").where.not(id: @solicitacao.id).includes(:destinos).order(:saida_em, :id).limit(30)
-    end
-
-    def da_aba(aba)
-      abertos = Transporte::Servico.abertos
-      case aba
-      when "buscas" then Transporte::Solicitacao.busca.where.not(id: abertos.select(:solicitacao_id))
-      when "andamento" then Transporte::Solicitacao.where(id: abertos.where(motorista: current_user).select(:solicitacao_id))
-      when "feitos" then Transporte::Solicitacao.where(id: Transporte::Servico.where(motorista: current_user).where.not(finalizado_em: nil).select(:solicitacao_id))
-      else Transporte::Solicitacao.aprovada
-      end
+      mesma_etapa = Transporte::Solicitacao.where(status: @solicitacao.status).where.not(id: Transporte::Servico.abertos.select(:solicitacao_id))
+      @candidatas = mesma_etapa.where.not(id: @solicitacao.id).includes(:destinos).order(:saida_em, :id).limit(30)
     end
 
     def responder(resultado, tela, aviso)
       if resultado.sucesso?
-        concluir_painel(aviso: aviso, voltar_para: transporte_servicos_path)
+        concluir_painel(aviso: aviso, voltar_para: transporte_operacao_index_path)
       else
         @erro = resultado.mensagem_de_erro
         carregar_candidatas if tela == :inicio

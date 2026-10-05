@@ -20,8 +20,8 @@ namespace :transporte do
       patch :reagendar
     end
   end
-  # Motorista: o que está para sair, as buscas e os serviços dele.
-  resources :servicos, only: %i[index show] do
+  # Motorista: inicia e finaliza os trechos (pela linha da Operação; não há mais a tela "Meus serviços").
+  resources :servicos, only: [] do
     get :veiculos, on: :collection, defaults: { format: :json }
     member do
       get :inicio

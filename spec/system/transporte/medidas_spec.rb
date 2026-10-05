@@ -82,7 +82,7 @@ RSpec.describe "Transporte com as medidas do seed", :js do
       pedido = solicitacao(modo: "so_deixar", busca_horas: nil)
       Transporte::Servicos::Iniciar.call(solicitacao: pedido, ator: admin, veiculo_id: veiculo.id, odometro: 12_050)
 
-      visit transporte_servicos_path(status: "andamento")
+      visit transporte_operacao_index_path(status: "em_servico")
       within("tr", text: pedido.codigo) { click_on "Concluir serviço" }
       expect(titulos_do_painel).to eq([ "transporte", "Concluir serviço #{pedido.codigo}" ])
     end
@@ -210,7 +210,7 @@ RSpec.describe "Transporte com as medidas do seed", :js do
 
     it "as telas não criam rolagem horizontal e a ação do cabeçalho fica só com o ícone" do
       pedido = solicitacao
-      [ transporte_solicitacoes_path, transporte_operacao_index_path, transporte_operacao_path(pedido), transporte_servicos_path, transporte_servico_path(pedido),
+      [ transporte_solicitacoes_path, transporte_operacao_index_path, transporte_operacao_path(pedido),
         transporte_motoristas_path, transporte_veiculos_path, transporte_relatorios_path, transporte_permissoes_path, transporte_configuracoes_path ].each do |caminho|
         visit caminho
         expect(page).to have_css("main h1")

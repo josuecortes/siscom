@@ -14,7 +14,7 @@ RSpec.describe "Transporte: serviços do motorista" do
   it "quem não é motorista não entra" do
     sign_in maria
 
-    respostas = [ -> { get transporte_servicos_path }, -> { get transporte_servico_path(solicitacao) },
+    respostas = [ -> { get transporte_operacao_index_path }, -> { get inicio_transporte_servico_path(solicitacao) },
                   -> { patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 } } ].map { |r| r.call && response.status }
 
     expect(respostas).to all(eq(403))
@@ -23,9 +23,17 @@ RSpec.describe "Transporte: serviços do motorista" do
   context "com motorista" do
     before { sign_in joao }
 
-    it "vê o que está para sair e procura um veículo livre pela placa" do
-      get transporte_servicos_path
-      expect(response.body).to include("Meus serviços", "Para sair", solicitacao.codigo, "Reunião na SEAD")
+    it "trabalha dentro da Operação: vê só o que pode pegar e o que é dele, com as abas e os botões do motorista" do
+      Transporte::Solicitacao.create!(tipo: "normal", modo: "so_deixar", status: "solicitada", resumo: "Ainda sem aprovação", saida_em: 2.days.from_now,
+                                                   solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email)
+
+      get transporte_operacao_index_path
+
+      html = Nokogiri::HTML(response.body)
+      expect(html.css("nav[aria-label='Etapas das solicitações'] a").map { |aba| aba.text.squish }).to eq([ "Aprovadas 1", "Em serviço 0", "Aguardando busca 0", "Concluídas 0" ])
+      expect(html.css("tbody tr[id] td:last-child [title]").pluck("title")).to eq([ "Visualizar solicitação", "Iniciar serviço" ])
+      expect(html.css("tbody tr[id] td:first-child a").map(&:text)).to eq([ solicitacao.codigo ]) # a solicitada ainda não aparece para o motorista
+      expect([ html.at_css("main a[title='Abrir para outra pessoa']"), html.css("#menu-lateral a").map { |link| link.text.squish } & [ "Meus serviços", "Abrir para outra pessoa" ] ]).to eq([ nil, [] ])
 
       get veiculos_transporte_servicos_path, params: { q: "qlm" }
       expect(response.parsed_body["opcoes"]).to eq([ { "valor" => hilux.id, "rotulo" => "QLM1A23 · TOYOTA HILUX", "subtitulo" => "Odômetro: 12000 km" } ])
@@ -42,19 +50,19 @@ RSpec.describe "Transporte: serviços do motorista" do
 
     it "inicia, chega ao destino e depois faz a busca: a solicitação termina concluída" do
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 }
-      ver_no_painel transporte_servico_path(solicitacao)
+      ver_no_painel transporte_operacao_path(solicitacao)
       expect(response.body).to include("Em serviço", "JOAO MOTORISTA", "QLM1A23", "em andamento", "Serviço iniciado")
-      get transporte_servicos_path, params: { status: "andamento" }
+      get transporte_operacao_index_path, params: { status: "em_servico" }
       expect(response.body).to include("Finalizar trecho", "Registrar observação")
 
       patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_080 }
-      get transporte_servicos_path, params: { status: "buscas" }
-      expect(response.body).to include(solicitacao.codigo, "Aguardando busca", "Buscar até")
+      get transporte_operacao_index_path, params: { status: "busca" }
+      expect(response.body).to include(solicitacao.codigo, "Aguardando busca", "Buscar até", "Sair para buscar")
 
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_100 }
       patch finalizar_transporte_servico_path(solicitacao), params: { odometro: 12_130 }
       expect(solicitacao.reload).to have_attributes(status: "concluida")
-      get transporte_servicos_path, params: { status: "feitos" }
+      get transporte_operacao_index_path, params: { status: "concluida" }
       expect(response.body).to include(solicitacao.codigo)
     end
 
@@ -67,7 +75,7 @@ RSpec.describe "Transporte: serviços do motorista" do
       expect(response.body).to include("Levar junto na mesma viagem", outra.codigo, "PEDRO SANTOS")
 
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050, outras_ids: [ outra.id ] }
-      ver_no_painel transporte_servico_path(outra)
+      ver_no_painel transporte_operacao_path(outra)
       expect(response.body).to include("Serviço compartilhado com #{solicitacao.codigo}", "Em serviço")
     end
 
@@ -78,8 +86,8 @@ RSpec.describe "Transporte: serviços do motorista" do
       patch iniciar_transporte_servico_path(solicitacao), params: { veiculo_id: hilux.id, odometro: 12_050 }
       post transporte_solicitacao_observacoes_path(solicitacao), params: { corpo: "Trânsito parado na FAB" }
 
-      expect(response).to redirect_to(transporte_servicos_path)
-      ver_no_painel transporte_servico_path(solicitacao)
+      expect(response).to redirect_to(transporte_operacao_index_path)
+      ver_no_painel transporte_operacao_path(solicitacao)
       expect(response.body).to include("Observações (1)", "Trânsito parado na FAB", "JOAO MOTORISTA (Motorista)")
     end
   end

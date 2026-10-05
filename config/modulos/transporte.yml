@@ -6,6 +6,7 @@ icone: "car-alt"
 
 permissoes:
   solicitacoes.abrir: "Abrir e acompanhar as próprias solicitações de transporte"
+  operacao.ver: "Entrar na Operação (o motorista vê só o que pode pegar e o que é dele)"
   solicitacoes.operar: "Ver a operação, abrir para outra pessoa, reagendar e registrar observações"
   solicitacoes.aprovar: "Aprovar e cancelar solicitações"
   servico.executar: "Iniciar e finalizar o serviço como motorista"
@@ -21,10 +22,10 @@ papeis:
     permissoes: "*"
   tecnico:
     nome: "Técnico"
-    permissoes: [solicitacoes.abrir, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder]
+    permissoes: [solicitacoes.abrir, operacao.ver, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder]
   motorista:
     nome: "Motorista"
-    permissoes: [solicitacoes.abrir, servico.executar]
+    permissoes: [solicitacoes.abrir, operacao.ver, servico.executar]
   # Não é automático (decisão do Josue): só pede transporte quem tem a permissão, como no siscom antigo
   # (`req_serv_tp`, migrado por `remaster:transporte:importar_papeis`).
   solicitante:
@@ -37,10 +38,8 @@ concessao:
 
 menu:
   - { rotulo: "Solicitações de transporte", rota: transporte_solicitacoes_path, permissao: solicitacoes.abrir, icone: car-alt, minha_area: true }
-  - { rotulo: "Meus serviços", rota: transporte_servicos_path, permissao: servico.executar, icone: speedometer }
-  - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: solicitacoes.operar, icone: group }
+  - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: operacao.ver, icone: group }
   - { rotulo: "Veículos agora", rota: transporte_veiculos_agora_path, permissao: solicitacoes.operar, icone: location-pin }
-  - { rotulo: "Abrir para outra pessoa", rota: new_transporte_solicitacao_para_outro_path, permissao: solicitacoes.operar, icone: user-follow }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
   - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
   - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich }

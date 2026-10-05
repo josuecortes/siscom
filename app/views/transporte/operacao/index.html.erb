@@ -1,7 +1,10 @@
 <% content_for :title, "Operação de transporte" %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Operação de transporte", icone: :car_alt, migalha: [ "Transporte", transporte_operacao_index_path ] } do %>
-  <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir para outra pessoa", icone: :user_follow, caminho: new_transporte_solicitacao_para_outro_path %>
+  <%# Abrir para si é pela Minha área; aqui, só em nome de outra pessoa (e só a operação). %>
+  <% if @opera %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir para outra pessoa", icone: :user_follow, caminho: new_transporte_solicitacao_para_outro_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
 <% end %>
 
 <%= turbo_stream_from "transporte_operacao" %>
@@ -83,7 +86,7 @@
         <% if filtrando %>
           <span class="<%= aba %>" aria-current="page"><span>Resultado</span> <span class="<%= contador %>"><%= @pagy.count %></span></span>
         <% else %>
-          <% Transporte::OperacaoController::ABAS.each do |chave, titulo| %>
+          <% @abas.each do |chave, titulo| %>
             <%= link_to transporte_operacao_index_path(status: chave, ordem: (@filtros[:ordem] unless @filtros[:ordem] == "saida"), direcao: (@filtros[:direcao] unless @filtros[:direcao] == "asc")), aria: { current: (chave == @filtros[:status] ? "page" : nil) }, class: aba do %>
               <span><%= titulo %></span>
               <span class="<%= contador %>"><%= @contagens.fetch(chave, 0) %></span>
@@ -106,7 +109,7 @@
         <% end %>
       </th>
     <% end %>
-    <%= render "compartilhado/resumo_tabela", texto: (filtrando ? "#{@pagy.count} solicitação(ões) encontrada(s), de todas as etapas, por #{ordem}" : "#{@pagy.count} solicitação(ões) em #{Transporte::OperacaoController::ABAS.fetch(@filtros[:status]).downcase}, por #{ordem}") %>
+    <%= render "compartilhado/resumo_tabela", texto: (filtrando ? "#{@pagy.count} solicitação(ões) encontrada(s), de todas as etapas, por #{ordem}" : "#{@pagy.count} solicitação(ões) em #{@abas.fetch(@filtros[:status]).downcase}, por #{ordem}") %>
 
     <div class="overflow-x-auto">
       <table class="collection-table min-w-[980px]">

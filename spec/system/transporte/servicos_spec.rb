@@ -26,7 +26,7 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
       visit root_path
       within("#menu-lateral") do
         find("summary", text: "Transporte").click
-        click_on "Meus serviços"
+        click_on "Operação" # o motorista trabalha dentro da Operação (não há mais "Meus serviços")
       end
       within("tr", text: solicitacao.codigo) { click_on "Iniciar serviço" } # as ações ficam na linha da lista
       escolher_no_autocomplete "Veículo *", digitar: "qlm", opcao: "QLM1A23 · TOYOTA HILUX"
@@ -34,7 +34,7 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
       print("transporte-iniciar-servico")
       within("[role='dialog']") { click_on "Iniciar serviço" }
       expect(page).to have_css("#avisos", text: "Serviço iniciado. Boa viagem!")
-      expect(page).to have_css("nav a", text: /Comigo agora\s*1/)
+      expect(page).to have_css("nav a", text: /Em serviço\s*1/)
     end
 
     expect(page).to have_css("nav a", text: /Em serviço\s*1/) # mudou sozinha para a Maria
@@ -46,14 +46,14 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
     end
 
     Capybara.using_session(:motorista) do
-      click_on "Comigo agora"
+      click_on "Em serviço"
       within("tr", text: solicitacao.codigo) { click_on "Concluir serviço" }
       fill_in "Odômetro final (km) *", with: "12080"
       fill_in "Observação", with: "Tudo certo no trajeto."
       print("transporte-servico")
       within("[role='dialog']") { click_on "Concluir serviço" }
       expect(page).to have_css("#avisos", text: "Trecho finalizado.")
-      expect(page).to have_css("nav a", text: /Feitos por mim\s*1/)
+      expect(page).to have_css("nav a", text: /Concluídas\s*1/)
     end
 
     expect(page).to have_css("nav a", text: /Concluídas\s*1/)
@@ -63,7 +63,7 @@ RSpec.describe "Transporte: o motorista faz o serviço", :js do
   it "no celular a lista do motorista não cria rolagem horizontal" do
     sign_in joao
     usar_tela_de_celular
-    visit transporte_servicos_path
+    visit transporte_operacao_index_path
     expect(page).to have_content(solicitacao.codigo)
     expect(sem_rolagem_horizontal?).to be(true)
   end

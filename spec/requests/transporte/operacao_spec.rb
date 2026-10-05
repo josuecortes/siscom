@@ -21,13 +21,16 @@ RSpec.describe "Transporte: operação" do
     solicitacao
   end
 
-  it "solicitante e motorista não entram na operação" do
-    [ maria, com_papel("motorista", "MOTORISTA") ].each do |user|
-      sign_in user
-      respostas = [ -> { get transporte_operacao_index_path }, -> { patch aprovar_transporte_operacao_path(solicitacao) },
-                    -> { get new_transporte_solicitacao_para_outro_path } ].map { |requisicao| requisicao.call && response.status }
-      expect(respostas).to all(eq(403))
-    end
+  it "solicitante não entra na operação; o motorista entra, mas não aprova nem abre para outra pessoa" do
+    sign_in maria
+    respostas = [ -> { get transporte_operacao_index_path }, -> { patch aprovar_transporte_operacao_path(solicitacao) },
+                  -> { get new_transporte_solicitacao_para_outro_path } ].map { |requisicao| requisicao.call && response.status }
+    expect(respostas).to all(eq(403))
+
+    sign_in com_papel("motorista", "MOTORISTA")
+    respostas = [ -> { get transporte_operacao_index_path }, -> { patch aprovar_transporte_operacao_path(solicitacao) }, -> { get reagendamento_transporte_operacao_path(solicitacao) },
+                  -> { get new_transporte_solicitacao_para_outro_path } ].map { |requisicao| requisicao.call && response.status }
+    expect(respostas).to eq([ 200, 403, 403, 403 ])
     expect(solicitacao.reload).to be_solicitada
   end
 
