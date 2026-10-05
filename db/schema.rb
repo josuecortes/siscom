@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -930,8 +930,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_170000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "aberto_por_id"
+    t.bigint "legacy_id"
     t.index ["aberto_por_id"], name: "index_ti_chamados_on_aberto_por_id"
     t.index ["codigo"], name: "index_ti_chamados_on_codigo", unique: true
+    t.index ["legacy_id"], name: "index_ti_chamados_on_legacy_id", unique: true
     t.index ["problema_id"], name: "index_ti_chamados_on_problema_id"
     t.index ["responsavel_id"], name: "index_ti_chamados_on_responsavel_id"
     t.index ["rh_unidade_id"], name: "index_ti_chamados_on_rh_unidade_id"
@@ -1330,10 +1332,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_170000) do
     t.datetime "reagendada_em"
     t.text "motivo_recusa_reagendamento"
     t.datetime "reagendamento_respondido_em"
+    t.bigint "legacy_id"
     t.index ["aberto_por_id"], name: "index_transporte_solicitacoes_on_aberto_por_id"
     t.index ["aprovada_por_id"], name: "index_transporte_solicitacoes_on_aprovada_por_id"
     t.index ["cancelada_por_id"], name: "index_transporte_solicitacoes_on_cancelada_por_id"
     t.index ["codigo"], name: "index_transporte_solicitacoes_on_codigo", unique: true
+    t.index ["legacy_id"], name: "index_transporte_solicitacoes_on_legacy_id", unique: true
     t.index ["reagendada_por_id"], name: "index_transporte_solicitacoes_on_reagendada_por_id"
     t.index ["saida_em"], name: "index_transporte_solicitacoes_on_saida_em"
     t.index ["solicitante_id"], name: "index_transporte_solicitacoes_on_solicitante_id"

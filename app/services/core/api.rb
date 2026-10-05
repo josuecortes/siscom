@@ -128,6 +128,13 @@ module Core
       Conversas::Sincronizar.call(alvo:, modulo:, titulo:, ativa:, participantes:, motivo_leitura:, nota_do_sistema:)
     end
 
+    # Importa a conversa antiga de um registro (migração do siscom antigo): cria a conversa só para leitura,
+    # com as mensagens nas datas originais, já lidas, sem avisar ninguém. Não faz nada se o registro já tem conversa.
+    #   participantes: [{ user:, papel:, url: }]   mensagens: [{ autor:, corpo:, em: }]
+    def importar_conversa(alvo:, modulo:, titulo:, participantes:, mensagens:, motivo_leitura: nil)
+      Conversas::Importar.call(alvo:, modulo:, titulo:, participantes:, mensagens:, motivo_leitura:)
+    end
+
     # A conversa do registro (ou nil), para renderizar com `core/conversas/conversa`.
     def conversa_de(alvo) = Conversa.de(alvo)
 

@@ -27,6 +27,12 @@ module Rh
       registro && unidade_de(registro)
     end
 
+    # A unidade nova que corresponde à unidade do siscom antigo (pelo id antigo), ou nil.
+    def unidade_do_legado(id_antigo)
+      registro = Rh::Unidade.find_by(legacy_id: id_antigo)
+      registro && unidade_de(registro)
+    end
+
     # Opções para um campo de busca de unidade (regra dos campos de busca: com 3 letras ou mais, o que
     # combina; se nada combina, a lista em ordem alfabética). Devolve { opcoes:, todas:, restantes: }.
     def opcoes_de_unidades(termo, limite: 50)
