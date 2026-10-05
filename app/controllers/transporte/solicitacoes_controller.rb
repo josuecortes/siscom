@@ -22,6 +22,22 @@ module Transporte
       @solicitacao = Transporte::Solicitacao.where(solicitante: current_user).or(Transporte::Solicitacao.where(aberto_por: current_user)).find(params[:id])
     end
 
+    def cancelamento
+      @solicitacao = Transporte::Solicitacao.where(solicitante: current_user).find(params[:id])
+    end
+
+    def cancelar
+      @solicitacao = Transporte::Solicitacao.where(solicitante: current_user).find(params[:id])
+      resultado = Transporte::Solicitacoes::Cancelar.call(solicitacao: @solicitacao, ator: current_user, motivo: params[:motivo])
+
+      if resultado.sucesso?
+        concluir_painel(aviso: "Solicitação #{@solicitacao.codigo} cancelada.", voltar_para: transporte_solicitacao_path(@solicitacao))
+      else
+        @erro = resultado.mensagem_de_erro
+        render :cancelamento, status: :unprocessable_content
+      end
+    end
+
     def new
       @solicitacao = Transporte::Solicitacao.new(tipo: "normal")
       @solicitacao.passageiros.build

@@ -1,70 +1,17 @@
 <% content_for :title, @solicitacao.codigo %>
 <% s = @solicitacao %>
-<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
-<% detalhe = ->(rotulo, valor) do %>
-  <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
-    <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
-    <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "—" %></dd>
-  </div>
-<% end %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Solicitação #{s.codigo}", icone: :car_alt, migalha: [ "Solicitações de transporte", transporte_solicitacoes_path ] } do %>
   <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: transporte_solicitacoes_path, secundaria: true %>
 <% end %>
 
-<div class="mt-6 space-y-6">
-  <section class="<%= cartao %>">
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
-      <div>
-        <h2 class="text-base font-semibold text-[var(--text-primary)]"><%= s.nome_do_tipo %> · <%= s.nome_do_modo %></h2>
-        <p class="mt-1 whitespace-pre-line text-sm text-[var(--text-secondary)]"><%= s.resumo %></p>
-      </div>
-      <%= selo_da_solicitacao(s) %>
-    </div>
-    <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
-      <% detalhe.call("Saída", data_e_hora(s.saida_em)) %>
-      <% if s.viagem? %><% detalhe.call("Retorno", data_e_hora(s.retorno_em)) %><% end %>
-      <% if s.esperar_no_local? %><% detalhe.call("Espera no local", "#{s.espera_horas} hora(s)") %><% end %>
-      <% if s.buscar_depois? %><% detalhe.call("Buscar depois de", "#{s.busca_horas} hora(s)") %><% end %>
-      <% detalhe.call("Solicitante", s.solicitante_nome) %>
-      <% detalhe.call("Unidade", s.unidade_nome) %>
-      <% if s.aberto_por %><% detalhe.call("Aberta por", "#{s.aberto_por.nome} (em nome do solicitante#{', fora do prazo' if s.fora_do_padrao?})") %><% end %>
-      <% if s.cancelada? %><% detalhe.call("Motivo do cancelamento", s.motivo_cancelamento) %><% end %>
-      <% if s.documento_da_viagem.attached? %>
-        <% detalhe.call("Documento da viagem", link_to(s.documento_da_viagem.filename.to_s, rails_blob_path(s.documento_da_viagem, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false })) %>
-      <% end %>
-    </dl>
-  </section>
-
-  <section class="<%= cartao %>">
-    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Passageiros (<%= s.passageiros.size %>)</h2>
-    </div>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% s.passageiros.each do |passageiro| %>
-        <li class="flex flex-wrap items-baseline gap-x-3 px-6 py-3 text-sm">
-          <span class="font-semibold text-[var(--text-primary)]"><%= passageiro.nome %></span>
-          <span class="text-[var(--text-secondary)]"><%= Cpf.formatar(passageiro.cpf) %></span>
-        </li>
-      <% end %>
-    </ul>
-  </section>
-
-  <section class="<%= cartao %>">
-    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
-      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Destinos (<%= s.destinos.size %>)</h2>
-    </div>
-    <ol class="divide-y divide-[var(--border-subtle)]">
-      <% s.destinos.each_with_index do |destino, indice| %>
-        <li class="px-6 py-3 text-sm">
-          <p class="font-semibold text-[var(--text-primary)]"><%= indice + 1 %>. <%= destino.nome %></p>
-          <p class="mt-1 text-[var(--text-secondary)]"><%= destino.endereco %><%= " · CEP #{destino.cep}" if destino.cep.present? %></p>
-          <% if destino.no_mapa? %>
-            <p class="mt-1"><%= link_to "Abrir no mapa", "https://www.openstreetmap.org/?mlat=#{destino.latitude}&mlon=#{destino.longitude}#map=17/#{destino.latitude}/#{destino.longitude}",
-                  target: "_blank", rel: "noopener", class: "text-[var(--accent-strong)] hover:underline" %></p>
-          <% end %>
-        </li>
-      <% end %>
-    </ol>
-  </section>
-</div>
+<%= turbo_stream_from s %>
+<%= render layout: "detalhes", locals: { solicitacao: s } do %>
+  <% if s.solicitante_id == current_user.id && (s.solicitada? || s.aprovada?) %>
+    <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] px-6 py-5 shadow-[var(--shadow-card)]">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]"><%= s.solicitada? ? "Aguardando a aprovação do setor de transporte" : "Solicitação aprovada" %></h2>
+      <p class="mt-1 text-sm text-[var(--text-secondary)]">Se não precisar mais do transporte, cancele para liberar o veículo.</p>
+      <div class="mt-3"><%= link_to "Cancelar solicitação", cancelamento_transporte_solicitacao_path(s), data: { turbo_frame: "painel" }, class: "inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--surface-card)] px-4 text-sm font-medium text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]" %></div>
+    </section>
+  <% end %>
+<% end %>

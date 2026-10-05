@@ -1,7 +1,25 @@
 # Rotas do módulo Transporte.
 namespace :transporte do
   # Solicitações do solicitante.
-  resources :solicitacoes, only: %i[index show new create]
+  resources :solicitacoes, only: %i[index show new create] do
+    member do
+      get :cancelamento
+      patch :cancelar
+    end
+  end
+  # Operação: o técnico vê todas, aprova, cancela, reagenda e abre em nome de outra pessoa.
+  resources :operacao, only: %i[index show], controller: "operacao" do
+    member do
+      patch :aprovar
+      get :cancelamento
+      patch :cancelar
+      get :reagendamento
+      patch :reagendar
+    end
+  end
+  resource :solicitacao_para_outro, only: %i[new create], path: "solicitacoes-para-outra-pessoa", controller: "solicitacoes_para_outro" do
+    get :pessoas, defaults: { format: :json }
+  end
 
   %i[motoristas veiculos].each do |recurso|
     resources recurso, only: %i[index new create edit update] do

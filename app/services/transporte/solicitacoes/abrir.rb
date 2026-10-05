@@ -158,13 +158,13 @@ module Transporte
       # Quem aprova (técnicos e administradores do transporte) fica sabendo do pedido novo.
       def avisar
         ator = @aberto_por || @user
-        operacao = ::User.ativos.where(id: Core::Api.ids_dos_usuarios_com_papel(modulo: :transporte, papeis: %w[admin tecnico]))
-        Core::Api.notificar(destinatarios: operacao, evento: "transporte.solicitacao.aberta", titulo: "Nova solicitação de transporte",
-                            mensagem: "#{@solicitacao.codigo} - saída em #{I18n.l(@solicitacao.saida_em, format: '%d/%m/%Y %H:%M')}", alvo: @solicitacao, ator: ator)
-        return unless @aberto_por
-
-        Core::Api.notificar(destinatarios: [ @user ], evento: "transporte.solicitacao.aberta_em_seu_nome", titulo: "Solicitação de transporte aberta em seu nome",
-                            mensagem: "#{@aberto_por.nome} abriu a solicitação #{@solicitacao.codigo} para você.", alvo: @solicitacao, ator: @aberto_por)
+        Avisos.notificar(Avisos.operacao.to_a, @solicitacao, ator, :operacao, "Nova solicitação de transporte",
+                         "#{@solicitacao.codigo} - saída em #{I18n.l(@solicitacao.saida_em, format: '%d/%m/%Y %H:%M')}")
+        if @aberto_por
+          Avisos.notificar(@user, @solicitacao, @aberto_por, :solicitante, "Solicitação de transporte aberta em seu nome",
+                           "#{@aberto_por.nome} abriu a solicitação #{@solicitacao.codigo} para você.")
+        end
+        Avisos.atualizar_telas(@solicitacao)
       end
 
       def configuracao = @configuracao ||= Transporte::Configuracao.atual

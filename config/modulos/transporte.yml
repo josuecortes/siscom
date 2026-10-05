@@ -37,6 +37,8 @@ concessao:
 
 menu:
   - { rotulo: "Solicitações de transporte", rota: transporte_solicitacoes_path, permissao: solicitacoes.abrir, icone: car-alt, minha_area: true }
+  - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: solicitacoes.operar, icone: group }
+  - { rotulo: "Abrir para outra pessoa", rota: new_transporte_solicitacao_para_outro_path, permissao: solicitacoes.operar, icone: user-follow }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
   - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
   - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }

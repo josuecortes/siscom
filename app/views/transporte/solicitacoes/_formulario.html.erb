@@ -1,0 +1,137 @@
+<%# Painel de solicitação de transporte. locals: solicitacao, lotacoes, configuracao,
+    para_outro (bool: a operação abre em nome de outra pessoa), solicitante (a pessoa escolhida, ou nil). %>
+<% s = solicitacao %>
+<% para_outro = local_assigns[:para_outro] %>
+<% solicitante = local_assigns[:solicitante] %>
+<% url = para_outro ? transporte_solicitacao_para_outro_path : transporte_solicitacoes_path %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_solicitacao", rotulo: "Enviar solicitação" } %>
+<% entrada = "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<% borda = ->(campo) { s.errors[campo].any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
+<% erro = ->(campo, nome) { safe_join(s.errors[campo].map { |mensagem| tag.p("#{nome} #{mensagem}", class: "text-sm text-[var(--danger-text)]") }) } %>
+<% data_hora = { controller: "mascara", mascara_tipo_value: "data_hora", action: "input->mascara#aplicar" } %>
+<% c = configuracao %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Nova solicitação", titulo: (para_outro ? "Solicitar transporte para outra pessoa" : "Solicitar transporte"),
+                voltar: (para_outro ? transporte_operacao_index_path : transporte_solicitacoes_path), rodape: rodape,
+                descricao: "A saída precisa ser marcada com #{c.normal_antecedencia_min_horas} a #{c.normal_antecedencia_max_horas} horas de antecedência (viagem: #{c.viagem_antecedencia_min_horas} a #{c.viagem_antecedencia_max_horas})." } do %>
+  <%# Em nome de outra pessoa não há lista por trás do painel: ao salvar, a página inteira vai para a solicitação. %>
+  <%= form_with url: url, id: "formulario_solicitacao", class: "space-y-5", multipart: true, data: ({ turbo_frame: "_top" } if para_outro) do |f| %>
+    <% if s.errors.any? || (s.passageiros + s.destinos).any? { |item| item.errors.any? } %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (s.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <% if para_outro %>
+      <div data-controller="recarregar-quadro" data-recarregar-quadro-url-value="<%= new_transporte_solicitacao_para_outro_path %>" data-recarregar-quadro-parametro-value="solicitacao[solicitante_id]">
+        <%= render "compartilhado/campo_autocomplete", nome: "solicitacao[solicitante_id]", id: "solicitacao_solicitante", rotulo: "Pessoa *", obrigatorio: true,
+              url: pessoas_transporte_solicitacao_para_outro_path, valor: solicitante&.id, texto: solicitante&.nome, acao: "change->recarregar-quadro#recarregar",
+              erros: (solicitante || s.errors[:base].empty? ? [] : [ "deve ser escolhida na lista" ]), vazio: "Nenhum usuário encontrado.",
+              ajuda: "Escolha a pessoa antes de preencher o resto: o painel recarrega com as lotações dela." %>
+      </div>
+      <label class="flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-3 text-sm text-[var(--text-secondary)]">
+        <%= check_box_tag "solicitacao[fora_do_padrao]", "1", params.dig(:solicitacao, :fora_do_padrao) == "1" || s.fora_do_padrao?, id: "solicitacao_fora_do_padrao", class: "mt-0.5 h-4 w-4" %>
+        <span>
+          <span class="block font-semibold text-[var(--text-primary)]">Fora do prazo</span>
+          <span class="block">Ignora a antecedência e as faixas de horas da Configuração. Use para os pedidos de última hora.</span>
+        </span>
+      </label>
+    <% end %>
+
+    <% if lotacoes.size > 1 %>
+      <div class="space-y-1.5">
+        <label for="solicitacao_lotacao_id" class="<%= rotulo %>">Unidade *</label>
+        <%= select_tag "solicitacao[lotacao_id]",
+              options_for_select([ [ "Selecione a unidade", "" ] ] + lotacoes.map { |l| [ "#{[ l.unidade.sigla, l.unidade.nome ].compact_blank.join(' - ')} (#{l.funcao})", l.id ] }, params.dig(:solicitacao, :lotacao_id)),
+              id: "solicitacao_lotacao_id", required: true, class: "#{entrada} #{borda.call(:lotacao_id)}" %>
+        <%= erro.call(:lotacao_id, "Unidade") %>
+      </div>
+    <% elsif lotacoes.one? %>
+      <div class="space-y-1.5">
+        <label for="solicitacao_unidade" class="<%= rotulo %>">Unidade</label>
+        <input type="text" id="solicitacao_unidade" readonly value="<%= [ lotacoes.first.unidade.sigla, lotacoes.first.unidade.nome ].compact_blank.join(" - ") %>"
+               class="<%= entrada %> border-[var(--border-subtle)] text-[var(--text-secondary)]">
+      </div>
+    <% end %>
+
+    <div class="space-y-5" data-controller="mostrar-por-valor">
+      <div class="space-y-1.5">
+        <label for="solicitacao_tipo" class="<%= rotulo %>">Tipo *</label>
+        <%= select_tag "solicitacao[tipo]", options_for_select(Transporte::Solicitacao::TIPOS.invert.to_a, s.tipo), id: "solicitacao_tipo",
+              data: { mostrar_por_valor_target: "campo", action: "change->mostrar-por-valor#atualizar" }, class: "#{entrada} border-[var(--border-subtle)]" %>
+        <p class="text-xs text-[var(--text-muted)]">Viagem é para fora da cidade: pede a data de retorno e o documento que autoriza.</p>
+      </div>
+      <div class="space-y-1.5">
+        <label for="solicitacao_saida_em" class="<%= rotulo %>">Saída (data e hora) *</label>
+        <%= text_field_tag "solicitacao[saida_em]", (params.dig(:solicitacao, :saida_em) || data_e_hora(s.saida_em)), id: "solicitacao_saida_em", required: true,
+              placeholder: "dd/mm/aaaa hh:mm", inputmode: "numeric", maxlength: 16, autocomplete: "off", data: data_hora, class: "#{entrada} #{borda.call(:saida_em)}" %>
+        <%= erro.call(:saida_em, "Saída") %>
+      </div>
+      <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="viagem">
+        <label for="solicitacao_retorno_em" class="<%= rotulo %>">Retorno (data e hora) *</label>
+        <%= text_field_tag "solicitacao[retorno_em]", (params.dig(:solicitacao, :retorno_em) || data_e_hora(s.retorno_em)), id: "solicitacao_retorno_em", required: true,
+              placeholder: "dd/mm/aaaa hh:mm", inputmode: "numeric", maxlength: 16, autocomplete: "off", data: data_hora, class: "#{entrada} #{borda.call(:retorno_em)}" %>
+        <%= erro.call(:retorno_em, "Retorno") %>
+      </div>
+      <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="viagem">
+        <label for="solicitacao_documento_da_viagem" class="<%= rotulo %>">Documento da viagem *</label>
+        <%= file_field_tag "solicitacao[documento_da_viagem]", id: "solicitacao_documento_da_viagem", required: true,
+              class: "block w-full rounded-xl border bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white #{borda.call(:documento_da_viagem)}" %>
+        <p class="text-xs text-[var(--text-muted)]">Ofício, portaria ou outro documento que autoriza a viagem. Até 10 MB.</p>
+        <%= erro.call(:documento_da_viagem, "Documento da viagem") %>
+      </div>
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="solicitacao_resumo" class="<%= rotulo %>">Motivo da solicitação *</label>
+      <%= text_area_tag "solicitacao[resumo]", s.resumo, id: "solicitacao_resumo", rows: 3, required: true, maxlength: 1000,
+            class: "min-h-[112px] w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none #{borda.call(:resumo)}" %>
+      <%= erro.call(:resumo, "Motivo") %>
+    </div>
+
+    <div class="space-y-5" data-controller="mostrar-por-valor">
+      <div class="space-y-1.5">
+        <label for="solicitacao_modo" class="<%= rotulo %>">O motorista deve *</label>
+        <%= select_tag "solicitacao[modo]", options_for_select([ [ "Selecione", "" ] ] + Transporte::Solicitacao::MODOS.invert.to_a, s.modo), id: "solicitacao_modo", required: true,
+              data: { mostrar_por_valor_target: "campo", action: "change->mostrar-por-valor#atualizar" }, class: "#{entrada} #{borda.call(:modo)}" %>
+        <%= erro.call(:modo, "Modo") %>
+      </div>
+      <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="esperar_no_local">
+        <label for="solicitacao_espera_horas" class="<%= rotulo %>">Quanto tempo vai esperar (horas) *</label>
+        <%= number_field_tag "solicitacao[espera_horas]", s.espera_horas, id: "solicitacao_espera_horas", required: true, min: c.espera_min_horas, max: c.espera_max_horas, step: 1,
+              class: "#{entrada} #{borda.call(:espera_horas)}" %>
+        <p class="text-xs text-[var(--text-muted)]">De <%= c.espera_min_horas %> a <%= c.espera_max_horas %> hora(s).</p>
+        <%= erro.call(:espera_horas, "Tempo de espera") %>
+      </div>
+      <div class="space-y-1.5" data-mostrar-por-valor-target="bloco" data-valores="buscar_depois">
+        <label for="solicitacao_busca_horas" class="<%= rotulo %>">Buscar depois de quantas horas *</label>
+        <%= number_field_tag "solicitacao[busca_horas]", s.busca_horas, id: "solicitacao_busca_horas", required: true, min: c.busca_min_horas, max: c.busca_max_horas, step: 1,
+              class: "#{entrada} #{borda.call(:busca_horas)}" %>
+        <p class="text-xs text-[var(--text-muted)]">De <%= c.busca_min_horas %> a <%= c.busca_max_horas %> hora(s).</p>
+        <%= erro.call(:busca_horas, "Tempo para a busca") %>
+      </div>
+    </div>
+
+    <fieldset class="space-y-3" data-controller="lista">
+      <legend class="text-sm font-semibold text-[var(--text-primary)]">Passageiros</legend>
+      <%= erro.call(:passageiros, "Passageiros") %>
+      <div class="space-y-3" data-lista-target="itens">
+        <% s.passageiros.each_with_index do |passageiro, indice| %><%= render "transporte/solicitacoes/passageiro", passageiro: passageiro, indice: indice %><% end %>
+      </div>
+      <template data-lista-target="modelo"><%= render "transporte/solicitacoes/passageiro", passageiro: Transporte::Passageiro.new, indice: "NOVO" %></template>
+      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar passageiro</button>
+    </fieldset>
+
+    <fieldset class="space-y-3" data-controller="lista">
+      <legend class="text-sm font-semibold text-[var(--text-primary)]">Destinos</legend>
+      <%= erro.call(:destinos, "Destinos") %>
+      <div class="space-y-3" data-lista-target="itens">
+        <% s.destinos.each_with_index do |destino, indice| %><%= render "transporte/solicitacoes/destino", destino: destino, indice: indice %><% end %>
+      </div>
+      <template data-lista-target="modelo"><%= render "transporte/solicitacoes/destino", destino: Transporte::Destino.new, indice: "NOVO" %></template>
+      <button type="button" data-action="lista#adicionar" class="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar destino</button>
+    </fieldset>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>
