@@ -33,7 +33,7 @@ RSpec.describe "Transporte: painel de acompanhamento" do
       atrasada = solicitacao(saida_em: 20.minutes.ago)
       solicitacao(saida_em: 5.days.from_now)
       solicitacao(status: "busca", modo: "buscar_depois", busca_horas: 1, busca_prevista_em: 20.minutes.from_now)
-      em_servico = solicitacao(status: "em_servico")
+      em_servico = solicitacao(status: "em_servico", unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA")
       em_servico.servicos.create!(trecho: "ida", motorista: maria, motorista_nome: "JOAO MOTORISTA", veiculo: create(:transporte_veiculo, placa: "QLM1A23"),
                                   placa: "QLM1A23", odometro_inicial: 1, iniciado_em: Time.current)
 
@@ -41,7 +41,7 @@ RSpec.describe "Transporte: painel de acompanhamento" do
       follow_redirect!
 
       html = Nokogiri::HTML(response.body)
-      expect(response.body).to include("Acompanhamento em tempo real", "JOAO MOTORISTA · QLM1A23", "Devia ter saído há 20 min", atrasada.codigo, "Atualiza em")
+      expect(response.body).to include("Acompanhamento em tempo real", "Motorista: Joao Motorista", "Ida · QLM1A23", "NUINFO - NÚCLEO DE INFORMÁTICA", "Devia ter saído há 20 min", atrasada.codigo, "Atualiza em")
       expect(html.css(".tv-coluna").map { |coluna| [ coluna.at_css("h2 span").text, coluna.css(".tv-cartao").pluck("data-nivel") ] })
         .to eq([ [ "Aguardando aprovação", %w[urgente] ], [ "Saídas aprovadas", %w[critico] ], [ "Em andamento", %w[normal] ], [ "Aguardando busca", %w[urgente] ] ])
       expect(html.css(".tv-resumo-item").map { |item| item.text.squish }).to eq([ "1 Atrasado", "2 Falta pouco", "0 Atenção", "1 No prazo" ])

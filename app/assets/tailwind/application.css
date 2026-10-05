@@ -395,6 +395,8 @@ select {
 .tv-horario { font-size: 1.35rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tv-cartao:not([data-nivel="normal"]) .tv-horario { color: var(--tv-cor); }
 .tv-nome { margin-top: 0.3rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.05rem; font-weight: 700; }
+.tv-unidade { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; font-weight: 600; color: var(--tv-texto); opacity: 0.85; }
+.tv-responsaveis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; font-weight: 600; color: var(--tv-texto); }
 .tv-detalhe { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.85rem; color: var(--tv-suave); }
 .tv-aviso { margin-top: 0.4rem; display: flex; align-items: flex-start; gap: 0.45rem; font-size: 0.9rem; font-weight: 600; line-height: 1.3; color: var(--tv-cor); }
 .tv-cartao[data-nivel="normal"] .tv-aviso { font-weight: 500; color: var(--tv-suave); }

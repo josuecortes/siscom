@@ -6,10 +6,22 @@
 # pouco), atencao (amarelo: convém olhar), normal (cinza).
 module PainelTv
   NIVEIS = %w[critico urgente atencao normal].freeze
-  Item = Data.define(:codigo, :nome, :detalhe, :horario, :nivel, :aviso)
+  # nome: quem pediu; unidade: a unidade de quem pediu; detalhe: o que é; responsaveis: quem está cuidando
+  # (ex.: "Triagem: Ana Lima · Técnico: João Souza"); horario: a data que importa; aviso: por que pede atenção.
+  Item = Data.define(:codigo, :nome, :unidade, :detalhe, :responsaveis, :horario, :nivel, :aviso) do
+    def initialize(codigo:, nome:, horario:, nivel:, detalhe: nil, aviso: nil, unidade: nil, responsaveis: nil)
+      super(codigo:, nome:, unidade: unidade.presence, detalhe: detalhe.presence, responsaveis: responsaveis.presence, horario:, nivel:, aviso:)
+    end
+  end
   Coluna = Data.define(:chave, :titulo, :vazio, :itens)
 
   module_function
+
+  # "MARIA DE OLIVEIRA SOUZA" => "Maria Souza" (cabe no cartão e ainda identifica a pessoa).
+  def nome_curto(nome)
+    partes = nome.to_s.split
+    [ partes.first, (partes.last if partes.size > 1) ].compact.map(&:capitalize).join(" ")
+  end
 
   # Em cada coluna, o mais urgente vem primeiro (e, no mesmo nível, a ordem em que vieram).
   def ordenar(itens) = itens.sort_by.with_index { |item, indice| [ NIVEIS.index(item.nivel), indice ] }

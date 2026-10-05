@@ -29,18 +29,26 @@ RSpec.describe Ti::Acompanhamento::Quadro do
     chamado("aberto", ha: 5.minutes, prioridade: "urgente", unidade_nome: "NUINFO")
 
     item = described_class.new.colunas.first.itens.sole
-    expect(item).to have_attributes(nome: "MARIA OLIVEIRA", detalhe: "URGENTE · SEM INTERNET · NUINFO", horario: agora - 5.minutes, nivel: "normal")
+    expect(item).to have_attributes(nome: "MARIA OLIVEIRA", unidade: "NUINFO", detalhe: "URGENTE · SEM INTERNET", responsaveis: nil, horario: agora - 5.minutes, nivel: "normal")
   end
 
-  it "em triagem e em atendimento: diz com quem está e há quanto tempo sem novidade" do
+  it "mostra quem está triando e quem está atendendo" do
+    ana = create(:user, nome: "ANA PAULA DE LIMA")
+    chamado("em_triagem", ha: 1.hour, triador: ana, triado_em: agora - 1.hour)
+    chamado("em_atendimento", ha: 1.hour, triador: ana, responsavel: joao)
+
+    expect(described_class.new.colunas.flat_map(&:itens).map(&:responsaveis)).to eq([ "Triagem: Ana Lima", "Triagem: Ana Lima · Técnico: Joao Tecnico" ])
+  end
+
+  it "em triagem e em atendimento: há quanto tempo está sem novidade" do
     chamado("em_triagem", ha: 5.hours, triador: joao, triado_em: agora - 5.hours)
     chamado("em_atendimento", ha: 2.hours, responsavel: joao)
     chamado("em_atendimento", ha: 2.days, responsavel: joao)
     chamado("em_atendimento", ha: 5.hours, responsavel: joao, prioridade: "critica")
 
-    expect(coluna("triagem")).to eq([ [ "urgente", "Em triagem com Joao há 5 h" ] ])
-    expect(coluna("atendimento")).to eq([ [ "critico", "Com Joao há 5 h, sem novidade" ], [ "urgente", "Com Joao há 2 dias, sem novidade" ],
-                                          [ "normal", "Com Joao há 2 h, sem novidade" ] ])
+    expect(coluna("triagem")).to eq([ [ "urgente", "Em triagem há 5 h" ] ])
+    expect(coluna("atendimento")).to eq([ [ "critico", "Em atendimento há 5 h, sem novidade" ], [ "urgente", "Em atendimento há 2 dias, sem novidade" ],
+                                          [ "normal", "Em atendimento há 2 h, sem novidade" ] ])
   end
 
   it "parados: esperando o solicitante ou impedidos, por dias; encerrados não aparecem" do

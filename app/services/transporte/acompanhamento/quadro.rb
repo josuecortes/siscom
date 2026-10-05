@@ -50,7 +50,7 @@ module Transporte
             elsif minutos <= SEM_APROVACAO[:atencao] then [ "atencao", "Sai #{quando(minutos)}, #{quem}" ]
             else [ "normal", (s.reagendada? ? "Reagendada: aguardando o solicitante" : nil) ]
             end
-          Item.new(s.codigo, s.solicitante_nome, s.unidade_nome.presence || s.nome_do_tipo, s.saida_em, nivel, aviso)
+          Item.new(codigo: s.codigo, nome: s.solicitante_nome, unidade: s.unidade_nome, detalhe: "#{s.nome_do_tipo} · #{s.nome_do_modo}", horario: s.saida_em, nivel:, aviso:)
         end
       end
 
@@ -64,7 +64,7 @@ module Transporte
             elsif minutos <= SAIDA[:atencao] then [ "atencao", "Sai #{quando(minutos)}" ]
             else [ "normal", nil ]
             end
-          Item.new(s.codigo, s.solicitante_nome, [ s.nome_do_modo, s.unidade_nome.presence ].compact.join(" · "), s.saida_em, nivel, aviso)
+          Item.new(codigo: s.codigo, nome: s.solicitante_nome, unidade: s.unidade_nome, detalhe: "#{s.nome_do_tipo} · #{s.nome_do_modo}", horario: s.saida_em, nivel:, aviso:)
         end
       end
 
@@ -79,7 +79,8 @@ module Transporte
             elsif passou.positive? then [ "atencao", "Passou #{duracao(passou)} do tempo previsto" ]
             else [ "normal", "Na rua há #{duracao(((agora - servico.iniciado_em) / 60).floor)}" ]
             end
-          Item.new(s.codigo, s.solicitante_nome, "#{servico.nome_do_trecho} · #{servico.motorista_nome} · #{servico.placa}", servico.iniciado_em, nivel, aviso)
+          Item.new(codigo: s.codigo, nome: s.solicitante_nome, unidade: s.unidade_nome, detalhe: "#{servico.nome_do_trecho} · #{servico.placa}",
+                   responsaveis: "Motorista: #{PainelTv.nome_curto(servico.motorista_nome)}", horario: servico.iniciado_em, nivel:, aviso:)
         end
       end
 
@@ -101,7 +102,7 @@ module Transporte
             elsif minutos <= BUSCA[:atencao] then [ "atencao", "Buscar #{quando(minutos)}" ]
             else [ "normal", nil ]
             end
-          Item.new(s.codigo, s.solicitante_nome, s.unidade_nome.presence || "Busca", s.busca_prevista_em, nivel, aviso)
+          Item.new(codigo: s.codigo, nome: s.solicitante_nome, unidade: s.unidade_nome, detalhe: "#{s.nome_do_tipo} · #{s.nome_do_modo}", horario: s.busca_prevista_em, nivel:, aviso:)
         end
       end
 

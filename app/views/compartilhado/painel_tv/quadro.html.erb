@@ -52,7 +52,9 @@
                 <p class="tv-horario"><%= hora.call(item.horario) %></p>
               </div>
               <p class="tv-nome"><%= item.nome %></p>
-              <p class="tv-detalhe"><%= item.detalhe %></p>
+              <% if item.unidade %><p class="tv-unidade"><%= item.unidade %></p><% end %>
+              <% if item.detalhe %><p class="tv-detalhe"><%= item.detalhe %></p><% end %>
+              <% if item.responsaveis %><p class="tv-responsaveis"><%= item.responsaveis %></p><% end %>
               <% if item.aviso %><p class="tv-aviso"><span class="tv-ponto" aria-hidden="true"></span><%= item.aviso %></p><% end %>
             </li>
           <% end %>

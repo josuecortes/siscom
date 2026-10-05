@@ -45,7 +45,7 @@ RSpec.describe "TI: painel de acompanhamento" do
 
     it "com a senha certa mostra os chamados por etapa, com a cor de cada urgência, o relógio e a contagem" do
       solicitacao = create(:ti_problema, nome: "Sem internet")
-      novo = { problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email }
+      novo = { problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email, unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA" }
       atrasado = Ti::Chamado.create!(novo.merge(aberto_em: 9.hours.ago))
       Ti::Chamado.create!(novo.merge(aberto_em: 5.minutes.ago, status: "em_atendimento", responsavel: create(:user, nome: "JOAO TECNICO")))
 
@@ -53,7 +53,9 @@ RSpec.describe "TI: painel de acompanhamento" do
       follow_redirect!
 
       html = Nokogiri::HTML(response.body)
-      expect(response.body).to include("Acompanhamento em tempo real", "Sem responsável há 9 h", atrasado.codigo, "Com Joao há", "Atualiza em")
+      expect(response.body).to include("Acompanhamento em tempo real", "Sem responsável há 9 h", atrasado.codigo, "Em atendimento há", "Atualiza em")
+      expect(html.css("#tv_atendimento .tv-cartao p").map { |linha| linha.text.squish }.values_at(2, 3, 4, 5))
+        .to eq([ "MARIA OLIVEIRA", "NUINFO - NÚCLEO DE INFORMÁTICA", "SEM INTERNET", "Técnico: Joao Tecnico" ])
       expect(html.css(".tv-coluna").map { |coluna| [ coluna.at_css("h2 span").text, coluna.css(".tv-cartao").pluck("data-nivel") ] })
         .to eq([ [ "Aguardando atendimento", %w[critico] ], [ "Em triagem", [] ], [ "Em atendimento", %w[normal] ], [ "Parados", [] ] ])
       expect([ html.at_css(".tv-sobretitulo").text, html.at_css("turbo-cable-stream-source").present? ]).to eq([ "TI", true ])

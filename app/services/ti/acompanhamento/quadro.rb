@@ -41,8 +41,14 @@ module Ti
 
       def item(chamado, nivel, aviso)
         prioridade = chamado.prioridade_normal? ? nil : chamado.nome_da_prioridade.upcase
-        PainelTv::Item.new(chamado.codigo, chamado.solicitante_nome, [ prioridade, chamado.problema.nome, chamado.unidade_nome.presence ].compact.join(" · "),
-                           chamado.aberto_em, nivel, aviso)
+        PainelTv::Item.new(codigo: chamado.codigo, nome: chamado.solicitante_nome, unidade: chamado.unidade_nome, detalhe: [ prioridade, chamado.problema.nome ].compact.join(" · "),
+                           responsaveis: responsaveis(chamado), horario: chamado.aberto_em, nivel:, aviso:)
+      end
+
+      # Quem está (ou esteve) triando e quem está atendendo.
+      def responsaveis(chamado)
+        [ ("Triagem: #{PainelTv.nome_curto(chamado.triador.nome)}" if chamado.triador),
+          ("Técnico: #{PainelTv.nome_curto(chamado.responsavel.nome)}" if chamado.responsavel) ].compact.join(" · ")
       end
 
       # Aberto, ou triado e esperando um técnico: ninguém está cuidando.
@@ -55,12 +61,12 @@ module Ti
 
       def em_triagem(chamado)
         minutos = desde_ha(chamado.triado_em || chamado.updated_at)
-        [ nivel(minutos, SEM_RESPONSAVEL.fetch(chamado.prioridade)), "Em triagem com #{primeiro_nome(chamado.triador)} há #{PainelTv.duracao(minutos)}" ]
+        [ nivel(minutos, SEM_RESPONSAVEL.fetch(chamado.prioridade)), "Em triagem há #{PainelTv.duracao(minutos)}" ]
       end
 
       def em_atendimento(chamado)
         minutos = desde_ha(chamado.updated_at)
-        [ nivel(minutos, EM_ATENDIMENTO.fetch(chamado.prioridade)), "Com #{primeiro_nome(chamado.responsavel)} há #{PainelTv.duracao(minutos)}, sem novidade" ]
+        [ nivel(minutos, EM_ATENDIMENTO.fetch(chamado.prioridade)), "Em atendimento há #{PainelTv.duracao(minutos)}, sem novidade" ]
       end
 
       def parado(chamado)
@@ -78,8 +84,6 @@ module Ti
         else "normal"
         end
       end
-
-      def primeiro_nome(user) = user ? user.nome.split.first.capitalize : "ninguém"
     end
   end
 end
