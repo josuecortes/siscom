@@ -2,21 +2,11 @@
 <%= render "compartilhado/cabecalho_pagina", titulo: "Meus equipamentos", icone: :task, migalha: [ "Minha área", equipamentos_recebimentos_path ] %>
 
 <%= turbo_stream_from current_user, "equipamentos" %>
-<% aba_classe = "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" %>
-<% contador = "inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]" %>
-<nav class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] px-4 shadow-[var(--shadow-card)] sm:px-6" aria-label="Meus equipamentos">
-  <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
-    <% Equipamentos::RecebimentosController::ABAS.each do |chave, nome| %>
-      <%= link_to equipamentos_recebimentos_path(aba: (chave unless chave == "receber")), aria: { current: (chave == @aba ? "page" : nil) }, class: aba_classe do %>
-        <span><%= nome %></span> <span class="<%= contador %>"><%= @contagens.fetch(chave, 0) %></span>
-      <% end %>
-    <% end %>
-  </div>
-</nav>
-<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<% abas = Equipamentos::RecebimentosController::ABAS %>
 <% botao = "inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold" %>
 <% primario = "#{botao} bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]" %>
 <% secundario = "#{botao} border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]" %>
+<% na_pagina = { data: { turbo_frame: "_top" } } %>
 <% cabecalho = ->(envio, texto) do %>
   <div class="min-w-0">
     <p class="text-sm font-semibold text-[var(--text-primary)]"><%= envio.nome_do_tipo %> <%= envio.codigo %></p>
@@ -24,178 +14,184 @@
     <% if envio.descricao.present? %><p class="mt-1 break-words text-xs text-[var(--text-muted)]">Observação: <%= envio.descricao %></p><% end %>
   </div>
 <% end %>
-<% secao = ->(id, titulo, ajuda, total) do %>
-  <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] px-6 py-4" id="<%= id %>">
-    <div>
-      <h2 class="text-base font-semibold text-[var(--text-primary)]"><%= titulo %> <span class="ml-1 inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--accent-strong)]"><%= total %></span></h2>
-      <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= ajuda %></p>
-    </div>
-  </div>
-<% end %>
-
 <% vazio = ->(texto) do %>
-  <section class="mt-6 <%= cartao %> px-6 py-12 text-center"><p class="text-sm text-[var(--text-secondary)]"><%= texto %></p></section>
+  <p class="px-6 py-12 text-center text-sm text-[var(--text-secondary)]"><%= @q.present? ? "Nada encontrado para \"#{@q}\" nesta aba." : texto %></p>
 <% end %>
 
-<% if @aba == "receber" %>
-<% vazio.call("Você não tem equipamento para receber nem termo para aceitar.") if @para_receber.empty? && @para_aceitar.empty? && @devolucoes.empty? %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: equipamentos_recebimentos_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "meus_equipamentos_lista", turbo_action: "advance" } do |f| %>
+    <%= hidden_field_tag :aba, @aba, id: nil %>
+    <div class="grid grid-cols-[1fr_auto] items-end gap-2 lg:gap-4">
+      <div class="min-w-0 space-y-1.5">
+        <%= f.label :q, "Buscar por código do envio, equipamento (marca, serial, patrimônio…), unidade ou pessoa", class: "sr-only md:not-sr-only text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @q, placeholder: "Ex.: MV-000045, monitor ou patrimônio", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)] pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Filtrar" aria-label="Filtrar"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to equipamentos_recebimentos_path(aba: (@aba unless @aba == "receber")), title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
-<% if @para_receber.any? %>
-  <section class="mt-6 <%= cartao %>">
-    <% secao.call("para_receber", "Para receber", "Equipamentos enviados para a sua unidade. Dê o recebido em cada um quando chegar: ele passa a ser da sua unidade.", @para_receber.sum { |envio| envio.itens.count(&:pendente?) }) %>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% @para_receber.each do |envio| %>
-        <% pendentes = envio.itens.select(&:pendente?) %>
-        <li class="space-y-3 px-6 py-4" id="<%= dom_id(envio, :receber) %>">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <% cabecalho.call(envio, "De #{envio.origem_nome}, enviado por #{envio.criada_por_nome} em #{l(envio.created_at, format: '%d/%m/%Y %H:%M')}.") %>
-            <% if pendentes.size > 1 %>
-              <%= button_to "Receber todos (#{pendentes.size})", receber_equipamentos_recebimento_path(envio), method: :patch, class: primario,
-                    data: { turbo_confirm: "Confirme que os #{pendentes.size} equipamentos de #{envio.codigo} chegaram. Eles passam a ser da sua unidade.", confirmacao_titulo: "Receber todos", confirmacao_rotulo: "Receber todos", confirmacao_tom: "primario" } %>
-            <% end %>
-          </div>
-          <ul class="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
-            <% pendentes.each do |linha| %>
-              <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                <div class="min-w-0">
-                  <p class="font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
-                  <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %><%= " · kit #{linha.item.identificacao_kit}" if linha.item.no_kit? %></p>
-                </div>
-                <%= button_to "Receber", receber_equipamentos_recebimento_path(envio), method: :patch, params: { item_id: linha.item_id }, class: "#{secundario} h-9",
-                      data: { turbo_confirm: "Confirme que #{linha.item.nome_completo} chegou. Ele passa a ser da sua unidade.", confirmacao_titulo: "Receber equipamento", confirmacao_rotulo: "Receber", confirmacao_tom: "primario" } %>
-              </li>
-            <% end %>
-          </ul>
-        </li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
+  <%= turbo_frame_tag "meus_equipamentos_lista", data: { turbo_action: "advance" } do %>
+    <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Meus equipamentos">
+      <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
+        <% abas.each do |chave, nome| %>
+          <%= link_to equipamentos_recebimentos_path(aba: (chave unless chave == "receber"), q: @q.presence), aria: { current: (chave == @aba ? "page" : nil) },
+                class: "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" do %>
+            <span><%= nome %></span>
+            <span class="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]"><%= @contagens.fetch(chave, 0) %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
 
-<% if @para_aceitar.any? %>
-  <section class="mt-6 <%= cartao %>">
-    <% secao.call("para_aceitar", "Empréstimos e cautelas para aceitar", "Abra o termo de responsabilidade, leia e aceite. Depois do aceite os equipamentos ficam com você.", @para_aceitar.size) %>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% @para_aceitar.each do |envio| %>
-        <li class="flex flex-wrap items-start justify-between gap-3 px-6 py-4" id="<%= dom_id(envio, :aceitar) %>">
-          <% cabecalho.call(envio, "#{envio.itens.count(&:pendente?)} equipamento(s) de #{envio.origem_nome}, enviados por #{envio.criada_por_nome}. Devolução prevista para #{l(envio.previsao_devolucao)}.") %>
-          <%= link_to "Abrir o termo", termo_equipamentos_recebimento_path(envio), class: primario, data: { turbo_frame: "painel" } %>
-        </li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
+    <% if @aba == "receber" %>
+      <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} envio(s) com #{@contagens['receber']} equipamento(s) para você receber" %>
+      <% vazio.call("Você não tem equipamento para receber nem termo para aceitar.") if @envios.empty? %>
+      <ul class="divide-y divide-[var(--border-subtle)]" id="para_receber">
+        <% @envios.each do |envio| %>
+          <% pendentes = envio.responsavel_id == current_user.id ? envio.itens.select(&:pendente?) : [] %>
+          <% voltando = envio.itens.select { |linha| linha.devolucao_pendente? && linha.devolver_para_id == current_user.id } %>
+          <% if pendentes.any? && !envio.emprestimo? %>
+            <li class="space-y-3 px-6 py-4" id="<%= dom_id(envio, :receber) %>">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <% cabecalho.call(envio, "De #{envio.origem_nome}, enviado por #{envio.criada_por_nome} em #{l(envio.created_at, format: '%d/%m/%Y %H:%M')}. Dê o recebido quando chegar: o equipamento passa a ser da sua unidade.") %>
+                <% if pendentes.size > 1 %>
+                  <%= button_to "Receber todos (#{pendentes.size})", receber_equipamentos_recebimento_path(envio), method: :patch, class: primario, form: na_pagina,
+                        data: { turbo_confirm: "Confirme que os #{pendentes.size} equipamentos de #{envio.codigo} chegaram. Eles passam a ser da sua unidade.", confirmacao_titulo: "Receber todos", confirmacao_rotulo: "Receber todos", confirmacao_tom: "primario" } %>
+                <% end %>
+              </div>
+              <ul class="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
+                <% pendentes.each do |linha| %>
+                  <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                    <div class="min-w-0">
+                      <p class="font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
+                      <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %><%= " · kit #{linha.item.identificacao_kit}" if linha.item.no_kit? %></p>
+                    </div>
+                    <%= button_to "Receber", receber_equipamentos_recebimento_path(envio), method: :patch, params: { item_id: linha.item_id }, class: "#{secundario} h-9", form: na_pagina,
+                          data: { turbo_confirm: "Confirme que #{linha.item.nome_completo} chegou. Ele passa a ser da sua unidade.", confirmacao_titulo: "Receber equipamento", confirmacao_rotulo: "Receber", confirmacao_tom: "primario" } %>
+                  </li>
+                <% end %>
+              </ul>
+            </li>
+          <% elsif pendentes.any? %>
+            <li class="flex flex-wrap items-start justify-between gap-3 px-6 py-4" id="<%= dom_id(envio, :aceitar) %>">
+              <% cabecalho.call(envio, "#{pendentes.size} equipamento(s) de #{envio.origem_nome}, enviados por #{envio.criada_por_nome}. Devolução prevista para #{l(envio.previsao_devolucao)}. Abra o termo de responsabilidade, leia e aceite.") %>
+              <%= link_to "Abrir o termo", termo_equipamentos_recebimento_path(envio), class: primario, data: { turbo_frame: "painel" } %>
+            </li>
+          <% end %>
+          <% if voltando.any? %>
+            <li class="flex flex-wrap items-start justify-between gap-3 px-6 py-4" id="<%= dom_id(envio, :devolucao) %>">
+              <% cabecalho.call(envio, "#{envio.responsavel_nome} (#{envio.destino_nome}) está devolvendo #{voltando.size} equipamento(s): #{voltando.map { |linha| linha.item.nome_completo }.to_sentence}.") %>
+              <%= link_to "Receber a devolução", recebimento_da_devolucao_equipamentos_recebimento_path(envio), class: primario, data: { turbo_frame: "painel" } %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    <% end %>
 
-<% if @devolucoes.any? %>
-  <section class="mt-6 <%= cartao %>">
-    <% secao.call("devolucoes", "Devoluções para eu receber", "Equipamentos da sua unidade que estão voltando de um empréstimo. Confira e confirme o recebimento.", @devolucoes.size) %>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% @devolucoes.each do |envio| %>
-        <% meus = envio.itens.select { |linha| linha.devolucao_pendente? && linha.devolver_para_id == current_user.id } %>
-        <li class="flex flex-wrap items-start justify-between gap-3 px-6 py-4" id="<%= dom_id(envio, :devolucao) %>">
-          <% cabecalho.call(envio, "#{envio.responsavel_nome} (#{envio.destino_nome}) está devolvendo #{meus.size} equipamento(s): #{meus.map { |linha| linha.item.nome_completo }.to_sentence}.") %>
-          <%= link_to "Receber a devolução", recebimento_da_devolucao_equipamentos_recebimento_path(envio, voltar: "comigo"), class: primario, data: { turbo_frame: "painel" } %>
-        </li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
-<% end %>
-
-<% if @aba == "comigo" %>
-<% vazio.call("Você não está com nenhum equipamento emprestado ou cautelado.") if @comigo.empty? %>
-<% if @comigo.any? %>
-  <section class="mt-6 <%= cartao %>">
-    <% secao.call("comigo", "Comigo (emprestados)", "Equipamentos de outra unidade sob a sua responsabilidade. Para devolver, indique quem recebe na unidade de origem.", @comigo.sum { |envio| envio.itens.count { |linha| linha.emprestado? || linha.devolucao_pendente? } }) %>
-    <ul class="divide-y divide-[var(--border-subtle)]">
-      <% @comigo.each do |envio| %>
-        <% parados = envio.itens.select(&:devolucao_pendente?) %>
-        <li class="space-y-3 px-6 py-4" id="<%= dom_id(envio, :comigo) %>">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="min-w-0">
-              <% cabecalho.call(envio, "De #{envio.origem_nome}. Com você há #{envio.dias_emprestado} dia(s). Devolução prevista para #{l(envio.previsao_devolucao)}.") %>
-              <% if envio.dias_de_atraso.positive? %><p class="mt-2"><%= selo_de_atraso(envio) %></p><% end %>
+    <% if @aba == "comigo" %>
+      <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} empréstimo(s) ou cautela(s) com #{@contagens['comigo']} equipamento(s) sob a sua responsabilidade" %>
+      <% vazio.call("Você não está com nenhum equipamento emprestado ou cautelado.") if @envios.empty? %>
+      <ul class="divide-y divide-[var(--border-subtle)]" id="comigo">
+        <% @envios.each do |envio| %>
+          <% parados = envio.itens.select(&:devolucao_pendente?) %>
+          <li class="space-y-3 px-6 py-4" id="<%= dom_id(envio, :comigo) %>">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <% cabecalho.call(envio, "De #{envio.origem_nome}. Com você há #{envio.dias_emprestado} dia(s). Devolução prevista para #{l(envio.previsao_devolucao)}.") %>
+                <% if envio.dias_de_atraso.positive? %><p class="mt-2"><%= selo_de_atraso(envio) %></p><% end %>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <%= link_to "Ver o termo", termo_equipamentos_recebimento_path(envio, voltar: "comigo"), class: secundario, data: { turbo_frame: "painel" } %>
+                <%= link_to (parados.any? && envio.itens.none?(&:emprestado?) ? "Trocar quem recebe" : "Devolver"), devolucao_equipamentos_recebimento_path(envio, voltar: "comigo"), class: primario, data: { turbo_frame: "painel" } %>
+              </div>
             </div>
-            <div class="flex flex-wrap gap-2">
-              <%= link_to "Ver o termo", termo_equipamentos_recebimento_path(envio, voltar: "comigo"), class: secundario, data: { turbo_frame: "painel" } %>
-              <%= link_to (parados.any? && envio.itens.none?(&:emprestado?) ? "Trocar quem recebe" : "Devolver"), devolucao_equipamentos_recebimento_path(envio, voltar: "comigo"), class: primario, data: { turbo_frame: "painel" } %>
-            </div>
-          </div>
-          <%= render "equipamentos/movimentacoes/itens", envio: envio %>
-        </li>
-      <% end %>
-    </ul>
-  </section>
-<% end %>
-<% end %>
+            <%= render "equipamentos/movimentacoes/itens", envio: envio %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
 
 <% if %w[recebidos devolvidos].include?(@aba) %>
-  <% devolvidos = @aba == "devolvidos" %>
-  <% quando = ->(momento) { momento ? l(momento, format: "%d/%m/%Y %H:%M") : "—" } %>
-  <section class="mt-6 <%= cartao %>" id="historico_de_<%= @aba %>">
-    <%= render "compartilhado/resumo_tabela", texto: (devolvidos ? "#{@pagy.count} equipamento(s) que você devolveu" : "#{@pagy.count} equipamento(s) enviados para você: os que recebeu, os que não chegou a receber e as devoluções que recebeu de volta") %>
-    <div class="overflow-x-auto">
-      <table class="collection-table min-w-[900px]">
-        <thead>
-          <tr>
-            <th scope="col">Equipamento</th>
-            <th scope="col">Envio</th>
-            <th scope="col">O que aconteceu</th>
-            <th scope="col">Quando</th>
-            <th scope="col" class="!pl-2">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @linhas.each do |linha| %>
-            <% envio = linha.movimentacao %>
-            <% para_mim = envio.responsavel_id == current_user.id %>
-            <tr id="<%= dom_id(linha) %>">
-              <td class="!whitespace-normal">
-                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
-                <p class="mt-1 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %><%= " · kit #{linha.item.identificacao_kit}" if linha.item.no_kit? %></p>
-              </td>
-              <td class="!whitespace-normal">
-                <p class="text-sm text-[var(--text-primary)]"><%= envio.nome_do_tipo %> <%= envio.codigo %></p>
-                <p class="mt-1 text-xs text-[var(--text-muted)]">De <%= envio.origem_nome %><%= " para #{envio.destino_nome}" unless para_mim %> · enviado por <%= envio.criada_por_nome %></p>
-              </td>
-              <td class="!whitespace-normal">
-                <% if !para_mim %>
-                  <%= render "compartilhado/selo", texto: "Devolução recebida por mim", tom: :sucesso %>
-                  <p class="mt-1 text-xs text-[var(--text-muted)]">Devolvido por <%= envio.responsavel_nome %><%= ". Observação: #{linha.observacao_da_devolucao}" if linha.observacao_da_devolucao.present? %></p>
-                <% elsif linha.cancelado? %>
-                  <%= render "compartilhado/selo", texto: "Não recebido (envio cancelado)", tom: :neutro %>
-                  <% if linha.cancelado_por %><p class="mt-1 text-xs text-[var(--text-muted)]">Cancelado por <%= linha.cancelado_por.nome %></p><% end %>
-                <% elsif linha.devolvido? %>
-                  <%= render "compartilhado/selo", texto: (devolvidos ? "Devolvido" : "Recebido em #{envio.nome_do_tipo.downcase} e já devolvido"), tom: :sucesso %>
-                  <p class="mt-1 text-xs text-[var(--text-muted)]">Recebido de volta por <%= linha.devolucao_recebida_por&.nome || envio.origem_nome %><%= ". Observação: #{linha.observacao_da_devolucao}" if linha.observacao_da_devolucao.present? %></p>
-                <% elsif envio.emprestimo? %>
-                  <%= render "compartilhado/selo", texto: (linha.devolucao_pendente? ? "Recebido em #{envio.nome_do_tipo.downcase}; devolução aguardando #{linha.devolver_para_nome}" : "Recebido em #{envio.nome_do_tipo.downcase}; está com você"), tom: :atencao %>
-                <% else %>
-                  <%= render "compartilhado/selo", texto: "Recebido", tom: :sucesso %>
-                <% end %>
-                <% if para_mim && linha.recebido_por && linha.recebido_por_id != current_user.id %><p class="mt-1 text-xs text-[var(--text-muted)]">Registrado por <%= linha.recebido_por.nome %>, em seu nome</p><% end %>
-              </td>
-              <td class="whitespace-nowrap">
-                <% if devolvidos %>
-                  <p><%= quando.call(linha.devolvido_em) %></p>
-                  <p class="mt-1 text-xs text-[var(--text-muted)]">Recebido em <%= quando.call(linha.recebido_em) %></p>
-                <% else %>
-                  <%= quando.call(para_mim ? (linha.cancelado? ? linha.cancelado_em : linha.recebido_em) : linha.devolvido_em) %>
-                <% end %>
-              </td>
-              <td class="!pl-2 !pr-4">
-                <% if envio.emprestimo? && envio.termo.present? && para_mim %>
-                  <%= render "compartilhado/botao_acao", titulo: "Ver o termo aceito", icone: :description, caminho: termo_equipamentos_recebimento_path(envio, voltar: @aba), quadro: "painel" %>
-                <% end %>
-              </td>
+    <% devolvidos = @aba == "devolvidos" %>
+    <% quando = ->(momento) { momento ? l(momento, format: "%d/%m/%Y %H:%M") : "—" } %>
+    <div id="historico_de_<%= @aba %>">
+      <%= render "compartilhado/resumo_tabela", texto: (devolvidos ? "#{@pagy.count} equipamento(s) que você devolveu" : "#{@pagy.count} equipamento(s) enviados para você: os que recebeu, os que não chegou a receber e as devoluções que recebeu de volta") %>
+      <div class="overflow-x-auto">
+        <table class="collection-table min-w-[900px]">
+          <thead>
+            <tr>
+              <th scope="col">Equipamento</th>
+              <th scope="col">Envio</th>
+              <th scope="col">O que aconteceu</th>
+              <th scope="col">Quando</th>
+              <th scope="col" class="!pl-2">Ações</th>
             </tr>
-          <% end %>
-          <% if @linhas.empty? %>
-            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= devolvidos ? "Você ainda não devolveu nenhum equipamento." : "Ainda não há equipamento recebido ou cancelado no seu nome." %></td></tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% @linhas.each do |linha| %>
+              <% envio = linha.movimentacao %>
+              <% para_mim = envio.responsavel_id == current_user.id %>
+              <tr id="<%= dom_id(linha) %>">
+                <td class="!whitespace-normal">
+                  <p class="text-sm font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
+                  <p class="mt-1 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %><%= " · kit #{linha.item.identificacao_kit}" if linha.item.no_kit? %></p>
+                </td>
+                <td class="!whitespace-normal">
+                  <p class="text-sm text-[var(--text-primary)]"><%= envio.nome_do_tipo %> <%= envio.codigo %></p>
+                  <p class="mt-1 text-xs text-[var(--text-muted)]">De <%= envio.origem_nome %><%= " para #{envio.destino_nome}" unless para_mim %> · enviado por <%= envio.criada_por_nome %></p>
+                </td>
+                <td class="!whitespace-normal">
+                  <% if !para_mim %>
+                    <%= render "compartilhado/selo", texto: "Devolução recebida por mim", tom: :sucesso %>
+                    <p class="mt-1 text-xs text-[var(--text-muted)]">Devolvido por <%= envio.responsavel_nome %><%= ". Observação: #{linha.observacao_da_devolucao}" if linha.observacao_da_devolucao.present? %></p>
+                  <% elsif linha.cancelado? %>
+                    <%= render "compartilhado/selo", texto: "Não recebido (envio cancelado)", tom: :neutro %>
+                    <% if linha.cancelado_por %><p class="mt-1 text-xs text-[var(--text-muted)]">Cancelado por <%= linha.cancelado_por.nome %></p><% end %>
+                  <% elsif linha.devolvido? %>
+                    <%= render "compartilhado/selo", texto: (devolvidos ? "Devolvido" : "Recebido em #{envio.nome_do_tipo.downcase} e já devolvido"), tom: :sucesso %>
+                    <p class="mt-1 text-xs text-[var(--text-muted)]">Recebido de volta por <%= linha.devolucao_recebida_por&.nome || envio.origem_nome %><%= ". Observação: #{linha.observacao_da_devolucao}" if linha.observacao_da_devolucao.present? %></p>
+                  <% elsif envio.emprestimo? %>
+                    <%= render "compartilhado/selo", texto: (linha.devolucao_pendente? ? "Recebido em #{envio.nome_do_tipo.downcase}; devolução aguardando #{linha.devolver_para_nome}" : "Recebido em #{envio.nome_do_tipo.downcase}; está com você"), tom: :atencao %>
+                  <% else %>
+                    <%= render "compartilhado/selo", texto: "Recebido", tom: :sucesso %>
+                  <% end %>
+                  <% if para_mim && linha.recebido_por && linha.recebido_por_id != current_user.id %><p class="mt-1 text-xs text-[var(--text-muted)]">Registrado por <%= linha.recebido_por.nome %>, em seu nome</p><% end %>
+                </td>
+                <td class="whitespace-nowrap">
+                  <% if devolvidos %>
+                    <p><%= quando.call(linha.devolvido_em) %></p>
+                    <p class="mt-1 text-xs text-[var(--text-muted)]">Recebido em <%= quando.call(linha.recebido_em) %></p>
+                  <% else %>
+                    <%= quando.call(para_mim ? (linha.cancelado? ? linha.cancelado_em : linha.recebido_em) : linha.devolvido_em) %>
+                  <% end %>
+                </td>
+                <td class="!pl-2 !pr-4">
+                  <% if envio.emprestimo? && envio.termo.present? && para_mim %>
+                    <%= render "compartilhado/botao_acao", titulo: "Ver o termo aceito", icone: :description, caminho: termo_equipamentos_recebimento_path(envio, voltar: @aba), quadro: "painel" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            <% if @linhas.empty? %>
+              <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= @q.present? ? "Nada encontrado para \"#{@q}\" nesta aba." : (devolvidos ? "Você ainda não devolveu nenhum equipamento." : "Ainda não há equipamento recebido ou cancelado no seu nome.") %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <%= render "compartilhado/paginacao", pagy: @pagy %>
-  </section>
-<% end %>
+  <% end %>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "meus_equipamentos_lista" %>
+  <% end %>
+</section>

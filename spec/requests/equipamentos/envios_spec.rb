@@ -115,7 +115,7 @@ RSpec.describe "Equipamentos: envios, recebimentos e histórico" do
       sign_in maria
 
       get equipamentos_recebimentos_path
-      expect(response.body).to include("Para receber", "Receber todos (2)", "Monitor DELL P2419H", "PAT002", "enviado por GESTOR DO NUINFO")
+      expect(response.body).to include("Para receber", "1 envio(s) com 2 equipamento(s) para você receber", "Receber todos (2)", "Monitor DELL P2419H", "PAT002", "enviado por GESTOR DO NUINFO")
       patch receber_equipamentos_recebimento_path(envio), params: { item_id: monitor.id }
       expect(response).to redirect_to(equipamentos_recebimentos_path)
       expect(monitor.reload).to have_attributes(rh_unidade_id: asjur.id, situacao: "disponivel")
@@ -156,6 +156,24 @@ RSpec.describe "Equipamentos: envios, recebimentos e histórico" do
       expect(response.body).to include("TERMO DE RESPONSABILIDADE", "Fechar")
     end
 
+    it "a busca vale em todas as abas (código, equipamento, unidade ou pessoa) e as listas são paginadas" do
+      stub_const("Equipamentos::RecebimentosController::POR_PAGINA", 1)
+      recebida = enviar(itens: [ monitor ])
+      enviar(itens: [ teclado ])
+      Equipamentos::Envios::Operar.call(envio: recebida, acao: "receber_item", ator: maria)
+      enviar(itens: [ create(:equipamentos_item, unidade: nuinfo, tipo_equipamento: "Notebook", numero_patrimonio: "PAT777") ])
+      sign_in maria
+
+      get equipamentos_recebimentos_path
+      expect([ abas.to_h["Para receber"], response.body.include?("Página 1 de 2") ]).to eq([ "2", true ])
+      get equipamentos_recebimentos_path(q: "pat777")
+      expect([ abas.to_h.values, response.body.include?("Notebook DELL P2419H"), response.body.include?("Teclado DELL") ]).to eq([ %w[1 0 0 0], true, false ])
+      get equipamentos_recebimentos_path(aba: "recebidos", q: recebida.codigo.downcase)
+      expect(pagina.css("tbody tr[id]").size).to eq(1)
+      get equipamentos_recebimentos_path(aba: "recebidos", q: "nada disso")
+      expect(response.body).to include("Nada encontrado para &quot;nada disso&quot; nesta aba.")
+    end
+
     it "quem recebe a devolução também fica com o registro no seu histórico" do
       envio = emprestar(itens: [ monitor ]).tap { |novo| Equipamentos::Envios::Operar.call(envio: novo, acao: "aceitar", ator: maria) }
       Equipamentos::Envios::Operar.call(envio: envio.reload, acao: "devolver", ator: maria, para_id: colega.id)
@@ -173,13 +191,13 @@ RSpec.describe "Equipamentos: envios, recebimentos e histórico" do
       sign_in maria
 
       get equipamentos_recebimentos_path
-      expect(response.body).to include("Empréstimos e cautelas para aceitar", "Abrir o termo")
+      expect(response.body).to include("Abra o termo de responsabilidade, leia e aceite", "Abrir o termo")
       get termo_equipamentos_recebimento_path(envio), headers: painel
       expect(response.body).to include("TERMO DE RESPONSABILIDADE", "Li e aceito o termo", "patrimônio PAT001")
       patch aceitar_equipamentos_recebimento_path(envio)
       expect(monitor.reload).to have_attributes(situacao: "emprestado", posse_rh_unidade_id: asjur.id, rh_unidade_id: nuinfo.id)
       get equipamentos_recebimentos_path(aba: "comigo")
-      expect(response.body).to include("Comigo (emprestados)", "Devolver", "Ver o termo")
+      expect(response.body).to include("1 empréstimo(s) ou cautela(s) com 2 equipamento(s) sob a sua responsabilidade", "Devolver", "Ver o termo")
     end
 
     it "devolve indicando alguém da unidade de origem, e pode trocar a pessoa enquanto ninguém recebeu" do
@@ -204,11 +222,11 @@ RSpec.describe "Equipamentos: envios, recebimentos e histórico" do
       end
       sign_in colega
       get equipamentos_recebimentos_path
-      expect(response.body).not_to include("Devoluções para eu receber")
+      expect(response.body).not_to include("Receber a devolução")
 
       sign_in gestor
       get equipamentos_recebimentos_path
-      expect(response.body).to include("Devoluções para eu receber", "MARIA OLIVEIRA (ASJUR - ASSESSORIA JURÍDICA) está devolvendo 2 equipamento(s)")
+      expect(response.body).to include("Receber a devolução", "MARIA OLIVEIRA (ASJUR - ASSESSORIA JURÍDICA) está devolvendo 2 equipamento(s)")
       get recebimento_da_devolucao_equipamentos_recebimento_path(envio), headers: painel
       expect(response.body).to include("Termo aceito por MARIA OLIVEIRA", "TERMO DE RESPONSABILIDADE", "Confirmar o recebimento")
       patch receber_devolucao_equipamentos_recebimento_path(envio), params: { observacao: "Sem o cabo de força" }
