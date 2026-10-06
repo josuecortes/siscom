@@ -20,8 +20,13 @@ namespace :remaster do
       { nome: "PADRAO TRANSPORTE TECNICO", email: "transporte.tecnico@siscom.dev", papeis: [ %w[transporte tecnico] ] },
       { nome: "PADRAO TRANSPORTE MOTORISTA", email: "transporte.motorista@siscom.dev", papeis: [ %w[transporte motorista] ] },
       { nome: "PADRAO TRANSPORTE SOLICITANTE", email: "transporte.solicitante@siscom.dev", papeis: [ %w[transporte solicitante] ] },
+      { nome: "PADRAO EQUIPAMENTOS ADMINISTRADOR", email: "equipamentos.admin@siscom.dev", papeis: [ %w[equipamentos admin] ] },
+      { nome: "PADRAO EQUIPAMENTOS GESTOR", email: "equipamentos.gestor@siscom.dev", papeis: [ %w[equipamentos gestor] ] },
       { nome: "PADRAO USUARIO COMUM", email: "usuario@siscom.dev", papeis: [] }
     ].freeze
+    # Equipamentos: o gestor só enxerga os equipamentos da unidade em que está lotado, e quem recebe um envio
+    # precisa estar lotado na unidade de destino. E-mail => sigla da unidade do RH.
+    LOTACOES_PADRAO = { "equipamentos.gestor@siscom.dev" => "NUINFO", "usuario@siscom.dev" => "CEPE" }.freeze
 
     desc "Cria/atualiza os usuários padrão (um por perfil) para desenvolvimento e homologação. Não roda em produção."
     task usuarios_padrao: :environment do
@@ -50,6 +55,17 @@ namespace :remaster do
 
         papeis = desejados.map { |modulo, papel| "#{modulo}.#{papel}" }.join(", ").presence || "sem papéis"
         puts "#{definicao[:email].ljust(28)} #{papeis}"
+      end
+
+      LOTACOES_PADRAO.each do |email, sigla|
+        user = User.find_by!(email: email)
+        unidade = Rh::Unidade.ativo.find_by(sigla: sigla)
+        funcao = Rh::Funcao.where(status: "ativo").order(:id).first
+        next puts("#{email.ljust(28)} sem lotação: falta a unidade #{sigla} ou uma função no RH") unless unidade && funcao
+
+        pessoa = Rh::Pessoa.find_by(user: user) || Rh::Pessoa.create!(user: user, nome: user.nome, email: user.email)
+        pessoa.lotacoes.ativo.find_by(unidade: unidade) || pessoa.lotacoes.create!(unidade: unidade, funcao: funcao, data_inicio: Date.current, lotado_em: Time.current, lotado_por_nome: "Usuários padrão")
+        puts "#{email.ljust(28)} lotado em #{unidade.sigla}"
       end
 
       # TI: triador e técnico só veem chamados dos grupos técnicos de que são membros.

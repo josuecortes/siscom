@@ -55,6 +55,21 @@ module Legado
       end
     end
 
+    # --- Equipamentos antigos (para a migração para o módulo Equipamentos) ---
+
+    def cada_equipamento(&) = em_lotes(Equipamento, &)
+    def total_de_equipamentos = Equipamento.count
+
+    # Só as movimentações de verdade: a "inicial" (origem = destino), criada no cadastro, o siscom antigo já escondia.
+    def movimentacoes_de_equipamentos = MovimentacaoEquipamento.where("unidade_origem_id <> unidade_destino_id")
+    def cada_movimentacao_de_equipamentos(&) = em_lotes(movimentacoes_de_equipamentos, &)
+    def total_de_movimentacoes_de_equipamentos = movimentacoes_de_equipamentos.count
+
+    # { id da movimentação => [itens em ordem] }.
+    def itens_das_movimentacoes_de_equipamentos(ids)
+      ItemMovimentacao.where(movimentacao_equipamento_id: ids).order(:id).map { |item| item.attributes.symbolize_keys }.group_by { |item| item[:movimentacao_equipamento_id] }
+    end
+
     # Anexos (Active Storage) de registros antigos: { id do registro => [{ nome:, blob_id: }] }.
     # `tipo` é o nome da classe antiga gravado em record_type ("RequisicaoTi", "Mensagem"…).
     def anexos(tipo, ids)

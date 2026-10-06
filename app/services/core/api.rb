@@ -56,6 +56,9 @@ module Core
     # Converte papéis antigos (Rolify) em concessões: { "papel_antigo" => [["modulo", "papel_novo"]] }. Idempotente.
     def importar_papeis(mapa) = Importacao::Papeis.call(mapa)
 
+    # Concessão feita pelo sistema (carga inicial, migração): não passa pela regra de quem pode conceder. Idempotente.
+    def conceder_pelo_sistema(user:, modulo:, papel:) = Acessos::Conceder.call(user: user, modulo: modulo, papel: papel, pelo_sistema: true)
+
     def pode_conceder?(user, modulo:, papel:) = Acessos::Regras.pode_conceder?(user, modulo:, papel:)
 
     # --- Contas (para o RH ligar pessoa ↔ conta) ---
