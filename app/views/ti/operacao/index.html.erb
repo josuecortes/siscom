@@ -29,10 +29,10 @@
     <div class="space-y-4" data-controller="recolher">
       <div class="flex items-end gap-2">
         <div class="min-w-0 flex-1 space-y-1.5">
-          <%= f.label :q, "Buscar por código, solicitação, solicitante ou unidade", class: "sr-only md:not-sr-only #{rotulo}" %>
+          <%= f.label :q, "Buscar por código, solicitação, unidade ou nome", class: "sr-only md:not-sr-only #{rotulo}" %>
           <div class="relative">
             <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
-            <%= f.text_field :q, value: @filtros[:q], placeholder: "Código, solicitação ou solicitante", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+            <%= f.text_field :q, value: @filtros[:q], placeholder: "Código, solicitação ou nome", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
           </div>
         </div>
         <button type="submit" title="Filtrar chamados" aria-label="Filtrar chamados"
@@ -50,7 +50,12 @@
         </span>
         <span class="text-[var(--text-secondary)] transition-transform group-aria-expanded:rotate-180"><%= icone(:chevron_right, classe: "h-4 w-4 rotate-90") %></span>
       </button>
-      <div id="mais_filtros" data-recolher-target="bloco" class="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4 xl:items-end">
+      <div id="mais_filtros" data-recolher-target="bloco" class="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-5 xl:items-end">
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%# De quem é o nome digitado na busca: por padrão vale para os três (e a busca também olha código, solicitação e unidade). %>
+          <%= f.label :pessoa, "Procurar o nome em", class: rotulo %>
+          <%= f.select :pessoa, [ [ "Solicitante, técnico ou triador", "" ] ] + Ti::Chamado::PESSOAS_DA_BUSCA.invert.to_a, { selected: @filtros[:pessoa] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
         <div class="mb-4 space-y-1.5 md:mb-0">
           <%= f.label :categoria_id, "Categoria", class: rotulo %>
           <%= f.select :categoria_id, [ [ "Todas", "" ] ] + Ti::Categoria.order(:nome).pluck(:nome, :id), { selected: @filtros[:categoria_id] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>

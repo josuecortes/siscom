@@ -78,14 +78,14 @@ module Ti
     def filtros
       valores = { q: params[:q].to_s.strip, categoria_id: params[:categoria_id].presence&.to_i, unidade_id: params[:unidade_id].presence&.to_i,
                   aberto_de: DataBr.interpretar(params[:aberto_de]), aberto_ate: DataBr.interpretar(params[:aberto_ate]) }
-      valores.merge(status: params[:status].presence_in(ABAS.keys) || SEM_DONO, de: params[:de].presence_in(%w[meus todos]) || "meus",
+      valores.merge(pessoa: params[:pessoa].presence_in(Ti::Chamado::PESSOAS_DA_BUSCA.keys), status: params[:status].presence_in(ABAS.keys) || SEM_DONO, de: params[:de].presence_in(%w[meus todos]) || "meus",
                     ordem: params[:ordem].presence_in(%w[aberto]), direcao: params[:direcao].presence_in(%w[asc desc]) || "asc",
                     filtrando: valores.values.any?(&:present?))
     end
 
     def filtrar(chamados)
       f = @filtros
-      chamados = chamados.buscar_na_operacao(f[:q]) if f[:q].present?
+      chamados = chamados.buscar_pessoa(f[:q], f[:pessoa]) if f[:q].present?
       chamados = chamados.where(problema_id: Ti::Problema.where(categoria_id: f[:categoria_id]).select(:id)) if f[:categoria_id]
       chamados = chamados.where(rh_unidade_id: f[:unidade_id]) if f[:unidade_id]
       if f[:aberto_de] || f[:aberto_ate]

@@ -78,6 +78,18 @@ RSpec.describe "TI: operação" do
       expect(response.parsed_body).to include("opcoes", "todas")
     end
 
+    it "a busca acha pelo nome do solicitante, do técnico ou do triador; dá para escolher em qual deles procurar" do
+      ana = com_papel("triagem", "ANA TRIADORA").tap { |user| redes.vinculos_de_membro.create!(user: user) }
+      chamado.update!(responsavel: tecnico, triador: ana, status: "em_atendimento")
+      outro = Ti::Chamado.create!(problema: solicitacao, solicitante: tecnico, solicitante_nome: tecnico.nome, solicitante_email: tecnico.email, aberto_em: Time.current)
+      resultado = ->(q, pessoa = nil) { get(ti_operacao_index_path, params: { q: q, pessoa: pessoa }.compact) && codigos.sort }
+
+      expect([ resultado.call("joao"), resultado.call("ana tri"), resultado.call("maria") ]).to eq([ [ chamado.codigo, outro.codigo ].sort, [ chamado.codigo ], [ chamado.codigo ] ])
+      expect([ resultado.call("joao", "solicitante"), resultado.call("joao", "tecnico"), resultado.call("joao", "triador"), resultado.call("ana", "triador") ])
+        .to eq([ [ outro.codigo ], [ chamado.codigo ], [], [ chamado.codigo ] ])
+      expect(Nokogiri::HTML(response.body).css("select[name='pessoa'] option").map(&:text)).to eq([ "Solicitante, técnico ou triador", "Solicitante", "Técnico", "Triador" ])
+    end
+
     it "a ordem troca pelo cabeçalho Aberto em; o padrão é o mais urgente primeiro" do
       urgente = Ti::Chamado.create!(problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email, aberto_em: 1.minute.from_now, prioridade: "urgente")
 

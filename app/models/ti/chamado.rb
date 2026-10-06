@@ -44,6 +44,19 @@ module Ti
       joins(:problema).where("ti_chamados.codigo LIKE :t OR ti_problemas.nome LIKE :t OR ti_chamados.solicitante_nome LIKE :t OR ti_chamados.unidade_nome LIKE :t", t: padrao)
     }
 
+    # Busca da operação pelo nome de alguém do chamado: o solicitante, o técnico (responsável), o triador, ou qualquer um dos três.
+    PESSOAS_DA_BUSCA = { "solicitante" => "Solicitante", "tecnico" => "Técnico", "triador" => "Triador" }.freeze
+    scope :buscar_pessoa, ->(termo, quem) {
+      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
+      do_usuario = ->(coluna) { where(coluna => ::User.where("UPPER(users.nome) LIKE ?", padrao).select(:id)) }
+      case quem.to_s
+      when "solicitante" then where("ti_chamados.solicitante_nome LIKE ?", padrao)
+      when "tecnico" then do_usuario.call(:responsavel_id)
+      when "triador" then do_usuario.call(:triador_id)
+      else buscar_na_operacao(termo).or(joins(:problema).merge(do_usuario.call(:responsavel_id))).or(joins(:problema).merge(do_usuario.call(:triador_id)))
+      end
+    }
+
     def nome_do_status = STATUS[status]
     def nome_da_prioridade = Ti::Problema::PRIORIDADES[prioridade]
     def em_andamento? = EM_ANDAMENTO.include?(status)
