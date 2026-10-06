@@ -194,7 +194,20 @@ RSpec.describe "TI: abrir e acompanhar chamados" do
       expect(response.body).to include("0 chamado(s) em finalizados")
 
       get ti_chamados_path, params: { q: "zzz" }
-      expect(response.body).to include("0 chamado(s) em abertos")
+      expect(response.body).to include("0 chamado(s) encontrado(s), de todas as etapas", "Nenhum chamado encontrado para a busca.")
+    end
+
+    it "com busca, as abas dão lugar à aba Resultado, com os chamados de todas as etapas" do
+      abrir(internet)
+      user = Ti::Chamado.sole.solicitante
+      Ti::Chamado.create!(problema: internet, solicitante: user, solicitante_nome: user.nome, solicitante_email: user.email, aberto_em: Time.current, status: "finalizado")
+
+      get ti_chamados_path, params: { q: "internet" }
+
+      html = Nokogiri::HTML(response.body)
+      expect(html.css("nav[aria-label='Etapas dos chamados'] a")).to be_empty
+      expect(html.at_css("nav[aria-label='Etapas dos chamados'] [aria-current='page']").text.squish).to eq("Resultado 2")
+      expect(response.body).to include("2 chamado(s) encontrado(s), de todas as etapas", "Finalizado", "Aberto")
     end
 
     it "não mostra o chamado de outra pessoa" do

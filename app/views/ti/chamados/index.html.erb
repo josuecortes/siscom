@@ -31,7 +31,12 @@
   <%= turbo_frame_tag "chamados_lista", data: { turbo_action: "advance" } do %>
     <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas dos chamados">
       <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
-        <% Ti::ChamadosController::ABAS.each do |status, titulo| %>
+        <% filtrando = @filtros[:q].present? %>
+        <% if filtrando %>
+          <%# Regra do sistema: com busca, as abas dão lugar a uma só, com o resultado de todas as etapas. %>
+          <span class="group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" aria-current="page"><span>Resultado</span> <span class="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]"><%= @pagy.count %></span></span>
+        <% end %>
+        <% (filtrando ? {} : Ti::ChamadosController::ABAS).each do |status, titulo| %>
           <% ativa = status == @filtros[:status] %>
           <%= link_to ti_chamados_path(status: status, q: @filtros[:q].presence), aria: { current: (ativa ? "page" : nil) },
                 class: "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" do %>
@@ -41,7 +46,7 @@
         <% end %>
       </div>
     </nav>
-    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} chamado(s) em #{Ti::ChamadosController::ABAS.fetch(@filtros[:status]).downcase}" %>
+    <%= render "compartilhado/resumo_tabela", texto: (@filtros[:q].present? ? "#{@pagy.count} chamado(s) encontrado(s), de todas as etapas" : "#{@pagy.count} chamado(s) em #{Ti::ChamadosController::ABAS.fetch(@filtros[:status]).downcase}") %>
 
     <div class="overflow-x-auto">
       <table class="collection-table min-w-[900px]">
@@ -76,7 +81,7 @@
             </tr>
           <% end %>
           <% if @chamados.empty? %>
-            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum chamado nesta etapa. Use "Abrir chamado" para pedir algo à TI.</td></tr>
+            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= @filtros[:q].present? ? "Nenhum chamado encontrado para a busca." : 'Nenhum chamado nesta etapa. Use "Abrir chamado" para pedir algo à TI.' %></td></tr>
           <% end %>
         </tbody>
       </table>

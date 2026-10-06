@@ -17,13 +17,19 @@ module Equipamentos
     def index
       @aba = params[:aba].presence_in(ABAS.keys) || "receber"
       @q = params[:q].to_s.strip
-      @contagens = { "receber" => buscar_linhas(linhas_comigo.pendente).count + buscar_linhas(devolucoes_para_mim).count, "recebidos" => buscar_linhas(historico).count,
-                     "comigo" => buscar_linhas(linhas_comigo.where(status: COMIGO)).count, "devolvidos" => buscar_linhas(devolvidos).count }
+      @contagens = { "receber" => linhas_comigo.pendente.count + devolucoes_para_mim.count, "recebidos" => historico.count,
+                     "comigo" => linhas_comigo.where(status: COMIGO).count, "devolvidos" => devolvidos.count }
+      # Com busca, as abas dão lugar à aba única "Resultado": tudo o que é meu e combina, em qualquer situação.
+      if @q.present?
+        @pagy, @linhas = pagy(:offset, buscar_linhas(todas_as_minhas).includes(:item, :movimentacao, :recebido_por, :cancelado_por, :devolucao_recebida_por).order(updated_at: :desc, id: :desc), limit: POR_PAGINA)
+        return
+      end
+
       case @aba
-      when "receber" then @pagy, @envios = pagy(:offset, buscar_envios(para_receber).includes(itens: :item).order(:created_at, :id), limit: POR_PAGINA)
-      when "comigo" then @pagy, @envios = pagy(:offset, buscar_envios(comigo).includes(itens: :item).order(:previsao_devolucao, :id), limit: POR_PAGINA)
-      when "recebidos" then @pagy, @linhas = pagy(:offset, buscar_linhas(historico).includes(:item, :movimentacao, :recebido_por, :cancelado_por, :devolucao_recebida_por).order(updated_at: :desc, id: :desc), limit: POR_PAGINA)
-      when "devolvidos" then @pagy, @linhas = pagy(:offset, buscar_linhas(devolvidos).includes(:item, :movimentacao, :devolucao_recebida_por).order(devolvido_em: :desc, id: :desc), limit: POR_PAGINA)
+      when "receber" then @pagy, @envios = pagy(:offset, para_receber.includes(itens: :item).order(:created_at, :id), limit: POR_PAGINA)
+      when "comigo" then @pagy, @envios = pagy(:offset, comigo.includes(itens: :item).order(:previsao_devolucao, :id), limit: POR_PAGINA)
+      when "recebidos" then @pagy, @linhas = pagy(:offset, historico.includes(:item, :movimentacao, :recebido_por, :cancelado_por, :devolucao_recebida_por).order(updated_at: :desc, id: :desc), limit: POR_PAGINA)
+      when "devolvidos" then @pagy, @linhas = pagy(:offset, devolvidos.includes(:item, :movimentacao, :devolucao_recebida_por).order(devolvido_em: :desc, id: :desc), limit: POR_PAGINA)
       end
     end
 
@@ -64,6 +70,7 @@ module Equipamentos
     # O que já recebi (movimentação ou empréstimo), o que foi cancelado antes de eu receber e as devoluções que recebi de volta.
     def historico = linhas_comigo.where(status: JA_PASSARAM).or(linhas.where(devolucao_recebida_por_id: current_user.id))
     def devolvidos = linhas_comigo.devolvido
+    def todas_as_minhas = linhas_comigo.or(linhas.where(devolver_para_id: current_user.id)).or(linhas.where(devolucao_recebida_por_id: current_user.id))
     def em_andamento = Equipamentos::Movimentacao.em_andamento
 
     # Envios com algo para eu receber: o recebido de uma movimentação, o termo de um empréstimo, ou uma devolução.
@@ -77,13 +84,6 @@ module Equipamentos
     DO_ENVIO = %w[codigo origem_nome destino_nome criada_por_nome responsavel_nome].map { |coluna| "UPPER(equipamentos_movimentacoes.#{coluna}) LIKE :t" }.join(" OR ").freeze
 
     def padrao = "%#{Equipamentos::Movimentacao.sanitize_sql_like(@q.squish.upcase)}%"
-
-    def buscar_envios(envios)
-      return envios if @q.blank?
-
-      com_equipamento = Equipamentos::ItemMovimentacao.where(item_id: Equipamentos::Item.buscar(@q).select(:id)).select(:movimentacao_id)
-      envios.where(DO_ENVIO, t: padrao).or(envios.where(id: com_equipamento))
-    end
 
     def buscar_linhas(relacao)
       return relacao if @q.blank?

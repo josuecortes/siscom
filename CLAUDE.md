@@ -48,6 +48,9 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 - **Campos de busca:** lista com mais de 8 opções (ou que cresce) usa `compartilhado/_campo_autocomplete`
   (a partir de 3 letras filtra; se nada combina, mostra a lista em ordem alfabética), com um endpoint de opções
   do módulo (ex.: `Rh::OpcoesController`). Endereço usa `compartilhado/_campos_endereco` (CEP preenche o resto).
+- **Listas com abas e busca:** as abas ficam dentro do cartão da lista, logo abaixo da busca (mesmas classes de
+  `ti/chamados/index`), com a contagem em cada uma. **Quando há busca ou filtro, as abas somem e fica uma só, "Resultado"**,
+  com o que foi achado em todas as etapas (a lista ganha a coluna/selo da etapa). Toda lista é paginada. Regra do Josue (2026-10-06).
 - **Celular:** toda tela segue o comportamento do seed em tela pequena e é conferida em ~390 px (sem
   rolagem horizontal; menu em gaveta; ação principal só com ícone; formulário em painel de altura
   inteira). O app será instalável (PWA). Regras no plano, `02` §6.1 e §6.2.

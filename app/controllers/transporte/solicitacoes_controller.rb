@@ -16,7 +16,9 @@ module Transporte
       solicitacoes = solicitacoes.buscar(@filtros[:q]) if @filtros[:q].present?
       por_status = solicitacoes.group(:status).count
       @contagens = ABAS.transform_values { |(_, status)| por_status.values_at(*status).compact.sum }
-      @pagy, @solicitacoes = pagy(:offset, solicitacoes.where(status: ABAS.dig(@filtros[:status], 1)).order(:saida_em, :id).includes(:destinos), limit: POR_PAGINA)
+      # Com busca, as abas dão lugar à aba única "Resultado", com as solicitações de todas as etapas.
+      solicitacoes = solicitacoes.where(status: ABAS.dig(@filtros[:status], 1)) if @filtros[:q].blank?
+      @pagy, @solicitacoes = pagy(:offset, solicitacoes.order(:saida_em, :id).includes(:destinos), limit: POR_PAGINA)
     end
 
     def show

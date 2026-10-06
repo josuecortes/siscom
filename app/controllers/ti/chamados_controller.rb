@@ -19,7 +19,9 @@ module Ti
       chamados = Ti::Chamado.where(solicitante: current_user)
       chamados = chamados.buscar(@filtros[:q]) if @filtros[:q].present?
       @contagens = chamados.group(:status).count
-      @pagy, @chamados = pagy(:offset, chamados.where(status: @filtros[:status]).recentes.includes(:problema, :responsavel), limit: POR_PAGINA)
+      # Com busca, as abas dão lugar à aba única "Resultado", com os chamados de todas as etapas.
+      chamados = chamados.where(status: @filtros[:status]) if @filtros[:q].blank?
+      @pagy, @chamados = pagy(:offset, chamados.recentes.includes(:problema, :responsavel), limit: POR_PAGINA)
     end
 
     def show

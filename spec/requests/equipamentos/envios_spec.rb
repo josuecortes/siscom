@@ -156,22 +156,32 @@ RSpec.describe "Equipamentos: envios, recebimentos e histórico" do
       expect(response.body).to include("TERMO DE RESPONSABILIDADE", "Fechar")
     end
 
-    it "a busca vale em todas as abas (código, equipamento, unidade ou pessoa) e as listas são paginadas" do
-      stub_const("Equipamentos::RecebimentosController::POR_PAGINA", 1)
+    it "com busca, as abas dão lugar à aba Resultado, com tudo o que é da pessoa e as ações na linha" do
       recebida = enviar(itens: [ monitor ])
-      enviar(itens: [ teclado ])
       Equipamentos::Envios::Operar.call(envio: recebida, acao: "receber_item", ator: maria)
-      enviar(itens: [ create(:equipamentos_item, unidade: nuinfo, tipo_equipamento: "Notebook", numero_patrimonio: "PAT777") ])
+      pendente = enviar(itens: [ teclado ])
+      emprestar(itens: [ create(:equipamentos_item, unidade: nuinfo, tipo_equipamento: "Notebook", numero_patrimonio: "PAT777") ])
+      sign_in maria
+
+      get equipamentos_recebimentos_path(q: "nuinfo")
+      expect(abas).to eq([])
+      expect(pagina.css("nav[aria-label='Meus equipamentos'] [aria-current='page']").text.squish).to eq("Resultado 3")
+      expect(pagina.css("tbody tr[id]").map { |linha| [ linha.css("td:nth-child(3) span").first.text.strip, linha.css("td:last-child [title]").pluck("title") ] })
+        .to contain_exactly([ "Recebido", [] ], [ "Para você receber", [ "Receber equipamento" ] ], [ "Termo para você aceitar", [ "Abrir o termo para aceitar" ] ])
+      get equipamentos_recebimentos_path(q: pendente.codigo.downcase)
+      expect(pagina.css("tbody tr[id]").size).to eq(1)
+      get equipamentos_recebimentos_path(aba: "recebidos", q: "nada disso")
+      expect(response.body).to include("Nada encontrado para &quot;nada disso&quot;.")
+    end
+
+    it "todas as abas são paginadas" do
+      stub_const("Equipamentos::RecebimentosController::POR_PAGINA", 1)
+      2.times { |n| enviar(itens: [ create(:equipamentos_item, unidade: nuinfo, numero_patrimonio: "PAG#{n}") ]) }
       sign_in maria
 
       get equipamentos_recebimentos_path
+
       expect([ abas.to_h["Para receber"], response.body.include?("Página 1 de 2") ]).to eq([ "2", true ])
-      get equipamentos_recebimentos_path(q: "pat777")
-      expect([ abas.to_h.values, response.body.include?("Notebook DELL P2419H"), response.body.include?("Teclado DELL") ]).to eq([ %w[1 0 0 0], true, false ])
-      get equipamentos_recebimentos_path(aba: "recebidos", q: recebida.codigo.downcase)
-      expect(pagina.css("tbody tr[id]").size).to eq(1)
-      get equipamentos_recebimentos_path(aba: "recebidos", q: "nada disso")
-      expect(response.body).to include("Nada encontrado para &quot;nada disso&quot; nesta aba.")
     end
 
     it "quem recebe a devolução também fica com o registro no seu histórico" do

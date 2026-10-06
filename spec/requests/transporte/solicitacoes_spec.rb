@@ -50,6 +50,19 @@ RSpec.describe "Transporte: solicitações do solicitante" do
       expect(html.css("nav[aria-label='Etapas das solicitações'] a").map { |aba| aba.text.squish }).to eq([ "Solicitadas 1", "Aprovadas 0", "Reagendadas 0", "Em serviço 0", "Concluídas 0", "Canceladas 0" ])
     end
 
+    it "com busca, as abas dão lugar à aba Resultado, com as solicitações de todas as etapas" do
+      post transporte_solicitacoes_path, params: { solicitacao: dados }
+      post transporte_solicitacoes_path, params: { solicitacao: dados.merge(resumo: "Reunião no MEC") }
+      Transporte::Solicitacao.find_by!(resumo: "Reunião no MEC").update_columns(status: "cancelada", motivo_cancelamento: "Adiada")
+
+      get transporte_solicitacoes_path, params: { q: "reuni" }
+
+      html = Nokogiri::HTML(response.body)
+      expect(html.css("nav[aria-label='Etapas das solicitações'] a")).to be_empty
+      expect(html.at_css("nav[aria-label='Etapas das solicitações'] [aria-current='page']").text.squish).to eq("Resultado 2")
+      expect(response.body).to include("2 solicitação(ões) encontrada(s), de todas as etapas", "Reunião na SEAD", "Reunião no MEC")
+    end
+
     it "com erro, devolve o painel com o que foi digitado e as mensagens em cada lugar" do
       ruim = dados.deep_merge(saida_em: "06/10/2026 09:00", passageiros: { "0" => { cpf: "111.111.111-11" } }, destinos: { "0" => { numero: "" } })
 
