@@ -25,6 +25,8 @@
       </div>
 
       <%= turbo_stream_from current_user, :notificacoes %>
+      <%# Alertas sonoros: o tempo real acrescenta aqui um pedido por notificação ou mensagem nova (sons.js toca uma vez só). %>
+      <div id="sons" hidden></div>
       <%= render "core/conversas/lancador" %>
       <%= render "compartilhado/flash" %>
       <%= render "compartilhado/confirmacao" %>

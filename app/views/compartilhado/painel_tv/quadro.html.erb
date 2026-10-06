@@ -9,7 +9,7 @@
 <% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
 <% nomes = { "critico" => "Atrasado", "urgente" => "Falta pouco", "atencao" => "Atenção", "normal" => "No prazo" } %>
 
-<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>">
+<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>" data-painel-tv-nome-value="<%= @textos[:modulo].parameterize %>">
   <header class="tv-cabecalho">
     <div class="min-w-0">
       <p class="tv-sobretitulo"><%= @textos[:modulo] %></p>
@@ -34,7 +34,7 @@
   </header>
 
   <main class="tv-colunas">
-    <% @quadro.colunas.each do |coluna| %>
+    <% @quadro.colunas.each_with_index do |coluna, posicao| %>
       <% graves = coluna.itens.count { |item| item.nivel == "critico" } %>
       <section class="tv-coluna" id="tv_<%= coluna.chave %>">
         <h2 class="tv-coluna-titulo">
@@ -44,9 +44,10 @@
             <span class="tv-contador" data-total><%= coluna.itens.size %></span>
           </span>
         </h2>
-        <ul class="tv-lista" data-painel-tv-target="lista">
+        <%# A primeira coluna é a de chegada: o que aparece nela pela primeira vez (ou volta para ela) toca o alerta do painel. %>
+        <ul class="tv-lista" data-painel-tv-target="lista<%= " chegada" if posicao.zero? %>">
           <% coluna.itens.each do |item| %>
-            <li class="tv-cartao" data-nivel="<%= item.nivel %>">
+            <li class="tv-cartao" data-nivel="<%= item.nivel %>" data-chave="<%= [ item.codigo, item.selo ].compact.join(" ") %>">
               <div class="tv-cartao-topo">
                 <p class="tv-codigo"><%= item.codigo %><% if item.selo %> <span class="tv-selo"><%= item.selo %></span><% end %></p>
                 <p class="tv-horario"><%= hora.call(item.horario) %></p>
@@ -71,6 +72,10 @@
       <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
       <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
     </ul>
-    <%= button_to "Sair do painel", @textos[:caminho], method: :delete, class: "tv-sair" %>
+    <div class="flex items-center gap-2">
+      <%# O navegador só toca depois de um clique nesta tela: o botão mostra se o alerta sonoro está valendo. %>
+      <button type="button" class="tv-sair" data-painel-tv-target="som" data-action="painel-tv#ligarSom" title="Alerta sonoro quando chega uma solicitação">Som: ligar</button>
+      <%= button_to "Sair do painel", @textos[:caminho], method: :delete, class: "tv-sair" %>
+    </div>
   </footer>
 </div>

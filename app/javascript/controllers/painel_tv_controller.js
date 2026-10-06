@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { destravar, liberado, tocar, tocarNovidades } from "sons"
 
 // Painel de TV do Transporte: relógio que anda sozinho, colunas que rolam sozinhas e contagem para a
 // próxima atualização.
@@ -9,10 +10,14 @@ import { Controller } from "@hotwired/stimulus"
 // de leitura (pixels por segundo). Todas as colunas chegam ao fim juntas: as menores rolam mais devagar.
 //
 // Quando algo muda na operação, o quadro atualiza na hora (Turbo Streams) sem interromper a rolagem.
+//
+// Alerta sonoro: toca quando entra algo novo na primeira coluna (target `chegada`), uma vez por solicitação;
+// atualizar a tela com as mesmas não toca de novo (ver sons.js).
 export default class extends Controller {
-  static targets = ["hora", "data", "contagem", "barra", "lista"]
+  static targets = ["hora", "data", "contagem", "barra", "lista", "chegada", "som"]
   static values = {
     intervalo: { type: Number, default: 30 },
+    nome: { type: String, default: "painel" },
     velocidade: { type: Number, default: 30 },
     pausaTopo: { type: Number, default: 5 },
     pausaFim: { type: Number, default: 4 }
@@ -21,6 +26,9 @@ export default class extends Controller {
   connect() {
     this.medir = this.medir.bind(this)
     this.quadro = this.quadro.bind(this)
+    this.conferirChegadas = this.conferirChegadas.bind(this)
+    this.conferirChegadas()
+    document.addEventListener("turbo:render", this.conferirChegadas) // a tela atualiza por morph: o elemento continua o mesmo
     document.addEventListener("turbo:render", this.medir)
     window.addEventListener("resize", this.medir)
     this.comecarCiclo()
@@ -30,9 +38,39 @@ export default class extends Controller {
 
   disconnect() {
     clearInterval(this.relogio)
+    clearTimeout(this.esperaDasChegadas)
+    document.removeEventListener("turbo:render", this.conferirChegadas)
     cancelAnimationFrame(this.animacao)
     document.removeEventListener("turbo:render", this.medir)
     window.removeEventListener("resize", this.medir)
+  }
+
+  // A cada vez que a primeira coluna é (re)desenhada: o que não estava lá antes toca o alerta.
+  chegadaTargetConnected() {
+    this.conferirChegadas()
+  }
+
+  conferirChegadas() {
+    if (!this.hasChegadaTarget) return
+    clearTimeout(this.esperaDasChegadas) // um redesenho troca vários elementos: confere uma vez só, no fim
+    this.esperaDasChegadas = setTimeout(() => {
+      if (!this.hasChegadaTarget) return
+      tocarNovidades(this.nomeValue, [...this.chegadaTarget.querySelectorAll("[data-chave]")].map((cartao) => cartao.dataset.chave))
+      this.mostrarSom()
+    }, 150)
+  }
+
+  ligarSom() {
+    const ctx = destravar()
+    if (!ctx) return
+    ctx.resume().then(() => {
+      tocar("painel") // a pessoa ouve como é o alerta
+      this.mostrarSom()
+    }).catch(() => {})
+  }
+
+  mostrarSom() {
+    if (this.hasSomTarget) this.somTarget.textContent = liberado() ? "Som: ligado" : "Som: ligar"
   }
 
   comecarCiclo() {
@@ -80,5 +118,6 @@ export default class extends Controller {
     if (this.hasDataTarget) this.dataTarget.textContent = agora.toLocaleDateString("pt-BR", { ...fuso, weekday: "long", day: "2-digit", month: "long" })
     if (this.hasContagemTarget) this.contagemTarget.textContent = faltam >= 60 ? `${Math.floor(faltam / 60)} min ${faltam % 60} s` : `${faltam} s`
     if (this.hasBarraTarget) this.barraTarget.style.width = `${(faltam / this.ciclo) * 100}%`
+    this.mostrarSom()
   }
 }

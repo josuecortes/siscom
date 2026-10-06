@@ -46,9 +46,11 @@ module Core
 
       private
 
-      def avisar(_mensagem)
+      # Para os outros participantes: o contador do ícone e o alerta sonoro do chat (uma vez por mensagem, ver sons.js).
+      def avisar(mensagem)
         @conversa.participantes.leitores.where.not(user_id: @autor.id).includes(:user).find_each do |participante|
           self.class.atualizar_contador(participante.user)
+          Turbo::StreamsChannel.broadcast_append_to(participante.user, :conversas, target: "sons", partial: "compartilhado/som", locals: { tipo: "mensagem", numero: mensagem.id })
         end
       end
     end
