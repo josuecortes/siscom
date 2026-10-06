@@ -15,13 +15,26 @@ export default class extends Controller {
 
   connect() {
     if (this.element.value) this.aplicar()
-    if (this.comCalendario) this.montarCalendario()
+    this.sincronizarCalendario()
+    // O campo pode nascer desabilitado (bloco escondido do formulário, ex.: Retorno só aparece em "Viagem")
+    // e ser habilitado depois: o calendário entra nessa hora.
+    if (["data", "data_hora"].includes(this.tipoValue)) {
+      this.vigia = new MutationObserver(() => this.sincronizarCalendario())
+      this.vigia.observe(this.element, { attributes: true, attributeFilter: ["disabled", "readonly"] })
+    }
   }
 
   disconnect() {
+    this.vigia?.disconnect()
+    this.vigia = null
     this.botao?.remove()
     this.nativo?.remove()
     this.botao = this.nativo = null
+  }
+
+  sincronizarCalendario() {
+    if (this.comCalendario && !this.botao) this.montarCalendario()
+    if (this.botao) this.botao.hidden = !this.comCalendario
   }
 
   get comCalendario() {

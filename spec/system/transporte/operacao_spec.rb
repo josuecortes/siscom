@@ -149,6 +149,23 @@ RSpec.describe "Transporte: operação em tempo real", :js do
     expect(page).to have_field("Nova saída (data e hora) *", with: "24/12/2026 14:30")
   end
 
+  it "o campo que só aparece depois (Retorno, na viagem) também ganha o calendário" do
+    stub_request(:get, %r{\Ahttps://tile\.openstreetmap\.org/}).to_return(status: 200, headers: { "Content-Type" => "image/png" }, body: "PNG") # mapa do destino
+    sign_in maria
+    visit transporte_solicitacoes_path
+    click_on "Nova solicitação"
+    expect(page).to have_button("Abrir calendário e hora", count: 1)
+
+    select "Viagem", from: "Tipo *"
+
+    expect(page).to have_field("Retorno (data e hora) *")
+    expect(page).to have_button("Abrir calendário e hora", count: 2)
+    page.execute_script("const n = document.querySelector('#solicitacao_retorno_em').parentElement.querySelector('[data-calendario-nativo]'); n.value = '2026-12-24T18:00'; n.dispatchEvent(new Event('change'))")
+    expect(page).to have_field("Retorno (data e hora) *", with: "24/12/2026 18:00")
+    select "Normal", from: "Tipo *"
+    expect(page).to have_button("Abrir calendário e hora", count: 1)
+  end
+
   it "no celular a operação não cria rolagem horizontal" do
     Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados)
     sign_in tecnico
