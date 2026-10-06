@@ -1,0 +1,147 @@
+<% content_for :title, "Equipamentos" %>
+<% consulta = request.query_parameters.except("page", "painel") %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Equipamentos", icone: :briefcase, migalha: [ "Equipamentos", equipamentos_itens_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, secundaria: true, caminho: equipamentos_itens_path(consulta.merge(format: :xlsx)), opcoes: { data: { turbo: false } } %>
+  <% if pode?(Equipamentos::Acesso::GERENCIAR) %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Novo equipamento", icone: :plus, caminho: new_equipamentos_item_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream_from "equipamentos" %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<% texto = ->(f, nome, titulo, exemplo) do %>
+  <div class="mb-4 space-y-1.5 md:mb-0">
+    <%= f.label nome, titulo, class: rotulo %>
+    <%= f.text_field nome, value: @filtros[nome], placeholder: exemplo, autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} px-4" %>
+  </div>
+<% end %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: equipamentos_itens_path, method: :get, id: "filtros_de_equipamentos", class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "itens_lista", turbo_action: "advance" } do |f| %>
+    <% extras = @filtros.slice(:tipo_equipamento, :situacao, :unidade_id, :contrato, :processo, :codigo_kit).values.count(&:present?) + (@filtros[:status] == "em_uso" ? 0 : 1) %>
+    <div class="space-y-4" data-controller="recolher">
+      <div class="flex items-end gap-2">
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <%= f.label :q, "Buscar por marca, modelo, serial, patrimônio, kit, contrato, host, IP, MAC…", class: "sr-only md:not-sr-only #{rotulo}" %>
+          <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+            <%= f.text_field :q, value: @filtros[:q], placeholder: "Marca, modelo, serial, patrimônio, kit…", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+          </div>
+        </div>
+        <button type="submit" title="Filtrar equipamentos" aria-label="Filtrar equipamentos"
+                class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to equipamentos_itens_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+      <button type="button" data-recolher-target="botao" data-action="recolher#alternar" aria-expanded="false" aria-controls="mais_filtros"
+              class="group inline-flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm font-semibold text-[var(--text-primary)] md:hidden">
+        <span class="inline-flex items-center gap-2">
+          Mais filtros
+          <% if extras.positive? %><span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[11px] text-[var(--accent-strong)]"><%= extras %></span><% end %>
+        </span>
+        <span class="text-[var(--text-secondary)] transition-transform group-aria-expanded:rotate-180"><%= icone(:chevron_right, classe: "h-4 w-4 rotate-90") %></span>
+      </button>
+      <div id="mais_filtros" data-recolher-target="bloco" class="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-4 xl:items-end">
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%= f.label :tipo_equipamento, "Tipo de equipamento", class: rotulo %>
+          <%= f.select :tipo_equipamento, [ [ "Todos", "" ] ] + Equipamentos::Item::TIPOS, { selected: @filtros[:tipo_equipamento] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%= f.label :status, "Situação", class: rotulo %>
+          <%= f.select :status, Equipamentos::ItensController::STATUS.invert.to_a, { selected: @filtros[:status] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%= f.label :situacao, "Disponibilidade", class: rotulo %>
+          <%= f.select :situacao, [ [ "Todas", "" ] ] + Equipamentos::Item::SITUACOES.invert.to_a, { selected: @filtros[:situacao] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 md:mb-0">
+          <%= render "compartilhado/campo_autocomplete", nome: "unidade_id", id: "filtro_unidade", rotulo: "Unidade", flutuante: true, url: equipamentos_opcoes_de_unidades_path,
+                valor: @filtros[:unidade_id], texto: @unidade&.sigla_e_nome, acao: "change->filtro#aplicar", placeholder: "Digite para buscar a unidade", vazio: "Nenhuma unidade cadastrada." %>
+        </div>
+        <% texto.call(f, :codigo_kit, "Código do kit", "Ex.: KIT-000012") %>
+        <% texto.call(f, :contrato, "Contrato ou referência", "Ex.: 012/2025") %>
+        <% texto.call(f, :processo, "Processo", "Ex.: 0001.2025") %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "itens_lista", data: { turbo_action: "advance" } do %>
+    <% @filtros.slice(:ordem, :direcao).each do |nome, valor| %><%= hidden_field_tag nome, valor, id: nil, form: "filtros_de_equipamentos" %><% end %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} equipamento(s)#{' em uso' if @filtros[:status] == 'em_uso'}" %>
+    <% ordenavel = ->(titulo, chave) do %>
+      <% ativa = @filtros[:ordem] == chave %>
+      <% proxima = ativa && @filtros[:direcao] == "asc" ? "desc" : "asc" %>
+      <th scope="col" aria-sort="<%= ativa ? (@filtros[:direcao] == "asc" ? "ascending" : "descending") : "none" %>">
+        <%= link_to url_for(consulta.merge(ordem: chave, direcao: proxima)), title: "Ordenar por #{titulo.downcase}",
+              class: "inline-flex items-center gap-1.5 hover:text-[var(--accent-strong)] #{'text-[var(--accent-strong)]' if ativa}" do %>
+          <span><%= titulo %></span>
+          <span class="text-xs leading-none <%= "opacity-40" unless ativa %>" aria-hidden="true"><%= ativa ? (@filtros[:direcao] == "asc" ? "▲" : "▼") : "▲▼" %></span>
+        <% end %>
+      </th>
+    <% end %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1080px]">
+        <thead>
+          <tr>
+            <% ordenavel.call("Equipamento", "tipo") %>
+            <th scope="col">Identificação</th>
+            <th scope="col">Kit</th>
+            <th scope="col">Unidade</th>
+            <th scope="col">Situação</th>
+            <% ordenavel.call("Cadastrado em", "cadastro") %>
+            <th scope="col" class="!pl-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @itens.each do |item| %>
+            <% linha = @envios[item.id] %>
+            <tr id="<%= dom_id(item) %>">
+              <td class="!whitespace-normal">
+                <p class="font-semibold text-[var(--text-primary)]"><%= link_to item.nome, equipamentos_item_path(item), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %></p>
+                <% if item.descricao.present? %><p class="mt-1 text-sm text-[var(--text-secondary)]"><%= truncate(item.descricao, length: 60) %></p><% end %>
+              </td>
+              <td>
+                <p class="text-sm text-[var(--text-primary)]"><%= item.identificacao %></p>
+                <% if item.numero_patrimonio.present? && item.numero_serial.present? %><p class="mt-1 text-xs text-[var(--text-muted)]">Serial <%= item.numero_serial %></p><% end %>
+              </td>
+              <td class="!whitespace-normal">
+                <% if item.no_kit? %>
+                  <p class="text-sm text-[var(--text-primary)]"><%= item.identificacao_kit %></p>
+                  <p class="mt-1 text-xs text-[var(--text-muted)]"><%= link_to item.codigo_kit, equipamentos_itens_path(codigo_kit: item.codigo_kit), title: "Ver as peças deste kit", class: "hover:text-[var(--accent-strong)] hover:underline", data: { turbo_frame: "_top" } %></p>
+                <% else %>—<% end %>
+              </td>
+              <td class="!whitespace-normal">
+                <p class="text-sm text-[var(--text-primary)]"><%= item.unidade_nome %></p>
+                <% if item.emprestado? %>
+                  <p class="mt-1 text-xs text-[var(--text-muted)]"><%= linha&.movimentacao&.nome_do_tipo || "Emprestado" %> para <%= item.posse_unidade_nome %><%= " · #{linha.movimentacao.responsavel_nome}" if linha %></p>
+                  <% if linha %><p class="mt-1 text-xs text-[var(--text-muted)]">Devolução prevista: <%= l(linha.movimentacao.previsao_devolucao) %> · <%= linha.movimentacao.dias_emprestado %> dia(s) emprestado</p><% end %>
+                <% elsif item.em_movimentacao? && linha %>
+                  <p class="mt-1 text-xs text-[var(--text-muted)]">Indo para <%= linha.movimentacao.destino_nome %> · <%= linha.movimentacao.responsavel_nome %></p>
+                <% end %>
+              </td>
+              <td>
+                <div class="flex flex-col items-start gap-1">
+                  <%= selo_do_equipamento(item) %>
+                  <%= selo_da_disponibilidade(item) %>
+                  <%= selo_de_atraso(linha.movimentacao) if linha %>
+                </div>
+              </td>
+              <td class="whitespace-nowrap"><%= l(item.created_at, format: "%d/%m/%Y") %></td>
+              <td class="!pl-2 !pr-4"><%= render "equipamentos/itens/acoes", item: item %></td>
+            </tr>
+          <% end %>
+          <% if @itens.empty? %>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum equipamento encontrado para os filtros atuais.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "itens_lista" %>
+  <% end %>
+</section>

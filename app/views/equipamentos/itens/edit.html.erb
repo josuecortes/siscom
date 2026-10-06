@@ -1,0 +1,14 @@
+<% content_for :title, "Editar equipamento" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_equipamento", rotulo: "Salvar equipamento" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Editar equipamento", titulo: @item.nome, voltar: equipamentos_itens_path, largo: true, rodape: rodape,
+                descricao: "Unidade: #{@item.unidade_nome}. A unidade só muda por movimentação. Toda alteração fica no histórico, com quem mudou e o que mudou." } do %>
+  <%= form_with model: @item, scope: :item, url: equipamentos_item_path(@item), method: :patch, id: "formulario_equipamento", class: "space-y-5" do |f| %>
+    <% if @item.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@item.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+    <%= render "campos", f: f, sugestoes: @sugestoes %>
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

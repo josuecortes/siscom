@@ -1,0 +1,40 @@
+<% content_for :title, "Receber devolução" %>
+<% admin = pode?(Equipamentos::Acesso::ADMINISTRAR) %>
+<% voltando = @envio.itens.select { |linha| linha.devolucao_pendente? && (linha.devolver_para_id == current_user.id || admin) } %>
+<% em_nome = voltando.reject { |linha| linha.devolver_para_id == current_user.id }.map(&:devolver_para_nome).uniq %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_recebimento", rotulo: "Confirmar o recebimento" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "#{@envio.nome_do_tipo} #{@envio.codigo}", titulo: "Receber devolução", voltar: volta, largo: true, rodape: rodape,
+                descricao: "#{@envio.responsavel_nome} (#{@envio.destino_nome}) está devolvendo para #{@envio.origem_nome}. Confira os equipamentos com o termo aceito e confirme." } do %>
+  <%= form_with url: receber_devolucao_equipamentos_recebimento_path(@envio), method: :patch, id: "formulario_recebimento", class: "space-y-5" do %>
+    <%= hidden_field_tag :voltar, params[:voltar], id: nil %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <% if em_nome.any? %>
+      <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]">Você está recebendo como administrador, em nome de <%= em_nome.to_sentence %>. Isso fica registrado no histórico de cada equipamento.</p>
+    <% end %>
+    <div class="space-y-2">
+      <p class="text-sm font-semibold text-[var(--text-primary)]">Equipamentos devolvidos (<%= voltando.size %>)</p>
+      <ul class="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]" id="equipamentos_devolvidos">
+        <% voltando.each do |linha| %>
+          <li class="px-4 py-2.5 text-sm">
+            <p class="font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
+            <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %> · devolução iniciada em <%= l(linha.devolucao_pedida_em, format: "%d/%m/%Y %H:%M") %></p>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    <details class="rounded-xl border border-[var(--border-subtle)]" open>
+      <summary class="cursor-pointer px-4 py-3 text-sm font-semibold text-[var(--text-primary)]">Termo aceito por <%= @envio.responsavel_nome %><%= " em #{l(@envio.aceita_em, format: '%d/%m/%Y %H:%M')}" if @envio.aceita? %></summary>
+      <p id="texto_do_termo" class="whitespace-pre-line border-t border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-4 text-sm leading-6 text-[var(--text-primary)]"><%= @envio.termo %></p>
+    </details>
+    <div class="space-y-1.5">
+      <label for="observacao" class="text-sm font-medium text-[var(--text-secondary)]">Observação</label>
+      <%= text_area_tag :observacao, params[:observacao], rows: 3, maxlength: 1000, placeholder: "Ex.: devolvido sem o cabo de força; tela com risco.",
+            class: "min-h-24 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+      <p class="text-xs text-[var(--text-muted)]">Opcional. Fica no histórico de cada equipamento.</p>
+    </div>
+  <% end %>
+<% end %>

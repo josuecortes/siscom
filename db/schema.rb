@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -313,6 +313,121 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_190000) do
     t.index ["tipo_equipamento"], name: "index_equipamentos_on_tipo_equipamento"
     t.index ["unidade_id"], name: "index_equipamentos_on_unidade_id"
     t.index ["user_id"], name: "index_equipamentos_on_user_id"
+  end
+
+  create_table "equipamentos_eventos", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.string "tipo", null: false
+    t.text "nota"
+    t.jsonb "mudancas", default: {}, null: false
+    t.bigint "ator_id"
+    t.string "ator_nome"
+    t.datetime "ocorrido_em", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ator_id"], name: "index_equipamentos_eventos_on_ator_id"
+    t.index ["item_id"], name: "index_equipamentos_eventos_on_item_id"
+    t.index ["ocorrido_em"], name: "index_equipamentos_eventos_on_ocorrido_em"
+    t.index ["tipo"], name: "index_equipamentos_eventos_on_tipo"
+  end
+
+  create_table "equipamentos_itens", force: :cascade do |t|
+    t.string "tipo_equipamento", null: false
+    t.text "descricao"
+    t.string "marca", null: false
+    t.string "modelo", null: false
+    t.string "numero_serial"
+    t.string "numero_patrimonio"
+    t.string "outra_identificacao"
+    t.string "status", default: "ativo", null: false
+    t.string "situacao", default: "disponivel", null: false
+    t.bigint "rh_unidade_id", null: false
+    t.string "unidade_nome", null: false
+    t.bigint "posse_rh_unidade_id"
+    t.string "posse_unidade_nome"
+    t.bigint "cadastrado_por_id"
+    t.string "codigo_kit"
+    t.string "identificacao_kit"
+    t.string "contrato"
+    t.string "processo"
+    t.integer "garantia"
+    t.string "host"
+    t.string "ip"
+    t.string "mac"
+    t.string "ativo_de_rede"
+    t.string "localizacao_fisica"
+    t.string "rack"
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "upper((numero_patrimonio)::text)", name: "idx_equipamentos_itens_patrimonio", unique: true, where: "((numero_patrimonio IS NOT NULL) AND ((numero_patrimonio)::text <> ''::text))"
+    t.index "upper((numero_serial)::text)", name: "idx_equipamentos_itens_serial", unique: true, where: "((numero_serial IS NOT NULL) AND ((numero_serial)::text <> ''::text))"
+    t.index ["cadastrado_por_id"], name: "index_equipamentos_itens_on_cadastrado_por_id"
+    t.index ["codigo_kit"], name: "index_equipamentos_itens_on_codigo_kit"
+    t.index ["legacy_id"], name: "index_equipamentos_itens_on_legacy_id", unique: true
+    t.index ["posse_rh_unidade_id"], name: "index_equipamentos_itens_on_posse_rh_unidade_id"
+    t.index ["rh_unidade_id"], name: "index_equipamentos_itens_on_rh_unidade_id"
+    t.index ["situacao"], name: "index_equipamentos_itens_on_situacao"
+    t.index ["status"], name: "index_equipamentos_itens_on_status"
+  end
+
+  create_table "equipamentos_itens_movimentacao", force: :cascade do |t|
+    t.bigint "movimentacao_id", null: false
+    t.bigint "item_id", null: false
+    t.string "status", default: "pendente", null: false
+    t.datetime "recebido_em"
+    t.bigint "recebido_por_id"
+    t.datetime "cancelado_em"
+    t.bigint "cancelado_por_id"
+    t.datetime "devolucao_pedida_em"
+    t.bigint "devolver_para_id"
+    t.string "devolver_para_nome"
+    t.datetime "devolvido_em"
+    t.bigint "devolucao_recebida_por_id"
+    t.text "observacao_da_devolucao"
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cancelado_por_id"], name: "index_equipamentos_itens_movimentacao_on_cancelado_por_id"
+    t.index ["devolucao_recebida_por_id"], name: "idx_on_devolucao_recebida_por_id_14e7f8ccab"
+    t.index ["devolver_para_id"], name: "index_equipamentos_itens_movimentacao_on_devolver_para_id"
+    t.index ["item_id"], name: "idx_equipamentos_item_em_envio_aberto", unique: true, where: "((status)::text = ANY (ARRAY[('pendente'::character varying)::text, ('emprestado'::character varying)::text, ('devolucao_pendente'::character varying)::text]))"
+    t.index ["item_id"], name: "index_equipamentos_itens_movimentacao_on_item_id"
+    t.index ["legacy_id"], name: "index_equipamentos_itens_movimentacao_on_legacy_id", unique: true
+    t.index ["movimentacao_id"], name: "index_equipamentos_itens_movimentacao_on_movimentacao_id"
+    t.index ["recebido_por_id"], name: "index_equipamentos_itens_movimentacao_on_recebido_por_id"
+    t.index ["status"], name: "index_equipamentos_itens_movimentacao_on_status"
+  end
+
+  create_table "equipamentos_movimentacoes", force: :cascade do |t|
+    t.string "codigo"
+    t.string "tipo", default: "movimentacao", null: false
+    t.string "status", default: "em_andamento", null: false
+    t.bigint "origem_rh_unidade_id", null: false
+    t.string "origem_nome", null: false
+    t.bigint "destino_rh_unidade_id", null: false
+    t.string "destino_nome", null: false
+    t.bigint "responsavel_id", null: false
+    t.string "responsavel_nome", null: false
+    t.bigint "criada_por_id", null: false
+    t.string "criada_por_nome", null: false
+    t.text "descricao"
+    t.date "previsao_devolucao"
+    t.text "termo"
+    t.datetime "aceita_em"
+    t.datetime "encerrada_em"
+    t.bigint "legacy_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "atraso_avisado_em"
+    t.index ["codigo"], name: "index_equipamentos_movimentacoes_on_codigo", unique: true
+    t.index ["criada_por_id"], name: "index_equipamentos_movimentacoes_on_criada_por_id"
+    t.index ["destino_rh_unidade_id"], name: "index_equipamentos_movimentacoes_on_destino_rh_unidade_id"
+    t.index ["legacy_id"], name: "index_equipamentos_movimentacoes_on_legacy_id", unique: true
+    t.index ["origem_rh_unidade_id"], name: "index_equipamentos_movimentacoes_on_origem_rh_unidade_id"
+    t.index ["responsavel_id"], name: "index_equipamentos_movimentacoes_on_responsavel_id"
+    t.index ["status"], name: "index_equipamentos_movimentacoes_on_status"
+    t.index ["tipo"], name: "index_equipamentos_movimentacoes_on_tipo"
   end
 
   create_table "etapa_users", force: :cascade do |t|
@@ -1449,6 +1564,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_190000) do
   add_foreign_key "destinos", "users"
   add_foreign_key "equipamentos", "unidades"
   add_foreign_key "equipamentos", "users"
+  add_foreign_key "equipamentos_eventos", "equipamentos_itens", column: "item_id"
+  add_foreign_key "equipamentos_eventos", "users", column: "ator_id"
+  add_foreign_key "equipamentos_itens", "users", column: "cadastrado_por_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "equipamentos_itens", column: "item_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "equipamentos_movimentacoes", column: "movimentacao_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "users", column: "cancelado_por_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "users", column: "devolucao_recebida_por_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "users", column: "devolver_para_id"
+  add_foreign_key "equipamentos_itens_movimentacao", "users", column: "recebido_por_id"
+  add_foreign_key "equipamentos_movimentacoes", "users", column: "criada_por_id"
+  add_foreign_key "equipamentos_movimentacoes", "users", column: "responsavel_id"
   add_foreign_key "etapa_users", "etapas"
   add_foreign_key "etapa_users", "users"
   add_foreign_key "etapas", "acoes"

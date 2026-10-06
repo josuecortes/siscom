@@ -1,0 +1,17 @@
+<%# Ações do equipamento na linha da lista (nunca dentro do "ver"). locals: item %>
+<% gerencia = Equipamentos::Acesso.pode_gerenciar?(current_user, item) %>
+<% minha = Equipamentos::Acesso.age_na_unidade?(current_user, item.rh_unidade_id) %>
+<div class="flex flex-nowrap items-center gap-1.5">
+  <%= render "compartilhado/botao_acao", titulo: "Visualizar equipamento", icone: :eye, caminho: equipamentos_item_path(item), quadro: "painel" %>
+  <% if gerencia %>
+    <%= render "compartilhado/botao_acao", titulo: "Editar equipamento", icone: :pencil, caminho: edit_equipamentos_item_path(item), quadro: "painel", desabilitado: !item.disponivel? %>
+    <%= render "compartilhado/botao_acao", titulo: "Kit", icone: :link, caminho: kit_equipamentos_item_path(item), quadro: "painel", desabilitado: !item.disponivel? %>
+    <%= render "compartilhado/botao_acao", titulo: "Mudar situação", icone: :reload, caminho: situacao_equipamentos_item_path(item), quadro: "painel", desabilitado: !item.disponivel? %>
+  <% end %>
+  <% if minha && item.livre? && pode?(Equipamentos::Acesso::MOVIMENTAR) %>
+    <%= render "compartilhado/botao_acao", titulo: "Movimentar para outra unidade", icone: :send, caminho: new_equipamentos_movimentacao_path(origem_id: item.rh_unidade_id, item_ids: [ item.id ]), quadro: "painel" %>
+  <% end %>
+  <% if minha && item.livre? && pode?(Equipamentos::Acesso::EMPRESTAR) %>
+    <%= render "compartilhado/botao_acao", titulo: "Emprestar ou cautelar", icone: :clock, caminho: new_equipamentos_emprestimo_path(origem_id: item.rh_unidade_id, item_ids: [ item.id ]), quadro: "painel" %>
+  <% end %>
+</div>

@@ -1,0 +1,32 @@
+<% content_for :title, "Devolver equipamentos" %>
+<% comigo = @envio.itens.select { |linha| linha.emprestado? || linha.devolucao_pendente? } %>
+<% parados = comigo.select(&:devolucao_pendente?) %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_devolucao", rotulo: (parados.any? && parados.size == comigo.size ? "Trocar quem recebe" : "Iniciar devolução") } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "#{@envio.nome_do_tipo} #{@envio.codigo}", titulo: "Devolver equipamentos", voltar: volta, rodape: rodape,
+                descricao: "Indique quem vai receber em #{@envio.origem_nome}. A devolução só termina quando essa pessoa confirmar que recebeu." } do %>
+  <%= form_with url: devolver_equipamentos_recebimento_path(@envio), method: :patch, id: "formulario_devolucao", class: "space-y-5" do %>
+    <%= hidden_field_tag :voltar, params[:voltar], id: nil %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <% if parados.any? %>
+      <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]">A devolução já foi iniciada e está aguardando <%= parados.map(&:devolver_para_nome).uniq.to_sentence %>. Se a pessoa não puder receber, indique outra.</p>
+    <% end %>
+    <%= render "compartilhado/campo_autocomplete", nome: "para_id", id: "devolver_para", rotulo: "Quem recebe na unidade de origem *", obrigatorio: true,
+          url: equipamentos_opcoes_de_pessoas_path(unidade_id: @envio.origem_rh_unidade_id), valor: params[:para_id], texto: (::User.find_by(id: params[:para_id])&.nome if params[:para_id].present?),
+          placeholder: "Digite o nome da pessoa", vazio: "Ninguém lotado em #{@envio.origem_nome}.", ajuda: "Só aparecem as pessoas lotadas em #{@envio.origem_nome}." %>
+    <div class="space-y-2">
+      <p class="text-sm font-semibold text-[var(--text-primary)]">Equipamentos que voltam (<%= comigo.size %>)</p>
+      <ul class="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
+        <% comigo.each do |linha| %>
+          <li class="px-4 py-2.5 text-sm">
+            <p class="font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
+            <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %></p>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+<% end %>

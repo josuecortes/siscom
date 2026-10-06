@@ -1,0 +1,22 @@
+<% content_for :title, "Mudar situação" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_situacao", rotulo: "Mudar situação" } %>
+<% entrada = "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Equipamento", titulo: "Mudar situação", voltar: equipamentos_itens_path, rodape: rodape,
+                descricao: "#{@item.nome_completo}. Situação atual: #{@item.nome_do_status}. Só o equipamento ativo pode ser movimentado ou emprestado; o descartado sai das listas do dia a dia, mas continua no histórico e nos relatórios." } do %>
+  <%= form_with url: mudar_situacao_equipamentos_item_path(@item), method: :patch, id: "formulario_situacao", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="status" class="text-sm font-medium text-[var(--text-secondary)]">Nova situação *</label>
+      <%= select_tag :status, options_for_select([ [ "Selecione", "" ] ] + Equipamentos::Item::STATUS.except(@item.status).invert.to_a, params[:status]), required: true, class: "#{entrada} h-11" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="motivo" class="text-sm font-medium text-[var(--text-secondary)]">Motivo *</label>
+      <%= text_area_tag :motivo, params[:motivo], rows: 4, required: true, maxlength: 500, class: "#{entrada} min-h-28 py-3" %>
+      <p class="text-xs text-[var(--text-muted)]">Fica no histórico do equipamento.</p>
+    </div>
+  <% end %>
+<% end %>

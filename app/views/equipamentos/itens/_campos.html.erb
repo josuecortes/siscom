@@ -1,0 +1,36 @@
+<%# Campos de um equipamento (cadastro individual e edição). locals: f (form builder com scope :item), sugestoes %>
+<%= render "compartilhado/campo", f: f, campo: :tipo_equipamento, rotulo: "Tipo de equipamento *", tipo: :select, opcoes: [ [ "Selecione", "" ] ] + Equipamentos::Item::TIPOS, html: { required: true } %>
+<div class="grid gap-5 sm:grid-cols-2">
+  <%= render "compartilhado/campo", f: f, campo: :marca, rotulo: "Marca *", html: { required: true, maxlength: 80, list: "sugestoes_marca", autocomplete: "off" } %>
+  <%= render "compartilhado/campo", f: f, campo: :modelo, rotulo: "Modelo *", html: { required: true, maxlength: 80, list: "sugestoes_modelo", autocomplete: "off" } %>
+</div>
+<fieldset class="space-y-3 rounded-xl border border-[var(--border-subtle)] p-4">
+  <legend class="px-1 text-sm font-semibold text-[var(--text-primary)]">Identificação</legend>
+  <p class="text-xs text-[var(--text-muted)]">Preencha pelo menos um dos três. Serial e patrimônio não podem repetir em outro equipamento.</p>
+  <div class="grid gap-5 sm:grid-cols-2">
+    <%= render "compartilhado/campo", f: f, campo: :numero_patrimonio, rotulo: "Número do patrimônio", html: { maxlength: 60, autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :numero_serial, rotulo: "Número serial", html: { maxlength: 80, autocomplete: "off" } %>
+  </div>
+  <%= render "compartilhado/campo", f: f, campo: :outra_identificacao, rotulo: "Outra identificação", html: { maxlength: 80, autocomplete: "off" } %>
+</fieldset>
+<%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Descrição", tipo: :textarea, curto: true, html: { maxlength: 1000 } %>
+<div class="grid gap-5 sm:grid-cols-3">
+  <%= render "compartilhado/campo", f: f, campo: :contrato, rotulo: "Contrato ou referência", html: { maxlength: 80, list: "sugestoes_contrato", autocomplete: "off" } %>
+  <%= render "compartilhado/campo", f: f, campo: :processo, rotulo: "Processo", html: { maxlength: 80, list: "sugestoes_processo", autocomplete: "off" } %>
+  <%= render "compartilhado/campo", f: f, campo: :garantia, rotulo: "Garantia (meses)", tipo: :number, html: { min: 0, step: 1 } %>
+</div>
+<fieldset class="space-y-3 rounded-xl border border-[var(--border-subtle)] p-4">
+  <legend class="px-1 text-sm font-semibold text-[var(--text-primary)]">Rede e localização</legend>
+  <p class="text-xs text-[var(--text-muted)]">Para switch, MAC e ativo de rede são obrigatórios.</p>
+  <div class="grid gap-5 sm:grid-cols-2">
+    <%= render "compartilhado/campo", f: f, campo: :host, rotulo: "Host", html: { maxlength: 80, autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :ip, rotulo: "IP", html: { maxlength: 45, autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :mac, rotulo: "MAC", html: { maxlength: 30, autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :ativo_de_rede, rotulo: "Ativo de rede", html: { maxlength: 80, autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :localizacao_fisica, rotulo: "Localização física", html: { maxlength: 120 } %>
+    <%= render "compartilhado/campo", f: f, campo: :rack, rotulo: "Rack", html: { maxlength: 60 } %>
+  </div>
+</fieldset>
+<% sugestoes.each do |campo, valores| %>
+  <datalist id="sugestoes_<%= campo %>"><% valores.each do |valor| %><option value="<%= valor %>"></option><% end %></datalist>
+<% end %>

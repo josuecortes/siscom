@@ -1,0 +1,30 @@
+<% content_for :title, "Cancelar envio" %>
+<% pendentes = @envio.itens.select(&:pendente?) %>
+<% caminho = emprestimo? ? cancelar_equipamentos_emprestimo_path(@envio) : cancelar_equipamentos_movimentacao_path(@envio) %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Voltar</button>
+  <% if pendentes.size > 1 %>
+    <%= button_to "Cancelar todos os pendentes", caminho, method: :patch, class: "cursor-pointer rounded-md bg-[var(--danger-solid)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--danger-solid-hover)]" %>
+  <% end %>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (emprestimo? ? "Empréstimos e cautelas" : "Movimentações"), titulo: "Cancelar envio · #{@envio.codigo}", voltar: caminho_da_lista, rodape: rodape,
+                descricao: "Só dá para cancelar o que ainda não foi recebido. O equipamento cancelado volta a ficar disponível em #{@envio.origem_nome}." } do %>
+  <% if @erro.present? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+  <% end %>
+  <ul class="divide-y divide-[var(--border-subtle)] rounded-xl border border-[var(--border-subtle)]" id="pendentes_do_envio">
+    <% pendentes.each do |linha| %>
+      <li class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+        <div class="min-w-0">
+          <p class="font-semibold text-[var(--text-primary)]"><%= linha.item.nome %></p>
+          <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= linha.item.identificacao %></p>
+        </div>
+        <%= button_to "Cancelar este", caminho, method: :patch, params: { item_id: linha.item_id },
+              class: "shrink-0 cursor-pointer rounded-md border border-[var(--danger-border-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--danger-text)] hover:bg-[var(--danger-surface)]" %>
+      </li>
+    <% end %>
+    <% if pendentes.empty? %><li class="px-4 py-4 text-sm text-[var(--text-secondary)]">Não há equipamento pendente neste envio.</li><% end %>
+  </ul>
+<% end %>

@@ -1,0 +1,68 @@
+<% content_for :title, @item.nome %>
+<% titulo = "text-sm font-semibold text-[var(--text-primary)]" %>
+<% caixa = "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]" %>
+<% detalhe = ->(rotulo, valor) do %>
+  <% if valor.present? %>
+    <div class="<%= caixa %> px-4 py-3">
+      <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+      <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor %></dd>
+    </div>
+  <% end %>
+<% end %>
+<%# Ver equipamento: só leitura; as ações ficam na linha da lista. %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Equipamento", titulo: @item.nome, voltar: equipamentos_itens_path, largo: true, rodape: render("compartilhado/rodape_fechar") } do %>
+  <section class="space-y-3" id="resumo_do_equipamento">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="<%= titulo %>"><%= @item.identificacao %></h3>
+        <% if @item.descricao.present? %><p class="mt-1 whitespace-pre-line break-words text-sm text-[var(--text-secondary)]"><%= @item.descricao %></p><% end %>
+      </div>
+      <div class="flex flex-wrap gap-2"><%= selo_do_equipamento(@item) %><%= selo_da_disponibilidade(@item) %><%= selo_de_atraso(@envio.movimentacao) if @envio %></div>
+    </div>
+    <% if @envio %>
+      <% envio = @envio.movimentacao %>
+      <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]" id="envio_aberto">
+        <% if @item.emprestado? %>
+          <%= envio.nome_do_tipo %> <%= envio.codigo %>: com <%= envio.responsavel_nome %>, em <%= envio.destino_nome %>, há <%= envio.dias_emprestado %> dia(s). Devolução prevista para <%= l(envio.previsao_devolucao) %>.
+        <% else %>
+          <%= envio.nome_do_tipo %> <%= envio.codigo %>: enviado para <%= envio.destino_nome %>, aos cuidados de <%= envio.responsavel_nome %>. Aguardando o recebimento.
+        <% end %>
+      </p>
+    <% end %>
+    <dl class="grid gap-3 sm:grid-cols-2">
+      <% detalhe.call("Unidade", @item.unidade_nome) %>
+      <% detalhe.call("Tipo de equipamento", @item.tipo_equipamento) %>
+      <% detalhe.call("Marca", @item.marca) %>
+      <% detalhe.call("Modelo", @item.modelo) %>
+      <% detalhe.call("Número do patrimônio", @item.numero_patrimonio) %>
+      <% detalhe.call("Número serial", @item.numero_serial) %>
+      <% detalhe.call("Outra identificação", @item.outra_identificacao) %>
+      <% detalhe.call("Kit", ("#{@item.identificacao_kit} (#{@item.codigo_kit})" if @item.no_kit?)) %>
+      <% detalhe.call("Contrato ou referência", @item.contrato) %>
+      <% detalhe.call("Processo", @item.processo) %>
+      <% detalhe.call("Garantia", ("#{@item.garantia} mês(es)" if @item.garantia)) %>
+      <% detalhe.call("Host", @item.host) %>
+      <% detalhe.call("IP", @item.ip) %>
+      <% detalhe.call("MAC", @item.mac) %>
+      <% detalhe.call("Ativo de rede", @item.ativo_de_rede) %>
+      <% detalhe.call("Localização física", @item.localizacao_fisica) %>
+      <% detalhe.call("Rack", @item.rack) %>
+      <% detalhe.call("Cadastrado", "#{l(@item.created_at, format: '%d/%m/%Y %H:%M')}#{" por #{@item.cadastrado_por.nome}" if @item.cadastrado_por}") %>
+    </dl>
+  </section>
+
+  <section class="space-y-2" id="historico_do_equipamento">
+    <h3 class="<%= titulo %>">Histórico</h3>
+    <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+      <% @eventos.each do |evento| %>
+        <li class="px-4 py-2.5 text-sm">
+          <p class="font-semibold text-[var(--text-primary)]"><%= evento.titulo %></p>
+          <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= l(evento.ocorrido_em, format: "%d/%m/%Y %H:%M") %> · <%= evento.ator_nome.presence || "Sistema" %></p>
+          <% if evento.nota.present? %><p class="mt-1 break-words text-[var(--text-secondary)]"><%= evento.nota %></p><% end %>
+        </li>
+      <% end %>
+      <% if @eventos.empty? %><li class="px-4 py-4 text-sm text-[var(--text-secondary)]">Nenhum registro.</li><% end %>
+    </ol>
+  </section>
+<% end %>
