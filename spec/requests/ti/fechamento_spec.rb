@@ -104,6 +104,17 @@ RSpec.describe "TI: o solicitante edita, cancela e finaliza o chamado" do
       expect(response.body).to include("O atendimento resolveu o chamado? *", "Muito bom", "Péssimo")
     end
 
+    it "ao ver o chamado concluído, o solicitante é convidado a finalizar; o técnico e os outros status não veem o convite" do
+      ver_no_painel ti_chamado_path(chamado)
+      convite = Nokogiri::HTML(response.body).at_css("#convite_para_finalizar")
+      expect(convite.text.squish).to include("A TI concluiu o atendimento.", "finalize o chamado com a sua avaliação")
+      expect(convite.at_css("a")["href"]).to eq(finalizacao_ti_chamado_path(chamado))
+
+      patch finalizar_ti_chamado_path(chamado), params: { resolvido: "sim", avaliacao: "5" }
+      ver_no_painel ti_chamado_path(chamado)
+      expect(response.body).not_to include("convite_para_finalizar")
+    end
+
     it "exige dizer se resolveu, a avaliação e o comentário quando ela é ruim" do
       patch finalizar_ti_chamado_path(chamado), params: { avaliacao: "2", resolvido: "" }
 
