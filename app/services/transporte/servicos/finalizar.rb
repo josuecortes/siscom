@@ -25,7 +25,7 @@ module Transporte
         return falha("Odômetro final não pode ser menor que o inicial (#{servico.odometro_inicial} km).") if @odometro < servico.odometro_inicial
         return falha("Para enviar anexos, escreva a observação.") if @anexos.any? && @observacao.nil?
         return falha("Observação pode ter no máximo 2000 caracteres.") if @observacao.to_s.length > 2000
-        return falha("Cada anexo pode ter no máximo 10 MB.") if @anexos.any? { |anexo| anexo.size > Transporte::Observacao::TAMANHO_MAXIMO }
+        return falha("Cada anexo pode ter no máximo #{Anexo::LIMITE}.") if @anexos.any? { |anexo| Anexo.grande?(anexo) }
 
         Transporte::Servico.transaction do
           servico.update!(odometro_final: @odometro, finalizado_em: Time.current)

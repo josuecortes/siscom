@@ -11,6 +11,11 @@
 <meta name="turbo-refresh-method" content="morph">
 <meta name="turbo-refresh-scroll" content="preserve">
 <%= csrf_meta_tags %>
+<% if user_signed_in? %>
+  <%# Formulário aberto por muito tempo: sessao.js confere a sessão antes de enviar e não perde o que foi preenchido. %>
+  <meta name="sessao-pulso" content="<%= pulso_da_sessao_path %>">
+  <meta name="sessao-login" content="<%= new_user_session_path %>">
+<% end %>
 <%= csp_meta_tag %>
 
 <%# Aplica tema e estado do menu antes da pintura para evitar piscar. %>

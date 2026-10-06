@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     resources :mensagens, only: :create, controller: "core/mensagens"
   end
   resource :inscricao_push, path: "minha-area/avisos-no-aparelho", only: %i[create destroy], controller: "core/inscricoes_push"
+  get "sessao/pulso", to: "core/sessao#pulso", as: :pulso_da_sessao, defaults: { format: :json }
   resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
 
   # Caminhos em português: /novo e /editar.

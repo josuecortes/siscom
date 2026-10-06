@@ -8,4 +8,6 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 pin "confirmacao"
 pin "pwa"
 pin "sons"
+pin "arquivos"
+pin "sessao"
 pin "leaflet" # @1.9.4

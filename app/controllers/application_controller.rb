@@ -2,6 +2,17 @@ class ApplicationController < ActionController::Base
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
+  # Token de formulário que não vale mais (página aberta há muito tempo, ou a pessoa entrou de novo em outra aba):
+  # em vez da tela de erro, volta para onde estava com um aviso. O navegador já evita isso na maioria dos casos
+  # (app/javascript/sessao.js); aqui é a rede de segurança.
+  rescue_from ActionController::InvalidAuthenticityToken do
+    mensagem = "A página ficou aberta por muito tempo e precisou ser atualizada. Confira e envie de novo."
+    respond_to do |format|
+      format.json { render json: { erro: mensagem }, status: :unprocessable_content }
+      format.any { redirect_back fallback_location: root_path, alert: mensagem, status: :see_other }
+    end
+  end
+
   before_action :authenticate_user!
 
   include Core::ControleDeAcesso

@@ -3,7 +3,6 @@ module Ti
   class ValorCampo < ApplicationRecord
     self.table_name = "ti_valores_campo"
 
-    TAMANHO_MAXIMO = 10.megabytes
 
     belongs_to :chamado, class_name: "Ti::Chamado", inverse_of: :valores
     belongs_to :campo_problema, class_name: "Ti::CampoProblema"

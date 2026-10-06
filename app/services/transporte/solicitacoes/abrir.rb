@@ -123,7 +123,7 @@ module Transporte
 
         arquivo = @dados[:documento_da_viagem]
         return @solicitacao.errors.add(:documento_da_viagem, "deve ser anexado para viagem") unless arquivo.respond_to?(:original_filename)
-        return @solicitacao.errors.add(:documento_da_viagem, "deve ter no máximo 10 MB") if arquivo.size > 10.megabytes
+        return @solicitacao.errors.add(:documento_da_viagem, "deve ter no máximo #{Anexo::LIMITE}") if Anexo.grande?(arquivo)
 
         @solicitacao.documento_da_viagem.attach(arquivo)
       end

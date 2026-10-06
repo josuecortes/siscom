@@ -21,7 +21,7 @@ module Transporte
       def call
         papel = self.class.papel_de(@solicitacao, @ator)
         return Core::Resultado.falha("Você não pode registrar observações nesta solicitação.") unless papel
-        return Core::Resultado.falha("Cada anexo pode ter no máximo 10 MB.") if @anexos.any? { |anexo| anexo.size > Transporte::Observacao::TAMANHO_MAXIMO }
+        return Core::Resultado.falha("Cada anexo pode ter no máximo #{Anexo::LIMITE}.") if @anexos.any? { |anexo| Anexo.grande?(anexo) }
 
         observacao = @solicitacao.observacoes.new(autor: @ator, autor_nome: @ator.nome, papel: papel, corpo: @corpo)
         return Core::Resultado.falha(observacao) unless observacao.save

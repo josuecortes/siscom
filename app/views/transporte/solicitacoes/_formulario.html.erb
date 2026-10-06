@@ -81,7 +81,7 @@
         <label for="solicitacao_documento_da_viagem" class="<%= rotulo %>">Documento da viagem<%= " *" unless tem_documento %></label>
         <%= file_field_tag "solicitacao[documento_da_viagem]", id: "solicitacao_documento_da_viagem", required: !tem_documento,
               class: "block w-full rounded-xl border bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white #{borda.call(:documento_da_viagem)}" %>
-        <p class="text-xs text-[var(--text-muted)]">Ofício, portaria ou outro documento que autoriza a viagem. Até 10 MB.<%= " Já anexado: #{original.documento_da_viagem.filename}. Escolha outro arquivo só se quiser trocar." if tem_documento %></p>
+        <p class="text-xs text-[var(--text-muted)]">Ofício, portaria ou outro documento que autoriza a viagem. Até 1 MB (imagem maior é reduzida sozinha).<%= " Já anexado: #{original.documento_da_viagem.filename}. Escolha outro arquivo só se quiser trocar." if tem_documento %></p>
         <%= erro.call(:documento_da_viagem, "Documento da viagem") %>
       </div>
     </div>

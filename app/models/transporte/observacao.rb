@@ -4,7 +4,6 @@ module Transporte
     self.table_name = "transporte_observacoes"
 
     PAPEIS = { "tecnico" => "Operação", "motorista" => "Motorista" }.freeze
-    TAMANHO_MAXIMO = 10.megabytes
 
     belongs_to :solicitacao, class_name: "Transporte::Solicitacao", inverse_of: :observacoes
     belongs_to :autor, class_name: "User"

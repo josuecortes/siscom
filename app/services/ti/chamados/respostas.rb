@@ -99,9 +99,7 @@ module Ti
         arquivos = (bruto.is_a?(Array) ? bruto : [ bruto ]).select { |item| item.respond_to?(:original_filename) }
         arquivos = arquivos.first(1) if campo.tipo == "arquivo"
         return nil if arquivos.empty?
-        if arquivos.any? { |arquivo| arquivo.size > Ti::ValorCampo::TAMANHO_MAXIMO }
-          return erro(campo, "deve ter no máximo 10 MB por arquivo")
-        end
+        return erro(campo, "deve ter no máximo #{Anexo::LIMITE} por arquivo") if arquivos.any? { |arquivo| Anexo.grande?(arquivo) }
 
         { texto: arquivos.map(&:original_filename).join(", "), arquivos: arquivos }
       end

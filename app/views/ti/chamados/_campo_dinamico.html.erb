@@ -30,6 +30,7 @@
       </label>
     <% end %>
     <% if campo.ajuda.present? %><p class="text-xs text-[var(--text-muted)]"><%= campo.ajuda %></p><% end %>
+    <% if %w[arquivo arquivos].include?(campo.tipo) %><p class="text-xs text-[var(--text-muted)]">Até 1 MB por arquivo (imagem maior é reduzida sozinha).</p><% end %>
     <% if erro %><p class="text-sm text-[var(--danger-text)]"><%= campo.rotulo %> <%= erro %></p><% end %>
   </fieldset>
 <% else %>

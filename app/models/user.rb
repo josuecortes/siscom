@@ -26,7 +26,6 @@ class User < ApplicationRecord
   attr_accessor :senha_definida_pela_administracao
 
   AVATAR_TIPOS = %w[image/png image/jpeg image/webp].freeze
-  AVATAR_TAMANHO_MAXIMO = 5.megabytes
 
   validate :avatar_valido, if: -> { attachment_changes.key?("avatar") }
   validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? && !senha_definida_pela_administracao }
@@ -96,7 +95,7 @@ class User < ApplicationRecord
     return unless avatar.attached?
 
     errors.add(:avatar, "deve ser uma imagem PNG, JPG ou WebP") unless avatar.blob.content_type.in?(AVATAR_TIPOS)
-    errors.add(:avatar, "deve ter no máximo 5 MB") if avatar.blob.byte_size > AVATAR_TAMANHO_MAXIMO
+    errors.add(:avatar, "deve ter no máximo #{Anexo::LIMITE}") if Anexo.grande?(avatar.blob)
   end
 
   def senha_dentro_da_politica
