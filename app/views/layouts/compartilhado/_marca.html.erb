@@ -1,11 +1,4 @@
-<%# Ícone da marca (porta de system-brand.tsx): a imagem das configurações ou, sem ela, o ícone provisório. %>
-<% imagem = caminho_do_icone_da_marca %>
-<span class="flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-[var(--system-context-line)] bg-[var(--system-context-surface)] text-[var(--system-accent-strong)] shadow-[0_6px_18px_rgba(15,23,42,0.16)] <%= local_assigns.fetch(:classe, "h-9 w-9") %>">
-  <% if imagem %>
-    <%= image_tag imagem, alt: "", class: "h-full w-full object-contain" %>
-  <% else %>
-    <span class="relative flex h-5 w-5 items-center justify-center rounded-[5px] border border-current">
-      <span class="absolute h-2.5 w-2.5 rounded-[3px] border border-current"></span>
-    </span>
-  <% end %>
+<%# Ícone da marca (porta de system-brand.tsx): a imagem das configurações ou, sem ela, a marca do siscom. %>
+<span class="flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-[var(--system-context-line)] bg-white shadow-[0_6px_18px_rgba(15,23,42,0.16)] <%= local_assigns.fetch(:classe, "h-9 w-9") %>">
+  <%= image_tag caminho_do_icone_da_marca, alt: "", class: "h-full w-full object-contain" %>
 </span>

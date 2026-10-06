@@ -2,7 +2,7 @@
 // - Não guarda páginas do sistema em cache (são por usuário e mudam o tempo todo);
 //   só a página "sem conexão", mostrada quando uma navegação falha.
 // - Recebe notificações push e abre o sistema ao tocar nelas.
-const CACHE = "siscom-v1"
+const CACHE = "siscom-v2" // v2: ícones com a marca do siscom
 const SEM_CONEXAO = "/sem-conexao.html"
 
 self.addEventListener("install", (evento) => {

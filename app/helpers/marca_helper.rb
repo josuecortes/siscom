@@ -13,8 +13,12 @@ module MarcaHelper
     favicon.attached? ? rails_blob_path(favicon, only_path: true) : "/favicon.ico"
   end
 
+  # Sem imagem nas configurações, vale a marca do siscom (a engrenagem com o "S" do sistema antigo), que também é o
+  # favicon e o ícone do aplicativo instalado (arquivos em public/, gerados de app/assets/images/AdminLTELogo.png do master).
+  MARCA_PADRAO = "/marca-siscom.png".freeze
+
   def caminho_do_icone_da_marca
     icone = configuracao_do_sistema.icone_marca
-    rails_blob_path(icone, only_path: true) if icone.attached?
+    icone.attached? ? rails_blob_path(icone, only_path: true) : MARCA_PADRAO
   end
 end
