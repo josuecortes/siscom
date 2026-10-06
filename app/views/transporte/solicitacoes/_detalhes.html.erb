@@ -37,7 +37,7 @@
     <% if s.busca? && s.busca_prevista_em %><% detalhe.call("Busca prevista para", data_e_hora(s.busca_prevista_em)) %><% end %>
     <% if s.concluida_em %><% detalhe.call("Concluída em", data_e_hora(s.concluida_em)) %><% end %>
     <% if s.documento_da_viagem.attached? %>
-      <% detalhe.call("Documento da viagem", link_to(s.documento_da_viagem.filename.to_s, rails_blob_path(s.documento_da_viagem, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false })) %>
+      <% detalhe.call("Documento da viagem", link_do_arquivo(s.documento_da_viagem, classe: "text-[var(--accent-strong)] hover:underline")) %>
     <% end %>
   </dl>
 </section>
@@ -115,7 +115,7 @@
           <p class="text-xs text-[var(--text-muted)]"><%= data_e_hora(observacao.created_at) %> · <%= observacao.autor_nome %> (<%= observacao.nome_do_papel %>)</p>
           <p class="mt-1 whitespace-pre-line break-words text-[var(--text-primary)]"><%= observacao.corpo %></p>
           <% observacao.anexos.each do |anexo| %>
-            <p class="mt-1"><%= link_to anexo.filename.to_s, rails_blob_path(anexo, disposition: "attachment"), class: "text-[var(--accent-strong)] hover:underline", data: { turbo: false } %></p>
+            <p class="mt-1"><%= link_do_arquivo(anexo, classe: "text-[var(--accent-strong)] hover:underline") %></p>
           <% end %>
         </li>
       <% end %>

@@ -49,7 +49,7 @@
             <% if valor.arquivos.attached? %>
               <ul class="space-y-1">
                 <% valor.arquivos.each do |arquivo| %>
-                  <li><%= link_to arquivo.filename.to_s, rails_blob_path(arquivo, disposition: "attachment"), class: "inline-flex items-center gap-2 text-[var(--accent-strong)] hover:underline", data: { turbo: false } %></li>
+                  <li><%= link_do_arquivo(arquivo, classe: "inline-flex items-center gap-2 text-[var(--accent-strong)] hover:underline") %></li>
                 <% end %>
               </ul>
             <% else %>
