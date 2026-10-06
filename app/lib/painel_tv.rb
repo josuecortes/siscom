@@ -8,9 +8,10 @@ module PainelTv
   NIVEIS = %w[critico urgente atencao normal].freeze
   # nome: quem pediu; unidade: a unidade de quem pediu; detalhe: o que é; responsaveis: quem está cuidando
   # (ex.: "Triagem: Ana Lima · Técnico: João Souza"); horario: a data que importa; aviso: por que pede atenção.
-  Item = Data.define(:codigo, :nome, :unidade, :detalhe, :responsaveis, :horario, :nivel, :aviso) do
-    def initialize(codigo:, nome:, horario:, nivel:, detalhe: nil, aviso: nil, unidade: nil, responsaveis: nil)
-      super(codigo:, nome:, unidade: unidade.presence, detalhe: detalhe.presence, responsaveis: responsaveis.presence, horario:, nivel:, aviso:)
+  # selo: marca curta ao lado do código, para o que precisa saltar aos olhos (ex.: "Liberado 2×").
+  Item = Data.define(:codigo, :nome, :unidade, :detalhe, :responsaveis, :horario, :nivel, :aviso, :selo) do
+    def initialize(codigo:, nome:, horario:, nivel:, detalhe: nil, aviso: nil, unidade: nil, responsaveis: nil, selo: nil)
+      super(codigo:, nome:, unidade: unidade.presence, detalhe: detalhe.presence, responsaveis: responsaveis.presence, horario:, nivel:, aviso:, selo: selo.presence)
     end
   end
   Coluna = Data.define(:chave, :titulo, :vazio, :itens)

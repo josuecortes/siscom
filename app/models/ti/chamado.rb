@@ -57,6 +57,15 @@ module Ti
       end
     }
 
+    Liberacoes = Data.define(:vezes, :por, :em)
+
+    # Quantas vezes cada chamado foi liberado (alguém estava cuidando e devolveu), e a última: { id => Liberacoes }.
+    # Chamado liberado está parado sem dono pela segunda vez (ou mais): a operação e o painel de TV destacam.
+    def self.liberacoes(ids)
+      Ti::EventoChamado.where(chamado_id: ids, tipo: "liberado").order(:ocorrido_em, :id).pluck(:chamado_id, :ator_nome, :ocorrido_em)
+                       .group_by(&:first).transform_values { |linhas| Liberacoes.new(vezes: linhas.size, por: linhas.last[1], em: linhas.last[2]) }
+    end
+
     def nome_do_status = STATUS[status]
     def nome_da_prioridade = Ti::Problema::PRIORIDADES[prioridade]
     def em_andamento? = EM_ANDAMENTO.include?(status)

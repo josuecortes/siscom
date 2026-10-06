@@ -48,7 +48,7 @@
           <% coluna.itens.each do |item| %>
             <li class="tv-cartao" data-nivel="<%= item.nivel %>">
               <div class="tv-cartao-topo">
-                <p class="tv-codigo"><%= item.codigo %></p>
+                <p class="tv-codigo"><%= item.codigo %><% if item.selo %> <span class="tv-selo"><%= item.selo %></span><% end %></p>
                 <p class="tv-horario"><%= hora.call(item.horario) %></p>
               </div>
               <p class="tv-nome"><%= item.nome %></p>

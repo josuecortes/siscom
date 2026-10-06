@@ -153,6 +153,7 @@
                 <p class="font-semibold text-[var(--text-primary)]">
                   <%= link_to chamado.problema.nome, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
                 </p>
+                <% if @liberacoes[chamado.id] %><p class="mt-1.5"><%= selo_de_liberado(@liberacoes[chamado.id]) %></p><% end %>
               </td>
               <td class="!whitespace-normal">
                 <div class="min-w-0">

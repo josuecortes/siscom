@@ -32,6 +32,19 @@ RSpec.describe Ti::Acompanhamento::Quadro do
     expect(item).to have_attributes(nome: "MARIA OLIVEIRA", unidade: "NUINFO", detalhe: "URGENTE · SEM INTERNET", responsaveis: nil, horario: agora - 5.minutes, nivel: "normal")
   end
 
+  it "chamado liberado ganha o selo com a contagem, conta o tempo desde a liberação e nunca fica como no prazo" do
+    liberado = chamado("aguardando_tecnico", ha: 3.days, triado_em: agora - 3.days)
+    [ [ "JOAO TECNICO", 2.hours ], [ "PEDRO SOUZA LIMA", 10.minutes ] ].each do |nome, ha|
+      liberado.eventos.create!(tipo: "liberado", nota: "Chamado liberado.", ator_nome: nome, ocorrido_em: agora - ha)
+    end
+    chamado("aberto", ha: 5.minutes)
+
+    itens = described_class.new.colunas.first.itens
+    expect(itens.map { |item| [ item.selo, item.nivel, item.aviso ] }).to eq(
+      [ [ "Liberado 2×", "atencao", "Liberado por Pedro Lima há 10 min: estava em atendimento e voltou" ], [ nil, "normal", "Sem responsável há 5 min" ] ]
+    )
+  end
+
   it "mostra quem está triando e quem está atendendo" do
     ana = create(:user, nome: "ANA PAULA DE LIMA")
     chamado("em_triagem", ha: 1.hour, triador: ana, triado_em: agora - 1.hour)

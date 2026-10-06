@@ -392,6 +392,7 @@ select {
 .tv-cartao[data-nivel="critico"] { animation: tv-pulso 2.4s ease-in-out infinite; }
 .tv-cartao-topo { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
 .tv-codigo { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; color: var(--tv-suave); }
+.tv-selo { margin-left: 0.4rem; border: 1px solid var(--tv-urgente); border-radius: 999px; background: var(--tv-urgente-fundo); padding: 0.1rem 0.5rem; font-size: 0.7rem; letter-spacing: 0.06em; color: var(--tv-urgente); white-space: nowrap; }
 .tv-horario { font-size: 1.35rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tv-cartao:not([data-nivel="normal"]) .tv-horario { color: var(--tv-cor); }
 .tv-nome { margin-top: 0.3rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.05rem; font-weight: 700; }

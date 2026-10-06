@@ -36,13 +36,16 @@ module Ti
       def coluna(chave, titulo, vazio, status)
         chamados = Ti::Chamado.where(status: status).includes(:problema, :responsavel, :triador)
                               .order(Arel.sql(Ti::Chamado::ORDEM_DE_PRIORIDADE), :aberto_em, :id).limit(LIMITE)
+        chamados = chamados.to_a
+        @liberacoes = chave == "espera" ? Ti::Chamado.liberacoes(chamados.map(&:id)) : {}
         PainelTv::Coluna.new(chave, titulo, vazio, PainelTv.ordenar(chamados.map { |chamado| item(chamado, *yield(chamado)) }))
       end
 
       def item(chamado, nivel, aviso)
         prioridade = chamado.prioridade_normal? ? nil : chamado.nome_da_prioridade.upcase
         PainelTv::Item.new(codigo: chamado.codigo, nome: chamado.solicitante_nome, unidade: chamado.unidade_nome, detalhe: [ prioridade, chamado.problema.nome ].compact.join(" · "),
-                           responsaveis: responsaveis(chamado), horario: chamado.aberto_em, nivel:, aviso:)
+                           responsaveis: responsaveis(chamado), horario: chamado.aberto_em, nivel:, aviso:,
+                           selo: (@liberacoes[chamado.id] && "Liberado #{@liberacoes[chamado.id].vezes}×"))
       end
 
       # Quem está (ou esteve) triando e quem está atendendo.
@@ -56,7 +59,13 @@ module Ti
         desde = chamado.aguardando_tecnico? ? (chamado.triado_em || chamado.aberto_em) : chamado.aberto_em
         minutos = desde_ha(desde)
         o_que = chamado.aguardando_tecnico? ? "Triado, sem técnico" : "Sem responsável"
-        [ nivel(minutos, SEM_RESPONSAVEL.fetch(chamado.prioridade)), "#{o_que} há #{PainelTv.duracao(minutos)}" ]
+        liberado = @liberacoes[chamado.id]
+        return [ nivel(minutos, SEM_RESPONSAVEL.fetch(chamado.prioridade)), "#{o_que} há #{PainelTv.duracao(minutos)}" ] unless liberado
+
+        # Liberado: já esteve com alguém e voltou. Conta o tempo desde a liberação e nunca aparece como "no prazo".
+        parado = desde_ha(liberado.em)
+        nivel = [ nivel(parado, SEM_RESPONSAVEL.fetch(chamado.prioridade)), "atencao" ].min_by { |item| PainelTv::NIVEIS.index(item) }
+        [ nivel, "Liberado por #{PainelTv.nome_curto(liberado.por)} há #{PainelTv.duracao(parado)}: estava em atendimento e voltou" ]
       end
 
       def em_triagem(chamado)

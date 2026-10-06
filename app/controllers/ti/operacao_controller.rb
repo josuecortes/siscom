@@ -29,6 +29,7 @@ module Ti
       chamados = @filtros[:filtrando] ? visiveis : da_aba(visiveis, @filtros[:status])
       @unidade = Rh::Api.unidade(@filtros[:unidade_id]) if @filtros[:unidade_id]
       @pagy, @chamados = pagy(:offset, chamados.includes(:problema, :responsavel, :triador).order(ordem), limit: POR_PAGINA)
+      @liberacoes = Ti::Chamado.liberacoes(@chamados.select { |chamado| chamado.responsavel_id.nil? && chamado.em_andamento? }.map(&:id))
     end
 
     def show

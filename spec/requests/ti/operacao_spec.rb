@@ -90,6 +90,23 @@ RSpec.describe "TI: operação" do
       expect(Nokogiri::HTML(response.body).css("select[name='pessoa'] option").map(&:text)).to eq([ "Solicitante, técnico ou triador", "Solicitante", "Técnico", "Triador" ])
     end
 
+    it "chamado liberado volta para Solicitadas com o selo Liberado e a contagem de vezes" do
+      pedro = com_papel("tecnico", "PEDRO TECNICO").tap { |user| redes.vinculos_de_membro.create!(user: user) }
+      Ti::Chamados::Operar.call(chamado: chamado, acao: "assumir", ator: tecnico)
+      Ti::Chamados::Operar.call(chamado: chamado.reload, acao: "liberar", ator: tecnico, nota: "Saio de férias.")
+      get ti_operacao_index_path
+      uma_vez = Nokogiri::HTML(response.body).at_css("tr##{ActionView::RecordIdentifier.dom_id(chamado)} td:nth-child(2) span[title]")
+
+      Ti::Chamados::Operar.call(chamado: chamado.reload, acao: "assumir", ator: pedro)
+      Ti::Chamados::Operar.call(chamado: chamado.reload, acao: "liberar", ator: pedro, nota: "Não é da minha área.")
+      get ti_operacao_index_path
+      duas_vezes = Nokogiri::HTML(response.body).at_css("tr##{ActionView::RecordIdentifier.dom_id(chamado)} td:nth-child(2) span[title]")
+
+      expect([ uma_vez.text.squish, duas_vezes.text.squish ]).to eq([ "Liberado 1×", "Liberado 2×" ])
+      expect(duas_vezes["title"]).to start_with("Estava sendo atendido e foi liberado 2 vezes. Última: PEDRO TECNICO em ")
+      expect(response.body).to include("Assumir chamado") # quem pode pegar já vê o botão ao lado
+    end
+
     it "a ordem troca pelo cabeçalho Aberto em; o padrão é o mais urgente primeiro" do
       urgente = Ti::Chamado.create!(problema: solicitacao, solicitante: maria, solicitante_nome: maria.nome, solicitante_email: maria.email, aberto_em: 1.minute.from_now, prioridade: "urgente")
 
