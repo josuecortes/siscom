@@ -72,9 +72,8 @@ module Equipamentos
     def filtrar(lista)
       f = @filtros
       if f[:q].present?
-        padrao = "%#{Equipamentos::Movimentacao.sanitize_sql_like(f[:q].squish.upcase)}%"
         com_equipamento = Equipamentos::ItemMovimentacao.where(item_id: Equipamentos::Item.buscar(f[:q]).select(:id)).select(:movimentacao_id)
-        lista = lista.where("UPPER(codigo) LIKE :t OR UPPER(responsavel_nome) LIKE :t OR UPPER(criada_por_nome) LIKE :t OR UPPER(origem_nome) LIKE :t OR UPPER(destino_nome) LIKE :t", t: padrao)
+        lista = lista.where(Busca.em(%w[codigo responsavel_nome criada_por_nome origem_nome destino_nome].map { |coluna| "equipamentos_movimentacoes.#{coluna}" }), t: Busca.padrao(f[:q]))
                      .or(lista.where(id: com_equipamento))
       end
       lista = lista.das_unidades(f[:unidade_id]) if f[:unidade_id]

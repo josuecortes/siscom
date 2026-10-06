@@ -62,9 +62,9 @@ RSpec.describe "Transporte: motoristas e veículos" do
       it "lista, busca, edita e desativa" do
         motorista = create(:transporte_motorista, nome: "João da Silva", cnh_validade: Date.yesterday)
 
-        get transporte_motoristas_path, params: { q: "joao" }
+        get transporte_motoristas_path, params: { q: "maria" }
         expect(response.body).to include("0 motorista(s)")
-        get transporte_motoristas_path, params: { q: "joão" }
+        get transporte_motoristas_path, params: { q: "joao" } # a busca não diferencia acento
         expect(response.body).to include("1 motorista(s)", "JOÃO DA SILVA", "Vencida")
 
         patch transporte_motorista_path(motorista), params: { motorista: { cnh_validade: "01/01/2031" } }

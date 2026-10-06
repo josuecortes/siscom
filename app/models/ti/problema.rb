@@ -28,7 +28,7 @@ module Ti
     scope :ordenados, -> { order(:nome) }
     # Busca pelo nome da solicitação ou da categoria (use com joins(:categoria)).
     scope :buscar, ->(termo) {
-      where("ti_problemas.nome LIKE :t OR ti_categorias.nome LIKE :t", t: "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%")
+      where(Busca.em("ti_problemas.nome", "ti_categorias.nome"), t: Busca.padrao(termo))
     }
 
     # Solicitações que o usuário pode abrir: as dos perfis padrão e as dos perfis que ele tem.

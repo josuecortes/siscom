@@ -25,9 +25,9 @@ module Transporte
 
     scope :ordenados, -> { order(:nome, :id) }
     scope :buscar, ->(termo) {
-      texto = termo.to_s.squish.upcase
-      where("transporte_motoristas.nome LIKE :t OR transporte_motoristas.cpf LIKE :d OR transporte_motoristas.cnh_numero LIKE :t",
-            t: "%#{sanitize_sql_like(texto)}%", d: "%#{sanitize_sql_like(Cpf.digitos(texto).presence || texto)}%")
+      texto = termo.to_s.squish
+      where(Busca.em("transporte_motoristas.nome", "transporte_motoristas.cnh_numero"), t: Busca.padrao(texto))
+        .or(where("transporte_motoristas.cpf LIKE ?", "%#{sanitize_sql_like(Cpf.digitos(texto).presence || texto)}%"))
     }
 
     def cnh_vencida? = cnh_validade.present? && cnh_validade < Date.current

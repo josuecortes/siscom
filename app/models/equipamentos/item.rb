@@ -35,9 +35,8 @@ module Equipamentos
     scope :em_ordem, -> { order(:codigo_kit, :tipo_equipamento, :marca, :modelo, :id) }
     scope :recentes, -> { order(created_at: :desc, id: :desc) }
     scope :buscar, ->(termo) {
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
       where(%w[marca modelo numero_serial numero_patrimonio outra_identificacao identificacao_kit codigo_kit contrato processo host ip mac ativo_de_rede localizacao_fisica rack
-               tipo_equipamento descricao].map { |coluna| "UPPER(equipamentos_itens.#{coluna}) LIKE :t" }.join(" OR "), t: padrao)
+               tipo_equipamento descricao].map { |coluna| Busca.em("equipamentos_itens.#{coluna}") }.join(" OR "), t: Busca.padrao(termo))
     }
     # Da unidade: os que são dela e os que estão com ela emprestados.
     scope :das_unidades, ->(ids) { where(rh_unidade_id: ids).or(where(posse_rh_unidade_id: ids)) }

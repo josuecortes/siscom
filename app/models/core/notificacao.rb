@@ -11,8 +11,7 @@ module Core
     scope :recentes, -> { order(created_at: :desc, id: :desc) }
     scope :nao_lidas, -> { where(lida_em: nil) }
     scope :buscar, lambda { |termo|
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish)}%"
-      where("titulo ILIKE :p OR mensagem ILIKE :p", p: padrao)
+      where(Busca.em("titulo", "mensagem"), t: Busca.padrao(termo))
     }
 
     def lida? = lida_em.present?

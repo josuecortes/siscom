@@ -46,8 +46,8 @@ module Core
       # Os nomes de campo já foram validados contra a lista da entidade; ainda assim
       # a consulta é montada com Arel, sem interpolar texto em SQL.
       def filtrar(registros, tabela, fonte)
-        padrao = "%#{ActiveRecord::Base.sanitize_sql_like(@termo)}%"
-        condicoes = fonte.campos_busca.map { |campo| tabela[campo].matches(padrao) }
+        padrao = Busca.padrao(@termo) # sem diferenciar maiúsculas nem acentos
+        condicoes = fonte.campos_busca.map { |campo| Busca.arel(tabela[campo]).matches(padrao, nil, true) }
 
         registros.where(condicoes.reduce(:or))
       end

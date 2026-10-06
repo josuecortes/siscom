@@ -102,7 +102,7 @@ module Equipamentos
       itens = itens.where(tipo_equipamento: f[:tipo_equipamento]) if f[:tipo_equipamento]
       itens = itens.das_unidades(f[:unidade_id]) if f[:unidade_id]
       %i[contrato processo codigo_kit].each do |campo|
-        itens = itens.where("UPPER(equipamentos_itens.#{campo}) LIKE ?", "%#{Equipamentos::Item.sanitize_sql_like(f[campo].upcase)}%") if f[campo]
+        itens = itens.where(Busca.em("equipamentos_itens.#{campo}"), t: Busca.padrao(f[campo])) if f[campo]
       end
       itens
     end

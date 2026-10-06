@@ -23,8 +23,7 @@ module Transporte
 
     scope :ordenados, -> { order(:placa) }
     scope :buscar, ->(termo) {
-      texto = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      where("placa LIKE :t OR marca LIKE :t OR modelo LIKE :t", t: texto.delete("-"))
+      where(Busca.em("placa", "marca", "modelo"), t: Busca.padrao(termo).delete("-"))
     }
 
     def descricao = "#{placa} · #{marca} #{modelo}"

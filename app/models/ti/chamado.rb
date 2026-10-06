@@ -35,22 +35,20 @@ module Ti
     scope :em_andamento, -> { where(status: EM_ANDAMENTO) }
     scope :recentes, -> { order(aberto_em: :desc, id: :desc) }
     scope :buscar, ->(termo) {
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      joins(:problema).where("ti_chamados.codigo LIKE :t OR ti_problemas.nome LIKE :t", t: padrao)
+      joins(:problema).where(Busca.em("ti_chamados.codigo", "ti_problemas.nome"), t: Busca.padrao(termo))
     }
 
     scope :buscar_na_operacao, ->(termo) {
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      joins(:problema).where("ti_chamados.codigo LIKE :t OR ti_problemas.nome LIKE :t OR ti_chamados.solicitante_nome LIKE :t OR ti_chamados.unidade_nome LIKE :t", t: padrao)
+      joins(:problema).where(Busca.em("ti_chamados.codigo", "ti_problemas.nome", "ti_chamados.solicitante_nome", "ti_chamados.unidade_nome"), t: Busca.padrao(termo))
     }
 
     # Busca da operação pelo nome de alguém do chamado: o solicitante, o técnico (responsável), o triador, ou qualquer um dos três.
     PESSOAS_DA_BUSCA = { "solicitante" => "Solicitante", "tecnico" => "Técnico", "triador" => "Triador" }.freeze
     scope :buscar_pessoa, ->(termo, quem) {
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      do_usuario = ->(coluna) { where(coluna => ::User.where("UPPER(users.nome) LIKE ?", padrao).select(:id)) }
+      padrao = Busca.padrao(termo)
+      do_usuario = ->(coluna) { where(coluna => ::User.where(Busca.em("users.nome"), t: padrao).select(:id)) }
       case quem.to_s
-      when "solicitante" then where("ti_chamados.solicitante_nome LIKE ?", padrao)
+      when "solicitante" then where(Busca.em("ti_chamados.solicitante_nome"), t: padrao)
       when "tecnico" then do_usuario.call(:responsavel_id)
       when "triador" then do_usuario.call(:triador_id)
       else buscar_na_operacao(termo).or(joins(:problema).merge(do_usuario.call(:responsavel_id))).or(joins(:problema).merge(do_usuario.call(:triador_id)))

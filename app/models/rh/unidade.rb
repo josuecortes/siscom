@@ -29,9 +29,7 @@ module Rh
     scope :ordenadas, -> { order(:nome) }
     scope :raizes, -> { where(pai_id: nil) }
     scope :buscar, lambda { |termo|
-      # Nome e sigla são gravados em maiúsculas; comparar em maiúsculas funciona também com acentos.
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      where("rh_unidades.nome LIKE :p OR rh_unidades.sigla LIKE :p", p: padrao)
+      where(Busca.em("rh_unidades.nome", "rh_unidades.sigla"), t: Busca.padrao(termo))
     }
 
     def escola? = tipo_unidade&.nome.to_s.casecmp?("ESCOLA")

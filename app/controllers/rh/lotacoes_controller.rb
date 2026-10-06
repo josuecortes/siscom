@@ -10,8 +10,7 @@ module Rh
       lotacoes = Rh::Lotacao.joins(:pessoa, :unidade).includes(:pessoa, :unidade, :funcao).order("rh_pessoas.nome", data_inicio: :desc)
       lotacoes = lotacoes.where(status: @filtros[:status]) unless @filtros[:status] == "todos"
       if @filtros[:q].present?
-        padrao = "%#{Rh::Lotacao.sanitize_sql_like(@filtros[:q].squish.upcase)}%"
-        lotacoes = lotacoes.where("rh_pessoas.nome LIKE :p OR rh_unidades.nome LIKE :p OR rh_unidades.sigla LIKE :p", p: padrao)
+        lotacoes = lotacoes.where(Busca.em("rh_pessoas.nome", "rh_unidades.nome", "rh_unidades.sigla"), t: Busca.padrao(@filtros[:q]))
       end
       @pagy, @lotacoes = pagy(:offset, lotacoes, limit: POR_PAGINA)
     end

@@ -19,8 +19,7 @@ module Equipamentos
 
     # Pelo que mudou (texto do registro), por quem fez, ou por qualquer dado do equipamento.
     def buscar(eventos, termo)
-      padrao = "%#{Equipamentos::Evento.sanitize_sql_like(termo.squish.upcase)}%"
-      eventos.where("UPPER(equipamentos_eventos.nota) LIKE :t OR UPPER(equipamentos_eventos.ator_nome) LIKE :t", t: padrao)
+      eventos.where(Busca.em("equipamentos_eventos.nota", "equipamentos_eventos.ator_nome"), t: Busca.padrao(termo))
              .or(eventos.where(item_id: Equipamentos::Item.buscar(termo).select(:id)))
     end
   end

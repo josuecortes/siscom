@@ -34,8 +34,7 @@ module Rh
     scope :buscar, lambda { |termo|
       texto = termo.to_s.squish
       digitos = texto.gsub(/\D/, "")
-      relacao = where("rh_pessoas.nome LIKE :nome OR rh_pessoas.email LIKE :email",
-                      nome: "%#{sanitize_sql_like(texto.upcase)}%", email: "%#{sanitize_sql_like(texto.downcase)}%")
+      relacao = where(Busca.em("rh_pessoas.nome", "rh_pessoas.email"), t: Busca.padrao(texto))
       digitos.length >= 3 ? relacao.or(where("rh_pessoas.cpf LIKE ?", "%#{digitos}%")) : relacao
     }
 

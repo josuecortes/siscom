@@ -55,7 +55,7 @@ RSpec.describe "Transporte: solicitações do solicitante" do
       post transporte_solicitacoes_path, params: { solicitacao: dados.merge(resumo: "Reunião no MEC") }
       Transporte::Solicitacao.find_by!(resumo: "Reunião no MEC").update_columns(status: "cancelada", motivo_cancelamento: "Adiada")
 
-      get transporte_solicitacoes_path, params: { q: "reuni" }
+      get transporte_solicitacoes_path, params: { q: "reuniao" }
 
       html = Nokogiri::HTML(response.body)
       expect(html.css("nav[aria-label='Etapas das solicitações'] a")).to be_empty

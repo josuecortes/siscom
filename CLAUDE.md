@@ -51,6 +51,9 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 - **Listas com abas e busca:** as abas ficam dentro do cartão da lista, logo abaixo da busca (mesmas classes de
   `ti/chamados/index`), com a contagem em cada uma. **Quando há busca ou filtro, as abas somem e fica uma só, "Resultado"**,
   com o que foi achado em todas as etapas (a lista ganha a coluna/selo da etapa). Toda lista é paginada. Regra do Josue (2026-10-06).
+- **Busca por texto sempre sem diferenciar maiúsculas nem acentos:** use `Busca.em("tabela.coluna", …)` com
+  `t: Busca.padrao(termo)` (`app/lib/busca.rb`). Nunca `ILIKE` nem `UPPER(coluna) LIKE` direto: o banco usa collation `C`
+  (produção também), em que isso não acha letra acentuada.
 - **Celular:** toda tela segue o comportamento do seed em tela pequena e é conferida em ~390 px (sem
   rolagem horizontal; menu em gaveta; ação principal só com ícone; formulário em painel de altura
   inteira). O app será instalável (PWA). Regras no plano, `02` §6.1 e §6.2.

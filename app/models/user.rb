@@ -37,8 +37,7 @@ class User < ApplicationRecord
 
   scope :inativos, -> { where(status: false) }
   scope :buscar, lambda { |termo|
-    texto = sanitize_sql_like(termo.to_s.squish)
-    where("upper(users.nome) LIKE :nome OR users.email ILIKE :email", nome: "%#{texto.upcase}%", email: "%#{texto}%")
+    where(Busca.em("users.nome", "users.email"), t: Busca.padrao(termo))
   }
 
   def ativo?

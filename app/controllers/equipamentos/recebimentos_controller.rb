@@ -81,9 +81,9 @@ module Equipamentos
     def comigo = em_andamento.where(id: linhas_comigo.where(status: COMIGO).select(:movimentacao_id))
 
     # Busca: código do envio, nomes (unidades, quem enviou, quem recebe) e qualquer dado do equipamento.
-    DO_ENVIO = %w[codigo origem_nome destino_nome criada_por_nome responsavel_nome].map { |coluna| "UPPER(equipamentos_movimentacoes.#{coluna}) LIKE :t" }.join(" OR ").freeze
+    DO_ENVIO = Busca.em(%w[codigo origem_nome destino_nome criada_por_nome responsavel_nome].map { |coluna| "equipamentos_movimentacoes.#{coluna}" }).freeze
 
-    def padrao = "%#{Equipamentos::Movimentacao.sanitize_sql_like(@q.squish.upcase)}%"
+    def padrao = Busca.padrao(@q)
 
     def buscar_linhas(relacao)
       return relacao if @q.blank?

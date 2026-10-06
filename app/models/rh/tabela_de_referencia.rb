@@ -14,7 +14,7 @@ module Rh
       validates :nome, presence: true, uniqueness: { case_sensitive: false }, length: { maximum: 120 }
 
       scope :ordenados, -> { order(:nome) }
-      scope :buscar, ->(termo) { where("nome LIKE ?", "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%") }
+      scope :buscar, ->(termo) { where(Busca.em("#{table_name}.nome"), t: Busca.padrao(termo)) }
     end
   end
 end

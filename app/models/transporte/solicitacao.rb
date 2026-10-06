@@ -42,8 +42,7 @@ module Transporte
     scope :recentes, -> { order(created_at: :desc, id: :desc) }
     scope :em_andamento, -> { where(status: EM_ANDAMENTO) }
     scope :buscar, ->(termo) {
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish.upcase)}%"
-      where("transporte_solicitacoes.codigo LIKE :t OR UPPER(transporte_solicitacoes.resumo) LIKE :t OR transporte_solicitacoes.solicitante_nome LIKE :t", t: padrao)
+      where(Busca.em("transporte_solicitacoes.codigo", "transporte_solicitacoes.resumo", "transporte_solicitacoes.solicitante_nome"), t: Busca.padrao(termo))
     }
 
     def nome_do_tipo = TIPOS[tipo]

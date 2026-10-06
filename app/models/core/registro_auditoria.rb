@@ -18,8 +18,7 @@ module Core
       relacao
     }
     scope :buscar, lambda { |termo|
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish)}%"
-      where("ator_nome ILIKE :p OR alvo_descricao ILIKE :p", p: padrao)
+      where(Busca.em("ator_nome", "alvo_descricao"), t: Busca.padrao(termo))
     }
 
     def readonly? = persisted?

@@ -24,8 +24,7 @@ module Core
 
     scope :ordenadas, -> { order(:nome, :chave) }
     scope :buscar, lambda { |termo|
-      padrao = "%#{sanitize_sql_like(termo.to_s.squish)}%"
-      where("nome ILIKE :p OR chave ILIKE :p OR modulo ILIKE :p OR entidade ILIKE :p", p: padrao)
+      where(Busca.em("nome", "chave", "modulo", "entidade"), t: Busca.padrao(termo))
     }
 
     def definicao = Core::FontesReferencia::Entidades.buscar(modulo, entidade)
