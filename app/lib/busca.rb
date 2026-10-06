@@ -12,7 +12,11 @@ module Busca
   module_function
 
   # O termo digitado, em maiúsculas e sem acento.
-  def normalizar(termo) = termo.to_s.squish.unicode_normalize(:nfd).gsub(/\p{Mn}/, "").upcase
+  def normalizar(termo)
+    texto = termo.to_s
+    texto = texto.dup.force_encoding(Encoding::UTF_8) unless texto.encoding == Encoding::UTF_8 # texto que chegou sem codificação declarada
+    texto.scrub("").squish.unicode_normalize(:nfd).gsub(/\p{Mn}/, "").upcase
+  end
 
   # Padrão para o LIKE: "%TERMO%", com os curingas do que foi digitado neutralizados.
   def padrao(termo) = "%#{ActiveRecord::Base.sanitize_sql_like(normalizar(termo))}%"

@@ -4,6 +4,7 @@ RSpec.describe Busca do
   it "normaliza o termo: maiúsculas, sem acento, sem espaços sobrando e com os curingas neutralizados" do
     expect(described_class.normalizar("  reunião   de  Março ")).to eq("REUNIAO DE MARCO")
     expect(described_class.padrao("100%_ok")).to eq("%100\\%\\_OK%")
+    expect(described_class.normalizar("reuni\xC3\xA3o \xFF".b)).to eq("REUNIAO") # bytes sem codificação declarada, com lixo
   end
 
   it "acha com ou sem acento, em maiúsculas ou minúsculas, dos dois lados" do
