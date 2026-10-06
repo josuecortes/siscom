@@ -56,6 +56,8 @@ modular com Hotwire, Tailwind e RSpec. O plano completo fica fora do repositóri
 - **Datas sempre em formato brasileiro (dd/mm/aaaa)** na tela e nos formulários: no model `datas_br :campo`,
   no formulário `render "compartilhado/campo_data"` (nunca `date_field`), em filtros `DataBr.interpretar(params[...])`
   e para exibir `DataBr.formatar(valor)` ou `l(data)`. Máscaras (data, CPF, telefone): Stimulus `mascara`.
+  Todo campo com máscara `data` ou `data_hora` ganha sozinho o botão de calendário (com hora, quando tem hora); digitar continua valendo.
+- **Arquivos anexados abrem sempre em nova aba:** use `link_do_arquivo(arquivo)` (nunca `disposition: "attachment"`).
 - Painéis (`compartilhado/_painel_formulario`) e confirmações fecham só pelos botões (Cancelar/Fechar/×).
 - **"Ver" abre sempre em painel (modal), nunca em página própria**, e é só leitura: `show` renderiza
   `painel_formulario` com `largo: true` e `compartilhado/rodape_fechar`, e chama `abrir_sobre(lista)` (aberto direto

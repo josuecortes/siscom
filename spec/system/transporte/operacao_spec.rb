@@ -125,6 +125,30 @@ RSpec.describe "Transporte: operação em tempo real", :js do
     expect(page).to have_css("th[aria-sort='descending']", text: "Pedido em")
   end
 
+  it "campo de data tem calendário, sem tirar a digitação; com hora, o calendário também escolhe a hora" do
+    solicitacao = Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto
+    solicitacao.update!(status: "aprovada")
+    sign_in tecnico
+    visit transporte_operacao_index_path
+
+    # Só data (filtro): o botão existe, a escolha entra em dd/mm/aaaa, e digitar continua funcionando.
+    expect(page).to have_button("Abrir calendário", count: 4)
+    escolher = ->(campo, valor) { page.execute_script("const n = document.querySelector('##{campo}').parentElement.querySelector('[data-calendario-nativo]'); n.value = '#{valor}'; n.dispatchEvent(new Event('change'))") }
+    escolher.call("saida_de", "2026-10-01")
+    expect(page).to have_field("Saída de", with: "01/10/2026")
+    fill_in "Saída até", with: "31122026"
+    expect(page).to have_field("Saída até", with: "31/12/2026")
+    expect(page.evaluate_script("document.querySelector('#saida_de').parentElement.querySelector('[data-calendario-nativo]').type")).to eq("date")
+
+    # Data e hora (reagendar): o seletor do navegador é o de data e hora.
+    visit transporte_operacao_index_path(status: "aprovada")
+    within("tr", text: solicitacao.codigo) { click_on "Reagendar" }
+    expect(page).to have_button("Abrir calendário e hora")
+    expect(page.evaluate_script("document.querySelector('#saida_em').parentElement.querySelector('[data-calendario-nativo]').type")).to eq("datetime-local")
+    escolher.call("saida_em", "2026-12-24T14:30")
+    expect(page).to have_field("Nova saída (data e hora) *", with: "24/12/2026 14:30")
+  end
+
   it "no celular a operação não cria rolagem horizontal" do
     Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados)
     sign_in tecnico
