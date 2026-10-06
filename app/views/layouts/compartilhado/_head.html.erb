@@ -33,7 +33,14 @@
 
 <%= yield :head %>
 
-<link rel="icon" href="<%= favicon_do_sistema %>">
+<% if configuracao_do_sistema.favicon.attached? %>
+  <link rel="icon" href="<%= favicon_do_sistema %>">
+<% else %>
+  <%# Favicon padrão: a marca do siscom, nos tamanhos que os navegadores pedem. %>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<% end %>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>

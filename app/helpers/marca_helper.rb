@@ -14,7 +14,7 @@ module MarcaHelper
   end
 
   # Sem imagem nas configurações, vale a marca do siscom (a engrenagem com o "S" do sistema antigo), que também é o
-  # favicon e o ícone do aplicativo instalado (arquivos em public/, gerados de app/assets/images/AdminLTELogo.png do master).
+  # favicon e o ícone do aplicativo instalado (arquivos em public/, enviados pelo Josue em 2026-10-07, gerados no favicon.io).
   MARCA_PADRAO = "/marca-siscom.png".freeze
 
   def caminho_do_icone_da_marca
