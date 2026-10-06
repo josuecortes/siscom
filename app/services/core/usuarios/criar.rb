@@ -1,7 +1,7 @@
 module Core
   module Usuarios
-    # Cadastra um usuário com senha temporária aleatória (em `user.senha_temporaria`,
-    # mostrada uma única vez a quem cadastrou) e troca obrigatória no primeiro acesso.
+    # Cadastra um usuário com a senha padrão das Configurações (ou, se não houver, uma temporária aleatória),
+    # devolvida em `user.senha_temporaria` para mostrar a quem cadastrou, e troca obrigatória no primeiro acesso.
     class Criar
       PERMISSAO = "core.usuarios.gerenciar".freeze
 
@@ -16,8 +16,8 @@ module Core
       def call
         return Core::Resultado.falha("Você não pode cadastrar usuários.") unless autorizado?
 
-        temporaria = Core::PoliticaDeSenha.gerar_temporaria
-        user = ::User.new(@atributos.merge(password: temporaria, password_confirmation: temporaria,
+        temporaria = Core::PoliticaDeSenha.senha_inicial
+        user = ::User.new(@atributos.merge(password: temporaria, password_confirmation: temporaria, senha_definida_pela_administracao: true,
                                            status: true, deve_trocar_senha: true))
         return Core::Resultado.falha(user) unless user.save
 

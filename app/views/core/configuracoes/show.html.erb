@@ -41,6 +41,21 @@
       </div>
     </section>
 
+    <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4" id="senha_padrao_das_contas">
+      <div>
+        <h2 class="text-base font-semibold text-[var(--text-primary)]">Senha padrão das contas</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">
+          É a senha que a conta recebe quando é cadastrada (usuário, pessoa do RH, motorista) e quando a administração redefine a senha.
+          A pessoa é obrigada a trocar no primeiro acesso e não pode escolher a própria senha padrão.
+          <%= @configuracao.senha_padrao.present? ? "Em branco, o sistema volta a gerar uma senha temporária diferente para cada conta." : "Hoje não há senha padrão: o sistema gera uma senha temporária diferente para cada conta." %>
+        </p>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2">
+        <%= render "compartilhado/campo", f: f, campo: :senha_padrao, rotulo: "Senha padrão",
+              html: { autocomplete: "off", minlength: User.password_length.min, maxlength: User.password_length.max, spellcheck: false, value: @configuracao.senha_padrao } %>
+      </div>
+    </section>
+
     <section class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4">
       <div>
         <h2 class="text-base font-semibold text-[var(--text-primary)]">Ícones</h2>

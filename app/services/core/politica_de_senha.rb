@@ -13,6 +13,12 @@ module Core
       Array.new(12) { alfabeto[SecureRandom.random_number(alfabeto.size)] }.join
     end
 
+    # A senha que uma conta recebe ao ser cadastrada ou ter a senha redefinida pela administração: a senha
+    # padrão das Configurações ou, se não houver, uma temporária aleatória.
+    def self.senha_inicial = Core::Configuracao.atual.senha_padrao.presence || gerar_temporaria
+
+    def self.padrao_atual?(senha) = Core::Configuracao.atual.senha_padrao.to_s == senha.to_s && senha.present?
+
     def initialize(user)
       @user = user
     end
@@ -20,6 +26,7 @@ module Core
     # Mensagens de erro para a senha nova (vazio = aceita).
     def erros(senha)
       return [ "não pode ser a senha padrão antiga" ] if self.class.padrao_antiga?(senha)
+      return [ "não pode ser a senha padrão: escolha uma senha só sua" ] if self.class.padrao_atual?(senha)
       return [ "não pode repetir uma das últimas #{HISTORICO} senhas" ] if reutilizada?(senha)
 
       []

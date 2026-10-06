@@ -21,15 +21,19 @@ class User < ApplicationRecord
 
   # Senha temporária em texto, disponível só logo após criar/redefinir (nunca é gravada).
   attr_accessor :senha_temporaria
+  # A administração define a senha inicial (padrão ou temporária): aí a política de senha não se aplica
+  # (a senha padrão é a mesma para todos e pode repetir no histórico); a pessoa troca no primeiro acesso.
+  attr_accessor :senha_definida_pela_administracao
 
   AVATAR_TIPOS = %w[image/png image/jpeg image/webp].freeze
   AVATAR_TAMANHO_MAXIMO = 5.megabytes
 
   validate :avatar_valido, if: -> { attachment_changes.key?("avatar") }
-  validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? }
+  validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? && !senha_definida_pela_administracao }
 
   before_update :guardar_senha_anterior, if: :will_save_change_to_encrypted_password?
   before_save :marcar_troca_de_senha, if: :will_save_change_to_encrypted_password?
+  after_save { self.senha_definida_pela_administracao = nil } # vale só para aquela gravação
 
   scope :inativos, -> { where(status: false) }
   scope :buscar, lambda { |termo|

@@ -6,6 +6,8 @@ pt-BR:
         one: Usuário
         other: Usuários
     attributes:
+      core/configuracao:
+        senha_padrao: Senha padrão
       rh/pessoa:
         nome: Nome completo
         email: E-mail

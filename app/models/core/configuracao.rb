@@ -17,12 +17,38 @@ module Core
 
     validates(*TEXTOS, presence: true, length: { maximum: 60 })
     validate :imagens_validas
+    validate :senha_padrao_valida
 
     def self.atual
       first || create!
     end
 
+    # Senha padrão das contas: a que a conta recebe ao ser cadastrada e quando a administração redefine a senha
+    # (a pessoa é obrigada a trocar no primeiro acesso). Em branco, o sistema gera uma senha temporária aleatória.
+    # Fica cifrada no banco, com uma chave derivada do segredo da aplicação.
+    def senha_padrao
+      return @senha_padrao if defined?(@senha_padrao)
+
+      @senha_padrao = senha_padrao_cifrada.present? ? self.class.cofre.decrypt_and_verify(senha_padrao_cifrada) : nil
+    rescue ActiveSupport::MessageEncryptor::InvalidMessage
+      @senha_padrao = nil # segredo da aplicação trocado: volta a valer a senha aleatória até definirem de novo
+    end
+
+    def senha_padrao=(senha)
+      @senha_padrao = senha.to_s.strip.presence
+      self.senha_padrao_cifrada = @senha_padrao && self.class.cofre.encrypt_and_sign(@senha_padrao)
+    end
+
+    def self.cofre = ActiveSupport::MessageEncryptor.new(Rails.application.key_generator.generate_key("core/configuracao/senha_padrao", 32))
+
     private
+
+    def senha_padrao_valida
+      return if senha_padrao.blank? || !will_save_change_to_senha_padrao_cifrada?
+
+      tamanho = ::User.password_length
+      errors.add(:senha_padrao, "deve ter de #{tamanho.min} a #{tamanho.max} caracteres") unless tamanho.cover?(senha_padrao.length)
+    end
 
     def imagens_validas
       { icone_marca: icone_marca, favicon: favicon }.each do |campo, anexo|

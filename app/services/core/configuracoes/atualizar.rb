@@ -5,7 +5,7 @@ module Core
       PERMISSAO = "core.configuracoes.gerenciar".freeze
       PERMITIDOS = (Core::Configuracao::TEXTOS + %i[
         mostrar_nome_marca_web mostrar_nome_marca_celular mostrar_icone_marca_web mostrar_icone_marca_celular
-        mostrar_nome_cabecalho_web mostrar_nome_cabecalho_celular mostrar_titulo_login icone_marca favicon
+        mostrar_nome_cabecalho_web mostrar_nome_cabecalho_celular mostrar_titulo_login icone_marca favicon senha_padrao
       ]).freeze
 
       def self.call(...) = new(...).call
@@ -34,7 +34,11 @@ module Core
       private
 
       def registrar(configuracao, arquivos)
-        mudancas = configuracao.saved_changes.except("updated_at").transform_values { |de, para| { de: de, para: para } }
+        mudancas = configuracao.saved_changes.except("updated_at", "senha_padrao_cifrada").transform_values { |de, para| { de: de, para: para } }
+        # A senha em si nunca vai para a auditoria: só o fato de ter mudado.
+        if configuracao.saved_change_to_senha_padrao_cifrada?
+          mudancas[:acesso_inicial_das_contas] = configuracao.senha_padrao.present? ? "valor padrão definido ou trocado" : "voltou a ser gerado ao acaso"
+        end
         imagens = { trocadas: arquivos, removidas: @remover - arquivos }.reject { |_, lista| lista.empty? }
         return if mudancas.empty? && imagens.empty?
 
