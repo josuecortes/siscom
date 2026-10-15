@@ -13,6 +13,7 @@ RSpec.describe "Transporte: motoristas e veículos", :js do
     visit root_path
     within("#menu-lateral") do
       find("summary", text: "Transporte").click
+      find("summary", text: "Administração").click # Motoristas fica no grupo Administração do Transporte
       click_on "Motoristas"
     end
     click_on "Novo motorista"
