@@ -6,12 +6,24 @@ RSpec.describe "Alertas sonoros", :js do
   let(:joao) { create(:user, nome: "JOAO TECNICO") }
 
   def tocados = page.evaluate_script("window.siscomSonsTocados || []")
+
+  # O pedido de som chega pelo tempo real logo depois do aviso ou do contador: espera até ele tocar (ou desistir).
+  def tocados_depois(quantos)
+    50.times do
+      break if tocados.size >= quantos
+
+      sleep 0.1
+    end
+    tocados
+  end
   def notificar(titulo) = Core::Api.notificar(destinatarios: maria, evento: "core.teste.aviso", titulo: titulo, ator: nil).first
 
   def entrar
     sign_in maria
     visit root_path
+    # Todos os canais de tempo real da página conectados (notificações e conversas), senão o aviso enviado chega antes e se perde.
     expect(page).to have_css("turbo-cable-stream-source[connected]", visible: :all, minimum: 2)
+    expect(page).to have_no_css("turbo-cable-stream-source:not([connected])", visible: :all)
   end
 
   it "a notificação toca uma vez; a mesma notificação em outra aba não toca de novo, só uma nova" do
@@ -19,7 +31,7 @@ RSpec.describe "Alertas sonoros", :js do
 
     primeira = notificar("Primeiro aviso")
     expect(page).to have_css("#avisos", text: "Primeiro aviso")
-    expect(tocados).to eq([ "notificacao" ])
+    expect(tocados_depois(1)).to eq([ "notificacao" ])
 
     # Outra aba aberta recebe o mesmo pedido: já tocou neste navegador.
     page.execute_script("document.querySelector('#sons').insertAdjacentHTML('beforeend', '<span data-controller=\"som\" data-som-tipo-value=\"notificacao\" data-som-numero-value=\"#{primeira.id}\"></span>')")
@@ -29,7 +41,7 @@ RSpec.describe "Alertas sonoros", :js do
 
     notificar("Segundo aviso")
     expect(page).to have_css("#avisos", text: "Segundo aviso")
-    expect(tocados).to eq([ "notificacao" ])
+    expect(tocados_depois(1)).to eq([ "notificacao" ])
   end
 
   it "a mensagem do chat toca um som diferente, só para quem recebe" do
@@ -39,7 +51,7 @@ RSpec.describe "Alertas sonoros", :js do
 
     Core::Conversas::EnviarMensagem.call(conversa: conversa, autor: joao, corpo: "Estou indo aí.")
     expect(page).to have_css("#contador_de_conversas", text: "1")
-    expect(tocados).to eq([ "mensagem" ])
+    expect(tocados_depois(1)).to eq([ "mensagem" ])
 
     Core::Conversas::EnviarMensagem.call(conversa: conversa, autor: maria, corpo: "Obrigada!") # a própria mensagem não toca
     sleep 0.5
