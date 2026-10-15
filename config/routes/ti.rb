@@ -22,7 +22,9 @@ namespace :ti do
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
   resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
   resource :configuracoes, only: %i[show update]
-  resource :estatisticas, only: :show do
+  # Administração → Relatórios (o código ainda chama de estatísticas); o endereço antigo continua levando para lá.
+  get "estatisticas", to: redirect { |_, requisicao| "/ti/relatorios#{"?#{requisicao.query_string}" if requisicao.query_string.present?}" }, as: :estatisticas_antigas
+  resource :estatisticas, only: :show, path: "relatorios" do
     get :tecnicos, defaults: { format: :json }
   end
   # A TI abre o chamado em nome de outra pessoa (que passa a ser a dona).

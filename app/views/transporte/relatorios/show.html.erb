@@ -6,7 +6,8 @@
 <% consulta = @filtros.merge(tipo: r.tipo, inicio: DataBr.formatar(r.inicio), fim: DataBr.formatar(r.fim)).compact_blank %>
 
 <%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Relatórios", icone: :list_rich, migalha: [ "Transporte", transporte_relatorios_path ] } do %>
-  <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, caminho: transporte_relatorios_path(consulta.merge(format: :xlsx)), opcoes: { data: { turbo: false } } %>
+  <%# Exporta o que está preenchido nos filtros agora, mesmo sem ter clicado em filtrar. %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, caminho: transporte_relatorios_path(format: :xlsx), formulario: "filtros_do_relatorio" %>
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
@@ -19,7 +20,7 @@
       <% end %>
     </nav>
 
-    <%= form_with url: transporte_relatorios_path, method: :get, class: "py-5" do |f| %>
+    <%= form_with url: transporte_relatorios_path, method: :get, id: "filtros_do_relatorio", class: "py-5" do |f| %>
       <%= hidden_field_tag :tipo, r.tipo, id: nil %>
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[180px_180px_1fr_1fr_auto] lg:items-end">
         <div class="space-y-1.5">

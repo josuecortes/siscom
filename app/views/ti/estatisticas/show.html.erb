@@ -1,4 +1,4 @@
-<% content_for :title, "Estatísticas da TI" %>
+<% content_for :title, "Relatórios da TI" %>
 <% e = @estatisticas %>
 <% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
 <% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
@@ -6,12 +6,13 @@
 <% consulta = { inicio: DataBr.formatar(e.inicio), fim: DataBr.formatar(e.fim), categoria_id: e.categoria&.id, tecnico_id: e.tecnico&.id }.compact %>
 <% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
 
-<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Estatísticas", icone: :chart_pie, migalha: [ "TI", ti_estatisticas_path ] } do %>
-  <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, caminho: ti_estatisticas_path(consulta.merge(format: :xlsx)), opcoes: { data: { turbo: false } } %>
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Relatórios", icone: :chart_pie, migalha: [ "TI", ti_estatisticas_path ] } do %>
+  <%# Exporta o que está preenchido nos filtros agora, mesmo sem ter clicado em filtrar. %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Exportar Excel", icone: :cloud_download, caminho: ti_estatisticas_path(format: :xlsx), formulario: "filtros_do_relatorio" %>
 <% end %>
 
 <section class="mt-6 <%= cartao %>">
-  <%= form_with url: ti_estatisticas_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5" do |f| %>
+  <%= form_with url: ti_estatisticas_path, method: :get, id: "filtros_do_relatorio", class: "border-b border-[var(--border-subtle)] px-6 py-5" do |f| %>
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-[180px_180px_1fr_1fr_auto] lg:items-end">
       <div class="space-y-1.5">
         <label for="inicio" class="<%= rotulo %>">Abertos de</label>
@@ -28,7 +29,7 @@
       <%= render "compartilhado/campo_autocomplete", nome: "tecnico_id", id: "filtro_tecnico", rotulo: "Técnico", flutuante: true, url: tecnicos_ti_estatisticas_path,
             valor: e.tecnico&.id, texto: e.tecnico&.nome, placeholder: "Todos", vazio: "Nenhum técnico com chamados." %>
       <div class="flex flex-row gap-2">
-        <button type="submit" title="Gerar estatísticas" aria-label="Gerar estatísticas"
+        <button type="submit" title="Gerar relatório" aria-label="Gerar relatório"
                 class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
         <%= link_to ti_estatisticas_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
               class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>

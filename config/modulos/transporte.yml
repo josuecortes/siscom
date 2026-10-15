@@ -41,7 +41,7 @@ menu:
   - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: operacao.ver, icone: group }
   - { rotulo: "Veículos agora", rota: transporte_veiculos_agora_path, permissao: solicitacoes.operar, icone: location-pin }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people }
-  - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt }
-  - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich }
-  - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }
-  - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings }
+  - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt, grupo: "Administração" }
+  - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich, grupo: "Administração" }
+  - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }
+  - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings, grupo: "Administração" }

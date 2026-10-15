@@ -66,6 +66,18 @@ RSpec.describe "Transporte: relatórios" do
       expect(Core::RegistroAuditoria.recentes.first).to have_attributes(modulo: "transporte", evento: "relatorio.exportado")
     end
 
+    it "o Excel obedece os filtros, e o botão Exportar envia o formulário de filtros" do
+      aprovada = solicitacao.codigo
+      cancelada = solicitacao(status: "cancelada", motivo_cancelamento: "Adiada").codigo
+      exportar = ->(filtros) { get(transporte_relatorios_path(format: :xlsx), params: { tipo: "solicitacoes", inicio: "08/10/2026", fim: "08/10/2026" }.merge(filtros)) && textos_da_planilha(response.body) }
+
+      expect([ exportar.call({}) & [ aprovada, cancelada ], exportar.call(status: "cancelada") & [ aprovada, cancelada ] ]).to eq([ [ aprovada, cancelada ], [ cancelada ] ])
+
+      get transporte_relatorios_path
+      botao = Nokogiri::HTML(response.body).at_css("button[title='Exportar Excel']")
+      expect(botao.to_h.slice("form", "formaction", "formmethod")).to eq("form" => "filtros_do_relatorio", "formaction" => "/transporte/relatorios.xlsx", "formmethod" => "get")
+    end
+
     it "sem datas, usa do começo do mês até hoje" do
       relatorio = Transporte::Relatorios::Consultar.call(tipo: "inexistente")
 

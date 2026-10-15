@@ -243,7 +243,7 @@ RSpec.describe "Transporte com as medidas do seed", :js do
       expect(page).to have_no_css(painel)
 
       visit transporte_relatorios_path
-      expect(tamanhos(exportar: "main section a[title='Exportar Excel']")).to eq(exportar: [ 36, 36 ])
+      expect(tamanhos(exportar: "main section [title='Exportar Excel']")).to eq(exportar: [ 36, 36 ])
       print("transporte-medidas-relatorios-celular")
     end
   end

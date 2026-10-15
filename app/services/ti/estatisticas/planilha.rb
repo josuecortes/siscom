@@ -9,7 +9,7 @@ module Ti
         pacote.workbook.tap do |pasta|
           negrito = pasta.styles.add_style(b: true)
           pasta.add_worksheet(name: "Resumo") do |aba|
-            aba.add_row [ "Estatísticas da TI" ], style: negrito
+            aba.add_row [ "Relatórios da TI" ], style: negrito
             aba.add_row [ "Período (data de abertura)", "#{I18n.l(resultado.inicio)} a #{I18n.l(resultado.fim)}" ]
             aba.add_row [ "Categoria", resultado.categoria&.nome || "Todas" ]
             aba.add_row [ "Técnico", resultado.tecnico&.nome || "Todos" ]

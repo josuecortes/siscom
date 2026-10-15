@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "TI: estatísticas" do
+RSpec.describe "TI: relatórios (estatísticas)" do
   def com_papel(papel, nome) = create(:user, nome: nome).tap { |u| create(:core_concessao, user: u, modulo: "ti", papel: papel) }
 
   let(:maria) { create(:user, nome: "MARIA OLIVEIRA") }
@@ -45,7 +45,7 @@ RSpec.describe "TI: estatísticas" do
     sign_in com_papel("supervisor", "SUPERVISOR")
 
     get ti_estatisticas_path
-    expect(response.body).to include("Estatísticas", "Chamados abertos de 06/10/2025 a 05/10/2026", "Por mês de abertura", "Solicitações mais pedidas", "JOAO TECNICO", "Exportar Excel")
+    expect(response.body).to include("Relatórios", "Chamados abertos de 06/10/2025 a 05/10/2026", "Por mês de abertura", "Solicitações mais pedidas", "JOAO TECNICO", "Exportar Excel")
     get tecnicos_ti_estatisticas_path, params: { q: "joa" }
     expect(response.parsed_body["opcoes"].pluck("rotulo")).to eq([ "JOAO TECNICO" ])
     get ti_estatisticas_path(format: :xlsx)
@@ -54,5 +54,35 @@ RSpec.describe "TI: estatísticas" do
     sign_in joao
     get ti_estatisticas_path
     expect(response).to have_http_status(:forbidden)
+  end
+
+  context "com o supervisor" do
+    before { sign_in com_papel("supervisor", "SUPERVISOR") }
+
+    it "o Excel obedece os filtros: só os chamados da categoria e do período escolhidos" do
+      get ti_estatisticas_path(format: :xlsx), params: { inicio: "01/09/2026", fim: "30/09/2026", categoria_id: redes.id }
+
+      textos = textos_da_planilha(response.body)
+      expect(textos).to include("Relatórios da TI", "01/09/2026 a 30/09/2026", "REDE", "SEM INTERNET")
+      expect(textos).not_to include("IMPRESSORA PARADA", "HARDWARE")
+    end
+
+    it "o botão Exportar envia o formulário de filtros (vale o que está preenchido, mesmo sem ter filtrado)" do
+      get ti_estatisticas_path
+
+      botao = Nokogiri::HTML(response.body).at_css("button[title='Exportar Excel']")
+      expect(botao.to_h.slice("type", "form", "formaction", "formmethod", "data-turbo")).to eq("type" => "submit", "form" => "filtros_do_relatorio", "formaction" => "/ti/relatorios.xlsx",
+                                                                                                "formmethod" => "get", "data-turbo" => "false")
+      expect(Nokogiri::HTML(response.body).at_css("form#filtros_do_relatorio")["action"]).to eq("/ti/relatorios")
+    end
+
+    it "fica em Administração → Relatórios, e o endereço antigo leva para lá" do
+      get "/ti/estatisticas?inicio=01/09/2026"
+      expect(response).to redirect_to("/ti/relatorios?inicio=01/09/2026")
+
+      get ti_estatisticas_path
+      menu = Nokogiri::HTML(response.body).css("a[href='/ti/relatorios']").map { |link| link.text.squish }
+      expect(menu).to include("Relatórios")
+    end
   end
 end

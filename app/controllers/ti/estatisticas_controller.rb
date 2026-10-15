@@ -1,5 +1,5 @@
 module Ti
-  # TI → Estatísticas (porta da tela "Estatísticas" do siscom antigo): os chamados de um período por mês,
+  # TI → Administração → Relatórios (porta da tela "Estatísticas" do siscom antigo): os chamados de um período por mês,
   # categoria, solicitação, unidade e técnico, com exportação para Excel.
   class EstatisticasController < BaseController
     before_action { pode!("ti.relatorios.ver") }
@@ -10,7 +10,7 @@ module Ti
       return unless params[:format] == "xlsx"
 
       Core::Api.auditar(evento: "ti.estatisticas.exportadas", dados: { inicio: @estatisticas.inicio, fim: @estatisticas.fim }, ator: current_user)
-      send_data Ti::Estatisticas::Planilha.gerar(@estatisticas), filename: "ti-estatisticas-#{Time.current.strftime('%Y%m%d-%H%M')}.xlsx",
+      send_data Ti::Estatisticas::Planilha.gerar(@estatisticas), filename: "ti-relatorio-#{Time.current.strftime('%Y%m%d-%H%M')}.xlsx",
                                                                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     end
 
