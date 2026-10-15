@@ -34,6 +34,13 @@ namespace :ti do
   get "opcoes/solicitacoes", to: "opcoes#solicitacoes", as: :opcoes_de_solicitacoes, defaults: { format: :json }
   get "opcoes/campos/:campo_id", to: "opcoes#index", as: :opcoes_do_campo, defaults: { format: :json }
 
+  # Perfis de abertura vistos pelo usuário (aba Usuários da tela Perfis de abertura): vem antes dos itens do catálogo.
+  resources :usuarios_dos_perfis, path: "perfis_abertura/usuarios", only: %i[index edit], controller: "usuarios_dos_perfis", as: :usuarios_dos_perfis do
+    member do
+      patch :adicionar
+      patch :remover
+    end
+  end
   # Itens simples do catálogo (mesma tela para os três).
   %i[categorias perfis_abertura grupos_tecnicos].each do |tabela|
     resources tabela, only: %i[index new create edit update], controller: "catalogo", defaults: { tabela: tabela.to_s } do

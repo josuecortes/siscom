@@ -13,6 +13,7 @@
 <% end %>
 
 <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <% if @tabela.perfil? && pode?(Ti::Perfis::DefinirDoUsuario::PERMISSAO) %><%= render "ti/usuarios_dos_perfis/abas", atual: "perfis" %><% end %>
   <%= render "compartilhado/filtro_busca_status", url: caminho_da_lista, quadro: "catalogo_lista", rotulo_busca: "Buscar por nome",
         exemplo: textos[:exemplo], busca: @filtros[:q], status: @filtros[:status],
         opcoes_status: [ [ "Todos", "todos" ], [ "Ativos", "ativo" ], [ "Inativos", "inativo" ] ], titulo_filtrar: "Filtrar #{@tabela.titulo.split.first.downcase}" %>

@@ -1,0 +1,67 @@
+<% content_for :title, "Perfis de abertura" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Perfis de abertura", icone: :people, migalha: [ "TI", ti_perfis_abertura_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Novo perfil", icone: :plus, caminho: new_ti_perfil_abertura_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)]" %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "ti/usuarios_dos_perfis/abas", atual: "usuarios" %>
+  <%= form_with url: ti_usuarios_dos_perfis_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "usuarios_dos_perfis_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid grid-cols-[1fr_auto] items-end gap-2 lg:gap-4">
+      <div class="min-w-0 space-y-1.5">
+        <%= f.label :q, "Buscar usuário por nome ou e-mail", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @busca, placeholder: "Ex.: maria ou maria@seed.ap.gov.br", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Buscar usuários" aria-label="Buscar usuários"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to ti_usuarios_dos_perfis_path, title: "Limpar busca", aria: { label: "Limpar busca" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "usuarios_dos_perfis_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: (@busca.present? ? "#{@pagy.count} usuário(s) encontrado(s)" : "#{@pagy.count} usuário(s) em algum perfil de abertura. Busque pelo nome para ver também quem ainda não está em nenhum.") %>
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[760px]">
+        <thead>
+          <tr>
+            <th scope="col">Usuário</th>
+            <th scope="col">Perfis de abertura</th>
+            <th scope="col" class="!pl-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @usuarios.each do |usuario| %>
+            <% perfis = @perfis_por_usuario.fetch(usuario.id, []) %>
+            <tr id="<%= dom_id(usuario, :perfis) %>">
+              <td class="!whitespace-normal">
+                <p class="font-semibold text-[var(--text-primary)]"><%= usuario.nome %></p>
+                <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= usuario.email %></p>
+              </td>
+              <td class="!whitespace-normal">
+                <p class="text-sm text-[var(--text-primary)]"><%= perfis.size.zero? ? "Nenhum" : "#{perfis.size} perfil(is)" %></p>
+                <% if perfis.any? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= truncate(perfis.join(", "), length: 140) %></p><% end %>
+              </td>
+              <td class="!pl-2 !pr-4">
+                <%= render "compartilhado/botao_acao", titulo: "Gerenciar perfis de #{usuario.nome}", icone: :people, caminho: edit_ti_usuario_dos_perfis_path(usuario, q: @busca.presence), quadro: "painel" %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @usuarios.empty? %>
+            <tr><td colspan="3" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= @busca.present? ? "Nenhum usuário ativo encontrado para a busca." : "Ninguém está em perfil de abertura ainda. Busque o usuário pelo nome." %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "usuarios_dos_perfis_lista" %>
+  <% end %>
+</section>

@@ -1,0 +1,92 @@
+<% content_for :title, "Perfis de abertura de #{@usuario.nome}" %>
+<% voltar = ti_usuarios_dos_perfis_path(q: params[:q].presence) %>
+<% rodape = capture do %>
+  <%= link_to "Concluir", voltar, data: { turbo_frame: "_top" },
+        class: "inline-flex h-10 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+<% end %>
+<% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] pl-11 pr-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+<% linha = "flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm" %>
+<% botao = "inline-flex h-10 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-semibold" %>
+<% filtro = ->(alvo) do %>
+  <div class="relative">
+    <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+    <input type="search" aria-label="Filtrar <%= alvo %>" placeholder="Filtrar <%= alvo %> pelo nome" autocomplete="off" data-selecao-target="busca" data-action="input->selecao#filtrar" class="<%= entrada %>">
+  </div>
+<% end %>
+<% perfil_texto = ->(perfil) do %>
+  <span class="min-w-0">
+    <span class="block break-words font-semibold text-[var(--text-primary)]"><%= perfil.nome %></span>
+    <% if perfil.descricao.present? %><span class="block break-words text-[var(--text-secondary)]"><%= perfil.descricao %></span><% end %>
+  </span>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Perfis de abertura", titulo: "Gerenciar perfis de #{@usuario.nome}", voltar: voltar, rodape: rodape,
+                descricao: "#{@usuario.email}. Marque vários perfis para incluir ou remover de uma vez. As mudanças valem na hora." } do %>
+  <div class="space-y-6">
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% elsif @aviso.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :sucesso, embutida: true, mensagem: @aviso %>
+    <% end %>
+
+    <%= form_with url: adicionar_ti_usuario_dos_perfis_path(@usuario, q: params[:q].presence), method: :patch, id: "adicionar_perfis", class: "space-y-3", data: { controller: "selecao" } do %>
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <p class="text-sm font-medium text-[var(--text-secondary)]">Adicionar a perfis (<%= @fora.size %>)</p>
+        <span class="text-xs font-semibold text-[var(--accent-strong)]" data-selecao-target="contagem" aria-live="polite"></span>
+      </div>
+      <% if @fora.any? %>
+        <% filtro.call("os perfis") if @fora.size > 6 %>
+        <div class="max-h-72 space-y-2 overflow-y-auto">
+          <% @fora.each do |perfil| %>
+            <label class="<%= linha %> cursor-pointer hover:border-[var(--accent-strong)]" data-selecao-target="linha" data-texto="<%= "#{perfil.nome} #{perfil.descricao}".downcase %>">
+              <%= check_box_tag "perfil_ids[]", perfil.id, false, id: "adicionar_perfil_#{perfil.id}", data: { action: "change->selecao#contar" }, class: "mt-0.5 h-4 w-4 shrink-0" %>
+              <% perfil_texto.call(perfil) %>
+            </label>
+          <% end %>
+          <p hidden data-selecao-target="vazio" class="px-1 text-sm text-[var(--text-secondary)]">Nenhum perfil com esse nome.</p>
+        </div>
+        <button type="submit" class="<%= botao %> border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]"><%= icone(:plus) %> Adicionar aos marcados</button>
+      <% else %>
+        <p class="rounded-xl border border-dashed border-[var(--border-subtle)] px-4 py-4 text-sm text-[var(--text-secondary)]"><%= @nos_perfis.any? ? "#{@usuario.nome} já está em todos os perfis ativos." : "Não há perfil de abertura ativo para adicionar." %></p>
+      <% end %>
+    <% end %>
+
+    <%= form_with url: remover_ti_usuario_dos_perfis_path(@usuario, q: params[:q].presence), method: :patch, id: "remover_perfis", class: "space-y-3", data: { controller: "selecao" } do %>
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <p class="text-sm font-medium text-[var(--text-secondary)]">Perfis de <%= @usuario.nome %> (<%= @nos_perfis.size %>)</p>
+        <span class="text-xs font-semibold text-[var(--accent-strong)]" data-selecao-target="contagem" aria-live="polite"></span>
+      </div>
+      <% filtro.call("os perfis do usuário") if @nos_perfis.size > 6 %>
+      <ul class="space-y-2" id="perfis_do_usuario">
+        <% @nos_perfis.each do |perfil| %>
+          <li class="<%= linha %> items-center justify-between" data-selecao-target="linha" data-texto="<%= "#{perfil.nome} #{perfil.descricao}".downcase %>">
+            <label class="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
+              <%= check_box_tag "perfil_ids[]", perfil.id, false, id: "remover_perfil_#{perfil.id}", data: { action: "change->selecao#contar" }, class: "mt-0.5 h-4 w-4 shrink-0" %>
+              <% perfil_texto.call(perfil) %>
+            </label>
+            <button type="submit" name="so" value="<%= perfil.id %>" title="Remover de <%= perfil.nome %>" aria-label="Remover de <%= perfil.nome %>"
+                    class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--danger-border-strong)] hover:text-[var(--danger-text)]"><%= icone(:x) %></button>
+          </li>
+        <% end %>
+        <% if @nos_perfis.empty? %>
+          <li class="rounded-xl border border-dashed border-[var(--border-subtle)] px-4 py-4 text-sm text-[var(--text-secondary)]"><%= @usuario.nome %> ainda não está em nenhum perfil de abertura. Marque acima para incluir.</li>
+        <% end %>
+      </ul>
+      <% if @nos_perfis.any? %>
+        <button type="submit" class="<%= botao %> border-[var(--danger-border-strong)] text-[var(--danger-text)] hover:bg-[var(--danger-surface)]"><%= icone(:x) %> Remover marcados</button>
+      <% end %>
+    <% end %>
+
+    <% if @padrao.any? %>
+      <div class="space-y-2" id="perfis_padrao">
+        <p class="text-sm font-medium text-[var(--text-secondary)]">Perfis padrão (valem para todos, sem lista)</p>
+        <ul class="space-y-2">
+          <% @padrao.each do |perfil| %>
+            <li class="<%= linha %> opacity-80"><% perfil_texto.call(perfil) %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+<% end %>
