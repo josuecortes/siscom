@@ -45,6 +45,13 @@ namespace :ti do
       patch :remover
     end
   end
+  # Grupos técnicos vistos pelo técnico (aba Técnicos da tela Grupos técnicos): vem antes dos itens do catálogo.
+  resources :tecnicos_dos_grupos, path: "grupos_tecnicos/tecnicos", only: %i[index edit], controller: "tecnicos_dos_grupos", as: :tecnicos_dos_grupos do
+    member do
+      patch :adicionar
+      patch :remover
+    end
+  end
   # Itens simples do catálogo (mesma tela para os três).
   %i[categorias perfis_abertura grupos_tecnicos].each do |tabela|
     resources tabela, only: %i[index new create edit update], controller: "catalogo", defaults: { tabela: tabela.to_s } do

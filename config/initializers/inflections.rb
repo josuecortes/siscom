@@ -41,4 +41,5 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular "movimentacao", "movimentacoes"
   inflect.irregular "item_movimentacao", "itens_movimentacao"
   inflect.irregular "usuario_dos_perfis", "usuarios_dos_perfis" # TI → Perfis de abertura → aba Usuários
+  inflect.irregular "tecnico_dos_grupos", "tecnicos_dos_grupos" # TI → Grupos técnicos → aba Técnicos
 end

@@ -47,7 +47,8 @@ RSpec.describe "TI com as medidas do seed", :js do
       expect(retangulo("main section a[title='Novo grupo']")).to include("y" => 76, "altura" => 40, "largura" => be_within(1).of(134))
       expect(page).to have_content("1 grupo(s) técnico(s) registrado(s)")
       expect(all("#{cartao} thead th").map(&:text)).to eq([ "Nome", "Descrição", "Autoatribuição", "Membros", "Solicitações", "Status", "Ações" ])
-      expect(retangulo("#{cartao} tbody tr")).to include("y" => 369.9, "altura" => 71.2) # 72,2 no seed, menos a borda da última linha
+      # 72,2 no seed, menos a borda da última linha; 47 px abaixo do seed por causa das abas Grupos/Técnicos (pedido do Josue, 2026-10-16)
+      expect(retangulo("#{cartao} tbody tr")).to include("y" => 416.9, "altura" => 71.2)
       expect([ estilo("#{cartao} tbody td", "fontSize"), estilo("#{cartao} tbody td", "fontWeight") ]).to eq([ "15.2px", "600" ])
       selo = "#{cartao} tbody td:nth-child(3) span"
       expect(page).to have_css(selo, text: "Permitida")

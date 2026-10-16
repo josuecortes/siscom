@@ -1,0 +1,9 @@
+<%# Abas da tela Grupos técnicos: a lista de grupos (como sempre foi) e a dos técnicos. As duas são listas diferentes,
+    cada uma com a sua busca, por isso ficam sempre visíveis (não viram "Resultado" ao buscar). locals: atual ("grupos" ou "tecnicos") %>
+<% aba = "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" %>
+<nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Grupos técnicos">
+  <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
+    <%= link_to "Grupos", ti_grupos_tecnicos_path, aria: { current: (atual == "grupos" ? "page" : nil) }, class: aba %>
+    <%= link_to "Técnicos", ti_tecnicos_dos_grupos_path, aria: { current: (atual == "tecnicos" ? "page" : nil) }, class: aba %>
+  </div>
+</nav>
