@@ -10,7 +10,7 @@ RSpec.describe "Login" do
     fill_in "Senha", with: "Senha@Forte123"
     click_on "Entrar"
 
-    expect(page).to have_content("Olá, MARIA SILVA")
+    expect(page).to have_css("#saudacao", text: ", Maria") # "Bom dia", "Boa tarde" ou "Boa noite"
   end
 
   it "mostra erro com senha errada" do

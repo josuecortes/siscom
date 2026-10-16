@@ -14,7 +14,8 @@ module Equipamentos
 
       # Quem está com a lista do módulo ou com "Meus equipamentos" aberto vê a mudança na hora.
       def atualizar_telas(envio)
-        ([ "equipamentos" ] + [ envio.responsavel, envio.criada_por ].compact.uniq.map { |user| [ user, "equipamentos" ] }).each do |canal|
+        pessoas = [ envio.responsavel, envio.criada_por ] + envio.itens.map(&:devolver_para) # quem recebe a devolução também vê na hora
+        ([ "equipamentos" ] + pessoas.compact.uniq.map { |user| [ user, "equipamentos" ] }).each do |canal|
           Turbo::StreamsChannel.broadcast_refresh_to(*Array(canal), request_id: nil)
         end
       end

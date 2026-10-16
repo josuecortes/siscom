@@ -34,6 +34,7 @@ RSpec.describe "Transporte: solicitar transporte", :js do
       find("summary", text: "Minha área").click
       click_on "Solicitações de transporte"
     end
+    expect(page).to have_css("main h1", text: "Solicitações de transporte") # o Início também tem "Nova solicitação de transporte"
     click_on "Nova solicitação"
     expect(page).to have_css("[role='dialog'] h2", text: "Nova solicitação de transporte")
     expect(page).to have_no_field("Retorno (data e hora) *")

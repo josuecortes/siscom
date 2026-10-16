@@ -13,6 +13,8 @@ module Core
           canal(notificacao.user), target: "avisos",
           partial: "compartilhado/aviso", locals: { tipo: :notice, mensagem: notificacao.titulo }
         )
+        # A tela Início mostra quantas notificações faltam ler.
+        Turbo::StreamsChannel.broadcast_refresh_to(notificacao.user, "inicio")
         # Alerta sonoro: uma vez por notificação, mesmo com várias abas abertas (sons.js).
         Turbo::StreamsChannel.broadcast_append_to(canal(notificacao.user), target: "sons", partial: "compartilhado/som", locals: { tipo: "notificacao", numero: notificacao.id })
       end

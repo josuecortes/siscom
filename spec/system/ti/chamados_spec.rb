@@ -28,6 +28,7 @@ RSpec.describe "TI: abrir chamado", :js do
       find("summary", text: "Minha área").click
       click_on "Solicitações de TI"
     end
+    expect(page).to have_css("main h1", text: "Solicitações de TI") # o Início também tem "Abrir chamado de TI": espera sair dele
     click_on "Abrir chamado"
     expect(page).to have_css("[role='dialog'] h2", text: "Abrir chamado")
     expect(page).to have_no_field("Nome completo *")

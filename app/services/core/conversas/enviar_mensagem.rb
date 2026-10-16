@@ -15,6 +15,7 @@ module Core
       def self.atualizar_contador(user)
         Turbo::StreamsChannel.broadcast_replace_to(user, :conversas, target: "contador_de_conversas", partial: "core/conversas/contador",
                                                                      locals: { total: Core::Participante.nao_lidas_de(user) })
+        Turbo::StreamsChannel.broadcast_refresh_to(user, "inicio") # a tela Início mostra as mensagens não lidas
       end
 
       def self.transmitir(conversa, mensagem)

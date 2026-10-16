@@ -29,7 +29,7 @@ RSpec.describe "Trocar senha", :js do
       click_on "Salvar nova senha"
 
       expect(page).to have_content("Senha alterada com sucesso.")
-      expect(page).to have_content("Olá,")
+      expect(page).to have_css("#saudacao")
     end
 
     # Medidas de http://localhost:3102/my-area/password?required=1 no seed, em 390 px.
