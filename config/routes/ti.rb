@@ -21,6 +21,8 @@ namespace :ti do
   end
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
   resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
+  # Menu → Acompanhamento: a página que explica o painel e abre ele (com login).
+  get "acompanhamento/sobre", to: "sobre_acompanhamento#show", as: :sobre_acompanhamento
   resource :configuracoes, only: %i[show update]
   # Administração → Relatórios (o código ainda chama de estatísticas); o endereço antigo continua levando para lá.
   get "estatisticas", to: redirect { |_, requisicao| "/ti/relatorios#{"?#{requisicao.query_string}" if requisicao.query_string.present?}" }, as: :estatisticas_antigas

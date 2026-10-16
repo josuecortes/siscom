@@ -15,6 +15,7 @@ permissoes:
   relatorios.ver: "Ver relatórios do transporte"
   configuracoes.gerenciar: "Gerenciar as configurações do transporte (janelas e alertas)"
   permissoes.conceder: "Conceder permissões no Transporte"
+  acompanhamento.ver: "Ver a página do painel de acompanhamento (a senha do painel fica com os administradores)"
 
 papeis:
   admin:
@@ -22,7 +23,7 @@ papeis:
     permissoes: "*"
   tecnico:
     nome: "Técnico"
-    permissoes: [solicitacoes.abrir, operacao.ver, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder]
+    permissoes: [solicitacoes.abrir, operacao.ver, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder, acompanhamento.ver]
   motorista:
     nome: "Motorista"
     permissoes: [solicitacoes.abrir, operacao.ver, servico.executar]
@@ -40,6 +41,7 @@ menu:
   - { rotulo: "Solicitações de transporte", rota: transporte_solicitacoes_path, permissao: solicitacoes.abrir, icone: car-alt, minha_area: true }
   - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: operacao.ver, icone: group }
   - { rotulo: "Veículos agora", rota: transporte_veiculos_agora_path, permissao: solicitacoes.operar, icone: location-pin }
+  - { rotulo: "Acompanhamento", rota: transporte_sobre_acompanhamento_path, permissao: acompanhamento.ver, icone: speedometer }
   - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people, grupo: "Administração" }
   - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt, grupo: "Administração" }
   - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich, grupo: "Administração" }

@@ -15,6 +15,7 @@ permissoes:
   catalogo.gerenciar: "Gerenciar o catálogo (categorias, solicitações, perfis de abertura, grupos técnicos)"
   permissoes.conceder: "Conceder permissões na TI"
   relatorios.ver: "Ver as estatísticas dos chamados"
+  acompanhamento.ver: "Ver a página do painel de acompanhamento (a senha do painel fica com os administradores)"
   configuracoes.gerenciar: "Gerenciar configurações da TI"
 
 papeis:
@@ -23,13 +24,13 @@ papeis:
     permissoes: "*"
   supervisor:
     nome: "Supervisor"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar, relatorios.ver]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar, relatorios.ver, acompanhamento.ver]
   triagem:
     nome: "Triador"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, acompanhamento.ver]
   tecnico:
     nome: "Técnico"
-    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.atender]
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.atender, acompanhamento.ver]
   solicitante:
     nome: "Solicitante"
     permissoes: [chamados.abrir]
@@ -41,6 +42,7 @@ concessao:
 menu:
   - { rotulo: "Solicitações de TI", rota: ti_chamados_path, permissao: chamados.abrir, icone: task, minha_area: true }
   - { rotulo: "Operação", rota: ti_operacao_index_path, permissao: chamados.operar, icone: group }
+  - { rotulo: "Acompanhamento", rota: ti_sobre_acompanhamento_path, permissao: acompanhamento.ver, icone: speedometer }
   - { rotulo: "Categorias de solicitação", rota: ti_categorias_path, permissao: catalogo.gerenciar, icone: description, grupo: "Administração" }
   - { rotulo: "Perfis de abertura", rota: ti_perfis_abertura_path, permissao: catalogo.gerenciar, icone: people, grupo: "Administração" }
   - { rotulo: "Grupos técnicos", rota: ti_grupos_tecnicos_path, permissao: catalogo.gerenciar, icone: group, grupo: "Administração" }

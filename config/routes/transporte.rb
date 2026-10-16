@@ -50,6 +50,8 @@ namespace :transporte do
   resource :veiculos_agora, only: :show, path: "veiculos-agora", controller: "veiculos_agora"
   # Painel de acompanhamento (TV): sem login, com a senha da Configuração.
   resource :acompanhamento, only: %i[show create destroy], controller: "acompanhamento"
+  # Menu → Acompanhamento: a página que explica o painel e abre ele (com login).
+  get "acompanhamento/sobre", to: "sobre_acompanhamento#show", as: :sobre_acompanhamento
   resource :relatorios, only: :show
   resources :permissoes, only: %i[index edit update]
   resource :configuracoes, only: %i[show update]
