@@ -1,0 +1,42 @@
+<% content_for :title, "Responder ao reagendamento" %>
+<% s = @solicitacao %>
+<%# Rodapé próprio: recusar pede o motivo; aceitar não. %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Fechar</button>
+  <% if s.reagendada? %>
+    <button type="submit" form="formulario_resposta" name="resposta" value="recusar" data-turbo-submits-with="Enviando..." class="cursor-pointer rounded-md bg-[var(--danger-solid)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--danger-solid-hover)] disabled:cursor-not-allowed disabled:opacity-60">Recusar</button>
+    <button type="submit" form="formulario_resposta" name="resposta" value="aceitar" data-turbo-submits-with="Enviando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-60">Aceitar novo horário</button>
+  <% end %>
+<% end %>
+<% caixa = "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3" %>
+<% rotulo = "text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Minhas solicitações", titulo: "Reagendamento de #{s.codigo}", voltar: transporte_solicitacoes_path, rodape: rodape,
+                descricao: (s.reagendada? ? "O setor de transporte propôs outro horário. Se você aceitar, a solicitação segue aprovada com o novo horário; se recusar, ela é cancelada." : nil) } do %>
+  <% if s.reagendada? %>
+    <%= form_with url: responder_reagendamento_transporte_solicitacao_path(s), method: :patch, id: "formulario_resposta", class: "space-y-5" do |f| %>
+      <% if @erro.present? %>
+        <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+      <% end %>
+      <dl class="grid gap-3 sm:grid-cols-2">
+        <div class="<%= caixa %>"><dt class="<%= rotulo %>">Saída anterior</dt><dd class="mt-1 text-sm text-[var(--text-primary)]"><%= data_e_hora(s.saida_anterior_em) || "—" %></dd></div>
+        <div class="<%= caixa %>"><dt class="<%= rotulo %>">Nova saída</dt><dd class="mt-1 text-sm font-semibold text-[var(--text-primary)]"><%= data_e_hora(s.saida_em) %></dd></div>
+        <% if s.viagem? %>
+          <div class="<%= caixa %>"><dt class="<%= rotulo %>">Retorno anterior</dt><dd class="mt-1 text-sm text-[var(--text-primary)]"><%= data_e_hora(s.retorno_anterior_em) || "—" %></dd></div>
+          <div class="<%= caixa %>"><dt class="<%= rotulo %>">Novo retorno</dt><dd class="mt-1 text-sm font-semibold text-[var(--text-primary)]"><%= data_e_hora(s.retorno_em) %></dd></div>
+        <% end %>
+        <div class="<%= caixa %> sm:col-span-2"><dt class="<%= rotulo %>">Reagendada por</dt><dd class="mt-1 text-sm text-[var(--text-primary)]"><%= s.reagendada_por&.nome || "Setor de transporte" %>, em <%= data_e_hora(s.reagendada_em) %></dd></div>
+        <div class="<%= caixa %> sm:col-span-2"><dt class="<%= rotulo %>">Motivo do reagendamento</dt><dd class="mt-1 whitespace-pre-line break-words text-sm text-[var(--text-primary)]"><%= s.motivo_reagendamento %></dd></div>
+      </dl>
+      <div class="space-y-1.5">
+        <label for="motivo" class="text-sm font-medium text-[var(--text-secondary)]">Motivo da recusa</label>
+        <%= text_area_tag :motivo, params[:motivo], rows: 3, maxlength: 1000,
+              class: "min-h-[96px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+        <p class="text-xs text-[var(--text-muted)]">Preencha só se for recusar.</p>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="text-sm text-[var(--text-secondary)]">Não há reagendamento aguardando resposta nesta solicitação.</p>
+  <% end %>
+<% end %>

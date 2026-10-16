@@ -1,0 +1,81 @@
+<% content_for :title, "Painel de acompanhamento · #{@textos[:modulo]}" %>
+<%# Painel de TV do módulo (Transporte, TI; porta de transport-public-tracking-board.tsx): escuro, para ser lido de longe. Cada cartão
+    tem a cor do nível de urgência (classes .tv-* em application.css). O Stimulus painel-tv faz o relógio andar,
+    rola as colunas sozinho até o fim e só então atualiza a tela (no mínimo a cada N segundos). Além disso, o
+    quadro atualiza na hora quando algo muda na operação (Turbo Streams), sem interromper a rolagem. %>
+<%= turbo_stream_from @textos[:canal] %>
+<% agora = @quadro.agora %>
+<% contagem = @quadro.contagem %>
+<% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
+<% nomes = { "critico" => "Atrasado", "urgente" => "Falta pouco", "atencao" => "Atenção", "normal" => "No prazo" } %>
+
+<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>" data-painel-tv-nome-value="<%= @textos[:modulo].parameterize %>">
+  <header class="tv-cabecalho">
+    <div class="min-w-0">
+      <p class="tv-sobretitulo"><%= @textos[:modulo] %></p>
+      <h1 class="tv-titulo">Acompanhamento em tempo real</h1>
+    </div>
+
+    <ul class="tv-resumo" aria-label="Resumo por urgência">
+      <% nomes.each do |nivel, nome| %>
+        <li class="tv-resumo-item" data-nivel="<%= nivel %>" data-vazio="<%= contagem.fetch(nivel, 0).zero? %>">
+          <span class="tv-resumo-numero"><%= contagem.fetch(nivel, 0) %></span>
+          <span><%= nome %></span>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="tv-relogio">
+      <p class="tv-hora" data-painel-tv-target="hora"><%= l(agora, format: "%H:%M:%S") %></p>
+      <p class="tv-data" data-painel-tv-target="data"><%= l(agora, format: "%d/%m/%Y") %></p>
+      <p class="tv-atualiza">Atualiza em <strong data-painel-tv-target="contagem"><%= PainelDeTv::ATUALIZA_A_CADA %> s</strong></p>
+      <div class="tv-trilho" aria-hidden="true"><div class="tv-barra" data-painel-tv-target="barra"></div></div>
+    </div>
+  </header>
+
+  <main class="tv-colunas">
+    <% @quadro.colunas.each_with_index do |coluna, posicao| %>
+      <% graves = coluna.itens.count { |item| item.nivel == "critico" } %>
+      <section class="tv-coluna" id="tv_<%= coluna.chave %>">
+        <h2 class="tv-coluna-titulo">
+          <span><%= coluna.titulo %></span>
+          <span class="tv-contadores">
+            <% if graves.positive? %><span class="tv-contador" data-nivel="critico" title="Atrasados"><%= graves %></span><% end %>
+            <span class="tv-contador" data-total><%= coluna.itens.size %></span>
+          </span>
+        </h2>
+        <%# A primeira coluna é a de chegada: o que aparece nela pela primeira vez (ou volta para ela) toca o alerta do painel. %>
+        <ul class="tv-lista" data-painel-tv-target="lista<%= " chegada" if posicao.zero? %>">
+          <% coluna.itens.each do |item| %>
+            <li class="tv-cartao" data-nivel="<%= item.nivel %>" data-chave="<%= [ item.codigo, item.selo ].compact.join(" ") %>">
+              <div class="tv-cartao-topo">
+                <p class="tv-codigo"><%= item.codigo %><% if item.selo %> <span class="tv-selo"><%= item.selo %></span><% end %></p>
+                <p class="tv-horario"><%= hora.call(item.horario) %></p>
+              </div>
+              <p class="tv-nome"><%= item.nome %></p>
+              <% if item.unidade %><p class="tv-unidade"><%= item.unidade %></p><% end %>
+              <% if item.detalhe %><p class="tv-detalhe"><%= item.detalhe %></p><% end %>
+              <% if item.responsaveis %><p class="tv-responsaveis"><%= item.responsaveis %></p><% end %>
+              <% if item.aviso %><p class="tv-aviso"><span class="tv-ponto" aria-hidden="true"></span><%= item.aviso %></p><% end %>
+            </li>
+          <% end %>
+          <% if coluna.itens.empty? %><li class="tv-vazio"><%= coluna.vazio %></li><% end %>
+        </ul>
+      </section>
+    <% end %>
+  </main>
+
+  <footer class="tv-rodape">
+    <ul class="tv-legenda" aria-label="Legenda das cores">
+      <li data-nivel="critico"><span class="tv-ponto"></span>Vermelho: passou da hora ou do limite, alguém está esperando</li>
+      <li data-nivel="urgente"><span class="tv-ponto"></span>Laranja: falta pouco</li>
+      <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
+      <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <%# O navegador só toca depois de um clique nesta tela: o botão mostra se o alerta sonoro está valendo. %>
+      <button type="button" class="tv-sair" data-painel-tv-target="som" data-action="painel-tv#ligarSom" title="Alerta sonoro quando chega uma solicitação">Som: ligar</button>
+      <%= button_to "Sair do painel", @textos[:caminho], method: :delete, class: "tv-sair" %>
+    </div>
+  </footer>
+</div>

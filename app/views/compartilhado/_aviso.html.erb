@@ -1,0 +1,13 @@
+<%# Um aviso flutuante. tipo: notice/success (verde) ou alert/error (vermelho). %>
+<% sucesso = tipo.to_s.in?(%w[notice success]) %>
+<div role="<%= sucesso ? "status" : "alert" %>"
+     data-controller="flash" data-flash-duracao-value="<%= sucesso ? 5000 : 9000 %>"
+     class="pointer-events-auto flex items-start gap-3 rounded-[var(--radius-card)] border bg-[var(--surface-card)] px-4 py-3 text-sm text-[var(--text-primary)] shadow-[var(--shadow-card-strong)] transition duration-300 ease-out <%= sucesso ? "border-[var(--success-border)]" : "border-[var(--danger-border)]" %>">
+  <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full <%= sucesso ? "bg-[var(--success-surface)] text-[var(--success-text)]" : "bg-[var(--danger-surface)] text-[var(--danger-text)]" %>">
+    <%= icone(sucesso ? :check_alt : :warning, classe: "h-3 w-3") %>
+  </span>
+  <span class="min-w-0 flex-1 leading-5"><%= mensagem %></span>
+  <button type="button" data-action="flash#fechar" class="shrink-0 cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-primary)]" aria-label="Fechar aviso">
+    <%= icone(:x, classe: "h-3.5 w-3.5") %>
+  </button>
+</div>

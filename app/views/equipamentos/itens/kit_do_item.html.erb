@@ -1,0 +1,27 @@
+<% content_for :title, "Kit do equipamento" %>
+<% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Fechar</button>
+  <% if @item.no_kit? %>
+    <button type="submit" form="formulario_kit" data-turbo-submits-with="Salvando..." class="cursor-pointer rounded-md bg-[var(--danger-solid)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--danger-solid-hover)]">Tirar do kit</button>
+  <% else %>
+    <button type="submit" form="formulario_kit" data-turbo-submits-with="Salvando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]">Incluir no kit</button>
+  <% end %>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Equipamento", titulo: "Kit", voltar: equipamentos_itens_path, rodape: rodape,
+                descricao: (@item.no_kit? ? "#{@item.nome_completo} está no kit #{@item.identificacao_kit} (#{@item.codigo_kit})." : "#{@item.nome_completo} não está em nenhum kit. Informe o código de um kit da mesma unidade para incluir.") } do %>
+  <%= form_with url: (@item.no_kit? ? sair_do_kit_equipamentos_item_path(@item) : entrar_no_kit_equipamentos_item_path(@item)), method: :patch, id: "formulario_kit", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <% unless @item.no_kit? %>
+      <div class="space-y-1.5">
+        <label for="codigo_kit" class="text-sm font-medium text-[var(--text-secondary)]">Código do kit *</label>
+        <%= text_field_tag :codigo_kit, params[:codigo_kit], required: true, maxlength: 30, autocomplete: "off", placeholder: "Ex.: KIT-000012", class: entrada %>
+        <p class="text-xs text-[var(--text-muted)]">O código aparece na coluna Kit da lista. A peça assume a identificação do kit.</p>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

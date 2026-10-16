@@ -1,0 +1,33 @@
+<%# Uma peça do kit no cadastro. locals: peca (Equipamentos::Item), indice %>
+<% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<% nome = ->(campo) { "pecas[#{indice}][#{campo}]" } %>
+<% id = ->(campo) { "peca_#{indice}_#{campo}" } %>
+<% texto = ->(campo, titulo, **html) do %>
+  <div class="space-y-1.5">
+    <label for="<%= id.call(campo) %>" class="<%= rotulo %>"><%= titulo %></label>
+    <%= text_field_tag nome.call(campo), peca[campo], { id: id.call(campo), autocomplete: "off", class: entrada }.merge(html) %>
+  </div>
+<% end %>
+<div data-lista-target="item" class="space-y-3 rounded-xl border border-[var(--border-subtle)] p-4">
+  <% if peca.errors.any? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: peca.errors.full_messages.to_sentence %>
+  <% end %>
+  <div class="grid gap-3 sm:grid-cols-3">
+    <div class="space-y-1.5">
+      <label for="<%= id.call(:tipo_equipamento) %>" class="<%= rotulo %>">Tipo *</label>
+      <%= select_tag nome.call(:tipo_equipamento), options_for_select([ [ "Selecione", "" ] ] + Equipamentos::Item::TIPOS, peca.tipo_equipamento), id: id.call(:tipo_equipamento), required: true, class: entrada %>
+    </div>
+    <% texto.call(:marca, "Marca *", required: true, list: "sugestoes_marca") %>
+    <% texto.call(:modelo, "Modelo *", required: true, list: "sugestoes_modelo") %>
+    <% texto.call(:numero_patrimonio, "Patrimônio") %>
+    <% texto.call(:numero_serial, "Serial") %>
+    <% texto.call(:outra_identificacao, "Outra identificação") %>
+    <% texto.call(:host, "Host") %>
+    <% texto.call(:ip, "IP") %>
+    <% texto.call(:mac, "MAC") %>
+  </div>
+  <div class="flex justify-end">
+    <button type="button" data-action="lista#remover" class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-[var(--border-subtle)] px-3 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"><%= icone(:trash) %> Remover peça</button>
+  </div>
+</div>

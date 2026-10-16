@@ -1,0 +1,17 @@
+<%# Campo de data no formato brasileiro (dd/mm/aaaa), com máscara. Sempre mostra dd/mm/aaaa,
+    mesmo quando o valor vem do banco (aaaa-mm-dd). No model: `datas_br :campo`.
+    locals: f, campo, rotulo, html (atributos extras). %>
+<% erros = f.object.respond_to?(:errors) ? f.object.errors[campo] : [] %>
+<% bruto = f.object.respond_to?("#{campo}_before_type_cast") ? (f.object.public_send(campo) || f.object.public_send("#{campo}_before_type_cast")) : local_assigns[:valor] %>
+<div class="space-y-1.5">
+  <%= f.label campo, rotulo, class: "text-sm font-medium text-[var(--text-secondary)]" %>
+  <%= f.text_field campo, { value: DataBr.formatar(bruto), placeholder: "dd/mm/aaaa", inputmode: "numeric", autocomplete: "off", maxlength: 10,
+        data: { controller: "mascara", mascara_tipo_value: "data", action: "input->mascara#aplicar" },
+        aria: { invalid: (erros.any? ? "true" : nil) },
+        class: [ "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none",
+                 (erros.any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]") ] }
+        .deep_merge(local_assigns.fetch(:html, {})) %>
+  <% erros.each do |mensagem| %>
+    <p class="text-sm text-[var(--danger-text)]"><%= f.object.class.human_attribute_name(campo) %> <%= mensagem %></p>
+  <% end %>
+</div>

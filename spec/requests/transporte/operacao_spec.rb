@@ -1,0 +1,304 @@
+require "rails_helper"
+
+RSpec.describe "Transporte: operação" do
+  include ActiveSupport::Testing::TimeHelpers
+
+  def com_papel(papel, nome) = create(:user, nome: nome).tap { |u| create(:core_concessao, user: u, modulo: "transporte", papel: papel) }
+
+  let(:maria) { com_papel("solicitante", "MARIA OLIVEIRA") }
+  let(:tecnico) { com_papel("tecnico", "TECNICO DO TRANSPORTE") }
+  let(:dados) do
+    { tipo: "normal", modo: "so_deixar", resumo: "Reunião na SEAD", saida_em: "08/10/2026 09:00", passageiros: [ { cpf: "529.982.247-25", nome: "Maria" } ],
+      destinos: [ { nome: "SEAD", logradouro: "Avenida FAB", numero: "96", bairro: "Central", cidade: "Macapá", uf: "AP" } ] }
+  end
+  let(:solicitacao) { Transporte::Solicitacoes::Abrir.call(user: maria, atributos: dados).objeto }
+
+  # O relógio é fixado antes de criar a solicitação: senão ela nasce com a hora de verdade, que pode
+  # ser depois da hora fixada, e a ordem "mais recente primeiro" fica trocada.
+  before do
+    Rh::Tabelas.garantir_padroes
+    travel_to Time.zone.local(2026, 10, 5, 8, 0)
+    solicitacao
+  end
+
+  it "solicitante não entra na operação; o motorista entra, mas não aprova nem abre para outra pessoa" do
+    sign_in maria
+    respostas = [ -> { get transporte_operacao_index_path }, -> { patch aprovar_transporte_operacao_path(solicitacao) },
+                  -> { get new_transporte_solicitacao_para_outro_path } ].map { |requisicao| requisicao.call && response.status }
+    expect(respostas).to all(eq(403))
+
+    sign_in com_papel("motorista", "MOTORISTA")
+    respostas = [ -> { get transporte_operacao_index_path }, -> { patch aprovar_transporte_operacao_path(solicitacao) }, -> { get reagendamento_transporte_operacao_path(solicitacao) },
+                  -> { get new_transporte_solicitacao_para_outro_path } ].map { |requisicao| requisicao.call && response.status }
+    expect(respostas).to eq([ 200, 403, 403, 403 ])
+    expect(solicitacao.reload).to be_solicitada
+  end
+
+  context "com técnico" do
+    before { sign_in tecnico }
+
+    it "lista todas as solicitações por etapa, com o solicitante e a ação de aprovar" do
+      get transporte_operacao_index_path
+
+      html = Nokogiri::HTML(response.body)
+      expect(response.body).to include("Operação de transporte", "1 solicitação(ões) em solicitadas", solicitacao.codigo, "MARIA OLIVEIRA", "Aprovar solicitação")
+      expect(html.css("nav[aria-label='Etapas das solicitações'] a").map { |aba| aba.text.squish })
+        .to eq([ "Solicitadas 1", "Aprovadas 0", "Reagendadas 0", "Em serviço 0", "Aguardando busca 0", "Concluídas 0", "Canceladas 0" ])
+      # As ações ficam na linha; "ver" abre no painel, nunca numa página.
+      expect(html.css("tr##{ActionView::RecordIdentifier.dom_id(solicitacao)} td:last-child [title]").pluck("title"))
+        .to eq([ "Visualizar solicitação", "Aprovar solicitação", "Registrar observação", "Cancelar solicitação" ])
+      expect(html.at_css("a[title='Visualizar solicitação']")["data-turbo-frame"]).to eq("painel")
+    end
+
+    describe "ordem, tipo e filtros da lista" do
+      let!(:viagem) do # pedida depois, mas sai antes
+        pedro = com_papel("solicitante", "PEDRO SANTOS")
+        nuinfo = create(:rh_unidade, nome: "Núcleo de Informática", sigla: "NUINFO")
+        travel_to(Time.zone.local(2026, 10, 5, 9, 0)) do
+          Transporte::Solicitacao.new(tipo: "viagem", modo: "so_deixar", status: "solicitada", resumo: "Viagem a Oiapoque", saida_em: Time.zone.local(2026, 10, 7, 6, 0),
+                                      retorno_em: Time.zone.local(2026, 10, 9, 18, 0), solicitante: pedro, solicitante_nome: pedro.nome, solicitante_email: pedro.email,
+                                      rh_unidade_id: nuinfo.id, unidade_nome: "NUINFO - NÚCLEO DE INFORMÁTICA").tap { |s| s.save!(validate: false) }
+        end
+      end
+
+      def codigos = Nokogiri::HTML(response.body).css("tbody tr[id] td:first-child a").map { |link| link.text.strip }
+      def abas = Nokogiri::HTML(response.body).css("nav[aria-label='Etapas das solicitações'] [aria-current], nav[aria-label='Etapas das solicitações'] a").map { |aba| aba.text.squish }.uniq
+
+      it "ordena por quem sai primeiro (padrão) ou por quem pediu primeiro, mostrando o pedido, a saída e o tipo" do
+        get transporte_operacao_index_path
+        primeira = codigos
+        expect(response.body).to include("Pedido em", "05/10/2026 09:00", "07/10/2026 06:00", "Viagem", "Normal", "por data de saída")
+
+        get transporte_operacao_index_path, params: { ordem: "pedido" }
+
+        expect([ primeira, codigos ]).to eq([ [ viagem.codigo, solicitacao.codigo ], [ solicitacao.codigo, viagem.codigo ] ])
+        expect(response.body).to include("por data do pedido")
+        expect(abas.first).to eq("Solicitadas 2") # a ordem não é filtro: as abas continuam
+      end
+
+      it "a ordem é escolhida no cabeçalho das colunas de data: clicar ordena, clicar de novo inverte" do
+        cabecalhos = lambda do
+          Nokogiri::HTML(response.body).css("thead th[aria-sort]").map { |th| [ th.text.squish, th["aria-sort"], Rack::Utils.parse_query(URI(th.at_css("a")["href"]).query).slice("ordem", "direcao") ] }
+        end
+
+        get transporte_operacao_index_path
+        expect(cabecalhos.call).to eq([ [ "Pedido em ▲▼", "none", { "ordem" => "pedido", "direcao" => "asc" } ],
+                                        [ "Saída ▲", "ascending", { "ordem" => "saida", "direcao" => "desc" } ] ])
+        expect(Nokogiri::HTML(response.body).at_css("select[name='ordem']")).to be_nil # não fica mais junto com a busca
+
+        get transporte_operacao_index_path, params: { ordem: "saida", direcao: "desc" }
+        expect([ codigos, cabecalhos.call.last.first(2) ]).to eq([ [ solicitacao.codigo, viagem.codigo ], [ "Saída ▼", "descending" ] ])
+        expect(response.body).to include("da mais nova para a mais antiga")
+      end
+
+      it "com filtro, as abas viram uma só (Resultado), com todas as etapas e a etapa em coluna" do
+        solicitacao.update!(status: "aprovada")
+
+        get transporte_operacao_index_path, params: { q: "oliveira" }
+
+        html = Nokogiri::HTML(response.body)
+        expect(abas).to eq([ "Resultado 1" ])
+        expect(html.css("thead th").map { |th| th.text.squish.delete("▲▼").strip }).to eq([ "Código", "Resumo", "Solicitante", "Pedido em", "Saída", "Destino", "Etapa", "Ações" ])
+        expect(html.css("tbody tr td:nth-child(7)").map { |celula| celula.text.strip }).to eq([ "Aprovada" ])
+        expect(response.body).to include("1 solicitação(ões) encontrada(s), de todas as etapas")
+      end
+
+      it "filtra por tipo, unidade de quem pediu, data do pedido e data de saída" do
+        resultado = ->(filtros) { get(transporte_operacao_index_path, params: filtros) && codigos }
+
+        expect([ resultado.call(tipo: "viagem"), resultado.call(unidade_id: viagem.rh_unidade_id), resultado.call(pedido_de: "05/10/2026", pedido_ate: "05/10/2026"),
+                 resultado.call(saida_de: "08/10/2026"), resultado.call(saida_ate: "07/10/2026"), resultado.call(tipo: "normal", saida_ate: "07/10/2026") ])
+          .to eq([ [ viagem.codigo ], [ viagem.codigo ], [ viagem.codigo, solicitacao.codigo ], [ solicitacao.codigo ], [ viagem.codigo ], [] ])
+      end
+
+      it "a unidade é um campo de busca: com 3 letras filtra; se nada combina, lista em ordem alfabética" do
+        create(:rh_unidade, nome: "Assessoria Jurídica", sigla: "ASJUR")
+        opcoes = ->(termo) { get(transporte_opcoes_de_unidades_path, params: { q: termo }) && [ response.parsed_body["opcoes"].pluck("rotulo"), response.parsed_body["todas"] ] }
+
+        expect([ opcoes.call("nui"), opcoes.call("xyz"), opcoes.call("nu") ])
+          .to eq([ [ [ "NUINFO - NÚCLEO DE INFORMÁTICA" ], false ], [ [ "ASJUR - ASSESSORIA JURÍDICA", "NUINFO - NÚCLEO DE INFORMÁTICA" ], true ],
+                   [ [ "ASJUR - ASSESSORIA JURÍDICA", "NUINFO - NÚCLEO DE INFORMÁTICA" ], true ] ])
+        get transporte_operacao_index_path, params: { unidade_id: viagem.rh_unidade_id }
+        campo = Nokogiri::HTML(response.body).at_css("[data-controller='autocomplete']")
+        expect([ campo["data-autocomplete-url-value"], campo.at_css("input[role='combobox']")["value"] ]).to eq([ "/transporte/opcoes/unidades", "NUINFO - NÚCLEO DE INFORMÁTICA" ])
+      end
+
+      it "sem filtro, voltam as abas e a coluna Etapa some" do
+        get transporte_operacao_index_path, params: { q: "", tipo: "", ordem: "saida" }
+
+        expect(abas.first(2)).to eq([ "Solicitadas 2", "Aprovadas 0" ])
+        expect(Nokogiri::HTML(response.body).css("thead th").map(&:text)).not_to include("Etapa")
+      end
+    end
+
+    it "aprova e o solicitante é avisado" do
+      patch aprovar_transporte_operacao_path(solicitacao)
+
+      expect(solicitacao.reload).to have_attributes(status: "aprovada", aprovada_por: tecnico, aprovada_em: be_present)
+      expect(maria.notificacoes.last).to have_attributes(titulo: "Solicitação de transporte aprovada")
+      expect(Core::RegistroAuditoria.recentes.first).to have_attributes(evento: "solicitacao.aprovada")
+
+      patch aprovar_transporte_operacao_path(solicitacao)
+      expect(flash[:alert]).to include("ainda está como solicitada")
+    end
+
+    it "só reagenda a solicitação aprovada, com data futura, motivo e horário diferente" do
+      respostas = lambda do |parametros|
+        patch reagendar_transporte_operacao_path(solicitacao), params: parametros
+        [ response.status, Nokogiri::HTML(response.body).at_css("[data-faixa-aviso='erro']").text.squish ]
+      end
+
+      expect(respostas.call(saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção").last).to include("Só dá para reagendar uma solicitação aprovada")
+
+      solicitacao.update!(status: "aprovada")
+      get reagendamento_transporte_operacao_path(solicitacao)
+      expect(response.body).to include("Reagendar #{solicitacao.codigo}", "Saída atual: 08/10/2026 09:00", "até o solicitante aceitar ou recusar")
+      expect([ { saida_em: "04/10/2026 09:00", motivo: "Veículo em manutenção" }, { saida_em: "09/10/2026 14:30", motivo: " " },
+               { saida_em: "08/10/2026 09:00", motivo: "Nada mudou" } ].map { |parametros| respostas.call(parametros) })
+        .to eq([ [ 422, "Saída não pode estar no passado." ], [ 422, "Motivo deve ser preenchido." ], [ 422, "Mude a saída ou o retorno para reagendar." ] ])
+      expect(solicitacao.reload).to be_aprovada
+    end
+
+    it "reagendada, a solicitação espera a resposta do solicitante, que é avisado; fica no histórico" do
+      solicitacao.update!(status: "aprovada")
+
+      patch reagendar_transporte_operacao_path(solicitacao), params: { saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção" }
+
+      expect(solicitacao.reload).to have_attributes(status: "reagendada", saida_em: Time.zone.local(2026, 10, 9, 14, 30), saida_anterior_em: Time.zone.local(2026, 10, 8, 9, 0),
+                                                    motivo_reagendamento: "Veículo em manutenção", reagendada_por: tecnico)
+      expect(maria.notificacoes.last).to have_attributes(titulo: "Reagendamento aguardando a sua resposta")
+      expect(solicitacao.eventos.em_ordem.last).to have_attributes(tipo: "reagendada", ator_nome: "TECNICO DO TRANSPORTE",
+                                                                   nota: "Saída de 08/10/2026 09:00 para 09/10/2026 14:30. Motivo: Veículo em manutenção")
+
+      patch reagendar_transporte_operacao_path(solicitacao), params: { saida_em: "10/10/2026 08:00", motivo: "De novo" }
+      expect(response.body).to include("aguarda a resposta do solicitante")
+    end
+
+    it "reagenda a previsão da busca quando a solicitação está aguardando busca" do
+      solicitacao.update!(status: "busca", modo: "buscar_depois", busca_horas: 2, busca_prevista_em: Time.zone.local(2026, 10, 8, 11, 0), ultimo_aviso_de_busca_em: Time.current)
+
+      get reagendamento_transporte_operacao_path(solicitacao)
+      expect(response.body).to include("Nova previsão da busca (data e hora) *", "Busca prevista: 08/10/2026 11:00")
+
+      patch reagendar_transporte_operacao_path(solicitacao), params: { busca_em: "08/10/2026 13:30", motivo: "Reunião se estendeu" }
+      expect(solicitacao.reload).to have_attributes(busca_prevista_em: Time.zone.local(2026, 10, 8, 13, 30), ultimo_aviso_de_busca_em: nil)
+      expect(maria.notificacoes.last.titulo).to eq("Busca reagendada")
+    end
+
+    it "cancela com motivo, e a solicitação mostra o motivo" do
+      patch cancelar_transporte_operacao_path(solicitacao), params: { motivo: " " }
+      expect(response).to have_http_status(:unprocessable_content)
+
+      patch cancelar_transporte_operacao_path(solicitacao), params: { motivo: "Sem veículo disponível" }
+      expect(solicitacao.reload).to have_attributes(status: "cancelada", cancelada_por: tecnico, motivo_cancelamento: "Sem veículo disponível")
+      expect(maria.notificacoes.last.titulo).to eq("Solicitação de transporte cancelada")
+
+      ver_no_painel transporte_operacao_path(solicitacao)
+      expect(response.body).to include("Sem veículo disponível", "Cancelada", "Solicitação cancelada")
+    end
+
+    it "abre em nome de outra pessoa, inclusive fora do prazo" do
+      get new_transporte_solicitacao_para_outro_path, params: { solicitacao: { solicitante_id: maria.id } }
+      expect(response.body).to include("Solicitar transporte para outra pessoa", "Fora do prazo", 'value="MARIA OLIVEIRA"')
+
+      post transporte_solicitacao_para_outro_path, params: { solicitacao: dados.merge(solicitante_id: maria.id, saida_em: "05/10/2026 14:00") }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("está fora do prazo para pedir")
+
+      post transporte_solicitacao_para_outro_path, params: { solicitacao: dados.merge(solicitante_id: maria.id, saida_em: "05/10/2026 14:00", fora_do_padrao: "1") }
+      nova = Transporte::Solicitacao.recentes.first
+      expect(response).to redirect_to(transporte_operacao_index_path)
+      expect(nova).to have_attributes(solicitante: maria, aberto_por: tecnico, fora_do_padrao: true)
+    end
+
+    it "procura a pessoa por nome ou e-mail" do
+      maria
+
+      get pessoas_transporte_solicitacao_para_outro_path, params: { q: "maria" }
+
+      expect(response.parsed_body["opcoes"].pluck("rotulo")).to eq([ "MARIA OLIVEIRA" ])
+    end
+  end
+
+  describe "cancelamento pelo solicitante" do
+    before { sign_in maria }
+
+    it "cancela enquanto está solicitada ou aprovada, e a operação é avisada" do
+      tecnico
+      get transporte_solicitacoes_path
+      expect(response.body).to include("Cancelar solicitação")
+
+      patch cancelar_transporte_solicitacao_path(solicitacao), params: { motivo: "Reunião desmarcada" }
+
+      expect(solicitacao.reload).to have_attributes(status: "cancelada", cancelada_por: maria)
+      expect(tecnico.notificacoes.last.titulo).to eq("Solicitação de transporte cancelada pelo solicitante")
+    end
+
+    it "aceita o reagendamento: a solicitação volta a ficar aprovada com o novo horário" do
+      solicitacao.update!(status: "aprovada")
+      Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao, ator: tecnico, saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção")
+
+      get transporte_solicitacoes_path, params: { status: "reagendada" }
+      expect(response.body).to include("Responder ao reagendamento", "Reagendada")
+      ver_no_painel reagendamento_transporte_solicitacao_path(solicitacao)
+      expect(response.body).to include("Reagendamento de #{solicitacao.codigo}", "08/10/2026 09:00", "09/10/2026 14:30", "Veículo em manutenção", "TECNICO DO TRANSPORTE",
+                                       "Aceitar novo horário", "Recusar")
+
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "aceitar" }
+
+      expect(solicitacao.reload).to have_attributes(status: "aprovada", saida_em: Time.zone.local(2026, 10, 9, 14, 30), reagendamento_respondido_em: be_present)
+      expect(tecnico.notificacoes.last.titulo).to eq("Reagendamento aceito")
+      expect(solicitacao.eventos.em_ordem.pluck(:tipo)).to eq(%w[aberta reagendada reagendamento_aceito])
+    end
+
+    it "reagendar é uma vez só: aceita e aprovada de novo, a operação não reagenda outra vez" do
+      solicitacao.update!(status: "aprovada")
+      Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao, ator: tecnico, saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção")
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "aceitar" }
+
+      resultado = Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao.reload, ator: tecnico, saida_em: "10/10/2026 08:00", motivo: "De novo")
+
+      expect(resultado.mensagem_de_erro).to include("já foi reagendada uma vez")
+      sign_in tecnico
+      get transporte_operacao_index_path, params: { status: "aprovada" }
+      expect(response.body).not_to include("reagendamento")
+    end
+
+    it "recusa o reagendamento só com motivo: os horários antigos voltam e a solicitação é cancelada" do
+      solicitacao.update!(status: "aprovada")
+      Transporte::Solicitacoes::Reagendar.call(solicitacao: solicitacao, ator: tecnico, saida_em: "09/10/2026 14:30", motivo: "Veículo em manutenção")
+
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "recusar", motivo: " " }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Motivo deve ser preenchido.")
+
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "recusar", motivo: "Nesse dia não posso" }
+
+      expect(solicitacao.reload).to have_attributes(status: "cancelada", saida_em: Time.zone.local(2026, 10, 8, 9, 0), motivo_recusa_reagendamento: "Nesse dia não posso",
+                                                    cancelada_por: maria, motivo_cancelamento: "Reagendamento recusado pelo solicitante: Nesse dia não posso")
+      expect(tecnico.notificacoes.last).to have_attributes(titulo: "Reagendamento recusado")
+      expect(solicitacao.eventos.em_ordem.last).to have_attributes(
+        tipo: "reagendamento_recusado", ator_nome: "MARIA OLIVEIRA",
+        nota: "Saída original: 08/10/2026 09:00; saída proposta e recusada: 09/10/2026 14:30. Motivo: Nesse dia não posso. A solicitação foi cancelada."
+      )
+    end
+
+    it "só o solicitante responde, e só enquanto está reagendada" do
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "aceitar" }
+      expect(response.body).to include("Não há reagendamento aguardando resposta")
+
+      sign_in tecnico
+      patch responder_reagendamento_transporte_solicitacao_path(solicitacao), params: { resposta: "aceitar" }
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "depois que o serviço começou, só a operação cancela" do
+      solicitacao.update!(status: "em_servico")
+
+      patch cancelar_transporte_solicitacao_path(solicitacao), params: { motivo: "Desisti" }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("só o setor de transporte pode cancelar agora")
+    end
+  end
+end

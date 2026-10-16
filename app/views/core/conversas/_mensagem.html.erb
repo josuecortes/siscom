@@ -1,0 +1,18 @@
+<%# Uma mensagem (balões de chat-launcher.tsx). A mesma marcação vai para todos por Turbo Streams; o
+    Stimulus `conversa` marca as do próprio usuário (data-minha), que ficam à direita e na cor de destaque. %>
+<% if mensagem.do_sistema? %>
+  <li id="<%= dom_id(mensagem) %>">
+    <div class="max-w-[85%] rounded-2xl bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+      <p class="whitespace-pre-wrap break-words"><%= mensagem.corpo %></p>
+      <p class="mt-2 text-[11px] text-[var(--text-muted)]"><time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time></p>
+    </div>
+  </li>
+<% else %>
+  <li id="<%= dom_id(mensagem) %>" data-autor-id="<%= mensagem.autor_id %>" class="group flex justify-start data-[minha]:justify-end">
+    <div class="max-w-[85%] rounded-2xl bg-[var(--surface-panel)] px-4 py-3 text-sm text-[var(--text-primary)] group-data-[minha]:bg-[var(--accent-soft)]">
+      <p class="mb-1 text-xs font-semibold text-[var(--text-muted)]"><%= mensagem.autor_nome %></p>
+      <p class="whitespace-pre-wrap break-words"><%= mensagem.corpo %></p>
+      <p class="mt-2 text-[11px] text-[var(--text-muted)]"><time datetime="<%= mensagem.created_at.iso8601 %>"><%= l(mensagem.created_at, format: "%d/%m/%Y %H:%M") %></time></p>
+    </div>
+  </li>
+<% end %>

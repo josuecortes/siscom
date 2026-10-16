@@ -1,0 +1,24 @@
+<% novo = @veiculo.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_veiculo", rotulo: (novo ? "Cadastrar veículo" : "Salvar veículo") } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (novo ? "Novo veículo" : "Editar veículo"), titulo: (novo ? "Cadastrar veículo" : "Atualizar veículo"),
+                voltar: transporte_veiculos_path, rodape: rodape } do %>
+  <%= form_with model: @veiculo, scope: :veiculo, url: (novo ? transporte_veiculos_path : transporte_veiculo_path(@veiculo)), id: "formulario_veiculo", class: "space-y-5" do |f| %>
+    <% if @veiculo.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: "Revise os campos destacados e tente novamente." %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :placa, rotulo: "Placa *", html: { required: true, maxlength: 8, placeholder: "ABC1D23", autocomplete: "off" } %>
+    <%= render "compartilhado/campo", f: f, campo: :marca, rotulo: "Marca *", html: { required: true, maxlength: 60 } %>
+    <%= render "compartilhado/campo", f: f, campo: :modelo, rotulo: "Modelo *", html: { required: true, maxlength: 60 } %>
+    <%= render "compartilhado/campo", f: f, campo: :ano, rotulo: "Ano *", tipo: :number, html: { required: true, min: 1950, max: Date.current.year + 1 } %>
+    <%= render "compartilhado/campo", f: f, campo: :cor, rotulo: "Cor *", html: { required: true, maxlength: 60 } %>
+    <%= render "compartilhado/campo", f: f, campo: :capacidade, rotulo: "Capacidade de passageiros *", tipo: :number, html: { required: true, min: 1 } %>
+    <%= render "compartilhado/campo", f: f, campo: :combustivel, rotulo: "Combustível *", tipo: :select, opcoes: [ [ "Selecione", "" ] ] + Transporte::Veiculo::COMBUSTIVEIS.invert.to_a, html: { required: true } %>
+    <%= render "compartilhado/campo", f: f, campo: :consumo_km_por_litro, rotulo: "Consumo (km por litro) *", tipo: :number, html: { required: true, min: 0.1, step: 0.1 } %>
+    <%= render "compartilhado/campo", f: f, campo: :odometro_atual, rotulo: "Odômetro atual (km) *", tipo: :number, html: { required: true, min: 0, step: 1 } %>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

@@ -1,0 +1,9 @@
+<% content_for :title, "Solicitações" %>
+<% solicitacoes = @item.problemas.joins(:categoria).includes(:categoria).order("ti_categorias.nome", :nome) %>
+<%= render "ti/vinculos/painel",
+      sobretitulo: "Solicitações", titulo: "Gerenciar solicitações de #{@item.nome}", voltar: @volta, erro: @erro, aviso: @aviso,
+      descricao: Ti::SolicitacoesDoItemController::TEXTOS.dig(@tipo, :ajuda),
+      adicionar: { url: @caminho, campo: "problema_id", rotulo: "Adicionar solicitação",
+                   opcoes: ti_opcoes_de_solicitacoes_path(tipo: @tipo, id: @item.id), vazio: "Todas as solicitações ativas já estão aqui." },
+      remover_url: @caminho, total: solicitacoes.size, rotulo_lista: "Solicitações", vazio: "Nenhuma solicitação ainda. Procure acima a que vai entrar.",
+      itens: solicitacoes.map { |s| { titulo: s.nome, detalhe: "#{s.categoria.nome}#{' · inativa' if s.inativo?}", remover: { problema_id: s.id } } } %>

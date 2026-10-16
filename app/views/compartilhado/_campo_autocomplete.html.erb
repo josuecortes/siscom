@@ -1,0 +1,33 @@
+<%# Campo de busca com sugestões (autocomplete), para listas grandes (mais de 8 opções) ou quando
+    se quer procurar digitando. A partir de 3 letras filtra; se nada combinar, mostra a lista completa.
+    locals: nome (name do campo oculto, ex.: "lotacao[unidade_id]"), id, rotulo,
+            url (endpoint JSON) OU opcoes (lista fixa [{ valor:, rotulo: }], filtrada no navegador),
+            acao (data-action extra no campo oculto, ex.: "change->filtro#aplicar"),
+            flutuante (bool: a lista abre por cima do conteúdo, para filtros; padrão: abre embaixo, empurrando),
+            valor (id atual), texto (rótulo atual), erros ([] de mensagens), obrigatorio (bool),
+            placeholder, ajuda (texto pequeno embaixo do campo), vazio (texto quando não há nada cadastrado). %>
+<% erros = Array(local_assigns[:erros]) %>
+<% lista = "#{id}_lista" %>
+<div class="space-y-1.5" data-controller="autocomplete" data-autocomplete-url-value="<%= local_assigns[:url] %>"
+     data-autocomplete-opcoes-value="<%= Array(local_assigns[:opcoes]).to_json %>"
+     data-autocomplete-vazio-value="<%= local_assigns.fetch(:vazio, "Nada cadastrado.") %>">
+  <label for="<%= id %>" class="text-sm font-medium text-[var(--text-secondary)]"><%= rotulo %></label>
+  <%= hidden_field_tag nome, local_assigns[:valor], id: "#{id}_valor", data: { autocomplete_target: "valor", action: local_assigns[:acao] }.compact %>
+  <div class="<%= "relative" if local_assigns[:flutuante] %>">
+    <%= text_field_tag nil, local_assigns[:texto], id: id, autocomplete: "off", role: "combobox", required: local_assigns[:obrigatorio],
+          placeholder: local_assigns.fetch(:placeholder, "Digite sua pesquisa"),
+          aria: { autocomplete: "list", expanded: "false", controls: lista, invalid: (erros.any? ? "true" : nil) },
+          data: { autocomplete_target: "texto", action: "input->autocomplete#digitar focus->autocomplete#abrir keydown->autocomplete#teclar" },
+          class: [ "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]",
+                   (erros.any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]") ] %>
+    <%# tabindex -1: o Chrome põe áreas com rolagem na ordem do Tab; aqui a lista é percorrida com as setas. %>
+    <div id="<%= lista %>" role="listbox" tabindex="-1" hidden data-autocomplete-target="lista" aria-label="Sugestões para <%= rotulo.delete("*").strip %>"
+         class="mt-2 max-h-64 overflow-y-auto overflow-x-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] <%= "absolute inset-x-0 top-full z-20 shadow-[var(--shadow-card-strong)]" if local_assigns[:flutuante] %>"></div>
+  </div>
+  <% if local_assigns[:ajuda].present? %>
+    <p class="text-xs text-[var(--text-muted)]"><%= ajuda %></p>
+  <% end %>
+  <% erros.each do |mensagem| %>
+    <p class="text-sm text-[var(--danger-text)]"><%= rotulo.delete("*").strip %> <%= mensagem %></p>
+  <% end %>
+</div>

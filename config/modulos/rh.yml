@@ -1,0 +1,47 @@
+# Catálogo do módulo RH (aprovado pelo Josue em 2026-10-03).
+nome: "RH"
+icone: "people"
+
+permissoes:
+  pessoas.ver: "Ver pessoas"
+  pessoas.gerenciar: "Cadastrar e editar pessoas"
+  unidades.ver: "Ver unidades"
+  unidades.gerenciar: "Cadastrar e editar unidades"
+  lotacoes.ver: "Ver lotações"
+  lotacoes.gerenciar: "Lotar pessoas e encerrar lotações"
+  tabelas.gerenciar: "Gerenciar tabelas de referência (vínculos, cargos, funções, tipos)"
+  permissoes.conceder: "Conceder permissões no RH"
+  pendencias.ver: "Ver e resolver pendências de importação"
+  auditoria.ver: "Ver auditoria do RH"
+  minha_ficha.ver: "Ver a própria ficha"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  operador:
+    nome: "Operador"
+    permissoes: [pessoas.ver, pessoas.gerenciar, unidades.ver, unidades.gerenciar, lotacoes.ver, lotacoes.gerenciar, pendencias.ver, minha_ficha.ver]
+  leitor:
+    nome: "Leitor"
+    permissoes: [pessoas.ver, unidades.ver, lotacoes.ver, minha_ficha.ver]
+  usuario:
+    nome: "Usuário"
+    permissoes: [minha_ficha.ver]
+    automatico: true
+
+concessao:
+  admin: [admin, operador, leitor]
+
+menu:
+  - { rotulo: "Minha ficha", rota: rh_minha_ficha_path, permissao: minha_ficha.ver, icone: description, minha_area: true }
+  - { rotulo: "Pessoas", rota: rh_pessoas_path, permissao: pessoas.ver, icone: people }
+  - { rotulo: "Unidades", rota: rh_unidades_path, permissao: unidades.ver, icone: sitemap }
+  - { rotulo: "Lotações", rota: rh_lotacoes_path, permissao: lotacoes.ver, icone: briefcase }
+  - { rotulo: "Vínculos", rota: rh_tipos_vinculo_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Cargos", rota: rh_cargos_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Funções de lotação", rota: rh_funcoes_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Tipos de unidade", rota: rh_tipos_unidade_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Locais físicos", rota: rh_tipos_local_path, permissao: tabelas.gerenciar, icone: list-rich, grupo: "Referências" }
+  - { rotulo: "Permissões", rota: rh_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }
+  - { rotulo: "Pendências", rota: rh_pendencias_path, permissao: pendencias.ver, icone: task }

@@ -1,41 +1,79 @@
-<p class="login-box-msg">Faça o login para iniciar sua sessão</p>
+<% content_for :title, "Entrar" %>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="input-group mb-3">
-    <%= f.email_field :email, autofocus: true, autocomplete: "E-mail", class: "form-control", required: true %>
-    <div class="input-group-append">
-      <div class="input-group-text">
-        <span class="fas fa-envelope"></span>
+<%# Porta de platform-login-hero.tsx + platform-login-form.tsx. O seed tem um bloco para o celular
+    e outro para o desktop; aqui é um bloco só, com as diferenças entre eles nas classes md:. %>
+<div class="flex min-h-screen w-full flex-col bg-[var(--surface-card)] md:min-h-0 md:max-w-[760px] md:overflow-hidden md:rounded-[28px] md:border md:border-[var(--border-subtle)] md:shadow-[var(--shadow-panel)]">
+  <div class="h-1 w-full bg-[var(--system-accent-strong)]"></div>
+
+  <section class="w-full px-6 py-8 md:px-10 md:py-10 lg:px-12 lg:py-11">
+    <div class="flex items-center gap-3 md:mx-auto md:w-full md:max-w-[38rem]">
+      <% marca = configuracao_do_sistema %>
+      <% if marca.mostrar_icone_marca_celular %><span class="md:hidden" data-login-icone="celular"><%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %></span><% end %>
+      <% if marca.mostrar_icone_marca_web %><span class="hidden md:inline" data-login-icone="web"><%= render "layouts/compartilhado/marca", classe: "h-11 w-11 rounded-xl" %></span><% end %>
+      <div class="min-w-0">
+        <% if marca.mostrar_nome_marca_celular %><p class="text-[1.1rem] font-semibold text-[var(--text-primary)] md:hidden"><%= marca.nome_marca_celular %></p><% end %>
+        <% if marca.mostrar_nome_marca_web %><p class="hidden text-[1.1rem] font-semibold text-[var(--text-primary)] md:block"><%= marca.nome_marca_web %></p><% end %>
+        <% if marca.mostrar_titulo_login %>
+          <p data-login-titulo class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)] md:tracking-[0.18em]"><%= marca.titulo_login %></p>
+        <% end %>
       </div>
     </div>
-  </div>
 
-  <div class="input-group mb-3">
-    <%= f.password_field :password, autocomplete: "Senha atual", class: "form-control", required: true %>
-    <div class="input-group-append">
-      <div class="input-group-text">
-        <span class="fas fa-lock"></span>
-      </div>
-    </div>
-  </div>
+    <div class="mt-8 w-full md:flex md:justify-center">
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "w-full space-y-5 md:max-w-[38rem]", data: { turbo: true } }) do |f| %>
+        <div class="space-y-2">
+          <h1 class="text-[2.35rem] font-semibold tracking-[-0.03em] text-[var(--text-primary)]">Entrar</h1>
+          <p class="text-base text-[var(--text-secondary)]">Use seu e-mail e senha para acessar o SISCOM.</p>
+        </div>
 
-  <div class="row">
-    <div class="col-8">
-      <% if devise_mapping.rememberable? %>
-        <div class="icheck-primary">
-          <input type="checkbox" name="user[remember_me]" id="user_remember_me">
-          <label for="user_remember_me">
-            Lembrar
+        <% if alert.present? %>
+          <div role="alert" class="rounded-md border border-[var(--danger-border)] bg-[var(--danger-surface)] px-4 py-3 text-sm text-[var(--danger-text)]"><%= alert %></div>
+        <% elsif notice.present? %>
+          <div role="status" class="rounded-md border border-[#bfdbfe] bg-[#eff6ff] px-4 py-3 text-sm text-[#1d4ed8]"><%= notice %></div>
+        <% end %>
+
+        <div class="space-y-1.5">
+          <%= f.label :email, "E-mail", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+          <div class="flex h-12 items-center overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] focus-within:border-[var(--accent-strong)] focus-within:ring-2 focus-within:ring-[var(--accent-soft)]">
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true,
+                  placeholder: "voce@seed.ap.gov.br",
+                  class: "h-full w-full bg-transparent px-4 text-base outline-none placeholder:text-[var(--text-muted)]" %>
+          </div>
+        </div>
+
+        <div class="space-y-1.5" data-controller="mostrar-senha">
+          <%= f.label :password, "Senha", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+          <div class="flex h-12 items-center overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] focus-within:border-[var(--accent-strong)] focus-within:ring-2 focus-within:ring-[var(--accent-soft)]">
+            <%= f.password_field :password, autocomplete: "current-password", required: true,
+                  placeholder: "Sua senha", data: { mostrar_senha_target: "campo" },
+                  class: "h-full w-full bg-transparent px-4 text-base outline-none placeholder:text-[var(--text-muted)]" %>
+            <button type="button" data-action="mostrar-senha#alternar" data-mostrar-senha-target="botao"
+                    class="inline-flex h-full w-12 shrink-0 items-center justify-center border-l border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                    aria-label="Visualizar senha" title="Visualizar senha">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M1.5 12s3.8-6 10.5-6 10.5 6 10.5 6-3.8 6-10.5 6S1.5 12 1.5 12Z" />
+                <circle cx="12" cy="12" r="3.2" />
+                <path data-mostrar-senha-target="risco" class="hidden" d="M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <label class="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+            <%= f.check_box :remember_me, class: "h-4 w-4 rounded border border-[var(--border-subtle)] text-[var(--accent-strong)]" %>
+            <span>Lembrar de mim</span>
           </label>
+        <% end %>
+
+        <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+          <%= f.button type: "submit", data: { turbo_submits_with: "Entrando..." },
+                class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" do %>
+            Entrar
+          <% end %>
+          <p class="text-sm text-[var(--text-secondary)]">Acesso restrito a servidores da SEED.</p>
         </div>
       <% end %>
     </div>
-
-    <div class="col-4">
-      <%= f.submit "Entrar", class: "btn btn-primary btn-block" %>
-    </div>
-  </div>
-
-<% end %>
-
-<% render "devise/shared/links" %>
+  </section>
+</div>

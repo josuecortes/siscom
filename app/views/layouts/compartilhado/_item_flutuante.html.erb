@@ -1,0 +1,28 @@
+<%# Um item do painel flutuante do menu recolhido (porta de CollapsedFlyoutItem de admin-shell.tsx):
+    link simples, ou subgrupo (rótulo + filhos recuados). locals: item, nivel %>
+<% ativo = item_menu_ativo?(item) %>
+<% if item[:filhos] %>
+  <div class="space-y-1.5 <%= "ml-4" if nivel.positive? %>">
+    <div class="flex items-center gap-3 rounded-lg border px-3 py-2 <%= ativo ? "border-white/10 bg-[var(--surface-subtle)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)]" %>">
+      <span class="flex h-4 w-4 shrink-0 items-center justify-center <%= ativo ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]" %>">
+        <%= icone(item[:icone], classe: "h-full w-full") %>
+      </span>
+      <span class="text-sm font-medium"><%= item[:rotulo] %></span>
+    </div>
+    <%= render partial: "layouts/compartilhado/item_flutuante", collection: item[:filhos], as: :item, locals: { nivel: nivel + 1 } %>
+  </div>
+<% else %>
+  <%= link_to item[:caminho],
+        aria: { current: (ativo ? "page" : nil) },
+        class: [
+          "flex items-center gap-3 rounded-lg border px-3 py-2 transition",
+          ("ml-4" if nivel.positive?),
+          (ativo ? "border-[var(--shell-sidebar-active-border)] bg-[var(--shell-sidebar-active)] text-white shadow-[inset_3px_0_0_var(--system-accent-strong)]"
+                 : "border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]")
+        ] do %>
+    <span class="flex h-4 w-4 shrink-0 items-center justify-center <%= ativo ? "text-white" : "text-[var(--text-muted)]" %>">
+      <%= icone(item[:icone], classe: "h-full w-full") %>
+    </span>
+    <span class="text-sm font-medium"><%= item[:rotulo] %></span>
+  <% end %>
+<% end %>

@@ -1,0 +1,53 @@
+<title><%= content_for?(:title) ? "#{yield(:title)} · #{nome_do_sistema}" : nome_do_sistema %></title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<%# App instalável (PWA) %>
+<link rel="manifest" href="<%= pwa_manifest_path(format: :json) %>">
+<meta name="theme-color" content="#232a38">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="<%= nome_do_sistema %>">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="application-name" content="<%= nome_do_sistema %>">
+<meta name="turbo-refresh-method" content="morph">
+<meta name="turbo-refresh-scroll" content="preserve">
+<%= csrf_meta_tags %>
+<% if user_signed_in? %>
+  <%# Formulário aberto por muito tempo: sessao.js confere a sessão antes de enviar e não perde o que foi preenchido. %>
+  <meta name="sessao-pulso" content="<%= pulso_da_sessao_path %>">
+  <meta name="sessao-login" content="<%= new_user_session_path %>">
+<% end %>
+<%= csp_meta_tag %>
+
+<%# Aplica tema e estado do menu antes da pintura para evitar piscar. %>
+<%= javascript_tag nonce: true do %>
+  (function () {
+    var raiz = document.documentElement;
+    if (raiz.dataset.temaFixo) return;
+    try {
+      var tema = localStorage.getItem("siscom-tema");
+      if (tema !== "light" && tema !== "dark") {
+        tema = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      raiz.dataset.theme = tema;
+      if (localStorage.getItem("siscom-menu") === "recolhido") raiz.dataset.menu = "recolhido";
+    } catch (e) {
+      raiz.dataset.theme = "light";
+    }
+  })();
+<% end %>
+
+<%= yield :head %>
+
+<% if configuracao_do_sistema.favicon.attached? %>
+  <link rel="icon" href="<%= favicon_do_sistema %>">
+<% else %>
+  <%# Favicon padrão: a marca do siscom, nos tamanhos que os navegadores pedem. %>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<% end %>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag "leaflet", "data-turbo-track": "reload" %>
+<%= javascript_importmap_tags %>

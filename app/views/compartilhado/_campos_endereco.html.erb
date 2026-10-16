@@ -1,0 +1,45 @@
+<%# Endereço preenchido pelo CEP: digita-se o CEP, o sistema preenche rua, bairro, cidade e UF,
+    e falta só o número (e o complemento). Os campos continuam editáveis.
+    locals: prefixo (name, ex.: "unidade[dados_escola]"), id (prefixo dos ids), endereco (objeto ou hash
+            com cep, logradouro, numero, complemento, bairro, cidade, uf). %>
+<% valor = ->(campo) { endereco.respond_to?(campo) ? endereco.public_send(campo) : endereco[campo] } %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<div class="space-y-4" data-controller="cep" data-cep-url-value="<%= cep_path("00000000") %>">
+  <div class="space-y-1.5">
+    <label for="<%= id %>_cep" class="block <%= rotulo %>">CEP</label>
+    <%= text_field_tag "#{prefixo}[cep]", valor.call(:cep), id: "#{id}_cep", placeholder: "00000-000", inputmode: "numeric", maxlength: 9, autocomplete: "postal-code",
+          data: { cep_target: "cep", action: "input->cep#digitar" }, class: "#{campo} sm:max-w-[12rem]" %>
+    <p class="text-xs text-[var(--text-muted)]" data-cep-target="situacao" aria-live="polite">Digite o CEP para preencher o endereço.</p>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-[1fr_8rem]">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_logradouro" class="<%= rotulo %>">Rua, avenida…</label>
+      <%= text_field_tag "#{prefixo}[logradouro]", valor.call(:logradouro), id: "#{id}_logradouro", maxlength: 200, autocomplete: "address-line1", data: { cep_target: "logradouro" }, class: campo %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_numero" class="<%= rotulo %>">Número</label>
+      <%= text_field_tag "#{prefixo}[numero]", valor.call(:numero), id: "#{id}_numero", maxlength: 20, data: { cep_target: "numero" }, class: campo %>
+    </div>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_complemento" class="<%= rotulo %>">Complemento</label>
+      <%= text_field_tag "#{prefixo}[complemento]", valor.call(:complemento), id: "#{id}_complemento", maxlength: 100, class: campo %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_bairro" class="<%= rotulo %>">Bairro</label>
+      <%= text_field_tag "#{prefixo}[bairro]", valor.call(:bairro), id: "#{id}_bairro", maxlength: 100, data: { cep_target: "bairro" }, class: campo %>
+    </div>
+  </div>
+  <div class="grid gap-4 sm:grid-cols-[1fr_6rem]">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_cidade" class="<%= rotulo %>">Cidade</label>
+      <%= text_field_tag "#{prefixo}[cidade]", valor.call(:cidade), id: "#{id}_cidade", maxlength: 100, data: { cep_target: "cidade" }, class: campo %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_uf" class="<%= rotulo %>">UF</label>
+      <%= text_field_tag "#{prefixo}[uf]", valor.call(:uf), id: "#{id}_uf", maxlength: 2, data: { cep_target: "uf" }, class: "#{campo} uppercase" %>
+    </div>
+  </div>
+</div>

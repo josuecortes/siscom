@@ -1,0 +1,40 @@
+# Catálogo do módulo Equipamentos (porta da área de equipamentos do siscom antigo, mais empréstimo/cautela).
+# Decisões do Josue em 2026-10-06: permissões próprias (antes era o técnico de TI); o administrador vê todas as
+# unidades; o gestor vê, cadastra, movimenta e empresta só os equipamentos das unidades em que está lotado;
+# todo usuário recebe equipamento e recebe/devolve empréstimo. Os papéis são concedidos um a um.
+nome: "Equipamentos"
+icone: "briefcase"
+
+permissoes:
+  itens.ver: "Ver os equipamentos (o gestor, só os das suas unidades)"
+  itens.ver_todas_unidades: "Ver e agir sobre os equipamentos de todas as unidades"
+  itens.gerenciar: "Cadastrar e editar equipamentos"
+  movimentacoes.criar: "Movimentar equipamentos para outra unidade"
+  emprestimos.criar: "Emprestar ou cautelar equipamentos"
+  recebimentos.administrar: "Dar recebido em nome de outra pessoa (fica registrado)"
+  historico.ver: "Pesquisar o histórico dos equipamentos"
+  receber: "Receber equipamentos e receber ou devolver empréstimos e cautelas"
+  permissoes.conceder: "Conceder permissões em Equipamentos"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  gestor:
+    nome: "Gestor de equipamentos"
+    permissoes: [itens.ver, itens.gerenciar, movimentacoes.criar, emprestimos.criar, historico.ver, receber]
+  usuario:
+    nome: "Usuário"
+    permissoes: [receber]
+    automatico: true
+
+concessao:
+  admin: [admin, gestor]
+
+menu:
+  - { rotulo: "Meus equipamentos", rota: equipamentos_recebimentos_path, permissao: receber, icone: briefcase, minha_area: true }
+  - { rotulo: "Equipamentos", rota: equipamentos_itens_path, permissao: itens.ver, icone: briefcase }
+  - { rotulo: "Movimentações", rota: equipamentos_movimentacoes_path, permissao: movimentacoes.criar, icone: send }
+  - { rotulo: "Empréstimos e cautelas", rota: equipamentos_emprestimos_path, permissao: emprestimos.criar, icone: clock }
+  - { rotulo: "Histórico", rota: equipamentos_historico_path, permissao: historico.ver, icone: list-rich }
+  - { rotulo: "Permissões", rota: equipamentos_permissoes_path, permissao: permissoes.conceder, icone: shield-alt }

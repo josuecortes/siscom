@@ -1,0 +1,74 @@
+<% content_for :title, "Pendências" %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)]" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Pendências", icone: :task, migalha: [ "RH", rh_pendencias_path ] } do %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: rh_pendencias_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "pendencias_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid gap-4 lg:grid-cols-[1.2fr_0.7fr_auto] lg:items-end">
+      <div class="space-y-1.5">
+        <%= f.label :q, "Buscar por nome, e-mail ou CPF", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: Maria Oliveira", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <%= f.label :tipo, "Tipo de pendência", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <%= f.select :tipo, Rh::PendenciaImportacao::TIPOS.map { |chave, texto| [ "#{texto} (#{@totais.fetch(chave, 0)})", chave ] },
+              { include_blank: "Todas (#{@totais.values.sum})", selected: @filtros[:tipo] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Filtrar pendências" aria-label="Filtrar pendências"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to rh_pendencias_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "pendencias_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} pendência(s) em aberto. Corrigir o dado na ficha da pessoa resolve a pendência sozinha." %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[980px]">
+        <thead>
+          <tr>
+            <th scope="col">Pessoa</th>
+            <th scope="col">Pendência</th>
+            <th scope="col">Detalhe</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pendencias.each do |pendencia| %>
+            <tr id="<%= dom_id(pendencia) %>">
+              <td>
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= pendencia.pessoa.nome %></p>
+                <p class="text-sm text-[var(--text-secondary)]"><%= pendencia.pessoa.email %></p>
+              </td>
+              <td><%= render "compartilhado/selo", texto: pendencia.rotulo, tom: :atencao %></td>
+              <td><%= pendencia.descricao %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(pendencia.pessoa), quadro: "painel", desabilitado: !pode?("rh.pessoas.ver") %>
+                  <%= render "compartilhado/botao_acao", titulo: "Marcar como resolvida", icone: :check_circle, caminho: resolver_rh_pendencia_path(pendencia, request.query_parameters), metodo: :patch,
+                        confirmar: { mensagem: "Confirme que a pendência \"#{pendencia.rotulo}\" de #{pendencia.pessoa.nome} não precisa mais de correção.", rotulo: "Marcar como resolvida", tom: "primario" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @pendencias.empty? %>
+            <tr><td colspan="4" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma pendência em aberto para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "pendencias_lista" %>
+  <% end %>
+</section>

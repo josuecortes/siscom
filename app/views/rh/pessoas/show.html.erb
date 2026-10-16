@@ -1,0 +1,6 @@
+<% content_for :title, @pessoa.nome %>
+<%# Ficha da pessoa no painel (só leitura): editar e lotar ficam na linha da lista. %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Ficha da pessoa", titulo: @pessoa.nome, voltar: rh_pessoas_path, largo: true, rodape: render("compartilhado/rodape_fechar") } do %>
+  <%= render "ficha", pessoa: @pessoa, lotacoes: @lotacoes, pendencias: @pendencias, no_painel: true %>
+<% end %>

@@ -1,0 +1,73 @@
+<% content_for :title, "Grupos técnicos" %>
+<% nomes_dos_papeis = Core::Api.modulo(:ti).papeis.transform_values(&:nome) %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Grupos técnicos", icone: :group, migalha: [ "TI", ti_grupos_tecnicos_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Novo grupo", icone: :plus, caminho: new_ti_grupo_tecnico_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)]" %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "ti/tecnicos_dos_grupos/abas", atual: "tecnicos" %>
+  <%= form_with url: ti_tecnicos_dos_grupos_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "tecnicos_dos_grupos_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid grid-cols-[1fr_auto] items-end gap-2 lg:gap-4">
+      <div class="min-w-0 space-y-1.5">
+        <%= f.label :q, "Buscar técnico por nome ou e-mail", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @busca, placeholder: "Ex.: joão ou joao@seed.ap.gov.br", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Buscar técnicos" aria-label="Buscar técnicos"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to ti_tecnicos_dos_grupos_path, title: "Limpar busca", aria: { label: "Limpar busca" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "tecnicos_dos_grupos_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: (@busca.present? ? "#{@pagy.count} pessoa(s) encontrada(s). Só aparece quem tem permissão na TI (ou já está em grupo)." : "#{@pagy.count} pessoa(s) em algum grupo técnico. Busque pelo nome para ver também quem tem permissão na TI e ainda não está em grupo.") %>
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[760px]">
+        <thead>
+          <tr>
+            <th scope="col">Usuário</th>
+            <th scope="col">Permissão na TI</th>
+            <th scope="col">Grupos técnicos</th>
+            <th scope="col" class="!pl-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @usuarios.each do |usuario| %>
+            <% grupos = @grupos_por_usuario.fetch(usuario.id, []) %>
+            <% papeis = @papeis.fetch(usuario.id, []) %>
+            <tr id="<%= dom_id(usuario, :grupos) %>">
+              <td class="!whitespace-normal">
+                <p class="font-semibold text-[var(--text-primary)]"><%= usuario.nome %></p>
+                <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= usuario.email %></p>
+              </td>
+              <td class="!whitespace-normal text-sm text-[var(--text-secondary)]">
+                <%= papeis.any? ? papeis.map { |papel| nomes_dos_papeis.fetch(papel, papel) }.join(", ") : "Sem permissão na TI" %>
+              </td>
+              <td class="!whitespace-normal">
+                <p class="text-sm text-[var(--text-primary)]"><%= grupos.size.zero? ? "Nenhum" : "#{grupos.size} grupo(s)" %></p>
+                <% if grupos.any? %><p class="mt-1 text-xs text-[var(--text-muted)]"><%= truncate(grupos.join(", "), length: 140) %></p><% end %>
+              </td>
+              <td class="!pl-2 !pr-4">
+                <%= render "compartilhado/botao_acao", titulo: "Gerenciar grupos de #{usuario.nome}", icone: :group, caminho: edit_ti_tecnico_dos_grupos_path(usuario, q: @busca.presence), quadro: "painel" %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @usuarios.empty? %>
+            <tr><td colspan="4" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= @busca.present? ? "Ninguém com permissão na TI encontrado para a busca." : "Ninguém está em grupo técnico ainda. Busque o técnico pelo nome." %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "tecnicos_dos_grupos_lista" %>
+  <% end %>
+</section>

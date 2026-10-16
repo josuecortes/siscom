@@ -1,0 +1,63 @@
+<%# Um destino: endereço pelo CEP ou pelo mapa (os dois controllers trabalham juntos nos mesmos campos).
+    locals: destino, indice (número ou "NOVO" no modelo) %>
+<% nome = "solicitacao[destinos][#{indice}]" %>
+<% id = "destino_#{indice}" %>
+<% borda = ->(campo) { destino.errors[campo].any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<div data-lista-target="item" class="space-y-4 rounded-xl border border-[var(--border-subtle)] p-3"
+     data-controller="cep mapa" data-cep-url-value="<%= cep_path("00000000") %>" data-action="cep:preenchido->mapa#localizar"
+     data-mapa-tiles-value="<%= mapa_tile_path(z: 1, x: 2, y: 3).sub("1/2/3", "{z}/{x}/{y}") %>"
+     data-mapa-reverso-value="<%= mapa_reverso_path %>" data-mapa-busca-value="<%= mapa_buscar_path %>">
+  <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_nome" class="<%= rotulo %>">Nome do destino *</label>
+      <%= text_field_tag "#{nome}[nome]", destino.nome, id: "#{id}_nome", maxlength: 200, placeholder: "Ex.: Secretaria de Administração", autocomplete: "off", class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:nome)}" %>
+    </div>
+    <button type="button" data-action="lista#remover" title="Remover destino" aria-label="Remover destino"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--danger-border-strong)] hover:text-[var(--danger-text)]"><%= icone(:trash) %></button>
+  </div>
+
+  <div class="grid gap-3 sm:grid-cols-[10rem_1fr_7rem]">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_cep" class="<%= rotulo %>">CEP</label>
+      <%= text_field_tag "#{nome}[cep]", destino.cep, id: "#{id}_cep", placeholder: "00000-000", inputmode: "numeric", maxlength: 9, autocomplete: "off",
+            data: { cep_target: "cep", mapa_target: "cep", action: "input->cep#digitar" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:cep)}" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_logradouro" class="<%= rotulo %>">Rua, avenida… *</label>
+      <%= text_field_tag "#{nome}[logradouro]", destino.logradouro, id: "#{id}_logradouro", maxlength: 200, autocomplete: "off",
+            data: { cep_target: "logradouro", mapa_target: "logradouro" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:logradouro)}" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_numero" class="<%= rotulo %>">Número *</label>
+      <%= text_field_tag "#{nome}[numero]", destino.numero, id: "#{id}_numero", maxlength: 20, placeholder: "ou S/N", autocomplete: "off",
+            data: { cep_target: "numero", mapa_target: "numero", action: "change->mapa#localizar" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:numero)}" %>
+    </div>
+  </div>
+  <div class="grid gap-3 sm:grid-cols-[1fr_1fr_5rem]">
+    <div class="space-y-1.5">
+      <label for="<%= id %>_bairro" class="<%= rotulo %>">Bairro *</label>
+      <%= text_field_tag "#{nome}[bairro]", destino.bairro, id: "#{id}_bairro", maxlength: 100, autocomplete: "off", data: { cep_target: "bairro", mapa_target: "bairro" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:bairro)}" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_cidade" class="<%= rotulo %>">Cidade *</label>
+      <%= text_field_tag "#{nome}[cidade]", destino.cidade, id: "#{id}_cidade", maxlength: 100, autocomplete: "off", data: { cep_target: "cidade", mapa_target: "cidade" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:cidade)}" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="<%= id %>_uf" class="<%= rotulo %>">UF *</label>
+      <%= text_field_tag "#{nome}[uf]", destino.uf, id: "#{id}_uf", maxlength: 2, autocomplete: "off", data: { cep_target: "uf", mapa_target: "uf" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] uppercase #{borda.call(:uf)}" %>
+    </div>
+  </div>
+  <p class="text-xs text-[var(--text-muted)]" data-cep-target="situacao" aria-live="polite">Digite o CEP para preencher o endereço, ou clique no mapa para marcar o destino.</p>
+  <% nomes = { nome: "Nome do destino", cep: "CEP", logradouro: "Rua", numero: "Número", bairro: "Bairro", cidade: "Cidade", uf: "UF", latitude: "Ponto do mapa", longitude: "Ponto do mapa" } %>
+  <% destino.errors.each do |erro| %>
+    <p class="text-sm text-[var(--danger-text)]"><%= nomes[erro.attribute] || erro.attribute %> <%= erro.message %></p>
+  <% end %>
+
+  <%= hidden_field_tag "#{nome}[latitude]", destino.latitude, id: "#{id}_latitude", data: { mapa_target: "latitude" } %>
+  <%= hidden_field_tag "#{nome}[longitude]", destino.longitude, id: "#{id}_longitude", data: { mapa_target: "longitude" } %>
+  <div class="overflow-hidden rounded-xl border border-[var(--border-subtle)]">
+    <div data-mapa-target="quadro" class="h-[280px] w-full" role="application" aria-label="Mapa para marcar o destino"></div>
+  </div>
+  <p class="text-xs text-[var(--text-secondary)]" data-mapa-target="situacao" aria-live="polite">Clique no mapa para marcar o destino.</p>
+</div>

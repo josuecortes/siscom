@@ -1,0 +1,6 @@
+<%# Painel "ver chamado" (só leitura; as ações ficam na linha da lista). locals: chamado, valores, eventos, sobretitulo, voltar, supervisao, convidar_a_finalizar %>
+<% content_for :title, chamado.codigo %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: sobretitulo, titulo: "Chamado #{chamado.codigo}", voltar: voltar, largo: true, rodape: render("compartilhado/rodape_fechar") } do %>
+  <%= render "ti/chamados/detalhes", chamado: chamado, valores: valores, eventos: eventos, supervisao: local_assigns[:supervisao], convidar_a_finalizar: local_assigns[:convidar_a_finalizar] %>
+<% end %>

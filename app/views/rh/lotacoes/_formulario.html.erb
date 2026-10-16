@@ -1,0 +1,25 @@
+<%# Formulário de nova lotação. locals: lotacao, url, pessoa (fixa, vinda da ficha) ou nil (escolhe por busca). %>
+<%= form_with model: lotacao, scope: :lotacao, url: url, id: "formulario_lotacao", class: "space-y-5" do |f| %>
+  <% if lotacao.errors.any? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (lotacao.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+  <% end %>
+
+  <% if local_assigns[:pessoa].nil? %>
+    <div data-controller="recarregar-quadro" data-recarregar-quadro-url-value="<%= ativas_rh_lotacoes_path %>"
+         data-recarregar-quadro-parametro-value="pessoa_id" data-recarregar-quadro-quadro-value="lotacoes_ativas">
+      <%= render "compartilhado/campo_autocomplete", nome: "lotacao[pessoa_id]", id: "lotacao_pessoa", rotulo: "Pessoa *", obrigatorio: true,
+            url: rh_opcoes_path("pessoas"), valor: lotacao.pessoa_id, texto: lotacao.pessoa&.nome, acao: "change->recarregar-quadro#recarregar",
+            erros: (lotacao.errors[:pessoa].any? ? [ "deve ser escolhida na lista" ] : []), vazio: "Nenhuma pessoa cadastrada." %>
+      <%= render "rh/lotacoes/ativas", pessoa: lotacao.pessoa %>
+    </div>
+  <% end %>
+  <%= render "compartilhado/campo_autocomplete", nome: "lotacao[unidade_id]", id: "lotacao_unidade", rotulo: "Unidade *", obrigatorio: true,
+        url: rh_opcoes_path("unidades"), valor: lotacao.unidade_id, texto: lotacao.unidade&.sigla_e_nome,
+        erros: (lotacao.errors[:unidade].any? ? [ "deve ser escolhida na lista" ] : lotacao.errors[:unidade_id]), vazio: "Nenhuma unidade cadastrada." %>
+  <%= render "compartilhado/campo_autocomplete", nome: "lotacao[funcao_id]", id: "lotacao_funcao", rotulo: "Função *", obrigatorio: true,
+        url: rh_opcoes_path("funcoes"), valor: lotacao.funcao_id, texto: lotacao.funcao&.nome,
+        erros: (lotacao.errors[:funcao].any? ? [ "deve ser escolhida na lista" ] : lotacao.errors[:funcao_id]), vazio: "Nenhuma função cadastrada." %>
+  <%= render "compartilhado/campo_data", f: f, campo: :data_inicio, rotulo: "Início *", html: { required: true } %>
+
+  <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+<% end %>

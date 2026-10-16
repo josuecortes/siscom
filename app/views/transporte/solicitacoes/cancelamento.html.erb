@@ -1,0 +1,21 @@
+<% content_for :title, "Cancelar solicitação" %>
+<%# Rodapé próprio: aqui o botão de fechar não pode se chamar "Cancelar". %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Voltar</button>
+  <button type="submit" form="formulario_cancelamento" data-turbo-submits-with="Cancelando..." class="cursor-pointer rounded-md bg-[var(--danger-solid)] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">Cancelar solicitação</button>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Transporte", titulo: "Cancelar #{@solicitacao.codigo}", voltar: transporte_solicitacoes_path, rodape: rodape,
+                descricao: "A solicitação é encerrada e o transporte não é feito. O setor de transporte é avisado." } do %>
+  <%= form_with url: cancelar_transporte_solicitacao_path(@solicitacao), method: :patch, id: "formulario_cancelamento", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="motivo" class="text-sm font-medium text-[var(--text-secondary)]">Motivo *</label>
+      <%= text_area_tag :motivo, params[:motivo], rows: 4, required: true,
+            class: "min-h-[112px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+    </div>
+  <% end %>
+<% end %>

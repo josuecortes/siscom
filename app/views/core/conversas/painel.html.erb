@@ -1,0 +1,30 @@
+<%# A conversa escolhida, dentro do painel flutuante. %>
+<% escreve = @conversa.ativa? && @participante.pode_escrever? %>
+<%= turbo_frame_tag "lancador_conversas", class: "flex min-h-0 flex-1 flex-col" do %>
+  <section id="<%= dom_id(@conversa) %>" class="flex min-h-0 flex-1 flex-col" data-controller="conversa" data-conversa-usuario-value="<%= current_user.id %>"
+           data-conversa-lida-value="<%= lida_conversa_path(@conversa) %>" data-action="turbo:submit-end->conversa#limpar">
+    <%= turbo_stream_from @conversa %>
+    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-5 py-4">
+      <div class="min-w-0">
+        <p class="truncate text-lg font-semibold text-[var(--text-primary)]"><%= @conversa.titulo %></p>
+        <p class="truncate text-sm text-[var(--text-muted)]"><%= @conversa.nome_do_modulo %> · <%= @conversa.ativa? ? "conversa aberta" : "só leitura" %></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <%= link_to lancador_conversas_path, aria: { label: "Voltar para conversas" }, title: "Voltar para conversas",
+              class: "inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)]" do %><%= icone(:chevron_right) %><% end %>
+        <button type="button" data-action="lancador#fechar" aria-label="Fechar conversa" title="Fechar conversa"
+                class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)]"><%= icone(:x) %></button>
+      </div>
+    </div>
+    <ol id="mensagens_da_conversa_<%= @conversa.id %>" data-conversa-target="lista" class="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
+      <%= render partial: "core/conversas/mensagem", collection: @conversa.mensagens.em_ordem, as: :mensagem %>
+    </ol>
+    <div class="border-t border-[var(--border-subtle)] px-5 py-4">
+      <% if escreve %>
+        <%= render "core/conversas/formulario", conversa: @conversa %>
+      <% else %>
+        <p class="text-sm text-[var(--text-secondary)]"><%= @conversa.ativa? ? "Você acompanha esta conversa só para leitura." : (@conversa.motivo_leitura.presence || "Conversa em modo somente leitura.") %></p>
+      <% end %>
+    </div>
+  </section>
+<% end %>

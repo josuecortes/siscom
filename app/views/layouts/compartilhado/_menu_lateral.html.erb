@@ -1,0 +1,38 @@
+<%# Conteúdo do menu lateral: usado no <aside> do desktop e, com gaveta: true, na gaveta do celular
+    (porta de admin-shell.tsx; na gaveta não há o rótulo "Navegação" nem menu recolhido). %>
+<% gaveta = local_assigns.fetch(:gaveta, false) %>
+<div class="flex h-16 items-center border-b border-[var(--shell-sidebar-divider)] px-5 <%= "justify-between" if gaveta %>">
+  <%= link_to root_path, class: "flex items-center gap-3", data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) } do %>
+    <% marca = configuracao_do_sistema %>
+    <% if gaveta ? marca.mostrar_icone_marca_celular : marca.mostrar_icone_marca_web %>
+      <%= render "layouts/compartilhado/marca", classe: "h-9 w-9" %>
+    <% end %>
+    <% if gaveta ? marca.mostrar_nome_marca_celular : marca.mostrar_nome_marca_web %>
+      <p class="text-[1.02rem] font-semibold tracking-[0.03em] text-white <%= "menu-recolhido:lg:hidden" unless gaveta %>"><%= gaveta ? marca.nome_marca_celular : marca.nome_marca_web %></p>
+    <% end %>
+  <% end %>
+
+  <% if gaveta %>
+    <button type="button" data-action="menu-lateral#fecharGaveta"
+            class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md border border-white/12 bg-white/4 text-[var(--shell-sidebar-text)]"
+            aria-label="Fechar menu">
+      <%= icone(:x, classe: "h-full w-full") %>
+    </button>
+  <% end %>
+</div>
+
+<%# Recolhido, a lista não rola: a rolagem cortaria o painel flutuante dos grupos. %>
+<div class="min-h-0 flex-1 overflow-y-auto px-4 py-5 <%= "menu-recolhido:lg:overflow-visible" unless gaveta %>" data-menu-lateral-target="rolagem">
+  <% unless gaveta %>
+    <p class="px-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--shell-sidebar-muted)] menu-recolhido:lg:hidden">Navegação</p>
+  <% end %>
+
+  <nav class="space-y-1.5 <%= "mt-3 menu-recolhido:lg:mt-0" unless gaveta %>" aria-label="Menu principal">
+    <%= render partial: "layouts/compartilhado/item_menu", collection: menu_lateral_itens, as: :item, locals: { gaveta: gaveta, nivel: 0 } %>
+  </nav>
+</div>
+
+<div class="mt-auto border-t border-[var(--shell-sidebar-divider)] px-5 py-4 <%= "menu-recolhido:lg:hidden" unless gaveta %>">
+  <p class="truncate text-sm font-medium text-white"><%= current_user.nome %></p>
+  <p class="mt-1 truncate text-xs text-[var(--shell-sidebar-muted)]"><%= current_user.email %></p>
+</div>

@@ -1,0 +1,1 @@
+<%= render "ti/chamados/ver", chamado: @chamado, valores: @valores, eventos: @eventos, sobretitulo: "Operação", voltar: ti_operacao_index_path, supervisao: Ti::Chamados::Acesso.supervisiona?(current_user) %>

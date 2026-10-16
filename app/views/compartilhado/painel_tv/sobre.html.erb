@@ -1,0 +1,82 @@
+<% content_for :title, "Acompanhamento · #{@textos[:modulo]}" %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<% titulo = "text-base font-semibold text-[var(--text-primary)]" %>
+<% texto = "text-sm leading-6 text-[var(--text-secondary)]" %>
+<% painel = @textos[:caminho_do_painel] %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Acompanhamento", icone: :speedometer, migalha: [ @textos[:modulo], request.path ] } do %>
+  <% if @ligado %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir o acompanhamento", icone: :media_play, caminho: painel, opcoes: { target: "_blank", rel: "noopener", data: { turbo: false } } %>
+  <% end %>
+<% end %>
+
+<section class="mt-6 <%= cartao %> px-6 py-5" id="sobre_o_painel">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="min-w-0 max-w-3xl space-y-2">
+      <h2 class="<%= titulo %>">Painel de acompanhamento em tempo real</h2>
+      <p class="<%= texto %>">
+        O endereço <strong class="font-semibold text-[var(--text-primary)]"><%= request.base_url %><%= painel %></strong> mostra <%= @textos[:o_que] %>, numa tela feita
+        para ficar aberta numa TV ou num segundo monitor. O técnico vê o que chegou, o que está em andamento e o que está atrasado sem precisar atualizar nada.
+      </p>
+    </div>
+    <span id="situacao_do_painel" class="inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold <%= @ligado ? "bg-[var(--success-surface)] text-[var(--success-text)]" : "bg-[var(--warning-surface)] text-[var(--warning-text)]" %>">
+      <span class="h-2 w-2 rounded-full bg-current" aria-hidden="true"></span><%= @ligado ? "Painel ligado" : "Painel desligado" %>
+    </span>
+  </div>
+</section>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-2 lg:items-start">
+  <section class="<%= cartao %> space-y-3 px-6 py-5" id="senha_do_painel">
+    <h2 class="<%= titulo %>">Precisa de senha</h2>
+    <p class="<%= texto %>">
+      O painel não usa o login do sistema: ele pede uma <strong class="font-semibold text-[var(--text-primary)]">senha própria</strong>, que fica com os administradores do <%= @textos[:modulo] %>.
+      Peça a senha a um deles. Depois de digitada, a tela fica liberada naquele navegador por <%= @validade_em_horas %> horas.
+    </p>
+    <% if @administradores.any? %>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Administradores do <%= @textos[:modulo] %></p>
+        <ul class="mt-2 space-y-1 text-sm text-[var(--text-primary)]" id="administradores_do_painel">
+          <% @administradores.each do |nome| %><li><%= nome %></li><% end %>
+        </ul>
+      </div>
+    <% end %>
+    <% unless @ligado %>
+      <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]">
+        O painel está desligado: ainda não tem senha. Um administrador liga definindo a senha em <%= @textos[:onde_ligar] %>.
+      </p>
+    <% end %>
+  </section>
+
+  <section class="<%= cartao %> space-y-3 px-6 py-5" id="como_ler_o_painel">
+    <h2 class="<%= titulo %>">Como ler o painel</h2>
+    <ul class="space-y-2 <%= texto %>">
+      <% @textos[:colunas].each do |coluna, explicacao| %>
+        <li><strong class="font-semibold text-[var(--text-primary)]"><%= coluna %>:</strong> <%= explicacao %></li>
+      <% end %>
+    </ul>
+    <p class="<%= texto %>">
+      Cada cartão tem a cor da urgência: <strong class="font-semibold text-[var(--text-primary)]">vermelho</strong> passou da hora ou do limite,
+      <strong class="font-semibold text-[var(--text-primary)]">laranja</strong> falta pouco, <strong class="font-semibold text-[var(--text-primary)]">amarelo</strong> convém olhar
+      e <strong class="font-semibold text-[var(--text-primary)]">cinza</strong> está no prazo.
+    </p>
+    <p class="<%= texto %>">
+      A tela atualiza sozinha quando algo muda e, no mínimo, a cada <%= @atualiza_a_cada %> segundos; as colunas compridas rolam sozinhas.
+      Quando chega algo novo na primeira coluna, toca um alerta curto: clique uma vez em "Som: ligar", no rodapé do painel, para o navegador liberar o som.
+    </p>
+  </section>
+</div>
+
+<section class="mt-6 <%= cartao %> flex flex-wrap items-center justify-between gap-4 px-6 py-5">
+  <p class="<%= texto %>">O painel abre numa aba nova. Para usar numa TV, abra o endereço no navegador da TV (ou de um computador ligado a ela) e deixe em tela cheia (tecla F11).</p>
+  <% if @ligado %>
+    <%= link_to painel, target: "_blank", rel: "noopener", data: { turbo: false }, id: "abrir_o_painel",
+          class: "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" do %>
+      <%= icone(:media_play) %> Abrir o acompanhamento do <%= @textos[:modulo] %>
+    <% end %>
+  <% else %>
+    <span id="abrir_o_painel" aria-disabled="true" title="O painel está desligado"
+          class="inline-flex h-11 shrink-0 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white opacity-50">
+      <%= icone(:media_play) %> Abrir o acompanhamento do <%= @textos[:modulo] %>
+    </span>
+  <% end %>
+</section>

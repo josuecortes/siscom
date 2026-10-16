@@ -1,0 +1,48 @@
+<%# Painel de formulário (porta de responsive-form-panel.tsx): no celular ocupa a altura
+    inteira encostado à direita; a partir de lg vira um cartão central.
+    Uso (numa view new/edit ou de confirmação):
+      render layout: "compartilhado/painel_formulario",
+             locals: { sobretitulo: "Novo usuário", titulo: "Cadastrar usuário", voltar: core_usuarios_path,
+                       descricao: nil, rodape: capture { ...botões... } } do
+        ...conteúdo...
+      end
+    Abre dentro do turbo-frame "painel" (links com data-turbo-frame="painel").
+    largo: true deixa o cartão com 48rem (telas de "ver", que mostram mais coisa). %>
+<% content_for :tem_painel, "1" %>
+<%= turbo_frame_tag "painel", data: { aberto_na_pagina: request.headers["Turbo-Frame"].blank? } do %>
+  <div class="fixed inset-0 z-[80] overflow-hidden overscroll-none" data-controller="painel"
+       data-painel-voltar-value="<%= voltar %>">
+    <%# O fundo não fecha o painel (nem o Esc): só os botões Cancelar/Fechar/×. %>
+    <div class="absolute inset-0 bg-[#08111fcc]" aria-hidden="true"></div>
+
+    <div class="pointer-events-none relative flex h-[100svh] min-h-[100svh] w-full items-stretch justify-end overflow-hidden p-0 sm:min-h-full sm:p-4 lg:items-center lg:justify-center lg:p-6">
+      <div role="dialog" aria-modal="true" aria-labelledby="painel_titulo"
+           class="pointer-events-auto flex h-[100svh] w-[min(92vw,34rem)] max-w-[92vw] flex-col overflow-hidden border-l border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_24px_70px_rgba(2,6,23,0.35)] sm:h-[100dvh] sm:w-full <%= local_assigns[:largo] ? "sm:max-w-[48rem] lg:w-[min(92vw,48rem)]" : "sm:max-w-[34rem] lg:w-[min(92vw,34rem)]" %> lg:h-auto lg:max-h-[calc(100dvh-3rem)] lg:max-w-none lg:rounded-[var(--radius-panel)] lg:border">
+        <div class="shrink-0 border-b border-[var(--border-subtle)] px-5 py-4">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]"><%= sobretitulo %></p>
+              <h2 id="painel_titulo" class="mt-1 text-xl font-semibold text-[var(--text-primary)]"><%= titulo %></h2>
+            </div>
+            <button type="button" data-action="painel#fechar"
+                    class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]"
+                    aria-label="Fechar formulário">×</button>
+          </div>
+        </div>
+
+        <div class="flex min-h-0 flex-1 flex-col">
+          <div class="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5" data-painel-target="miolo">
+            <% if local_assigns[:descricao].present? %>
+              <p class="text-sm leading-6 text-[var(--text-secondary)]"><%= descricao %></p>
+            <% end %>
+            <%= yield %>
+          </div>
+
+          <div class="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] px-5 py-4">
+            <div class="flex flex-col gap-2 sm:flex-row sm:justify-end"><%= rodape %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

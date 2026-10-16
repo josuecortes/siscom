@@ -1,0 +1,10 @@
+# Módulo sem papel automático: só entra quem tem acesso ativo.
+nome: "Fechado"
+permissoes:
+  coisas.ver: "Ver coisas"
+  coisas.editar: "Editar coisas"
+papeis:
+  admin:  { nome: "Administrador", permissoes: "*" }
+  leitor: { nome: "Leitor", permissoes: [coisas.ver] }
+concessao:
+  admin: [admin, leitor]

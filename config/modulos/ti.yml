@@ -1,0 +1,52 @@
+# Catálogo do módulo TI (chamados de TI; porta do helpdesk do seed). Papéis aprovados pelo Josue em 2026-10-03.
+# Um usuário pode ter mais de um papel (ex.: triador e técnico).
+# Além dos papéis: o solicitante só abre as solicitações dos seus perfis de abertura, e o técnico/triador
+# só pega os chamados dos seus grupos técnicos (tabelas ti_perfis_abertura e ti_grupos_tecnicos).
+nome: "TI"
+icone: "task"
+
+permissoes:
+  chamados.abrir: "Abrir e acompanhar os próprios chamados"
+  chamados.abrir_para_outro: "Abrir chamado em nome de outra pessoa"
+  chamados.operar: "Ver a operação (chamados dos seus grupos técnicos)"
+  chamados.triar: "Triar chamados"
+  chamados.atender: "Atender chamados"
+  chamados.supervisionar: "Supervisionar chamados (ver todos, redistribuir, mudar etapa)"
+  catalogo.gerenciar: "Gerenciar o catálogo (categorias, solicitações, perfis de abertura, grupos técnicos)"
+  permissoes.conceder: "Conceder permissões na TI"
+  relatorios.ver: "Ver as estatísticas dos chamados"
+  acompanhamento.ver: "Ver a página do painel de acompanhamento (a senha do painel fica com os administradores)"
+  configuracoes.gerenciar: "Gerenciar configurações da TI"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  supervisor:
+    nome: "Supervisor"
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, chamados.atender, chamados.supervisionar, catalogo.gerenciar, relatorios.ver, acompanhamento.ver]
+  triagem:
+    nome: "Triador"
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.triar, acompanhamento.ver]
+  tecnico:
+    nome: "Técnico"
+    permissoes: [chamados.abrir, chamados.abrir_para_outro, chamados.operar, chamados.atender, acompanhamento.ver]
+  solicitante:
+    nome: "Solicitante"
+    permissoes: [chamados.abrir]
+    automatico: true
+
+concessao:
+  admin: [admin, supervisor, triagem, tecnico]
+
+menu:
+  - { rotulo: "Solicitações de TI", rota: ti_chamados_path, permissao: chamados.abrir, icone: task, minha_area: true }
+  - { rotulo: "Operação", rota: ti_operacao_index_path, permissao: chamados.operar, icone: group }
+  - { rotulo: "Acompanhamento", rota: ti_sobre_acompanhamento_path, permissao: acompanhamento.ver, icone: speedometer }
+  - { rotulo: "Categorias de solicitação", rota: ti_categorias_path, permissao: catalogo.gerenciar, icone: description, grupo: "Administração" }
+  - { rotulo: "Perfis de abertura", rota: ti_perfis_abertura_path, permissao: catalogo.gerenciar, icone: people, grupo: "Administração" }
+  - { rotulo: "Grupos técnicos", rota: ti_grupos_tecnicos_path, permissao: catalogo.gerenciar, icone: group, grupo: "Administração" }
+  - { rotulo: "Solicitações", rota: ti_solicitacoes_path, permissao: catalogo.gerenciar, icone: list-rich, grupo: "Administração" }
+  - { rotulo: "Relatórios", rota: ti_estatisticas_path, permissao: relatorios.ver, icone: chart-pie, grupo: "Administração" }
+  - { rotulo: "Permissões", rota: ti_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }
+  - { rotulo: "Configuração", rota: ti_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings, grupo: "Administração" }

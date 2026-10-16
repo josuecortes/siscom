@@ -1,0 +1,8 @@
+<% content_for :title, "Painel de acompanhamento · #{@textos[:modulo]}" %>
+<div class="w-full px-4 py-10 md:px-0 md:py-0">
+  <section class="mx-auto w-full max-w-xl rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]"><%= @textos[:modulo] %></p>
+    <h1 class="mt-2 text-2xl font-semibold text-[var(--text-primary)]">Acompanhamento em tempo real</h1>
+    <p class="mt-2 text-sm text-[var(--text-secondary)]">O painel de acompanhamento está desligado. <%= @textos[:onde_ligar] %></p>
+  </section>
+</div>

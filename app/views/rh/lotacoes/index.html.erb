@@ -1,0 +1,59 @@
+<% content_for :title, "Lotações" %>
+<% gerencia = pode?("rh.lotacoes.gerenciar") %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Lotações", icone: :briefcase, migalha: [ "RH", rh_lotacoes_path ] } do %>
+  <% if gerencia %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Nova lotação", icone: :plus, caminho: new_rh_lotacao_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: rh_lotacoes_path, quadro: "lotacoes_lista", rotulo_busca: "Buscar por pessoa ou unidade",
+        exemplo: "Ex.: Maria Oliveira ou NUINFO", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Ativas", "ativo" ], [ "Encerradas", "inativo" ], [ "Todas", "todos" ] ], titulo_filtrar: "Filtrar lotações" %>
+
+  <%= turbo_frame_tag "lotacoes_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} lotação(ões) registrada(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1080px]">
+        <thead>
+          <tr>
+            <th scope="col">Pessoa</th>
+            <th scope="col">Unidade</th>
+            <th scope="col">Função</th>
+            <th scope="col">Início</th>
+            <th scope="col">Fim</th>
+            <th scope="col">Situação</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @lotacoes.each do |lotacao| %>
+            <tr id="<%= dom_id(lotacao) %>">
+              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= lotacao.pessoa.nome %></p></td>
+              <td><%= lotacao.unidade.sigla_e_nome %></td>
+              <td><%= lotacao.funcao.nome %></td>
+              <td><%= DataBr.formatar(lotacao.data_inicio) %></td>
+              <td><%= DataBr.formatar(lotacao.data_fim).presence || "—" %></td>
+              <td><%= render "compartilhado/selo", texto: (lotacao.ativo? ? "Ativa" : "Encerrada"), tom: (lotacao.ativo? ? :sucesso : :neutro) %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Ver ficha", icone: :description, caminho: rh_pessoa_path(lotacao.pessoa), quadro: "painel", desabilitado: !pode?("rh.pessoas.ver") %>
+                  <%= render "compartilhado/botao_acao", titulo: "Encerrar lotação", icone: :ban, caminho: encerrar_rh_lotacao_path(lotacao), metodo: :patch,
+                        desabilitado: !gerencia || lotacao.inativo?,
+                        confirmar: { mensagem: "Confirme o encerramento da lotação de #{lotacao.pessoa.nome} em #{lotacao.unidade.sigla_e_nome}. A data de fim será hoje.", rotulo: "Encerrar" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @lotacoes.empty? %>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma lotação encontrada para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "lotacoes_lista" %>
+  <% end %>
+</section>

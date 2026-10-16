@@ -1,0 +1,30 @@
+# Omakase Ruby styling for Rails
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  Exclude:
+    # Migrations e seeds herdados do siscom antigo (não reformatar).
+    - "db/migrate/202[1-5]*"
+    - "db/migrate/202602*"
+    - "db/schema.rb"
+    - "bin/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+    - "node_modules/**/*"
+
+RSpec/MultipleExpectations:
+  Max: 5
+  Exclude:
+    - "spec/system/**/*" # fluxos de tela conferem vários passos no mesmo exemplo
+
+RSpec/ExampleLength:
+  Max: 20
+  Exclude:
+    - "spec/system/**/*"
+
+# Descrições dos specs em português.
+RSpec/ContextWording:
+  Prefixes: [quando, com, sem]

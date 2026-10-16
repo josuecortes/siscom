@@ -1,0 +1,39 @@
+<% content_for :title, "Reagendar" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_reagendamento", rotulo: (@solicitacao.busca? ? "Salvar horário da busca" : "Enviar reagendamento") } %>
+<% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+<% data_hora = { controller: "mascara", mascara_tipo_value: "data_hora", action: "input->mascara#aplicar" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Transporte", titulo: "Reagendar #{@solicitacao.codigo}", voltar: transporte_operacao_index_path, rodape: rodape,
+                descricao: (@solicitacao.busca? ? "Busca prevista: #{data_e_hora(@solicitacao.busca_prevista_em)}. O solicitante é avisado da mudança." : "Saída atual: #{data_e_hora(@solicitacao.saida_em)}. A solicitação fica como reagendada até o solicitante aceitar ou recusar o novo horário. Só dá para reagendar uma vez.") } do %>
+  <%= form_with url: reagendar_transporte_operacao_path(@solicitacao), method: :patch, id: "formulario_reagendamento", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <% if @solicitacao.busca? %>
+      <div class="space-y-1.5">
+        <label for="busca_em" class="text-sm font-medium text-[var(--text-secondary)]">Nova previsão da busca (data e hora) *</label>
+        <%= text_field_tag :busca_em, params[:busca_em] || data_e_hora(@solicitacao.busca_prevista_em), required: true, placeholder: "dd/mm/aaaa hh:mm", inputmode: "numeric", maxlength: 16,
+              autocomplete: "off", data: data_hora, class: entrada %>
+      </div>
+    <% else %>
+    <div class="space-y-1.5">
+      <label for="saida_em" class="text-sm font-medium text-[var(--text-secondary)]">Nova saída (data e hora) *</label>
+      <%= text_field_tag :saida_em, params[:saida_em] || data_e_hora(@solicitacao.saida_em), required: true, placeholder: "dd/mm/aaaa hh:mm", inputmode: "numeric", maxlength: 16,
+            autocomplete: "off", data: data_hora, class: entrada %>
+    </div>
+    <% if @solicitacao.viagem? %>
+      <div class="space-y-1.5">
+        <label for="retorno_em" class="text-sm font-medium text-[var(--text-secondary)]">Novo retorno (data e hora) *</label>
+        <%= text_field_tag :retorno_em, params[:retorno_em] || data_e_hora(@solicitacao.retorno_em), required: true, placeholder: "dd/mm/aaaa hh:mm", inputmode: "numeric", maxlength: 16,
+              autocomplete: "off", data: data_hora, class: entrada %>
+      </div>
+    <% end %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="motivo" class="text-sm font-medium text-[var(--text-secondary)]">Motivo *</label>
+      <%= text_area_tag :motivo, params[:motivo], rows: 3, required: true,
+            class: "min-h-[112px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+    </div>
+  <% end %>
+<% end %>

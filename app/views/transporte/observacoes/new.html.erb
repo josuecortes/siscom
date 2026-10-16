@@ -1,0 +1,23 @@
+<% content_for :title, "Registrar observação" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_observacao", rotulo: "Registrar observação" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Transporte", titulo: "Observação · #{@solicitacao.codigo}", voltar: @volta, rodape: rodape,
+                descricao: "Fica no histórico da solicitação. Só a operação e os motoristas veem." } do %>
+  <%= form_with url: transporte_solicitacao_observacoes_path(@solicitacao), id: "formulario_observacao", class: "space-y-5", multipart: true do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="corpo" class="text-sm font-medium text-[var(--text-secondary)]">Observação *</label>
+      <%= text_area_tag :corpo, params[:corpo], rows: 4, required: true, maxlength: 2000,
+            class: "min-h-[112px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="anexos" class="text-sm font-medium text-[var(--text-secondary)]">Anexos</label>
+      <%= file_field_tag "anexos[]", id: "anexos", multiple: true,
+            class: "block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
+      <p class="text-xs text-[var(--text-muted)]">Opcional: fotos, comprovantes. Até 1 MB cada (imagem maior é reduzida sozinha).</p>
+    </div>
+  <% end %>
+<% end %>

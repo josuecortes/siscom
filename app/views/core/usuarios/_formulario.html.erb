@@ -1,0 +1,11 @@
+<%= form_with model: usuario, scope: :user, url: (usuario.new_record? ? core_usuarios_path : core_usuario_path(usuario)), id: "formulario_usuario", class: "space-y-5" do |f| %>
+  <% if usuario.errors.any? || @erros_gerais.present? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true,
+          mensagem: (@erros_gerais.presence&.to_sentence || "Revise os campos destacados e tente novamente.") %>
+  <% end %>
+
+  <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome completo *", html: { required: true, autocomplete: "off", autofocus: true } %>
+  <%= render "compartilhado/campo", f: f, campo: :email, rotulo: "E-mail *", tipo: :email, html: { required: true, autocomplete: "off", placeholder: "voce@seed.ap.gov.br" } %>
+
+  <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+<% end %>

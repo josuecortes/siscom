@@ -1,0 +1,73 @@
+<% content_for :title, "Solicitações" %>
+<% campos = Ti::CampoProblema.ativo.where(problema_id: @solicitacoes.map(&:id)).group(:problema_id).count %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Solicitações", icone: :description, migalha: [ "TI", ti_solicitacoes_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Nova solicitação", icone: :plus, caminho: new_ti_solicitacao_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: ti_solicitacoes_path, quadro: "solicitacoes_lista", rotulo_busca: "Buscar por nome ou categoria",
+        exemplo: "Ex.: impressora ou rede", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Todas", "todos" ], [ "Ativas", "ativo" ], [ "Inativas", "inativo" ] ], titulo_filtrar: "Filtrar solicitações" %>
+
+  <%= turbo_frame_tag "solicitacoes_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} solicitação(ões) registrada(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1280px]">
+        <thead>
+          <tr>
+            <th scope="col">Solicitação</th>
+            <th scope="col">Categoria</th>
+            <th scope="col">Perfis de abertura</th>
+            <th scope="col">Grupos técnicos</th>
+            <th scope="col">Campos</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @solicitacoes.each do |solicitacao| %>
+            <tr id="<%= dom_id(solicitacao) %>">
+              <td>
+                <div class="space-y-1">
+                  <p class="font-semibold text-[var(--text-primary)]"><%= solicitacao.nome %></p>
+                  <p class="text-sm text-[var(--text-secondary)]"><%= solicitacao.descricao %></p>
+                  <p class="text-xs text-[var(--text-muted)]">
+                    <%= solicitacao.exige_triagem? ? "Com triagem" : "Sem triagem" %> ·
+                    <%= solicitacao.permite_varios_abertos? ? "vários chamados abertos" : "um chamado aberto por vez" %>
+                  </p>
+                </div>
+              </td>
+              <td><%= solicitacao.categoria.nome %></td>
+              <td><%= solicitacao.perfis_abertura.map(&:nome).sort.join(", ").presence || "Sem perfis" %></td>
+              <td><%= solicitacao.grupos_tecnicos.map(&:nome).sort.join(", ").presence || "Sem grupos" %></td>
+              <td><%= campos.fetch(solicitacao.id, 0) %> campo(s)</td>
+              <td><%= render "compartilhado/selo", texto: (solicitacao.ativo? ? "Ativa" : "Inativa"), tom: (solicitacao.ativo? ? :sucesso : :atencao) %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Campos da solicitação", icone: :list_rich, caminho: ti_solicitacao_campos_path(solicitacao) %>
+                  <%= render "compartilhado/botao_acao", titulo: "Perfis de abertura", icone: :people, caminho: edit_ti_solicitacao_perfis_path(solicitacao), quadro: "painel" %>
+                  <%= render "compartilhado/botao_acao", titulo: "Grupos técnicos", icone: :group, caminho: edit_ti_solicitacao_grupos_path(solicitacao), quadro: "painel" %>
+                  <%= render "compartilhado/botao_acao", titulo: "Editar solicitação", icone: :pencil, caminho: edit_ti_solicitacao_path(solicitacao), quadro: "painel" %>
+                  <% if solicitacao.ativo? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Desativar solicitação", icone: :ban, caminho: desativar_ti_solicitacao_path(solicitacao), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a desativação de #{solicitacao.nome}. Ela deixa de aparecer na abertura de chamados.", rotulo: "Desativar" } %>
+                  <% else %>
+                    <%= render "compartilhado/botao_acao", titulo: "Ativar solicitação", icone: :check_circle, caminho: ativar_ti_solicitacao_path(solicitacao), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a ativação de #{solicitacao.nome}.", rotulo: "Ativar", tom: "primario" } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @solicitacoes.empty? %>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma solicitação encontrada para os filtros informados.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "solicitacoes_lista" %>
+  <% end %>
+</section>

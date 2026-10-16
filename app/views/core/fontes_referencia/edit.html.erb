@@ -1,0 +1,10 @@
+<% content_for :title, "Editar fonte" %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Cancelar</button>
+  <button type="submit" form="formulario_fonte" data-turbo-submits-with="Salvando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-60">Salvar fonte</button>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Fontes de referência", titulo: "Editar fonte", voltar: core_fontes_referencia_path, rodape: rodape } do %>
+  <%= render "formulario", fonte: @fonte %>
+<% end %>

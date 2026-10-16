@@ -1,0 +1,26 @@
+<%# Campo de escolha numa lista fixa: até 8 opções é uma caixa de seleção; com mais de 8 vira
+    campo de busca (autocomplete), sem mudar nada em quem usa.
+    locals: nome (name do campo), id, rotulo, opcoes ([[rotulo, valor], ...]), valor (atual),
+            em_branco (texto da opção vazia, ou nil), erros ([]), obrigatorio (bool),
+            acao (data-action ao mudar, ex.: "change->filtro#aplicar"), flutuante (ver _campo_autocomplete). %>
+<% limite_da_caixa = 8 %>
+<% erros = Array(local_assigns[:erros]) %>
+<% atual = local_assigns[:valor].to_s %>
+<% if opcoes.size > limite_da_caixa %>
+  <%= render "compartilhado/campo_autocomplete", nome: nome, id: id, rotulo: rotulo, erros: erros, obrigatorio: local_assigns[:obrigatorio],
+        opcoes: opcoes.map { |texto, valor| { valor: valor.to_s, rotulo: texto } }, valor: atual.presence,
+        texto: opcoes.find { |_, valor| valor.to_s == atual }&.first, acao: local_assigns[:acao], flutuante: local_assigns[:flutuante],
+        placeholder: (local_assigns[:em_branco] ? "#{em_branco} · digite sua pesquisa" : "Digite sua pesquisa") %>
+<% else %>
+  <div class="space-y-1.5">
+    <label for="<%= id %>" class="text-sm font-medium text-[var(--text-secondary)]"><%= rotulo %></label>
+    <%= select_tag nome, options_for_select((local_assigns[:em_branco] ? [ [ em_branco, "" ] ] : []) + opcoes, atual), id: id,
+          required: local_assigns[:obrigatorio], data: { action: local_assigns[:acao] }.compact,
+          aria: { invalid: (erros.any? ? "true" : nil) },
+          class: [ "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none",
+                   (erros.any? ? "border-[var(--danger-border-strong)] focus:border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]") ] %>
+    <% erros.each do |mensagem| %>
+      <p class="text-sm text-[var(--danger-text)]"><%= rotulo.delete("*").strip %> <%= mensagem %></p>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,99 @@
+<% content_for :title, "Notificações" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Notificações", icone: :bell, migalha: [ "Minha área", notificacoes_path ] } do %>
+<% end %>
+
+<% if Core::Notificacoes::Push.ativo? %>
+  <%# Avisos push deste aparelho (Web Push). O navegador só pergunta ao tocar em "Ativar". %>
+  <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]"
+           data-controller="push" data-push-chave-value="<%= Core::Notificacoes::Push.chave_publica %>" data-push-url-value="<%= inscricao_push_path %>">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-5">
+      <%# basis-56: no celular o texto fica com a linha inteira e o botão desce (senão o texto vira uma coluna estreita). %>
+      <div class="min-w-0 flex-1 basis-56">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Avisos neste aparelho</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]" data-push-target="estado" aria-live="polite">Verificando este aparelho…</p>
+      </div>
+      <button type="button" hidden data-push-target="ativar" data-action="push#ativar"
+              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]">Ativar avisos neste aparelho</button>
+      <button type="button" hidden data-push-target="desativar" data-action="push#desativar"
+              class="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] px-4 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Desativar neste aparelho</button>
+    </div>
+  </section>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: notificacoes_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "notificacoes_lista", turbo_action: "advance" } do |f| %>
+    <div class="grid gap-4 lg:grid-cols-[1fr_auto_auto] lg:items-end">
+      <div class="space-y-1.5">
+        <%= f.label :q, "Buscar por título ou mensagem", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @busca, placeholder: "Ex.: permissão concedida", autocomplete: "off", data: { action: "input->filtro#digitar" },
+                class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] pl-11 pr-4 text-sm outline-none focus:border-[var(--accent-strong)]" %>
+        </div>
+      </div>
+      <%# No computador os dois botões são colunas da grade, como no seed (16 px entre eles);
+          no celular ficam lado a lado, como nas outras listagens. %>
+      <div class="flex flex-row gap-2 lg:contents">
+        <button type="submit" title="Filtrar notificações" aria-label="Filtrar notificações"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to notificacoes_path, title: "Limpar busca", aria: { label: "Limpar busca" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "notificacoes_lista", data: { turbo_action: "advance" } do %>
+    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-4">
+      <div>
+        <p class="text-sm font-semibold text-[var(--text-primary)]">Caixa de notificações</p>
+        <p class="text-sm text-[var(--text-secondary)]"><%= @nao_lidas %> notificação(ões) não lida(s)</p>
+      </div>
+      <%= button_to "Marcar tudo como lido", marcar_todas_notificacoes_path, method: :patch, form: { data: { turbo_frame: "_top" } },
+            class: "cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]" %>
+    </div>
+
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} notificação(ões) listada(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[980px]">
+        <thead>
+          <tr>
+            <th scope="col">Título</th>
+            <th scope="col">Mensagem</th>
+            <th scope="col">Módulo</th>
+            <th scope="col">Origem</th>
+            <th scope="col">Recebida em</th>
+            <th scope="col">Situação</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @notificacoes.each do |notificacao| %>
+            <tr id="<%= dom_id(notificacao) %>" class="<%= "bg-[var(--accent-soft)]/20" unless notificacao.lida? %>">
+              <td class="font-semibold !text-[var(--text-primary)]"><%= notificacao.titulo %></td>
+              <td><%= notificacao.mensagem.presence || "Sem detalhes adicionais." %></td>
+              <td><%= notificacao.nome_do_modulo %></td>
+              <td><%= notificacao.nome_do_ator %></td>
+              <td><%= l(notificacao.created_at, format: "%d/%m/%Y %H:%M") %></td>
+              <td><%= render "compartilhado/selo", texto: (notificacao.lida? ? "Lida" : "Nova") %></td>
+              <td>
+                <%= button_to (notificacao.url_acao.present? ? "Abrir" : "Marcar como lida"), abrir_notificacao_path(notificacao), method: :patch,
+                      form: { data: { turbo_frame: "_top" } }, disabled: (notificacao.lida? && notificacao.url_acao.blank?),
+                      class: "inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] px-3 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] disabled:cursor-not-allowed disabled:opacity-50" %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @notificacoes.empty? %>
+            <tr><td colspan="7" class="px-6 py-12 text-center text-sm text-[var(--text-secondary)]">Nenhuma notificação encontrada.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "notificacoes_lista" %>
+  <% end %>
+</section>

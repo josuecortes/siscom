@@ -1,0 +1,45 @@
+# Rótulos dos eventos de auditoria: auditoria.eventos.<modulo>.<objeto>.<acao>
+pt-BR:
+  auditoria:
+    eventos:
+      rh:
+        pessoa:
+          criada: "Pessoa cadastrada"
+          atualizada: "Pessoa atualizada"
+        pendencia:
+          resolvida: "Pendência de importação resolvida"
+        lotacao:
+          criada: "Lotação registrada"
+          encerrada: "Lotação encerrada"
+        unidade:
+          criada: "Unidade criada"
+          atualizada: "Unidade atualizada"
+          ativada: "Unidade ativada"
+          desativada: "Unidade desativada"
+        tabela:
+          criada: "Item de tabela de referência criado"
+          atualizada: "Item de tabela de referência atualizado"
+          ativada: "Item de tabela de referência ativado"
+          desativada: "Item de tabela de referência desativado"
+      core:
+        usuario:
+          criado: "Usuário cadastrado"
+          atualizado: "Usuário atualizado"
+          ativado: "Usuário ativado"
+          desativado: "Usuário desativado"
+          senha_redefinida: "Senha redefinida pelo administrador"
+          senha_alterada: "Senha alterada pelo usuário"
+        acesso:
+          papel_concedido: "Permissão concedida"
+          papel_revogado: "Permissão revogada"
+          modulo_bloqueado: "Módulo bloqueado"
+          modulo_liberado: "Módulo liberado"
+        configuracao:
+          atualizada: "Configurações do sistema alteradas"
+        fonte_referencia:
+          criada: "Fonte de referência criada"
+          atualizada: "Fonte de referência atualizada"
+          ativada: "Fonte de referência ativada"
+          desativada: "Fonte de referência desativada"
+        sessao:
+          iniciada: "Entrada no sistema"

@@ -1,0 +1,8 @@
+<% content_for :title, "Nova lotação" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_lotacao", rotulo: "Salvar lotação" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Nova lotação", titulo: "Conceder lotação", voltar: rh_pessoas_path, rodape: rodape,
+                descricao: "Lotar #{@pessoa.nome} em uma unidade, com uma função. A pessoa pode ter mais de uma lotação ativa." } do %>
+  <%= render "rh/lotacoes/formulario", lotacao: @lotacao, url: rh_pessoa_lotacoes_path(@pessoa), pessoa: @pessoa %>
+<% end %>

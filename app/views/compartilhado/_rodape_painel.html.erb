@@ -1,0 +1,3 @@
+<%# Botões padrão do rodapé de um painel de formulário. locals: formulario (id do form), rotulo %>
+<button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Cancelar</button>
+<button type="submit" form="<%= formulario %>" data-turbo-submits-with="Salvando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-60"><%= rotulo %></button>

@@ -9,12 +9,19 @@ pt-BR:
     failure:
       already_authenticated: "Você já está logado."
       inactive: "Sua conta ainda não foi ativada."
+      inativo: "Sua conta está desativada. Procure o administrador do sistema."
+      tentativas_restantes:
+        one: "E-mail ou senha inválida. Você tem mais 1 tentativa antes de a conta ser bloqueada por %{minutos} minutos."
+        other: "E-mail ou senha inválida. Você tem mais %{count} tentativas antes de a conta ser bloqueada por %{minutos} minutos."
+      bloqueada:
+        one: "Sua conta foi bloqueada após %{tentativas} tentativas com senha incorreta. Tente novamente em 1 minuto ou procure o administrador do sistema."
+        other: "Sua conta foi bloqueada após %{tentativas} tentativas com senha incorreta. Tente novamente em %{count} minutos ou procure o administrador do sistema."
       invalid: "%{authentication_keys} ou senha inválida."
       locked: "Sua conta está bloqueada."
       last_attempt: "Você tem mais uma tentativa antes de bloquear sua conta."
       not_found_in_database: "%{authentication_keys} ou senha inválida."
       timeout: "Sua sessão expirou, por favor, efetue login novamente para continuar."
-      unauthenticated: "Para continuar, efetue login ou registre-se."
+      unauthenticated: "Para continuar, entre com seu e-mail e senha."
       unconfirmed: "Antes de continuar, confirme a sua conta."
     mailer:
       confirmation_instructions:

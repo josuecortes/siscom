@@ -1,0 +1,76 @@
+<%# Um item do menu lateral: link simples ou grupo (módulo) com filhos
+    (porta de SidebarTreeItem, CollapsedNavItem e CollapsedFlyoutItem de admin-shell.tsx).
+    No desktop com o menu recolhido, o grupo mostra só o ícone e abre um painel flutuante
+    ao passar o mouse ou focar; na gaveta do celular (gaveta: true) nada disso existe. %>
+<% ativo = item_menu_ativo?(item) %>
+<% esconder_no_recolhido = gaveta ? "" : "menu-recolhido:lg:hidden" %>
+<% so_icone_no_recolhido = gaveta ? "" : "menu-recolhido:lg:justify-center menu-recolhido:lg:px-0 menu-recolhido:lg:py-3" %>
+<%# Como no seed: o módulo (nível 0) tem rótulo em negrito e py-2.5; o subgrupo (ex.: Referências) segue os itens do nível dele. %>
+<% recuo = nivel.zero? ? "py-2.5" : (nivel == 1 ? "py-2" : "py-1.5") %>
+<% flutua = !gaveta && nivel.zero? %>
+<% classes_ativo = "border-[var(--shell-sidebar-active-border)] bg-[var(--shell-sidebar-active)] text-white shadow-[inset_3px_0_0_var(--system-accent-strong)]" %>
+
+<% if item[:filhos] %>
+  <div class="<%= "group/flutuante relative" if flutua %>"
+       <% if flutua %>data-action="mouseenter->menu-lateral#ajustarFlutuante focusin->menu-lateral#ajustarFlutuante"<% end %>>
+    <details class="group/grupo space-y-1.5" <%= "open" if ativo %>>
+      <summary title="<%= item[:rotulo] %>"
+               class="group flex w-full cursor-pointer list-none items-center gap-3 rounded-md border px-3 <%= recuo %> transition [&::-webkit-details-marker]:hidden <%= so_icone_no_recolhido %> <%= ativo ? "border-white/10 bg-white/4 text-white" : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white" %> <%= "menu-recolhido:lg:border-[var(--shell-sidebar-active-border)] menu-recolhido:lg:bg-[var(--shell-sidebar-active)] menu-recolhido:lg:shadow-[inset_3px_0_0_var(--system-accent-strong)]" if ativo && flutua %>">
+        <span class="flex h-5 w-5 shrink-0 items-center justify-center group-hover:text-white <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
+          <%= icone(item[:icone], classe: "h-full w-full") %>
+        </span>
+        <span class="min-w-0 flex-1 text-left text-sm <%= "font-semibold" if nivel.zero? %> <%= esconder_no_recolhido %>"><%= item[:rotulo] %></span>
+        <span class="flex h-4 w-4 items-center justify-center transition-transform group-open/grupo:rotate-90 <%= esconder_no_recolhido %>">
+          <%= icone(:chevron_right, classe: "h-3.5 w-3.5") %>
+        </span>
+      </summary>
+
+      <div class="ml-3 border-l border-white/8 pl-3 <%= esconder_no_recolhido %>">
+        <div class="space-y-1.5">
+          <%= render partial: "layouts/compartilhado/item_menu", collection: item[:filhos], as: :item, locals: { gaveta: gaveta, nivel: nivel + 1 } %>
+        </div>
+      </div>
+    </details>
+
+    <% if flutua %>
+      <%# Painel flutuante do menu recolhido. O espaço de 12 px até o painel é preenchimento
+          (pl-3), não margem, para o mouse não "cair" no caminho entre o ícone e o painel. %>
+      <div data-flutuante
+           class="pointer-events-none absolute left-full top-1/2 z-40 hidden w-[calc(18rem+12px)] -translate-y-1/2 pl-3 opacity-0 transition duration-150 menu-recolhido:lg:group-hover/flutuante:pointer-events-auto menu-recolhido:lg:group-hover/flutuante:block menu-recolhido:lg:group-hover/flutuante:opacity-100 menu-recolhido:lg:group-focus-within/flutuante:pointer-events-auto menu-recolhido:lg:group-focus-within/flutuante:block menu-recolhido:lg:group-focus-within/flutuante:opacity-100">
+        <div class="overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--shell-topbar)] shadow-[0_20px_40px_rgba(8,17,31,0.32)] backdrop-blur">
+          <div class="border-b border-[var(--shell-border)] px-4 py-3">
+            <div class="flex items-center gap-3">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--shell-sidebar-active)] text-white">
+                <%= icone(item[:icone], classe: "h-5 w-5") %>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= item[:rotulo] %></p>
+                <p class="text-xs text-[var(--text-muted)]">Navegação do módulo</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-1.5 p-3">
+            <%= render partial: "layouts/compartilhado/item_flutuante", collection: item[:filhos], as: :item, locals: { nivel: 0 } %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <%= link_to item[:caminho],
+        title: item[:rotulo],
+        aria: { current: (ativo ? "page" : nil) },
+        data: { action: (gaveta ? "menu-lateral#fecharGaveta" : nil) },
+        class: [
+          "group flex items-center gap-3 rounded-md border px-3 transition",
+          recuo,
+          so_icone_no_recolhido,
+          (ativo ? classes_ativo : "border-transparent text-[var(--shell-sidebar-text)] hover:bg-white/4 hover:text-white")
+        ] do %>
+    <span class="flex h-5 w-5 shrink-0 items-center justify-center group-hover:text-white <%= ativo ? "text-white" : "text-[var(--shell-sidebar-muted)]" %>">
+      <%= icone(item[:icone], classe: "h-full w-full") %>
+    </span>
+    <span class="text-sm <%= "font-semibold" if nivel.zero? %> <%= esconder_no_recolhido %>"><%= item[:rotulo] %></span>
+  <% end %>
+<% end %>

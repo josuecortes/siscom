@@ -1,0 +1,66 @@
+<% nova = fonte.new_record? %>
+<% travada = fonte.gerenciada_pelo_sistema? && !nova %>
+<% definicao = fonte.definicao %>
+<% campos = definicao ? definicao.campos : [] %>
+<% seletor = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-60" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<% caixa = "flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)]" %>
+
+<%= form_with model: fonte, scope: :fonte, url: (nova ? core_fontes_referencia_path : core_fonte_referencia_path(fonte)), id: "formulario_fonte", class: "space-y-5" do |f| %>
+  <% if fonte.errors.any? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true,
+          mensagem: (fonte.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+  <% end %>
+  <% if travada %>
+    <p class="text-sm text-[var(--text-secondary)]">Fonte gerenciada pelo sistema: só o nome e a descrição podem ser alterados.</p>
+  <% end %>
+
+  <div class="space-y-1.5">
+    <%= f.label :entidade_completa, "Entidade *", class: rotulo, for: "fonte_entidade_completa" %>
+    <%= select_tag "fonte[entidade_completa]",
+          options_for_select(Core::FontesReferencia::Entidades.todas.map { |d| [ "#{d.nome} (#{d.entidade})", "#{d.modulo}:#{d.entidade}" ] },
+                             (definicao ? "#{fonte.modulo}:#{fonte.entidade}" : nil)),
+          include_blank: "Selecione", required: true, disabled: !nova, id: "fonte_entidade_completa", class: seletor,
+          data: (nova ? { controller: "recarregar-quadro", recarregar_quadro_url_value: new_core_fonte_referencia_path,
+                          recarregar_quadro_parametro_value: "entidade", action: "change->recarregar-quadro#recarregar" } : {}) %>
+    <% fonte.errors[:entidade].each do |mensagem| %><p class="text-sm text-[var(--danger-text)]">Entidade <%= mensagem %></p><% end %>
+  </div>
+
+  <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 80 } %>
+  <%= render "compartilhado/campo", f: f, campo: :descricao, rotulo: "Descrição", html: { maxlength: 200 } %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <% { campo_rotulo: [ "Campo visível *", false ], campo_valor: [ "Campo identificador *", false ], campo_subtitulo: [ "Campo de subtítulo", true ] }.each do |campo, (texto, opcional)| %>
+      <div class="space-y-1.5">
+        <%= f.label campo, texto, class: rotulo %>
+        <%= f.select campo, campos, { include_blank: (opcional ? "Sem subtítulo" : "Selecione") }, disabled: travada || campos.empty?, class: seletor %>
+        <% fonte.errors[campo].each do |mensagem| %><p class="text-sm text-[var(--danger-text)]"><%= texto.delete(" *") %> <%= mensagem %></p><% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <fieldset class="space-y-2" <%= "disabled" if travada %>>
+    <legend class="<%= rotulo %>">Campos de busca *</legend>
+    <%= hidden_field_tag "fonte[campos_busca][]", "", id: nil %>
+    <div class="grid gap-2 sm:grid-cols-2">
+      <% campos.each do |campo| %>
+        <label class="<%= caixa %>"><%= check_box_tag "fonte[campos_busca][]", campo, fonte.campos_busca.include?(campo), id: "fonte_campos_busca_#{campo}", class: "h-4 w-4" %> <span><%= campo %></span></label>
+      <% end %>
+    </div>
+    <% if campos.empty? %><p class="text-sm text-[var(--text-muted)]">Escolha a entidade para ver os campos.</p><% end %>
+    <% fonte.errors[:campos_busca].each do |mensagem| %><p class="text-sm text-[var(--danger-text)]">Campos de busca <%= mensagem %></p><% end %>
+  </fieldset>
+
+  <fieldset class="space-y-2" <%= "disabled" if travada %>>
+    <legend class="<%= rotulo %>">Tipos de campo suportados *</legend>
+    <%= hidden_field_tag "fonte[tipos_de_campo][]", "", id: nil %>
+    <div class="grid gap-2 sm:grid-cols-2">
+      <% Core::FonteReferencia::TIPOS_DE_CAMPO.each do |tipo, texto| %>
+        <label class="<%= caixa %>"><%= check_box_tag "fonte[tipos_de_campo][]", tipo, fonte.tipos_de_campo.include?(tipo), id: "fonte_tipos_de_campo_#{tipo}", class: "h-4 w-4" %> <span><%= texto %></span></label>
+      <% end %>
+    </div>
+    <% fonte.errors[:tipos_de_campo].each do |mensagem| %><p class="text-sm text-[var(--danger-text)]">Tipos de campo <%= mensagem %></p><% end %>
+  </fieldset>
+
+  <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+<% end %>

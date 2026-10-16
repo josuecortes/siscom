@@ -1,0 +1,39 @@
+<% content_for :title, @envio.codigo %>
+<% titulo = "text-sm font-semibold text-[var(--text-primary)]" %>
+<% caixa = "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]" %>
+<% detalhe = ->(rotulo, valor) do %>
+  <% if valor.present? %>
+    <div class="<%= caixa %> px-4 py-3">
+      <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+      <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor %></dd>
+    </div>
+  <% end %>
+<% end %>
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (emprestimo? ? "Empréstimos e cautelas" : "Movimentações"), titulo: "#{@envio.nome_do_tipo} #{@envio.codigo}", voltar: caminho_da_lista, largo: true,
+                rodape: render("compartilhado/rodape_fechar") } do %>
+  <section class="space-y-3" id="resumo_do_envio">
+    <div class="flex flex-wrap items-center justify-end gap-2"><%= selo_de_atraso(@envio) %><%= selo_do_envio(@envio) %></div>
+    <dl class="grid gap-3 sm:grid-cols-2">
+      <% detalhe.call("De", @envio.origem_nome) %>
+      <% detalhe.call("Para", @envio.destino_nome) %>
+      <% detalhe.call("Quem recebe", @envio.responsavel_nome) %>
+      <% detalhe.call("Enviado por", "#{@envio.criada_por_nome}, em #{l(@envio.created_at, format: '%d/%m/%Y %H:%M')}") %>
+      <% if @envio.emprestimo? %>
+        <% detalhe.call("Devolução prevista", l(@envio.previsao_devolucao)) %>
+        <% detalhe.call("Termo", (@envio.aceita? ? "Aceito em #{l(@envio.aceita_em, format: '%d/%m/%Y %H:%M')} · #{@envio.dias_emprestado} dia(s) emprestado" : "Aguardando o aceite de #{@envio.responsavel_nome}")) %>
+      <% end %>
+      <% detalhe.call("Observação", @envio.descricao) %>
+    </dl>
+  </section>
+  <section class="space-y-2" id="equipamentos_do_envio">
+    <h3 class="<%= titulo %>">Equipamentos (<%= @envio.itens.size %>)</h3>
+    <%= render "equipamentos/movimentacoes/itens", envio: @envio %>
+  </section>
+  <% if @envio.termo.present? %>
+    <section class="space-y-2" id="termo_do_envio">
+      <h3 class="<%= titulo %>">Termo de responsabilidade aceito</h3>
+      <p class="<%= caixa %> whitespace-pre-line px-4 py-3 text-sm leading-6 text-[var(--text-primary)]"><%= @envio.termo %></p>
+    </section>
+  <% end %>
+<% end %>

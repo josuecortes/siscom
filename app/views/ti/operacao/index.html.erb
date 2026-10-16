@@ -1,0 +1,180 @@
+<% content_for :title, "Operação" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Operação", icone: :group, migalha: [ "TI", ti_operacao_index_path ] } do %>
+  <%# Abrir para si é pela Minha área; aqui, só em nome de outra pessoa. %>
+  <% if pode?(Ti::Chamados::Abrir::PERMISSAO_PARA_OUTRO) %>
+    <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir para outra pessoa", icone: :user_follow, caminho: new_ti_chamado_para_outro_path, opcoes: { data: { turbo_frame: "painel" } } %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream_from "ti_operacao" %>
+<% filtrando = @filtros[:filtrando] %>
+<% abas = Ti::OperacaoController::ABAS %>
+<% sem_dono = @filtros[:status] == Ti::OperacaoController::SEM_DONO %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+<% data = { controller: "mascara", mascara_tipo_value: "data", action: "input->mascara#aplicar" } %>
+<% campo_de_data = ->(nome, texto) do %>
+  <div class="space-y-1.5">
+    <label for="<%= nome %>" class="<%= rotulo %>"><%= texto %></label>
+    <%= text_field_tag nome, DataBr.formatar(@filtros[nome]), placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, autocomplete: "off", data: data, class: "#{campo} px-4" %>
+  </div>
+<% end %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%# Como na Operação do Transporte: qualquer filtro preenchido troca as abas por uma só, "Resultado", com tudo o que
+      a pessoa enxerga, de todas as etapas. "Limpar filtros" devolve as abas. %>
+  <%= form_with url: ti_operacao_index_path, method: :get, id: "filtros_da_operacao", class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "operacao_lista", turbo_action: "advance" } do |f| %>
+    <% extras = @filtros.slice(:categoria_id, :unidade_id, :aberto_de, :aberto_ate).values.count(&:present?) %>
+    <div class="space-y-4" data-controller="recolher">
+      <div class="flex items-end gap-2">
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <%= f.label :q, "Buscar por código, solicitação, unidade ou nome", class: "sr-only md:not-sr-only #{rotulo}" %>
+          <div class="relative">
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+            <%= f.text_field :q, value: @filtros[:q], placeholder: "Código, solicitação ou nome", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "#{campo} pl-11 pr-4" %>
+          </div>
+        </div>
+        <button type="submit" title="Filtrar chamados" aria-label="Filtrar chamados"
+                class="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to ti_operacao_index_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+      <button type="button" data-recolher-target="botao" data-action="recolher#alternar" aria-expanded="false" aria-controls="mais_filtros"
+              class="group inline-flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm font-semibold text-[var(--text-primary)] md:hidden">
+        <span class="inline-flex items-center gap-2">
+          Mais filtros
+          <% if extras.positive? %><span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[11px] text-[var(--accent-strong)]"><%= extras %></span><% end %>
+        </span>
+        <span class="text-[var(--text-secondary)] transition-transform group-aria-expanded:rotate-180"><%= icone(:chevron_right, classe: "h-4 w-4 rotate-90") %></span>
+      </button>
+      <div id="mais_filtros" data-recolher-target="bloco" class="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-5 xl:items-end">
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%# De quem é o nome digitado na busca: por padrão vale para os três (e a busca também olha código, solicitação e unidade). %>
+          <%= f.label :pessoa, "Procurar o nome em", class: rotulo %>
+          <%= f.select :pessoa, [ [ "Solicitante, técnico ou triador", "" ] ] + Ti::Chamado::PESSOAS_DA_BUSCA.invert.to_a, { selected: @filtros[:pessoa] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 space-y-1.5 md:mb-0">
+          <%= f.label :categoria_id, "Categoria", class: rotulo %>
+          <%= f.select :categoria_id, [ [ "Todas", "" ] ] + Ti::Categoria.order(:nome).pluck(:nome, :id), { selected: @filtros[:categoria_id] }, data: { action: "change->filtro#aplicar" }, class: "#{campo} px-4" %>
+        </div>
+        <div class="mb-4 md:mb-0">
+          <%= render "compartilhado/campo_autocomplete", nome: "unidade_id", id: "filtro_unidade", rotulo: "Unidade de quem pediu", flutuante: true,
+                url: ti_opcoes_de_unidades_path, valor: @filtros[:unidade_id], texto: @unidade&.sigla_e_nome,
+                acao: "change->filtro#aplicar", placeholder: "Digite para buscar a unidade", vazio: "Nenhuma unidade cadastrada." %>
+        </div>
+        <div class="grid grid-cols-2 gap-4 md:contents">
+          <% campo_de_data.call(:aberto_de, "Aberto de") %>
+          <% campo_de_data.call(:aberto_ate, "Aberto até") %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "operacao_lista", data: { turbo_action: "advance" } do %>
+    <%# A aba, a visão (meus/todos) e a ordem acompanham os filtros: ficam aqui dentro (sempre atuais) e pertencem ao formulário de cima. %>
+    <% @filtros.slice(:status, :de, :ordem, :direcao).each do |nome, valor| %>
+      <%= hidden_field_tag nome, valor, id: nil, form: "filtros_da_operacao" %>
+    <% end %>
+    <% aba = "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" %>
+    <% contador = "inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]" %>
+    <% manter = { de: (@filtros[:de] unless @filtros[:de] == "meus"), ordem: @filtros[:ordem], direcao: (@filtros[:direcao] unless @filtros[:direcao] == "asc") } %>
+    <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas dos chamados">
+      <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
+        <% if filtrando %>
+          <span class="<%= aba %>" aria-current="page"><span>Resultado</span> <span class="<%= contador %>"><%= @pagy.count %></span></span>
+        <% else %>
+          <% abas.each do |chave, (titulo, _)| %>
+            <%= link_to ti_operacao_index_path(manter.merge(status: chave)), aria: { current: (chave == @filtros[:status] ? "page" : nil) }, class: aba do %>
+              <span><%= titulo %></span>
+              <span class="<%= contador %>"><%= @contagens.fetch(chave, 0) %></span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
+
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--border-subtle)] px-6 py-3">
+      <p class="text-sm text-[var(--text-secondary)]" id="resumo_da_operacao">
+        <% if filtrando %>
+          <%= @pagy.count %> chamado(s) encontrado(s), de todas as etapas
+        <% elsif sem_dono %>
+          <%= @pagy.count %> chamado(s) que ninguém assumiu ainda
+        <% else %>
+          <%= @pagy.count %> chamado(s) em <%= abas.dig(@filtros[:status], 0).downcase %>, <%= @filtros[:de] == "todos" ? "de todos" : "só os meus" %>
+        <% end %>
+      </p>
+      <%# Liga/desliga: só os meus (padrão) ou de todos. Na aba Solicitadas e no Resultado não se aplica: ali aparece tudo. %>
+      <% unless filtrando || sem_dono %>
+        <% todos = @filtros[:de] == "todos" %>
+        <%= link_to ti_operacao_index_path(manter.merge(status: @filtros[:status], de: (todos ? nil : "todos"))), role: "switch", aria: { checked: todos.to_s },
+              title: (todos ? "Mostrando os chamados de todos. Clique para ver só os seus." : "Mostrando só os seus chamados. Clique para ver os de todos."),
+              class: "group inline-flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]" do %>
+          <span>Ver os de todos</span>
+          <span class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full bg-[var(--border-subtle)] transition-colors group-aria-checked:bg-[var(--accent-strong)]">
+            <span class="inline-block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform group-aria-checked:translate-x-[1.375rem]"></span>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% ativa = @filtros[:ordem] == "aberto" %>
+    <% proxima = ativa && @filtros[:direcao] == "asc" ? "desc" : "asc" %>
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1100px]">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Solicitação</th>
+            <th scope="col">Solicitante</th>
+            <th scope="col" aria-sort="<%= ativa ? (@filtros[:direcao] == "asc" ? "ascending" : "descending") : "none" %>">
+              <%= link_to url_for(request.query_parameters.except("page").merge(ordem: "aberto", direcao: proxima)),
+                    title: "Ordenar por data de abertura (#{proxima == 'asc' ? 'mais antigo primeiro' : 'mais novo primeiro'})",
+                    class: "inline-flex items-center gap-1.5 hover:text-[var(--accent-strong)] #{'text-[var(--accent-strong)]' if ativa}" do %>
+                <span>Aberto em</span>
+                <span class="text-xs leading-none <%= "opacity-40" unless ativa %>" aria-hidden="true"><%= ativa ? (@filtros[:direcao] == "asc" ? "▲" : "▼") : "▲▼" %></span>
+              <% end %>
+            </th>
+            <th scope="col">Prioridade</th>
+            <th scope="col">Status</th>
+            <th scope="col">Responsável</th>
+            <th scope="col" class="!pl-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @chamados.each do |chamado| %>
+            <tr id="<%= dom_id(chamado) %>">
+              <td class="font-semibold text-[var(--text-primary)]">
+                <%= link_to chamado.codigo, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
+              </td>
+              <td class="!whitespace-normal"><%# solicitação e solicitante quebram a linha: as ações têm de caber sem rolagem %>
+                <p class="font-semibold text-[var(--text-primary)]">
+                  <%= link_to chamado.problema.nome, ti_operacao_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
+                </p>
+                <% if @liberacoes[chamado.id] %><p class="mt-1.5"><%= selo_de_liberado(@liberacoes[chamado.id]) %></p><% end %>
+              </td>
+              <td class="!whitespace-normal">
+                <div class="min-w-0">
+                  <p><%= chamado.solicitante_nome %></p>
+                  <% if chamado.unidade_nome.present? %><p class="text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
+                </div>
+              </td>
+              <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
+              <td><%= render "compartilhado/selo", texto: chamado.nome_da_prioridade, tom: (chamado.prioridade_normal? ? :neutro : :atencao) %></td>
+              <td><%= selo_do_status(chamado) %></td>
+              <td class="!whitespace-normal"><%= chamado.responsavel&.nome || (chamado.em_triagem? && chamado.triador ? "#{chamado.triador.nome} (triagem)" : "Não atribuído") %></td>
+              <td class="!pl-2 !pr-4"><%= render "ti/chamados/acoes", chamado: chamado, visao: :operacao %></td>
+            </tr>
+          <% end %>
+          <% if @chamados.empty? %>
+            <tr><td colspan="8" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= filtrando ? "Nenhum chamado encontrado para os filtros atuais." : "Nenhum chamado nesta etapa." %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "operacao_lista" %>
+  <% end %>
+</section>

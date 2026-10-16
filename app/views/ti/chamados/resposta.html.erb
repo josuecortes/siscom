@@ -1,0 +1,18 @@
+<% content_for :title, "Responder" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_resposta", rotulo: "Enviar resposta" } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Ajustar solicitação", titulo: "Responder #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
+                descricao: @chamado.nota_triagem } do %>
+  <%= form_with url: responder_ti_chamado_path(@chamado), method: :patch, id: "formulario_resposta", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="nota" class="text-sm font-medium text-[var(--text-secondary)]">Sua resposta *</label>
+      <%= text_area_tag :nota, params[:nota], rows: 6, required: true,
+            class: "min-h-28 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+      <p class="text-xs text-[var(--text-muted)]">Ao enviar, o chamado volta para a TI continuar o atendimento.</p>
+    </div>
+  <% end %>
+<% end %>

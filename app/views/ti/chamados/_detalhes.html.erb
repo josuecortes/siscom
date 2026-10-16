@@ -1,0 +1,88 @@
+<%# Miolo do painel "ver chamado": resumo, dados informados e histórico. locals: chamado, valores, eventos,
+    supervisao (bool: lê a conversa mesmo sem participar), convidar_a_finalizar (bool: é o solicitante vendo).
+    As ações ficam na linha da lista; a exceção, pedida pelo Josue, é o convite para finalizar o chamado concluído. %>
+<% titulo = "text-sm font-semibold text-[var(--text-primary)]" %>
+<% caixa = "rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)]" %>
+<% detalhe = ->(rotulo, valor) do %>
+  <div class="<%= caixa %> px-4 py-3">
+    <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+    <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "—" %></dd>
+  </div>
+<% end %>
+
+<section class="space-y-3" id="resumo_do_chamado">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0">
+      <h3 class="<%= titulo %>"><%= chamado.problema.nome %></h3>
+      <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= chamado.problema.categoria.nome %></p>
+    </div>
+    <%= selo_do_status(chamado) %>
+  </div>
+  <% if local_assigns[:convidar_a_finalizar] && chamado.concluido? && chamado.solicitante_id == current_user.id %>
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--success-border)] bg-[var(--success-surface)] px-4 py-3" id="convite_para_finalizar">
+      <p class="min-w-0 text-sm text-[var(--success-text)]">
+        <strong>A TI concluiu o atendimento.</strong> Confira se o seu pedido foi resolvido e finalize o chamado com a sua avaliação.
+      </p>
+      <%= link_to "Finalizar chamado", finalizacao_ti_chamado_path(chamado), data: { turbo_frame: "painel" },
+            class: "inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" %>
+    </div>
+  <% end %>
+  <% if chamado.aguardando_solicitante? && chamado.nota_triagem.present? %>
+    <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]" id="pedido_de_ajuste">A TI pediu um ajuste ao solicitante: <%= chamado.nota_triagem %></p>
+  <% end %>
+  <dl class="grid gap-3 sm:grid-cols-2">
+    <% detalhe.call("Aberto em", l(chamado.aberto_em, format: "%d/%m/%Y %H:%M")) %>
+    <% detalhe.call("Prioridade", chamado.nome_da_prioridade) %>
+    <% detalhe.call("Solicitante", chamado.solicitante_nome) %>
+    <% detalhe.call("Unidade", chamado.unidade_nome) %>
+    <% if chamado.aberto_por %><% detalhe.call("Aberto por", "#{chamado.aberto_por.nome} (em nome do solicitante)") %><% end %>
+    <% detalhe.call("Responsável", chamado.responsavel&.nome || "Ainda sem responsável") %>
+    <% if chamado.finalizado? %>
+      <%# Nos chamados migrados do siscom antigo não havia a pergunta "resolveu?": aí aparece só a avaliação. %>
+      <% resolveu = { true => "resolveu o pedido", false => "não resolveu o pedido" }[chamado.avaliacao_resolvido] %>
+      <% detalhe.call("Avaliação", [ chamado.nome_da_avaliacao || "Não informada", resolveu ].compact.join(" · ")) %>
+      <% if chamado.avaliacao_comentario.present? %><% detalhe.call("Comentário do solicitante", chamado.avaliacao_comentario) %><% end %>
+    <% end %>
+  </dl>
+</section>
+
+<section class="space-y-2" id="dados_do_chamado">
+  <h3 class="<%= titulo %>">Dados informados</h3>
+  <% if valores.empty? %>
+    <p class="text-sm text-[var(--text-secondary)]">Esta solicitação não pediu dados adicionais.</p>
+  <% else %>
+    <dl class="grid gap-3 sm:grid-cols-2">
+      <% valores.each do |valor| %>
+        <div class="<%= caixa %> px-4 py-3 <%= "sm:col-span-2" if valor.tipo == "texto_longo" %>">
+          <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= valor.rotulo %></dt>
+          <dd class="mt-1 break-words text-sm text-[var(--text-primary)]">
+            <% if valor.arquivos.attached? %>
+              <ul class="space-y-1">
+                <% valor.arquivos.each do |arquivo| %>
+                  <li><%= link_do_arquivo(arquivo, classe: "inline-flex items-center gap-2 text-[var(--accent-strong)] hover:underline") %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <%= simple_format(h(valor.valor_texto), {}, wrapper_tag: "span") %>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  <% end %>
+</section>
+
+<%# Quem participa conversa pelo botão da linha (ícone flutuante); aqui só a supervisão lê, sem participar. %>
+<%= render "core/conversas/conversa", conversa: Core::Api.conversa_de(chamado), ver_sem_participar: local_assigns[:supervisao], sem_botao: true %>
+
+<section class="space-y-2" id="historico_do_chamado">
+  <h3 class="<%= titulo %>">Histórico</h3>
+  <ol class="<%= caixa %> divide-y divide-[var(--border-subtle)]">
+    <% eventos.each do |evento| %>
+      <li class="px-4 py-2.5 text-sm">
+        <p class="break-words text-[var(--text-primary)]"><%= evento.nota %></p>
+        <p class="mt-0.5 text-xs text-[var(--text-muted)]"><%= l(evento.ocorrido_em, format: "%d/%m/%Y %H:%M") %> · <%= evento.ator_nome %></p>
+      </li>
+    <% end %>
+  </ol>
+</section>

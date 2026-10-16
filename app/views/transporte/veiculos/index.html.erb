@@ -1,0 +1,63 @@
+<% content_for :title, "Veículos" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Veículos", icone: :car_alt, migalha: [ "Transporte", transporte_veiculos_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Novo veículo", icone: :plus, caminho: new_transporte_veiculo_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= render "compartilhado/filtro_busca_status", url: transporte_veiculos_path, quadro: "veiculos_lista", rotulo_busca: "Buscar por placa, marca ou modelo",
+        exemplo: "Ex.: QWE1234 ou Toyota", grade: "lg:grid-cols-[1fr_220px_auto]", busca: @filtros[:q], status: @filtros[:status],
+        opcoes_status: [ [ "Todos", "todos" ], [ "Ativos", "ativo" ], [ "Inativos", "inativo" ] ], titulo_filtrar: "Filtrar veículos" %>
+
+  <%= turbo_frame_tag "veiculos_lista", data: { turbo_action: "advance" } do %>
+    <%= render "compartilhado/resumo_tabela", texto: "#{@pagy.count} veículo(s)" %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[1120px]">
+        <thead>
+          <tr>
+            <th scope="col">Placa</th>
+            <th scope="col">Veículo</th>
+            <th scope="col">Capacidade</th>
+            <th scope="col">Combustível</th>
+            <th scope="col">Odômetro</th>
+            <th scope="col">Status</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @veiculos.each do |veiculo| %>
+            <tr id="<%= dom_id(veiculo) %>">
+              <td class="whitespace-nowrap font-semibold text-[var(--text-primary)]"><%= veiculo.placa %></td>
+              <td>
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= veiculo.marca %> <%= veiculo.modelo %></p>
+                <p class="mt-1 text-xs text-[var(--text-muted)]"><%= veiculo.ano %> · <%= veiculo.cor %></p>
+              </td>
+              <td><%= veiculo.capacidade %> passageiro(s)</td>
+              <td><%= veiculo.nome_do_combustivel %> · <%= number_with_precision(veiculo.consumo_km_por_litro, precision: 1) %> km/l</td>
+              <td class="whitespace-nowrap"><%= number_with_delimiter(veiculo.odometro_atual) %> km</td>
+              <td><%= render "compartilhado/selo", texto: (veiculo.ativo? ? "Ativo" : "Inativo"), tom: (veiculo.ativo? ? :sucesso : :atencao) %></td>
+              <td>
+                <div class="flex flex-nowrap items-center gap-2">
+                  <%= render "compartilhado/botao_acao", titulo: "Editar veículo", icone: :pencil, caminho: edit_transporte_veiculo_path(veiculo), quadro: "painel" %>
+                  <% if veiculo.ativo? %>
+                    <%= render "compartilhado/botao_acao", titulo: "Desativar veículo", icone: :ban, caminho: desativar_transporte_veiculo_path(veiculo), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a desativação. O registro deixa de aparecer nas opções, mas continua no histórico.", rotulo: "Desativar" } %>
+                  <% else %>
+                    <%= render "compartilhado/botao_acao", titulo: "Ativar veículo", icone: :check_circle, caminho: ativar_transporte_veiculo_path(veiculo), metodo: :patch,
+                          confirmar: { mensagem: "Confirme a ativação.", rotulo: "Ativar", tom: "primario" } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+          <% if @veiculos.empty? %>
+            <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum veículo encontrado.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "veiculos_lista" %>
+  <% end %>
+</section>

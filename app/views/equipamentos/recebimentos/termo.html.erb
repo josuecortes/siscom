@@ -1,0 +1,28 @@
+<% content_for :title, "Termo de responsabilidade" %>
+<% pode_aceitar = !@envio.aceita? && @envio.em_andamento? && @envio.itens.any?(&:pendente?) %>
+<% em_nome = @envio.responsavel_id != current_user.id %>
+<% rodape = capture do %>
+  <% if pode_aceitar %>
+    <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Cancelar</button>
+    <button type="submit" form="formulario_termo" data-turbo-submits-with="Registrando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:opacity-60"><%= em_nome ? "Aceitar em nome de #{@envio.responsavel_nome}" : "Li e aceito o termo" %></button>
+  <% else %>
+    <%= render "compartilhado/rodape_fechar" %>
+  <% end %>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "#{@envio.nome_do_tipo} #{@envio.codigo}", titulo: "Termo de responsabilidade", voltar: volta, largo: true, rodape: rodape,
+                descricao: (@envio.aceita? ? "Aceito em #{l(@envio.aceita_em, format: '%d/%m/%Y %H:%M')}." : "Leia com atenção. Ao aceitar, os equipamentos ficam sob a responsabilidade de #{em_nome ? @envio.responsavel_nome : 'você'} até a devolução.") } do %>
+  <% if @erro.present? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+  <% end %>
+  <% if pode_aceitar && em_nome %>
+    <p class="rounded-xl bg-[var(--warning-surface)] px-4 py-3 text-sm text-[var(--warning-text)]">Você está aceitando como administrador, em nome de <%= @envio.responsavel_nome %>. Isso fica registrado no histórico de cada equipamento.</p>
+  <% end %>
+  <p id="texto_do_termo" class="whitespace-pre-line rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-4 text-sm leading-6 text-[var(--text-primary)]"><%= @texto %></p>
+  <% if pode_aceitar %>
+    <%= form_with url: aceitar_equipamentos_recebimento_path(@envio), method: :patch, id: "formulario_termo" do %>
+      <%= hidden_field_tag :voltar, params[:voltar], id: nil %>
+    <% end %>
+  <% end %>
+<% end %>

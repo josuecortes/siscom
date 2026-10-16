@@ -1,0 +1,19 @@
+<%# Unidade do equipamento no cadastro. locals: prefixo ("item" ou "kit"), valor (id), todas (bool: administrador escolhe qualquer uma), unidades (as do gestor) %>
+<% entrada = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% if todas %>
+  <% escolhida = Rh::Api.unidade(valor) %>
+  <%= render "compartilhado/campo_autocomplete", nome: "#{prefixo}[rh_unidade_id]", id: "#{prefixo}_unidade", rotulo: "Unidade *", obrigatorio: true, url: equipamentos_opcoes_de_unidades_path,
+        valor: escolhida&.id, texto: escolhida&.sigla_e_nome, placeholder: "Digite para buscar a unidade", vazio: "Nenhuma unidade cadastrada." %>
+<% elsif unidades.one? %>
+  <div class="space-y-1.5">
+    <label for="<%= prefixo %>_unidade" class="text-sm font-medium text-[var(--text-secondary)]">Unidade</label>
+    <%= hidden_field_tag "#{prefixo}[rh_unidade_id]", unidades.first.id, id: nil %>
+    <input type="text" id="<%= prefixo %>_unidade" readonly value="<%= unidades.first.sigla_e_nome %>" class="<%= entrada %> text-[var(--text-secondary)]">
+  </div>
+<% else %>
+  <div class="space-y-1.5">
+    <label for="<%= prefixo %>_unidade" class="text-sm font-medium text-[var(--text-secondary)]">Unidade *</label>
+    <%= select_tag "#{prefixo}[rh_unidade_id]", options_for_select([ [ "Selecione a unidade", "" ] ] + unidades.map { |unidade| [ unidade.sigla_e_nome, unidade.id ] }, valor), id: "#{prefixo}_unidade", required: true, class: entrada %>
+    <% if unidades.empty? %><p class="text-sm text-[var(--danger-text)]">Você não está lotado em nenhuma unidade: procure o RH.</p><% end %>
+  </div>
+<% end %>

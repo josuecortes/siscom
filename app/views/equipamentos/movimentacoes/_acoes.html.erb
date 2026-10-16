@@ -1,0 +1,24 @@
+<%# Ações do envio na linha da lista. locals: envio. Quem criou cancela o que ainda não foi recebido; o
+    administrador pode fazer a parte de quem recebe em nome da pessoa (fica registrado). %>
+<% admin = pode?(Equipamentos::Acesso::ADMINISTRAR) %>
+<% linhas = envio.itens %>
+<div class="flex flex-nowrap items-center gap-1.5">
+  <%= render "compartilhado/botao_acao", titulo: "Visualizar envio", icone: :eye, caminho: (envio.emprestimo? ? equipamentos_emprestimo_path(envio) : equipamentos_movimentacao_path(envio)), quadro: "painel" %>
+  <% if envio.em_andamento? %>
+    <% if linhas.any?(&:pendente?) && (envio.criada_por_id == current_user.id || admin) %>
+      <%= render "compartilhado/botao_acao", titulo: "Cancelar envio de equipamento", icone: :ban, perigo: true, quadro: "painel",
+            caminho: (envio.emprestimo? ? cancelamento_equipamentos_emprestimo_path(envio) : cancelamento_equipamentos_movimentacao_path(envio)) %>
+    <% end %>
+    <% if admin && envio.responsavel_id != current_user.id %>
+      <% if envio.emprestimo? && linhas.any?(&:pendente?) %>
+        <%= render "compartilhado/botao_acao", titulo: "Aceitar o termo em nome de #{envio.responsavel_nome}", icone: :check_circle, caminho: termo_equipamentos_recebimento_path(envio, voltar: "lista"), quadro: "painel" %>
+      <% elsif !envio.emprestimo? && linhas.any?(&:pendente?) %>
+        <%= render "compartilhado/botao_acao", titulo: "Dar o recebido em nome de #{envio.responsavel_nome}", icone: :check_circle, caminho: receber_equipamentos_recebimento_path(envio, voltar: "lista"), metodo: :patch,
+              confirmar: { mensagem: "Confirme: você, como administrador, dá o recebido dos equipamentos ainda pendentes de #{envio.codigo} em nome de #{envio.responsavel_nome}. Isso fica registrado.", rotulo: "Dar o recebido", tom: "primario" } %>
+      <% end %>
+      <% if linhas.any?(&:devolucao_pendente?) %>
+        <%= render "compartilhado/botao_acao", titulo: "Receber a devolução (administrador)", icone: :reload, caminho: recebimento_da_devolucao_equipamentos_recebimento_path(envio, voltar: "lista"), quadro: "painel" %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

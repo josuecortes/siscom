@@ -1,0 +1,60 @@
+<% content_for :title, "Campos da solicitação" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Campos do chamado #{@solicitacao.nome}", icone: :list_rich, migalha: [ "Solicitações", ti_solicitacoes_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: ti_solicitacoes_path, secundaria: true %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Novo campo", icone: :plus, caminho: new_ti_solicitacao_campo_path(@solicitacao), opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <div class="border-b border-[var(--border-subtle)] px-6 py-5 text-sm text-[var(--text-secondary)]">
+    <p>Estes campos formam o formulário que o usuário preenche ao abrir um chamado de <strong class="text-[var(--text-primary)]"><%= @solicitacao.nome %></strong>, na ordem abaixo.</p>
+  </div>
+  <%= render "compartilhado/resumo_tabela", texto: "#{@campos.size} campo(s) registrado(s)" %>
+
+  <div class="overflow-x-auto">
+    <table class="collection-table min-w-[1120px]">
+      <thead>
+        <tr>
+          <th scope="col">Campo</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Obrigatório</th>
+          <th scope="col">Posição</th>
+          <th scope="col">Status</th>
+          <th scope="col">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @campos.each do |campo| %>
+          <tr id="<%= dom_id(campo) %>">
+            <td>
+              <div class="space-y-1">
+                <p class="font-semibold text-[var(--text-primary)]"><%= campo.rotulo %></p>
+                <% detalhe = campo.com_opcoes? ? campo.opcoes.join(", ") : (campo.com_fonte? ? "Fonte: #{campo.fonte}" : campo.ajuda) %>
+                <p class="text-sm text-[var(--text-secondary)]"><%= truncate(detalhe.presence || "Sem ajuda cadastrada.", length: 90) %></p>
+              </div>
+            </td>
+            <td><%= campo.nome_do_tipo %></td>
+            <td><%= campo.obrigatorio? ? "Sim" : "Não" %></td>
+            <td><%= campo.posicao %></td>
+            <td><%= render "compartilhado/selo", texto: (campo.ativo? ? "Ativo" : "Inativo"), tom: (campo.ativo? ? :sucesso : :atencao) %></td>
+            <td>
+              <div class="flex flex-nowrap items-center gap-2">
+                <%= render "compartilhado/botao_acao", titulo: "Editar campo", icone: :pencil, caminho: edit_ti_solicitacao_campo_path(@solicitacao, campo), quadro: "painel" %>
+                <% if campo.ativo? %>
+                  <%= render "compartilhado/botao_acao", titulo: "Desativar campo", icone: :ban, caminho: desativar_ti_solicitacao_campo_path(@solicitacao, campo), metodo: :patch,
+                        confirmar: { mensagem: "Confirme a desativação do campo #{campo.rotulo}. Ele sai do formulário, mas as respostas já dadas ficam nos chamados.", rotulo: "Desativar" } %>
+                <% else %>
+                  <%= render "compartilhado/botao_acao", titulo: "Ativar campo", icone: :check_circle, caminho: ativar_ti_solicitacao_campo_path(@solicitacao, campo), metodo: :patch,
+                        confirmar: { mensagem: "Confirme a ativação do campo #{campo.rotulo}.", rotulo: "Ativar", tom: "primario" } %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        <% if @campos.empty? %>
+          <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum campo ainda. Sem campos, o chamado é aberto só com a escolha da solicitação.</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

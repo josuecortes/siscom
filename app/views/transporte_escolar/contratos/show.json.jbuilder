@@ -1,1 +1,0 @@
-json.partial! "transporte_escolar_contratos/transporte_escolar_contrato", transporte_escolar_contrato: @transporte_escolar_contrato

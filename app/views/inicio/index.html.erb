@@ -1,0 +1,129 @@
+<% content_for :title, "Início" %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]" %>
+<% titulo_secao = "text-base font-semibold text-[var(--text-primary)]" %>
+<% hora = Time.current.hour %>
+<% saudacao = hora < 12 ? "Bom dia" : (hora < 18 ? "Boa tarde" : "Boa noite") %>
+<% tons = { "atencao" => "border-[var(--warning-border,var(--border-subtle))] bg-[var(--warning-surface)] text-[var(--warning-text)]",
+            "perigo" => "border-[var(--danger-border-strong)] bg-[var(--danger-surface)] text-[var(--danger-text)]",
+            "info" => "border-[var(--border-subtle)] bg-[var(--info-badge-surface)] text-[var(--info-badge-text)]" } %>
+
+<%# Tempo real: notificações, mensagens e mudanças nos chamados, solicitações e equipamentos da pessoa atualizam esta tela sozinhas. %>
+<%= turbo_stream_from current_user, "inicio" %>
+<%= turbo_stream_from current_user, "ti_chamados" %>
+<%= turbo_stream_from current_user, "transporte_solicitacoes" %>
+<%= turbo_stream_from current_user, "equipamentos" %>
+<% @canais_da_operacao.each do |canal| %><%= turbo_stream_from canal %><% end %>
+
+<%= render "compartilhado/cabecalho_pagina", titulo: "Início", icone: :home, migalha: [ nome_do_sistema, root_path ] %>
+
+<section class="mt-6 <%= cartao %> px-6 py-5" id="saudacao">
+  <h2 class="text-xl font-semibold text-[var(--text-primary)]"><%= saudacao %>, <%= current_user.nome.split.first.capitalize %></h2>
+  <p class="mt-1 text-sm text-[var(--text-secondary)]">
+    <%= l(Date.current, format: "%A, %d de %B de %Y").upcase_first %><%= " · #{@unidade.sigla_e_nome}" if @unidade %>
+  </p>
+</section>
+
+<section class="mt-6" id="atencao" aria-labelledby="atencao_titulo">
+  <h2 id="atencao_titulo" class="<%= titulo_secao %>">Precisa da sua atenção</h2>
+  <% if @atencao.any? %>
+    <ul class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <% @atencao.each do |item| %>
+        <li>
+          <%= link_to item[:caminho], class: "flex h-full items-start gap-4 rounded-[var(--radius-panel)] border px-5 py-4 transition hover:shadow-[var(--shadow-card)] #{tons.fetch(item[:tom], tons['info'])}" do %>
+            <span class="min-w-[2.5rem] text-3xl font-semibold leading-none"><%= item[:quantidade] %></span>
+            <span class="min-w-0">
+              <span class="block font-semibold"><%= item[:titulo] %></span>
+              <span class="mt-1 block text-sm opacity-90"><%= item[:detalhe] %></span>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="mt-3 flex items-center gap-3 rounded-[var(--radius-panel)] border border-[var(--success-border,var(--border-subtle))] bg-[var(--success-surface)] px-5 py-4 text-sm font-semibold text-[var(--success-text)]">
+      <%= icone(:check_circle, classe: "h-5 w-5") %> Tudo em dia: nada esperando por você.
+    </p>
+  <% end %>
+</section>
+
+<% if @atalhos.any? %>
+  <section class="mt-6" id="atalhos" aria-labelledby="atalhos_titulo">
+    <h2 id="atalhos_titulo" class="<%= titulo_secao %>">Atalhos</h2>
+    <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <% (@atalhos + [ { rotulo: "Minha ficha", caminho: rh_minha_ficha_path, icone: "user", painel: false } ]).each do |atalho| %>
+        <%= link_to atalho[:caminho], data: (atalho[:painel] ? { turbo_frame: "painel" } : {}),
+              class: "#{cartao} flex items-center gap-3 px-5 py-4 text-sm font-semibold text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]" do %>
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent-strong)]"><%= icone(atalho[:icone].to_s.tr("-", "_"), classe: "h-5 w-5") %></span>
+          <span><%= atalho[:rotulo] %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:items-start">
+  <div class="space-y-6">
+    <% @andamento.each do |bloco| %>
+      <section class="<%= cartao %>" id="andamento_<%= bloco[:titulo].parameterize %>">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-6 py-4">
+          <h2 class="<%= titulo_secao %>"><%= bloco[:titulo] %> em andamento <span class="ml-1 inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--accent-strong)]"><%= bloco[:total] %></span></h2>
+          <%= link_to "Ver todos", bloco[:todos], class: "text-sm font-semibold text-[var(--accent-strong)] hover:underline" %>
+        </div>
+        <ul class="divide-y divide-[var(--border-subtle)]">
+          <% bloco[:itens].each do |item| %>
+            <li>
+              <%= link_to item[:caminho], data: { turbo_frame: "painel" }, class: "flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 hover:bg-[var(--surface-subtle)]" do %>
+                <span class="min-w-0">
+                  <span class="block text-sm font-semibold text-[var(--text-primary)]"><%= item[:codigo] %> · <%= item[:titulo] %></span>
+                  <span class="mt-0.5 block text-xs text-[var(--text-muted)]"><%= item[:detalhe] %></span>
+                </span>
+                <%= render "compartilhado/selo", texto: item[:etapa], tom: :info %>
+              <% end %>
+            </li>
+          <% end %>
+          <% if bloco[:itens].empty? %>
+            <li class="px-6 py-5 text-sm text-[var(--text-secondary)]">Nada em andamento.</li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="space-y-6">
+    <% @operacao.each do |bloco| %>
+      <section class="<%= cartao %> space-y-4 px-6 py-5" id="operacao_<%= bloco[:titulo].parameterize %>">
+        <h2 class="<%= titulo_secao %>"><%= bloco[:titulo] %></h2>
+        <dl class="grid grid-cols-2 gap-3">
+          <% bloco[:numeros].each do |numero| %>
+            <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+              <dt class="text-xs text-[var(--text-muted)]"><%= numero[:rotulo].upcase_first %></dt>
+              <dd class="mt-1 text-2xl font-semibold text-[var(--text-primary)]"><%= numero[:quantidade] %></dd>
+            </div>
+          <% end %>
+        </dl>
+        <div class="flex flex-wrap gap-2">
+          <% bloco[:links].each_with_index do |link, posicao| %>
+            <%= link_to link[:rotulo], link[:caminho], class: "inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold #{posicao.zero? ? 'bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]' : 'border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)]'}" %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+    <section class="<%= cartao %>" id="links_uteis">
+      <h2 class="<%= titulo_secao %> border-b border-[var(--border-subtle)] px-6 py-4">Links úteis</h2>
+      <ul class="divide-y divide-[var(--border-subtle)]">
+        <% InicioController::LINKS_UTEIS.each do |link| %>
+          <li>
+            <%= link_to (link[:url] || asset_path(link[:arquivo])), target: "_blank", rel: "noopener", class: "flex items-center gap-3 px-6 py-3 text-sm hover:bg-[var(--surface-subtle)]" do %>
+              <span class="text-[var(--accent-strong)]"><%= icone(link[:icone], classe: "h-5 w-5") %></span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold text-[var(--text-primary)]"><%= link[:titulo] %></span>
+                <span class="block text-xs text-[var(--text-muted)]"><%= link[:detalhe] %> · abre em nova aba</span>
+              </span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<%# Lista de conversas dentro do painel flutuante. %>
+<%= turbo_frame_tag "lancador_conversas", class: "flex min-h-0 flex-1 flex-col" do %>
+  <div class="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+    <div>
+      <p class="text-lg font-semibold text-[var(--text-primary)]">Conversas</p>
+      <p class="text-xs text-[var(--text-muted)]"><%= @nao_lidas %> mensagem(ns) não lida(s)</p>
+    </div>
+    <button type="button" data-action="lancador#fechar" aria-label="Fechar conversas" title="Fechar conversas"
+            class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-[var(--border-subtle)] text-[var(--text-secondary)]"><%= icone(:x) %></button>
+  </div>
+  <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+    <% [ [ "Ativas", @ativas, "" ], [ "Histórico", @historico, "mt-5" ] ].each do |titulo, participacoes, margem| %>
+      <div class="<%= margem %>">
+        <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]"><%= titulo %></p>
+        <div class="space-y-2">
+          <% participacoes.each do |participacao| %>
+            <% conversa = participacao.conversa %>
+            <% ultima = conversa.mensagens.em_ordem.last %>
+            <% nao_lidas = participacao.nao_lidas %>
+            <%= link_to painel_conversa_path(conversa),
+                  class: "block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-left hover:border-[var(--accent-strong)]" do %>
+              <span class="flex items-start justify-between gap-3">
+                <span class="min-w-0">
+                  <span class="block truncate text-sm font-semibold text-[var(--text-primary)]"><%= conversa.titulo %></span>
+                  <span class="mt-1 block truncate text-sm text-[var(--text-secondary)]"><%= conversa.nome_do_modulo %></span>
+                  <span class="mt-1 line-clamp-2 block text-sm text-[var(--text-secondary)]"><%= ultima ? ultima.corpo.truncate(120) : "Sem mensagens ainda." %></span>
+                  <span class="mt-2 block text-xs text-[var(--text-muted)]"><%= conversa.ultima_mensagem_em ? l(conversa.ultima_mensagem_em, format: "%d/%m/%Y %H:%M") : "Sem atividade recente" %></span>
+                </span>
+                <% if nao_lidas.positive? %>
+                  <span class="inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-[var(--accent-strong)] px-2 py-0.5 text-[11px] font-semibold text-white"><%= nao_lidas %></span>
+                <% end %>
+              </span>
+            <% end %>
+          <% end %>
+          <% if participacoes.empty? %>
+            <p class="rounded-xl border border-dashed border-[var(--border-subtle)] px-4 py-6 text-sm text-[var(--text-secondary)]"><%= titulo == "Ativas" ? "Nenhuma conversa ativa." : "Nenhuma conversa no histórico." %></p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,11 @@
+<% content_for :title, "Usuários do perfil" %>
+<% caminho = ti_perfil_abertura_usuarios_path(@perfil) %>
+<%= render "ti/vinculos/painel",
+      sobretitulo: "Usuários", titulo: "Gerenciar usuários de #{@perfil.nome}", voltar: ti_perfis_abertura_path, erro: @erro, aviso: @aviso,
+      descricao: "Quem está neste perfil pode abrir as solicitações dele. As mudanças valem na hora.",
+      adicionar: (@perfil.padrao? ? nil : { url: caminho, campo: "user_id", rotulo: "Adicionar usuário",
+                                           opcoes: ti_opcoes_de_usuarios_do_perfil_path(perfil_id: @perfil.id), vazio: "Nenhum usuário encontrado." }),
+      nota: ("Este é um perfil padrão: vale para todos os usuários, sem lista." if @perfil.padrao?),
+      remover_url: caminho, total: @total, rotulo_lista: "Usuários do perfil", vazio: (@busca.present? ? "Ninguém com esse nome neste perfil." : "Nenhum usuário ainda. Procure acima quem vai entrar."),
+      busca: { url: edit_ti_perfil_abertura_usuarios_path(@perfil), valor: @busca },
+      itens: @usuarios.map { |u| { titulo: u.nome, detalhe: u.email, remover: { user_id: u.id } } } %>

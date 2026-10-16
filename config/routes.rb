@@ -1,198 +1,49 @@
 Rails.application.routes.draw do
-  resources :tarefas do
-    resources :tarefa_comentarios, path: 'comentarios', only: [:index, :new, :create]
-    collection do
-      get :atualizar_status
-    end
+  # Login. A recuperação de senha por e-mail fica desligada (sem servidor de
+  # e-mail): a redefinição é feita por um administrador, com senha temporária.
+  devise_for :users, controllers: { sessions: "core/sessoes" }, skip: [ :passwords ]
+
+  # Consulta de CEP para formulários com endereço.
+  get "cep/:cep", to: "core/cep#show", as: :cep, constraints: { cep: /\d{5}-?\d{3}/ }, defaults: { format: :json }
+
+  # Apoio aos campos com mapa: busca de lugar, endereço de um ponto e imagens do mapa.
+  scope "mapa", controller: "core/mapa" do
+    get "buscar", action: :buscar, as: :mapa_buscar, defaults: { format: :json }
+    get "reverso", action: :reverso, as: :mapa_reverso, defaults: { format: :json }
+    get "tiles/:z/:x/:y", action: :tile, as: :mapa_tile, constraints: { z: /\d+/, x: /\d+/, y: /\d+/ }
   end
 
-  resources :acoes do
-    resources :etapas
-    get 'relatorio', on: :member, defaults: { format: :pdf }
-    get 'relatorio_geral', on: :collection, defaults: { format: :pdf }
-    get 'relatorio_geral_simplificado', on: :collection, defaults: { format: :pdf }
+  resource :meu_perfil, path: "minha-area/perfil", only: %i[show update], controller: "core/meu_perfil"
+  resources :notificacoes, path: "minha-area/notificacoes", only: :index, controller: "core/notificacoes" do
+    patch :abrir, on: :member
+    patch :marcar_todas, on: :collection
   end
-  
-  namespace :transporte_escolar do
-    resources :servicos do
-      collection do
-        post :search
-      end
-    end
-  end
-  namespace :transporte_escolar do
-    resources :contratos
-  end
-  namespace :transporte_escolar do
-    resources :veiculos
-  end
-  namespace :transporte_escolar do
-    resources :condutores
-  end
-  namespace :transporte_escolar do
-    resources :transportadores
-  end
-  namespace :transporte_escolar do
-    resources :escolas
-  end
-  namespace :transporte_escolar do
-    resources :municipios
-  end
-  resources :incidentes do
+  resources :conversas, path: "minha-area/conversas", only: :index, controller: "core/conversas" do
+    get :lancador, on: :collection # lista dentro do painel flutuante
     member do
-      get 'finalizar'
-      put 'salvar'
+      get :painel # a conversa dentro do painel flutuante
+      post :lida
     end
+    resources :mensagens, only: :create, controller: "core/mensagens"
+  end
+  resource :inscricao_push, path: "minha-area/avisos-no-aparelho", only: %i[create destroy], controller: "core/inscricoes_push"
+  get "sessao/pulso", to: "core/sessao#pulso", as: :pulso_da_sessao, defaults: { format: :json }
+  resource :minha_senha, path: "minha-area/senha", only: %i[edit update], controller: "core/minha_senha"
+
+  # Caminhos em português: /novo e /editar.
+  scope path_names: { new: "novo", edit: "editar" } do
+    draw :core
+    draw :rh
+    draw :ti
+    draw :transporte
+    draw :equipamentos
   end
 
-  resources :mensagens do
-    get 'mensagens_diretas', on: :collection
-    get 'painel', on: :collection
-    get 'conversa', on: :collection
-    post 'js_create', on: :collection
-    member do
-      get 'new_image'
-      put 'update_image'
-    end
-    get 'imagem', on: :collection
-  end
+  # App instalável (PWA): manifesto e service worker (views em app/views/pwa).
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :autocompletes, only: [] do
-    collection do
-      get :problemas_ti
-      get :cargos
-      get :funcoes
-      get :unidades
-      get :usuarios
-      get :estados
-      get :municipios
-      get :permissoes_drive
-      get :perfis
-    end
-  end
+  get "up" => "rails/health#show", as: :rails_health_check
 
-  resources :cargos
-  resources :tipo_unidades
-  resources :problema_tis
-  resources :tipo_problema_tis
-  resources :equipamentos do
-    member do
-      patch :transferir
-      patch :alterar_status
-      patch :remover_de_kit
-    end
-    collection do
-      get :buscar
-      get :relatorio
-      get :verificar_kit
-      get :exportar_excel
-      get :autocomplete_marcas
-      get :autocomplete_modelos
-      get :autocomplete_identificacoes_kit
-      get :autocomplete_contratos
-      get :autocomplete_processos
-    end
-  end
-
-  resources :movimentacao_equipamentos do
-    member do
-      patch :receber_equipamento
-      patch :cancelar
-    end
-    collection do
-      get :buscar_equipamentos
-      get :buscar_usuarios_unidade
-    end
-  end
-  resources :requisicao_tis do
-    member do
-      get 'finalizar'
-      put 'salvar'
-    end
-  end
-
-  namespace :nuinfo do
-    resources :requisicao_tis, only: [:index, :show] do
-      get 'pegar'
-      collection do
-        get 'acompanhamento'
-        get 'refresh_acompanhamento'
-        get 'em_atendimento'
-        get 'estatisticas'
-        post 'buscar_estatisticas'
-      end
-      member do
-        get 'concluir'
-        get 'trocar_tecnico'
-        put 'salvar'
-        put 'salvar_troca_tecnico'
-      end
-    end
-  end
-
-  get 'patio/index'
-  get 'patio/entrada'
-  get 'patio/saida'
-
-  namespace :useget do
-    resources :requisicao_transportes, only: [:index, :show] do
-      get 'aprovar'
-      member do
-        get 'reagendar'
-        put 'salvar_reagendamento'
-      end
-      collection do
-        get 'acompanhamento'
-        get 'refresh_acompanhamento'
-      end
-      member do
-        get 'negar'
-        put 'salvar_negacao'
-      end
-    end
-  end
-
-  resources :servico_transportes, only: [:show, :new, :create, :edit, :update]
-
-  resources :destinos
-  resources :passageiros
-  resources :requisicao_transportes do
-    member do
-      get 'avaliar_reagendamento'
-      put 'aprovar_reagendamento'
-      put 'negar_reagendamento'
-    end
-  end
-  resources :veiculos
-  resources :motoristas
-  get 'home/index'
-
-  get 'perfil/index'
-  put 'perfil/update'
-  get 'perfil/alterar_senha'
-  put 'perfil/salvar_senha'
-
-  resources :usuarios do
-    member do
-      get 'resetar_senha'
-      get 'tornar_requisitante_transporte'
-      get 'tornar_tecnico_transporte'
-      patch 'toggle_status'
-    end
-  end
-
-  resources :unidades
-  resources :funcoes do
-    get 'autocomplete', on: :collection
-  end
-
-  devise_for :users
-  devise_scope :user do
-    authenticated :user do
-      root 'home#index', as: :authenticated_root
-    end
-    unauthenticated do
-      root 'devise/sessions#new', as: :unauthenticated_root
-    end
-  end
+  root "inicio#index"
 end

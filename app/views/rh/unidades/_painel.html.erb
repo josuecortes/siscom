@@ -1,0 +1,45 @@
+<% nova = @unidade.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_unidade", rotulo: "Salvar unidade" } %>
+<% escola = @unidade.dados_escola || Rh::DadosEscola.new %>
+<% campo = "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (nova ? "Nova unidade" : "Editar unidade"), titulo: (nova ? "Cadastrar unidade" : "Atualizar unidade"), voltar: rh_unidades_path, rodape: rodape } do %>
+  <%= form_with model: @unidade, scope: :unidade, url: (nova ? rh_unidades_path : rh_unidade_path(@unidade)), id: "formulario_unidade", class: "space-y-5" do |f| %>
+    <% if @unidade.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@unidade.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome *", html: { required: true, maxlength: 200, autofocus: true } %>
+    <%# Um campo por linha, como no seed (lado a lado, o rótulo comprido da sigla quebrava e desalinhava os campos). %>
+    <%= render "compartilhado/campo", f: f, campo: :sigla, rotulo: "Sigla (obrigatória, menos para escola)", html: { maxlength: 30 } %>
+    <%= render "compartilhado/campo_escolha", nome: "unidade[tipo_unidade_id]", id: "unidade_tipo_unidade_id", rotulo: "Tipo de unidade *",
+          opcoes: Rh::TipoUnidade.ativo.ordenados.pluck(:nome, :id), valor: @unidade.tipo_unidade_id, em_branco: "Selecione", obrigatorio: true,
+          erros: @unidade.errors[:tipo_unidade] %>
+    <%= render "compartilhado/campo_escolha", nome: "unidade[tipo_local_id]", id: "unidade_tipo_local_id", rotulo: "Local físico",
+          opcoes: Rh::TipoLocal.ativo.ordenados.pluck(:nome, :id), valor: @unidade.tipo_local_id, em_branco: "Não informado" %>
+    <%= render "compartilhado/campo_autocomplete", nome: "unidade[pai_id]", id: "unidade_pai", rotulo: "Unidade superior",
+          url: rh_opcoes_path("unidades", exceto: @unidade.id), valor: @unidade.pai_id, texto: @unidade.pai&.sigla_e_nome,
+          erros: @unidade.errors[:pai_id], ajuda: "Em branco = unidade de primeiro nível.",
+          vazio: "Nenhuma unidade cadastrada." %>
+
+    <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
+      <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Dados da escola</legend>
+      <p class="text-xs text-[var(--text-muted)]">Preencha só quando o tipo da unidade for Escola.</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1.5">
+          <label for="unidade_dados_escola_nae" class="<%= rotulo %>">NAE</label>
+          <%= text_field_tag "unidade[dados_escola][nae]", escola.nae, id: "unidade_dados_escola_nae", maxlength: 60, class: campo %>
+        </div>
+        <div class="space-y-1.5">
+          <label for="unidade_dados_escola_codigo_inep" class="<%= rotulo %>">Código INEP</label>
+          <%= text_field_tag "unidade[dados_escola][codigo_inep]", escola.codigo_inep, id: "unidade_dados_escola_codigo_inep", maxlength: 20, inputmode: "numeric", class: campo %>
+        </div>
+      </div>
+      <%= render "compartilhado/campos_endereco", prefixo: "unidade[dados_escola]", id: "unidade_dados_escola", endereco: escola %>
+    </fieldset>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

@@ -1,191 +1,114 @@
+# Usuário global do sistema (dono: Core). Tabela `users` herdada do siscom antigo:
+# mesmos ids, e-mails e senhas bcrypt do Devise.
 class User < ApplicationRecord
-  rolify
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  devise :database_authenticatable, :recoverable, :rememberable, :validatable,
+         :lockable, :trackable, :timeoutable
 
-  belongs_to :funcao
-  belongs_to :unidade
+  has_many :participacoes_em_conversas, class_name: "Core::Participante", dependent: :destroy
   has_one_attached :avatar
+  has_many :inscricoes_push, class_name: "Core::InscricaoPush", dependent: :delete_all
+  has_many :notificacoes, class_name: "Core::Notificacao", dependent: :delete_all
+  has_many :senhas_anteriores, class_name: "Core::SenhaAnterior", dependent: :delete_all
 
-  has_many :requisicao_transportes
-  has_many :requisicao_tis
-  has_many :atendimento_tis, class_name: 'RequisicaoTi', inverse_of: 'tecnico'
-  has_many :mensagens
-  # has_many :acao_users
-  # has_many :acoes, through: :acao_users
-  # has_many :etapas, through: :acoes
-  has_many :tarefas
-  has_many :tarefa_comentarios
-  has_many :acoes
-  has_many :etapas_users, dependent: :destroy
-  has_many :etapas, through: :etapas_users
+  scope :ativos, -> { where(status: true) }
 
+  # Nome obrigatório e em maiúsculas. (A regra antiga de nome único saiu: os dados
+  # pessoais agora são do RH, e há homônimos.)
+  datas_br :data_nascimento
 
-  validates_presence_of :nome, :unidade_id, :funcao_id
-  validates_uniqueness_of :nome
-  validate :verificar_roles_padrao
-  validate :avatar_tipo_imagem
+  normalizes :nome, with: ->(nome) { nome.squish.upcase }
+  validates :nome, presence: true
 
-  before_validation :senha_padrao, on: :create
-  before_save :upcase_fields
+  # Senha temporária em texto, disponível só logo após criar/redefinir (nunca é gravada).
+  attr_accessor :senha_temporaria
+  # A administração define a senha inicial (padrão ou temporária): aí a política de senha não se aplica
+  # (a senha padrão é a mesma para todos e pode repetir no histórico); a pessoa troca no primeiro acesso.
+  attr_accessor :senha_definida_pela_administracao
 
-   def upcase_fields
-      self.nome.upcase!
-   end
+  AVATAR_TIPOS = %w[image/png image/jpeg image/webp].freeze
 
-  def verificar_roles_padrao
-    unless self.has_role? :user
-      self.errors.add(:role, "A permissão ( Usuário ) deve estar selecionada")
-    end
-    unless self.has_role? :req_serv_ti
-      self.errors.add(:role, "A permissão ( Requisitante de serviços de TI ) deve estar selecionada")
-    end
+  validate :avatar_valido, if: -> { attachment_changes.key?("avatar") }
+  validate :senha_dentro_da_politica, if: -> { password.present? && will_save_change_to_encrypted_password? && !senha_definida_pela_administracao }
+
+  before_update :guardar_senha_anterior, if: :will_save_change_to_encrypted_password?
+  before_save :marcar_troca_de_senha, if: :will_save_change_to_encrypted_password?
+  after_save { self.senha_definida_pela_administracao = nil } # vale só para aquela gravação
+
+  scope :inativos, -> { where(status: false) }
+  scope :buscar, lambda { |termo|
+    where(Busca.em("users.nome", "users.email"), t: Busca.padrao(termo))
+  }
+
+  def ativo?
+    status != false
   end
 
-  def avatar_tipo_imagem
+  def active_for_authentication?
+    super && ativo?
+  end
+
+  def inactive_message
+    return :inativo unless ativo?
+    return mensagem_de_bloqueio if access_locked?
+
+    super
+  end
+
+  # Mensagem de falha no login: avisa quantas tentativas restam e, no bloqueio,
+  # em quanto tempo a conta é liberada.
+  def unauthenticated_message
+    return super if Devise.paranoid
+    return mensagem_de_bloqueio if access_locked?
+    return super unless failed_attempts.positive?
+
+    I18n.t("devise.failure.tentativas_restantes", count: tentativas_restantes,
+                                                    minutos: (self.class.unlock_in / 60).to_i)
+  end
+
+  def tentativas_restantes
+    [ self.class.maximum_attempts - failed_attempts, 0 ].max
+  end
+
+  def minutos_para_desbloqueio
+    return 0 unless access_locked?
+
+    ((locked_at + self.class.unlock_in - Time.current) / 60).ceil.clamp(1..)
+  end
+
+  # Entra na sessão e no cookie "lembrar de mim": mudar a senha ou a
+  # `versao_sessao` derruba todas as sessões abertas do usuário.
+  def authenticatable_salt
+    "#{super}#{versao_sessao}"
+  end
+
+  def derrubar_sessoes!
+    increment!(:versao_sessao) # rubocop:disable Rails/SkipsModelValidations
+  end
+
+  private
+
+  def mensagem_de_bloqueio
+    I18n.t("devise.failure.bloqueada", tentativas: self.class.maximum_attempts, count: minutos_para_desbloqueio)
+  end
+
+  def avatar_valido
     return unless avatar.attached?
-    return unless avatar.attachment&.new_record?
 
-    unless avatar.content_type&.start_with?('image/')
-      errors.add(:avatar, 'deve ser uma imagem')
-    end
+    errors.add(:avatar, "deve ser uma imagem PNG, JPG ou WebP") unless avatar.blob.content_type.in?(AVATAR_TIPOS)
+    errors.add(:avatar, "deve ter no máximo #{Anexo::LIMITE}") if Anexo.grande?(avatar.blob)
   end
 
-  def senha_padrao
-    self.password = "Seed@123"
-    self.password_confirmation = "Seed@123"
+  def senha_dentro_da_politica
+    Core::PoliticaDeSenha.new(self).erros(password).each { |mensagem| errors.add(:password, mensagem) }
   end
 
-  # Roles
-  # :user             => Usuario do sistema
-  # :admin            => Administrador do sistema
-  # :tec_serv_ti      => Tecnico de requisicoes de Tecnologia da Informacao
-  # :tec_serv_ti      => Tecnico de requisicoes de Tecnologia da Informacao Sistemas Tipo Prodoc
-  # :tec_serv_tp      => Tecnico de requisicoes de Transporte
-  # :tec_serv_md      => Tecnico de requisicoes de Midia
-  # :req_serv_ti_sis  => Requisitante de servico de Tecnologia da Informacao
-  # :req_serv_tp      => Requisitante de servico de Transporte
-  # :req_serv_md      => Requisitante de servico de Midia
-  # :ges_tp_es        => Gestor de transporte escolar
-  # :tec_tp_es        => Tecnico de transporte escolar
-
-
-  def self.autorizado(u)
-    if u.has_role?(:master) or u.has_role?(:tec_serv_tp)
-      all
-    elsif u.has_role?(:admin)
-      where.not(id: User.with_role(:master))
-    else
-      where(id: u.id)
-    end
-  end 
-
-  def pode_solicitar_requisicao_ti
-    return true if self.has_role?(:req_serv_ti_sis)
-    
-    return false if self.requisicao_tis.where(status: [1, 2, 3]).any?
-    
-    true
+  def guardar_senha_anterior
+    senhas_anteriores.create!(senha_criptografada: encrypted_password_in_database, created_at: Time.current)
+    sobra = senhas_anteriores.order(created_at: :desc).offset(Core::PoliticaDeSenha::HISTORICO).pluck(:id)
+    senhas_anteriores.where(id: sobra).delete_all if sobra.any?
   end
 
-  def pode_solicitar_requisicao_ti_normal
-    pode_requisitar_normal = true
-    if self.has_role?(:req_serv_ti_sis) 
-      self.requisicao_tis.where(status: [1, 2, 3]).each do |r|
-        if r.problema_ti.tipo_problema_ti_id != 3
-          pode_requisitar_normal = false
-        end
-      end
-    elsif self.has_role?(:req_serv_ti) 
-      pode_requisitar_normal = false if self.requisicao_tis.where(status: [1, 2, 3]).any?
-    end
-    
-    return pode_requisitar_normal
-  end
-
-  def alterar_senha(params)
-    unless params[:current_password] or params[:password] or params[:password_confirmation]
-      self.errors.add(:current_password, 'Você deve preencher esse campo')
-      return false
-    end
-
-    if params[:password] == 'Seed@123' or params[:password] == 'seed@123'
-      self.errors.add(:password, 'A nova senha não pode ser (Seed@123)!')
-      return false
-    end
-
-    unless self.valid_password?(params[:current_password])
-      self.errors.add(:current_password, 'A senha atual não confere!')
-      return false
-    end
-
-    if params[:password] != params[:password_confirmation]
-      self.errors.add(:password_confirmation, 'A confirmação da senha não é igual a nova senha!')
-      return false
-    end
-
-    self.password = params[:password]
-    self.password_confirmation = params[:password_confirmation]
-    if self.save
-      return true
-    end
-
-    return false
-  end
-
-  def resetar_senha
-    senha_padrao
-    if self.save
-      return true
-    end
-
-    return false
-  end
-
-  def pode_chatear
-    return true if self.requisicao_tis.where(status: [2]).any?
-
-    return true if self.has_role? :tec_serv_ti
-
-    false
-  end
-
-  def nome_ultimo_nome
-    if self.nome and self.nome.split.count >= 2
-      "#{self.nome&.split&.first&.downcase&.camelize} #{self.nome&.split&.last&.downcase&.camelize}"
-    elsif self.nome
-      self.nome&.downcase&.camelize
-    else
-      ""
-    end
-  end
-
-  def nome_ulitmo_nome_sigla
-    sigla = self.unidade&.sigla
-    if self.nome and self.nome.split.count >= 2
-      "#{self.nome.split.first} #{self.nome.split.last} | #{sigla if sigla}"
-    elsif self.nome
-      "#{self.nome} | #{sigla if sigla}"
-    else
-      ""
-    end
-  end
-
-  def mensagens_nao_lidas
-    mensagens = 0
-    self.requisicao_tis.each do |r|
-      mensagens += r.mensagens_nao_lidas(self)
-    end
-
-    if self.has_role? :tec_serv_ti
-      RequisicaoTi.do_tecnico(self).each do |r|
-        mensagens += r.mensagens_nao_lidas(self)
-      end
-    end
-
-    mensagens
+  def marcar_troca_de_senha
+    self.senha_alterada_em = Time.current
   end
 end
-

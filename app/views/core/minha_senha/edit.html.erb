@@ -1,0 +1,66 @@
+<% content_for :title, "Trocar senha" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Trocar senha", icone: :lock_locked, migalha: [ "Minha área", root_path ] } do %>
+<% end %>
+
+<div class="mt-6 space-y-6">
+  <% if current_user.errors.any? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, mensagem: "Não foi possível trocar a senha." %>
+  <% elsif current_user.deve_trocar_senha? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, mensagem: "Sua senha precisa ser alterada para continuar usando o SISCOM." %>
+  <% end %>
+
+  <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Atualizar senha</h2>
+      <p class="mt-1 text-sm text-[var(--text-secondary)]">
+        Informe sua senha atual e defina uma nova. Ela precisa ter pelo menos 8 caracteres, não pode ser a senha
+        padrão antiga nem repetir uma das suas últimas <%= Core::PoliticaDeSenha::HISTORICO %> senhas.
+      </p>
+    </div>
+
+    <%= form_with model: current_user, scope: :user, url: minha_senha_path, method: :patch, class: "grid gap-4 px-6 py-5 md:grid-cols-2" do |f| %>
+      <%= render "compartilhado/campo_senha", f: f, campo: :current_password, rotulo: "Senha atual *", autocomplete: "current-password" %>
+      <div></div>
+      <%= render "compartilhado/campo_senha", f: f, campo: :password, rotulo: "Nova senha *", autocomplete: "new-password" %>
+      <%= render "compartilhado/campo_senha", f: f, campo: :password_confirmation, rotulo: "Confirmar nova senha *", autocomplete: "new-password" %>
+
+      <div class="flex justify-end border-t border-[var(--border-subtle)] pt-4 md:col-span-2">
+        <%= f.button "Salvar nova senha", type: "submit", data: { turbo_submits_with: "Salvando..." },
+              class: "inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70" %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Histórico de trocas de senha</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[780px]">
+        <thead>
+          <tr>
+            <th scope="col">Evento</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Executado por</th>
+            <th scope="col">Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @historico.each do |registro| %>
+            <% propria = registro.evento == "usuario.senha_alterada" %>
+            <tr>
+              <td class="font-semibold !text-[var(--text-primary)]"><%= propria ? "Troca de senha" : "Redefinição de senha" %></td>
+              <td><%= propria ? "Senha alterada por você." : "Senha temporária gerada pelo administrador." %></td>
+              <td><%= registro.nome_do_ator %></td>
+              <td><%= l(registro.created_at, format: "%d/%m/%Y %H:%M") %></td>
+            </tr>
+          <% end %>
+          <% if @historico.empty? %>
+            <tr><td colspan="4" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhum registro de troca de senha encontrado.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

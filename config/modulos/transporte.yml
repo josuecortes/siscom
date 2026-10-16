@@ -1,0 +1,49 @@
+# Catálogo do módulo Transporte (porta do Transport do seed; plano 02 §5). Decisões do Josue em 2026-10-05:
+# motorista é um usuário com o papel `motorista` (como no seed); não existe tipo "urgente" (pedido fora do
+# prazo é aberto pela operação); motoristas e veículos são recadastrados; transporte escolar fica fora.
+nome: "Transporte"
+icone: "car-alt"
+
+permissoes:
+  solicitacoes.abrir: "Abrir e acompanhar as próprias solicitações de transporte"
+  operacao.ver: "Entrar na Operação (o motorista vê só o que pode pegar e o que é dele)"
+  solicitacoes.operar: "Ver a operação, abrir para outra pessoa, reagendar e registrar observações"
+  solicitacoes.aprovar: "Aprovar e cancelar solicitações"
+  servico.executar: "Iniciar e finalizar o serviço como motorista"
+  motoristas.gerenciar: "Cadastrar e editar motoristas"
+  veiculos.gerenciar: "Cadastrar e editar veículos"
+  relatorios.ver: "Ver relatórios do transporte"
+  configuracoes.gerenciar: "Gerenciar as configurações do transporte (janelas e alertas)"
+  permissoes.conceder: "Conceder permissões no Transporte"
+  acompanhamento.ver: "Ver a página do painel de acompanhamento (a senha do painel fica com os administradores)"
+
+papeis:
+  admin:
+    nome: "Administrador"
+    permissoes: "*"
+  tecnico:
+    nome: "Técnico"
+    permissoes: [solicitacoes.abrir, operacao.ver, solicitacoes.operar, solicitacoes.aprovar, motoristas.gerenciar, veiculos.gerenciar, relatorios.ver, permissoes.conceder, acompanhamento.ver]
+  motorista:
+    nome: "Motorista"
+    permissoes: [solicitacoes.abrir, operacao.ver, servico.executar]
+  # Não é automático (decisão do Josue): só pede transporte quem tem a permissão, como no siscom antigo
+  # (`req_serv_tp`, migrado por `remaster:transporte:importar_papeis`).
+  solicitante:
+    nome: "Solicitante"
+    permissoes: [solicitacoes.abrir]
+
+concessao:
+  admin: [admin, tecnico, motorista, solicitante]
+  tecnico: [motorista, solicitante] # motorista: ao cadastrar um; solicitante: como no seed
+
+menu:
+  - { rotulo: "Solicitações de transporte", rota: transporte_solicitacoes_path, permissao: solicitacoes.abrir, icone: car-alt, minha_area: true }
+  - { rotulo: "Operação", rota: transporte_operacao_index_path, permissao: operacao.ver, icone: group }
+  - { rotulo: "Veículos agora", rota: transporte_veiculos_agora_path, permissao: solicitacoes.operar, icone: location-pin }
+  - { rotulo: "Acompanhamento", rota: transporte_sobre_acompanhamento_path, permissao: acompanhamento.ver, icone: speedometer }
+  - { rotulo: "Motoristas", rota: transporte_motoristas_path, permissao: motoristas.gerenciar, icone: people, grupo: "Administração" }
+  - { rotulo: "Veículos", rota: transporte_veiculos_path, permissao: veiculos.gerenciar, icone: car-alt, grupo: "Administração" }
+  - { rotulo: "Relatórios", rota: transporte_relatorios_path, permissao: relatorios.ver, icone: list-rich, grupo: "Administração" }
+  - { rotulo: "Permissões", rota: transporte_permissoes_path, permissao: permissoes.conceder, icone: shield-alt, grupo: "Administração" }
+  - { rotulo: "Configuração", rota: transporte_configuracoes_path, permissao: configuracoes.gerenciar, icone: settings, grupo: "Administração" }

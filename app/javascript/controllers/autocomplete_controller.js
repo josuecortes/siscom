@@ -1,0 +1,169 @@
+import { Controller } from "@hotwired/stimulus"
+
+// Campo de busca com sugestões (porta do AutocompleteSearchField do seed).
+// - A partir de 3 letras, lista o que combina com o texto.
+// - Se nada combinar (ou com menos de 3 letras), mostra a lista em ordem alfabética.
+// - O valor escolhido vai para um campo oculto; mudar o texto desfaz a escolha.
+// O servidor responde { opcoes: [{ valor, rotulo, subtitulo }], todas: bool, restantes: n }.
+export default class extends Controller {
+  static targets = ["texto", "valor", "lista"]
+  // `opcoes` (lista fixa [{ valor, rotulo }]) dispensa o servidor: o filtro é feito aqui, com a mesma regra.
+  static values = { url: String, opcoes: Array, minimo: { type: Number, default: 3 }, vazio: { type: String, default: "Nada cadastrado." } }
+
+  connect() {
+    this.indice = -1
+    this.fora = (evento) => { if (!this.element.contains(evento.target)) this.fechar() }
+    // Sair do campo com Tab também fecha a lista (as opções não entram na ordem do Tab).
+    this.saiu = () => setTimeout(() => { if (!this.element.contains(document.activeElement)) this.fechar() }, 0)
+    document.addEventListener("click", this.fora)
+    this.element.addEventListener("focusout", this.saiu)
+  }
+
+  disconnect() {
+    document.removeEventListener("click", this.fora)
+    this.element.removeEventListener("focusout", this.saiu)
+    clearTimeout(this.espera)
+    this.requisicao?.abort()
+  }
+
+  abrir() {
+    if (this.listaTarget.hidden && !this.valorTarget.value) this.buscar()
+  }
+
+  digitar() {
+    const tinhaValor = this.valorTarget.value !== ""
+    this.valorTarget.value = ""
+    // Apagar o texto desfaz a escolha (e avisa quem escuta, ex.: um filtro).
+    if (tinhaValor && this.textoTarget.value.trim() === "") this.valorTarget.dispatchEvent(new Event("change", { bubbles: true }))
+    clearTimeout(this.espera)
+    this.pendente = true // a lista na tela ainda é a da busca anterior
+    this.espera = setTimeout(() => this.buscar(), 200)
+  }
+
+  async buscar() {
+    const texto = this.textoTarget.value.trim()
+    if (this.opcoesValue.length > 0) return this.mostrar(this.filtrarLocal(texto), texto)
+
+    const url = new URL(this.urlValue, window.location.origin)
+    if (texto.length >= this.minimoValue) url.searchParams.set("q", texto)
+
+    this.requisicao?.abort()
+    this.requisicao = new AbortController()
+    try {
+      const resposta = await fetch(url, { headers: { Accept: "application/json" }, signal: this.requisicao.signal })
+      if (!resposta.ok) throw new Error(String(resposta.status))
+      this.mostrar(await resposta.json(), texto)
+    } catch (erro) {
+      if (erro.name !== "AbortError") {
+        this.pendente = false
+        this.aviso("Não foi possível carregar as opções. Tente de novo.")
+      }
+    }
+  }
+
+  filtrarLocal(texto) {
+    const simples = (valor) => valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    const todas = [...this.opcoesValue].sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR"))
+    if (texto.length < this.minimoValue) return { opcoes: todas, todas: true, restantes: 0 }
+
+    const achadas = todas.filter((opcao) => simples(opcao.rotulo).includes(simples(texto)))
+    return achadas.length > 0 ? { opcoes: achadas, todas: false, restantes: 0 } : { opcoes: todas, todas: true, restantes: 0 }
+  }
+
+  mostrar(dados, texto) {
+    this.pendente = false
+    this.listaTarget.replaceChildren()
+    this.indice = -1
+
+    if (dados.opcoes.length === 0) return this.aviso(this.vazioValue)
+    if (dados.todas && texto.length >= this.minimoValue) {
+      this.listaTarget.append(this.nota(`Nada encontrado para "${texto}". Lista completa:`))
+    }
+
+    dados.opcoes.forEach((opcao, posicao) => {
+      const botao = document.createElement("button")
+      botao.type = "button"
+      botao.setAttribute("role", "option")
+      botao.setAttribute("aria-selected", "false")
+      botao.tabIndex = -1 // a lista é percorrida com as setas, a partir do campo
+      botao.id = `${this.textoTarget.id}_opcao_${posicao}`
+      botao.dataset.valor = opcao.valor
+      botao.dataset.rotulo = opcao.rotulo
+      botao.dataset.action = "autocomplete#escolher"
+      botao.className = "flex w-full flex-col items-start gap-0.5 border-b border-[var(--border-subtle)] px-4 py-3 text-left text-sm text-[var(--text-primary)] last:border-b-0 hover:bg-[var(--surface-subtle)] aria-selected:bg-[var(--surface-subtle)] aria-selected:shadow-[inset_3px_0_0_var(--accent-strong)]"
+      const rotulo = document.createElement("span")
+      rotulo.textContent = opcao.rotulo
+      botao.append(rotulo)
+      if (opcao.subtitulo) {
+        const subtitulo = document.createElement("span")
+        subtitulo.className = "text-xs text-[var(--text-muted)]"
+        subtitulo.textContent = opcao.subtitulo
+        botao.append(subtitulo)
+      }
+      this.listaTarget.append(botao)
+    })
+
+    if (dados.restantes > 0) this.listaTarget.append(this.nota(`Mais ${dados.restantes} na lista. Continue digitando para encontrar.`))
+    this.exibir()
+  }
+
+  exibir() {
+    this.listaTarget.hidden = false
+    this.textoTarget.setAttribute("aria-expanded", "true")
+    // Dentro de um painel, a lista pode abrir abaixo da parte visível: rola o mínimo para ela aparecer.
+    this.listaTarget.scrollIntoView({ block: "nearest" })
+  }
+
+  nota(texto) {
+    const nota = document.createElement("div")
+    nota.className = "border-b border-[var(--border-subtle)] px-4 py-2 text-xs text-[var(--text-muted)] last:border-b-0"
+    nota.textContent = texto
+    return nota
+  }
+
+  aviso(texto) {
+    const aviso = document.createElement("div")
+    aviso.className = "px-4 py-3 text-sm text-[var(--text-secondary)]"
+    aviso.textContent = texto
+    this.listaTarget.replaceChildren(aviso)
+    this.exibir()
+  }
+
+  escolher(evento) {
+    const opcao = evento.currentTarget
+    // Cancela buscas ainda em andamento, para a lista não reabrir depois da escolha.
+    clearTimeout(this.espera)
+    this.requisicao?.abort()
+    this.valorTarget.value = opcao.dataset.valor
+    this.textoTarget.value = opcao.dataset.rotulo
+    this.fechar()
+    this.valorTarget.dispatchEvent(new Event("change", { bubbles: true }))
+  }
+
+  teclar(evento) {
+    const opcoes = [...this.listaTarget.querySelectorAll("[role='option']")]
+    if (evento.key === "Escape") return this.fechar()
+    // Enquanto a busca do texto digitado não volta, as setas e o Enter esperam: senão escolheriam da lista antiga.
+    if (this.pendente && [ "ArrowDown", "ArrowUp", "Enter" ].includes(evento.key)) return evento.preventDefault()
+    if (evento.key === "ArrowDown" && this.listaTarget.hidden) return this.buscar()
+    if (opcoes.length === 0) return
+
+    if (evento.key === "ArrowDown") this.indice = (this.indice + 1) % opcoes.length
+    else if (evento.key === "ArrowUp") this.indice = (this.indice - 1 + opcoes.length) % opcoes.length
+    else if (evento.key === "Enter" && this.indice >= 0 && !this.listaTarget.hidden) {
+      evento.preventDefault()
+      return opcoes[this.indice].click()
+    } else return
+
+    evento.preventDefault()
+    opcoes.forEach((opcao, posicao) => opcao.setAttribute("aria-selected", posicao === this.indice ? "true" : "false"))
+    opcoes[this.indice].scrollIntoView({ block: "nearest" })
+    this.textoTarget.setAttribute("aria-activedescendant", opcoes[this.indice].id)
+  }
+
+  fechar() {
+    this.listaTarget.hidden = true
+    this.textoTarget.setAttribute("aria-expanded", "false")
+    this.textoTarget.removeAttribute("aria-activedescendant")
+  }
+}

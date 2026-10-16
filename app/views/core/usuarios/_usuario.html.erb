@@ -1,0 +1,52 @@
+<% politica = Core::UsuarioPolicy.new(current_user, usuario) %>
+<% modulos = @modulos_por_usuario.fetch(usuario.id, []) %>
+<tr id="<%= dom_id(usuario) %>">
+  <td>
+    <div class="flex items-center gap-2 whitespace-nowrap">
+      <p class="text-sm font-semibold text-[var(--text-primary)]"><%= usuario.nome %></p>
+      <% if usuario == current_user %>
+        <span class="rounded-full bg-[var(--surface-subtle)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">Você</span>
+      <% end %>
+    </div>
+  </td>
+  <td><p class="whitespace-nowrap text-sm text-[var(--text-secondary)]"><%= usuario.email %></p></td>
+  <td>
+    <% if usuario.ativo? %>
+      <%= render "compartilhado/selo", texto: "Ativo", tom: :sucesso %>
+    <% else %>
+      <%= render "compartilhado/selo", texto: "Inativo", tom: :atencao %>
+    <% end %>
+    <% if usuario.access_locked? %>
+      <%= render "compartilhado/selo", texto: "Bloqueado", tom: :atencao %>
+    <% end %>
+  </td>
+  <td>
+    <div class="flex flex-nowrap gap-2">
+      <% if modulos.any? %>
+        <% modulos.each do |nome| %><%= render "compartilhado/selo", texto: nome, maiusculo: true %><% end %>
+      <% else %>
+        <span class="inline-flex rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-xs font-semibold text-[var(--text-muted)]">Sem permissões</span>
+      <% end %>
+    </div>
+  </td>
+  <td>
+    <div class="flex flex-nowrap items-center gap-2 whitespace-nowrap">
+      <%= render "compartilhado/botao_acao", titulo: "Editar usuário", icone: :pencil, caminho: edit_core_usuario_path(usuario),
+            quadro: "painel", desabilitado: !politica.update? %>
+      <%= render "compartilhado/botao_acao", titulo: "Redefinir senha", icone: :lock_locked, caminho: redefinir_senha_core_usuario_path(usuario),
+            metodo: :patch, quadro: "painel", desabilitado: !politica.redefinir_senha?,
+            confirmar: { mensagem: "Confirme a redefinição da senha de #{usuario.nome}. Será gerada uma senha temporária e as sessões abertas serão encerradas." } %>
+      <%= render "compartilhado/botao_acao", titulo: "Permissões", icone: :shield_alt, caminho: core_usuario_permissoes_path(usuario),
+            quadro: "painel", desabilitado: !politica.ver_permissoes? %>
+      <% if usuario.ativo? %>
+        <%= render "compartilhado/botao_acao", titulo: "Desativar usuário", icone: :ban, caminho: desativar_core_usuario_path(usuario, request.query_parameters),
+              metodo: :patch, desabilitado: !politica.alterar_status?,
+              confirmar: { mensagem: "Confirme a desativação do usuário #{usuario.nome}. Ele não conseguirá mais entrar no sistema." } %>
+      <% else %>
+        <%= render "compartilhado/botao_acao", titulo: "Ativar usuário", icone: :check_circle, caminho: ativar_core_usuario_path(usuario, request.query_parameters),
+              metodo: :patch, desabilitado: !politica.alterar_status?,
+              confirmar: { mensagem: "Confirme a ativação do usuário #{usuario.nome}.", tom: "primario" } %>
+      <% end %>
+    </div>
+  </td>
+</tr>

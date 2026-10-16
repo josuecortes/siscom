@@ -1,0 +1,33 @@
+<%# Como no seed: "Finalizar trecho" quando ainda falta a busca; "Concluir serviço" quando o trecho encerra a solicitação. %>
+<% acao = (@servico&.de_ida? && @solicitacao.buscar_depois? ? "Finalizar trecho" : "Concluir serviço") %>
+<% content_for :title, acao %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_fim", rotulo: acao } %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Transporte", titulo: "#{acao} #{@solicitacao.codigo}", voltar: transporte_operacao_index_path, rodape: rodape,
+                descricao: (@servico ? "Veículo #{@servico.placa}. Odômetro na saída: #{number_with_delimiter(@servico.odometro_inicial)} km." : nil) } do %>
+  <%= form_with url: finalizar_transporte_servico_path(@solicitacao), method: :patch, id: "formulario_fim", class: "space-y-5", multipart: true do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+    <div class="space-y-1.5">
+      <label for="odometro" class="text-sm font-medium text-[var(--text-secondary)]">Odômetro final (km) *</label>
+      <%= number_field_tag :odometro, params[:odometro], required: true, min: @servico&.odometro_inicial, step: 1, inputmode: "numeric", class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent-strong)]" %>
+      <% if @solicitacao.buscar_depois? && @servico&.de_ida? %>
+        <p class="text-xs text-[var(--text-muted)]">Depois disso a solicitação fica aguardando a busca, prevista para daqui a <%= @solicitacao.busca_horas %> hora(s).</p>
+      <% end %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="observacao" class="text-sm font-medium text-[var(--text-secondary)]">Observação</label>
+      <%= text_area_tag :observacao, params[:observacao], rows: 3, maxlength: 2000,
+            class: "min-h-[96px] w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+      <p class="text-xs text-[var(--text-muted)]">Opcional: conte se houve algo errado no trajeto ou no serviço. Só a operação e os motoristas veem.</p>
+    </div>
+    <div class="space-y-1.5">
+      <label for="anexos" class="text-sm font-medium text-[var(--text-secondary)]">Anexos</label>
+      <%= file_field_tag "anexos[]", id: "anexos", multiple: true,
+            class: "block w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm text-[var(--text-primary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
+      <p class="text-xs text-[var(--text-muted)]">Opcional, junto com a observação: fotos, comprovantes. Até 1 MB cada (imagem maior é reduzida sozinha).</p>
+    </div>
+  <% end %>
+<% end %>

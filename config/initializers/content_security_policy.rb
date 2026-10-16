@@ -1,28 +1,21 @@
-# Be sure to restart your server when you modify this file.
+# Política de segurança de conteúdo: só recursos do próprio sistema.
+# Scripts e estilos inline precisam do nonce (javascript_tag nonce: true,
+# importmap e Turbo já usam o nonce da meta tag csp-nonce).
+Rails.application.configure do
+  config.content_security_policy do |policy|
+    policy.default_src :self
+    policy.script_src  :self
+    policy.style_src   :self
+    policy.img_src     :self, :data, :blob
+    policy.font_src    :self, :data
+    policy.connect_src :self, *(Rails.env.production? ? [] : [ "ws://localhost:*", "ws://127.0.0.1:*" ])
+    policy.object_src  :none
+    policy.base_uri    :self
+    policy.form_action :self
+    policy.frame_ancestors :none
+  end
 
-# Define an application-wide content security policy
-# For further information see the following documentation
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-
-# Rails.application.config.content_security_policy do |policy|
-#   policy.default_src :self, :https
-#   policy.font_src    :self, :https, :data
-#   policy.img_src     :self, :https, :data
-#   policy.object_src  :none
-#   policy.script_src  :self, :https
-#   policy.style_src   :self, :https
-
-#   # Specify URI for violation reports
-#   # policy.report_uri "/csp-violation-report-endpoint"
-# end
-
-# If you are using UJS then enable automatic nonce generation
-# Rails.application.config.content_security_policy_nonce_generator = -> request { SecureRandom.base64(16) }
-
-# Set the nonce only to specific directives
-# Rails.application.config.content_security_policy_nonce_directives = %w(script-src)
-
-# Report CSP violations to a specified URI
-# For further information see the following documentation:
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
-# Rails.application.config.content_security_policy_report_only = true
+  # Nonce estável por sessão (compatível com a navegação do Turbo Drive).
+  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s.presence || SecureRandom.base64(16) }
+  config.content_security_policy_nonce_directives = %w[script-src style-src]
+end

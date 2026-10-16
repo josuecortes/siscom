@@ -1,0 +1,45 @@
+// Troca o window.confirm do Turbo (data-turbo-confirm) pelo diálogo do sistema
+// (app/views/compartilhado/_confirmacao.html.erb). Título, rótulo do botão e tom
+// Fecha só pelos botões (Cancelar, × ou o de confirmar); Esc e clique no fundo não fecham.
+// Título, rótulo e tom vêm de data-confirmacao-titulo / -rotulo / -tom no formulário ou no botão.
+import { Turbo } from "@hotwired/turbo-rails"
+
+function dado(nome, formulario, botao) {
+  return botao?.dataset[nome] || formulario?.dataset[nome] || ""
+}
+
+Turbo.config.forms.confirm = (mensagem, formulario, botao) => {
+  const dialogo = document.getElementById("confirmacao")
+  if (!dialogo) return Promise.resolve(window.confirm(mensagem))
+
+  const confirmar = dialogo.querySelector("[data-confirmacao='confirmar']")
+  const rotulo = dado("confirmacaoRotulo", formulario, botao) || "Confirmar"
+  dialogo.querySelector("#confirmacao_titulo").textContent = dado("confirmacaoTitulo", formulario, botao) || rotulo
+  dialogo.querySelector("#confirmacao_descricao").textContent = mensagem
+  confirmar.textContent = rotulo
+  confirmar.dataset.tom = dado("confirmacaoTom", formulario, botao) || "perigo"
+
+  return new Promise((resolve) => {
+    const anterior = document.activeElement
+    // Trava a rolagem da página enquanto o diálogo está aberto (se um painel já travou, deixa como está).
+    const raiz = document.documentElement
+    const jaTravada = raiz.classList.contains("overflow-hidden")
+    raiz.classList.add("overflow-hidden")
+    const encerrar = (resposta) => {
+      dialogo.hidden = true
+      if (!jaTravada) raiz.classList.remove("overflow-hidden")
+      dialogo.removeEventListener("click", aoClicar)
+      anterior?.focus?.()
+      resolve(resposta)
+    }
+    const aoClicar = (evento) => {
+      const acao = evento.target.closest("[data-confirmacao]")?.dataset.confirmacao
+      if (acao === "confirmar") encerrar(true)
+      if (acao === "cancelar") encerrar(false)
+    }
+
+    dialogo.addEventListener("click", aoClicar)
+    dialogo.hidden = false
+    confirmar.focus()
+  })
+}

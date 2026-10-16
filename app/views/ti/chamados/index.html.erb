@@ -1,0 +1,92 @@
+<% content_for :title, "Solicitações de TI" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Solicitações de TI", icone: :task, migalha: [ "Minha área", ti_chamados_path ] } do %>
+  <%= render "compartilhado/acao_cabecalho", rotulo: "Abrir chamado", icone: :plus, caminho: new_ti_chamado_path, opcoes: { data: { turbo_frame: "painel" } } %>
+<% end %>
+
+<%= turbo_stream_from current_user, "ti_chamados" %>
+<section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+  <%= form_with url: ti_chamados_path, method: :get, class: "border-b border-[var(--border-subtle)] px-6 py-5",
+        data: { controller: "filtro", turbo_frame: "chamados_lista", turbo_action: "advance" } do |f| %>
+    <%= hidden_field_tag :status, @filtros[:status], id: nil %>
+    <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+      <div class="space-y-1.5">
+        <%= f.label :q, "Buscar por código ou solicitação", class: "text-sm font-medium text-[var(--text-secondary)]" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-[var(--text-muted)]"><%= icone(:search) %></span>
+          <%= f.text_field :q, value: @filtros[:q], placeholder: "Ex.: TI-000001 ou internet", autocomplete: "off", data: { action: "input->filtro#digitar" }, class: "h-11 w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-sm outline-none focus:border-[var(--accent-strong)] pl-11 pr-4" %>
+        </div>
+      </div>
+      <div class="flex flex-row gap-2">
+        <button type="submit" title="Filtrar chamados" aria-label="Filtrar chamados"
+                class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)]"><%= icone(:search) %></button>
+        <%= link_to ti_chamados_path, title: "Limpar filtros", aria: { label: "Limpar filtros" },
+              class: "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)]" do %>
+          <%= icone(:x) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= turbo_frame_tag "chamados_lista", data: { turbo_action: "advance" } do %>
+    <nav class="border-b border-[var(--border-subtle)] px-4 sm:px-6" aria-label="Etapas dos chamados">
+      <div class="flex gap-1 overflow-x-auto [scrollbar-width:none]">
+        <% filtrando = @filtros[:q].present? %>
+        <% if filtrando %>
+          <%# Regra do sistema: com busca, as abas dão lugar a uma só, com o resultado de todas as etapas. %>
+          <span class="group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" aria-current="page"><span>Resultado</span> <span class="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]"><%= @pagy.count %></span></span>
+        <% end %>
+        <% (filtrando ? {} : Ti::ChamadosController::ABAS).each do |status, titulo| %>
+          <% ativa = status == @filtros[:status] %>
+          <%= link_to ti_chamados_path(status: status, q: @filtros[:q].presence), aria: { current: (ativa ? "page" : nil) },
+                class: "group inline-flex min-w-fit items-center gap-2 border-b-2 border-transparent px-3 py-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] aria-[current]:border-[var(--accent-strong)] aria-[current]:text-[var(--text-primary)]" do %>
+            <span><%= titulo %></span>
+            <span class="inline-flex min-w-[1.75rem] items-center justify-center rounded-full bg-[var(--surface-panel)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-muted)] group-aria-[current]:bg-[var(--accent-soft)] group-aria-[current]:text-[var(--accent-strong)]"><%= @contagens.fetch(status, 0) %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
+    <%= render "compartilhado/resumo_tabela", texto: (@filtros[:q].present? ? "#{@pagy.count} chamado(s) encontrado(s), de todas as etapas" : "#{@pagy.count} chamado(s) em #{Ti::ChamadosController::ABAS.fetch(@filtros[:status]).downcase}") %>
+
+    <div class="overflow-x-auto">
+      <table class="collection-table min-w-[900px]">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Solicitação</th>
+            <th scope="col">Aberto em</th>
+            <th scope="col">Status</th>
+            <th scope="col">Responsável</th>
+            <th scope="col" class="!pl-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @chamados.each do |chamado| %>
+            <tr id="<%= dom_id(chamado) %>">
+              <td class="font-semibold text-[var(--text-primary)]">
+                <%= link_to chamado.codigo, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
+              </td>
+              <td>
+                <div class="min-w-0">
+                  <p class="truncate font-semibold text-[var(--text-primary)]">
+                    <%= link_to chamado.problema.nome, ti_chamado_path(chamado), class: "hover:text-[var(--accent-strong)]", data: { turbo_frame: "painel" } %>
+                  </p>
+                  <% if chamado.unidade_nome.present? %><p class="truncate text-sm text-[var(--text-secondary)]"><%= chamado.unidade_nome %></p><% end %>
+                </div>
+              </td>
+              <td class="whitespace-nowrap"><%= l(chamado.aberto_em, format: "%d/%m/%Y %H:%M") %></td>
+              <td><%= selo_do_status(chamado) %></td>
+              <td><%= chamado.responsavel&.nome || "Não atribuído" %></td>
+              <td class="!pl-2 !pr-4"><%= render "ti/chamados/acoes", chamado: chamado, visao: :solicitante %></td>
+            </tr>
+          <% end %>
+          <% if @chamados.empty? %>
+            <tr><td colspan="6" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]"><%= @filtros[:q].present? ? "Nenhum chamado encontrado para a busca." : 'Nenhum chamado nesta etapa. Use "Abrir chamado" para pedir algo à TI.' %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "compartilhado/paginacao", pagy: @pagy, quadro: "chamados_lista" %>
+  <% end %>
+</section>

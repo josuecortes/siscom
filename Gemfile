@@ -1,60 +1,63 @@
-source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+source "https://rubygems.org"
 
-ruby '3.2.3'
+ruby "3.4.5"
 
-gem 'rails', '~> 6.0.4', '>= 6.0.4.1'
+gem "rails", "~> 8.1.3"
+gem "propshaft"
+gem "pg", "~> 1.1"
+gem "puma", ">= 5.0"
 
-gem 'pg', '>= 0.18', '< 2.0'
+# Hotwire + Tailwind (sem Node)
+gem "importmap-rails"
+gem "turbo-rails"
+gem "stimulus-rails"
+gem "tailwindcss-rails"
 
-gem 'puma', '~> 4.1'
+# Solid Cache/Queue/Cable no banco principal
+gem "solid_cache"
+gem "solid_queue"
+gem "solid_cable"
 
-gem 'redis', '~> 4.8'
+gem "bootsnap", require: false
+gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "image_processing", "~> 1.2"
 
-gem 'sass-rails', '>= 6'
+# Autenticação, autorização e segurança
+gem "devise"
+gem "pundit"
+gem "rack-attack"
 
-gem 'jbuilder', '~> 2.7'
+# Paginação e exportação
+gem "pagy"
+gem "caxlsx"
+gem "caxlsx_rails"
 
-gem 'image_processing', '~> 1.2'
-
-gem "active_storage_variant"
-
-gem 'bootsnap', '>= 1.4.2', require: false
+# Monitoramento de erros
+gem "rollbar"
 
 group :development, :test do
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+  gem "bundler-audit", require: false
+  gem "brakeman", require: false
+  gem "rubocop-rails-omakase", require: false
+  gem "rubocop-rspec", require: false
+
+  gem "rspec-rails", "~> 8.0"
+  gem "factory_bot_rails", "~> 6.5"
+  gem "faker", "~> 3.6"
 end
 
 group :development do
-  gem 'web-console', '>= 3.3.0'
-  gem 'listen', '~> 3.2'
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
+  gem "web-console"
 end
 
 group :test do
-  gem 'capybara', '>= 2.15'
-  gem 'selenium-webdriver'
-  gem 'webdrivers'
+  gem "shoulda-matchers", "~> 7.0"
+  gem "webmock", "~> 3.26"
+  gem "simplecov", "~> 0.22.0", require: false
+  gem "capybara"
+  gem "selenium-webdriver"
 end
 
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
-gem 'devise'
-gem 'rolify'
-gem 'pundit'
-gem 'kaminari'
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
-gem 'rename'
-gem 'cocoon'
-gem 'awesome_print'
-gem 'select2-rails'
-gem 'remotipart'
-gem 'brazilian-rails'
-gem 'prawn-rails'
-gem 'axlsx'
-gem 'axlsx_rails'
-gem "concurrent-ruby", "~> 1.3.4"
-
-gem 'rollbar'
+# Notificações push (Web Push / VAPID)
+gem "web-push"

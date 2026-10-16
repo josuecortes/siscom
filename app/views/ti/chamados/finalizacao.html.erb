@@ -1,0 +1,32 @@
+<% content_for :title, "Finalizar chamado" %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_finalizacao", rotulo: "Finalizar chamado" } %>
+<%# Caixas de seleção e área de texto do seed (RequesterFinalizeForm em helpdesk-ticket-detail.tsx). %>
+<% entrada = "w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-strong)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Finalizar chamado", titulo: "Finalizar #{@chamado.codigo}", voltar: ti_chamados_path, rodape: rodape,
+                descricao: "Sua avaliação ajuda a TI a melhorar o atendimento." } do %>
+  <%= form_with url: finalizar_ti_chamado_path(@chamado), method: :patch, id: "formulario_finalizacao", class: "space-y-5" do |f| %>
+    <% if @erro.present? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: @erro %>
+    <% end %>
+
+    <div class="space-y-1.5">
+      <label for="resolvido" class="text-sm font-medium text-[var(--text-secondary)]">O atendimento resolveu o chamado? *</label>
+      <%= select_tag :resolvido, options_for_select([ [ "Selecione", "" ], [ "Sim, foi resolvido", "sim" ], [ "Não, não foi resolvido", "nao" ] ], params[:resolvido]),
+            required: true, class: "#{entrada} h-11" %>
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="avaliacao" class="text-sm font-medium text-[var(--text-secondary)]">Avaliação *</label>
+      <%= select_tag :avaliacao, options_for_select([ [ "Selecione", "" ] ] + Ti::Chamado::AVALIACOES.map { |valor, texto| [ texto, valor ] }, params[:avaliacao].presence&.to_i),
+            required: true, class: "#{entrada} h-11" %>
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="comentario" class="text-sm font-medium text-[var(--text-secondary)]">Comentário</label>
+      <%= text_area_tag :comentario, params[:comentario], rows: 4, class: "#{entrada} min-h-28 py-3" %>
+      <p class="text-xs text-[var(--text-muted)]">Obrigatório quando a avaliação é Ruim ou Péssimo.</p>
+    </div>
+  <% end %>
+<% end %>

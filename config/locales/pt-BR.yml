@@ -1,6 +1,56 @@
 ---
 pt-BR:
   activerecord:
+    models:
+      user:
+        one: Usuário
+        other: Usuários
+    attributes:
+      core/configuracao:
+        senha_padrao: Senha padrão
+      rh/pessoa:
+        nome: Nome completo
+        email: E-mail
+        celular: Celular
+        cpf: CPF
+        data_nascimento: Data de nascimento
+        sexo: Sexo
+        vinculo: Vínculo funcional
+      rh/vinculo:
+        tipo_vinculo: Vínculo
+        cargo: Cargo
+        data_inicio: Início do vínculo
+      rh/lotacao:
+        pessoa: Pessoa
+        unidade: Unidade
+        unidade_id: Unidade
+        funcao: Função
+        funcao_id: Função
+        data_inicio: Início
+        data_fim: Fim
+      rh/unidade:
+        nome: Nome
+        sigla: Sigla
+        tipo_unidade: Tipo de unidade
+        tipo_unidade_id: Tipo de unidade
+        tipo_local_id: Local físico
+        pai_id: Unidade superior
+      rh/tipo_unidade: { nome: Nome, descricao: Descrição }
+      rh/tipo_local: { nome: Nome, descricao: Descrição }
+      rh/cargo: { nome: Nome }
+      rh/funcao: { nome: Nome, descricao: Descrição }
+      rh/tipo_vinculo: { nome: Nome }
+      user:
+        email: E-mail
+        password: Senha
+        password_confirmation: Confirmação da senha
+        current_password: Senha atual
+        nome: Nome
+        remember_me: Lembrar de mim
+        avatar: Imagem
+        data_nascimento: Data de nascimento
+        celular: Telefone
+        cpf: CPF
     errors:
       messages:
         record_invalid: 'A validação falhou: %{errors}'

@@ -1,0 +1,92 @@
+<%# Ficha da pessoa: dados, conta, vínculo e lotações (só leitura). locals: pessoa, lotacoes, pendencias (opcional),
+    no_painel (bool: dentro do painel de "ver", sem sombra nem margem de página). %>
+<% no_painel = local_assigns[:no_painel] %>
+<% cartao = "rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] #{'shadow-[var(--shadow-card)]' unless no_painel}" %>
+<% detalhe = ->(rotulo, valor) do %>
+  <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+    <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+    <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "Não informado" %></dd>
+  </div>
+<% end %>
+
+<div class="<%= no_painel ? "space-y-5" : "mt-6 space-y-6" %>">
+  <% if local_assigns[:pendencias].present? %>
+    <section class="<%= cartao %>">
+      <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Pendências de cadastro</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">Encontradas na importação do siscom antigo. Corrija os dados da pessoa para resolver.</p>
+      </div>
+      <ul class="divide-y divide-[var(--border-subtle)]">
+        <% pendencias.each do |pendencia| %>
+          <li class="flex flex-wrap items-center gap-3 px-6 py-3 text-sm">
+            <%= render "compartilhado/selo", texto: pendencia.rotulo, tom: :atencao %>
+            <span class="text-[var(--text-secondary)]"><%= pendencia.descricao %></span>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+
+  <section class="<%= cartao %>">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Dados pessoais</h2>
+    </div>
+    <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
+      <% detalhe.call("Nome completo", pessoa.nome) %>
+      <% detalhe.call("E-mail", pessoa.email) %>
+      <% detalhe.call("Celular", formatar_telefone(pessoa.celular)) %>
+      <% detalhe.call("CPF", formatar_cpf(pessoa.cpf)) %>
+      <% detalhe.call("Data de nascimento", DataBr.formatar(pessoa.data_nascimento)) %>
+      <% detalhe.call("Sexo", Rh::Pessoa::SEXOS[pessoa.sexo]) %>
+    </dl>
+  </section>
+
+  <section class="<%= cartao %>">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Conta de acesso e vínculo funcional</h2>
+    </div>
+    <dl class="grid gap-4 px-6 py-5 md:grid-cols-2">
+      <% detalhe.call("Conta no sistema", (pessoa.user ? "#{pessoa.user.email} · #{pessoa.user.ativo? ? 'ativa' : 'inativa'}" : "Sem conta")) %>
+      <% detalhe.call("Último acesso", (l(pessoa.user.last_sign_in_at, format: "%d/%m/%Y %H:%M") if pessoa.user&.last_sign_in_at)) %>
+      <% detalhe.call("Vínculo", pessoa.vinculo&.tipo_vinculo&.nome) %>
+      <% detalhe.call("Cargo", pessoa.vinculo&.cargo&.nome) %>
+      <% detalhe.call("Início do vínculo", DataBr.formatar(pessoa.vinculo&.data_inicio)) %>
+    </dl>
+  </section>
+
+  <section class="<%= cartao %>">
+    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-5">
+      <div>
+        <h2 class="text-sm font-semibold text-[var(--text-primary)]">Lotações</h2>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]"><%= lotacoes.count(&:ativo?) %> ativa(s) de <%= lotacoes.size %> registrada(s)</p>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="collection-table <%= no_painel ? "min-w-[640px]" : "min-w-[860px]" %>">
+        <thead>
+          <tr>
+            <th scope="col">Unidade</th>
+            <th scope="col">Função</th>
+            <th scope="col">Início</th>
+            <th scope="col">Fim</th>
+            <th scope="col">Situação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% lotacoes.each do |lotacao| %>
+            <tr id="<%= dom_id(lotacao) %>">
+              <td><p class="text-sm font-semibold text-[var(--text-primary)]"><%= lotacao.unidade.sigla_e_nome %></p></td>
+              <td><%= lotacao.funcao.nome %></td>
+              <td><%= DataBr.formatar(lotacao.data_inicio) %></td>
+              <td><%= DataBr.formatar(lotacao.data_fim).presence || "—" %></td>
+              <td><%= render "compartilhado/selo", texto: (lotacao.ativo? ? "Ativa" : "Encerrada"), tom: (lotacao.ativo? ? :sucesso : :neutro) %></td>
+            </tr>
+          <% end %>
+          <% if lotacoes.empty? %>
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">Nenhuma lotação registrada.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

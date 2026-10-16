@@ -1,0 +1,53 @@
+<% nova = @pessoa.new_record? %>
+<% rodape = capture { render "compartilhado/rodape_painel", formulario: "formulario_pessoa", rotulo: (nova ? "Cadastrar pessoa" : "Salvar pessoa") } %>
+<% vinculo = @pessoa.vinculo || Rh::Vinculo.new %>
+<% seletor = "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none" %>
+<% borda = ->(erros) { erros.any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
+<% rotulo = "text-sm font-medium text-[var(--text-secondary)]" %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: (nova ? "Nova pessoa" : "Editar pessoa"), titulo: (nova ? "Cadastrar pessoa" : "Atualizar pessoa"), voltar: (nova ? rh_pessoas_path : rh_pessoa_path(@pessoa)), rodape: rodape,
+                descricao: (nova ? "Ao salvar, o sistema cria a conta de acesso da pessoa (ou usa a conta que já existir com o mesmo e-mail)." : nil) } do %>
+  <%= form_with model: @pessoa, scope: :pessoa, url: (nova ? rh_pessoas_path : rh_pessoa_path(@pessoa)), id: "formulario_pessoa", class: "space-y-5" do |f| %>
+    <% if @pessoa.errors.any? %>
+      <%= render "compartilhado/faixa_aviso", tom: :erro, embutida: true, mensagem: (@pessoa.errors[:base].first || "Revise os campos destacados e tente novamente.") %>
+    <% end %>
+
+    <%= render "compartilhado/campo", f: f, campo: :nome, rotulo: "Nome completo *", html: { required: true, maxlength: 200, autofocus: true } %>
+    <%= render "compartilhado/campo", f: f, campo: :email, rotulo: "E-mail *", tipo: :email, html: { required: true, placeholder: "voce@seed.ap.gov.br" } %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%= render "compartilhado/campo", f: f, campo: :celular, rotulo: "Celular *",
+            html: { value: formatar_telefone(@pessoa.celular), inputmode: "numeric", placeholder: "(96) 99999-9999",
+                    data: { controller: "mascara", mascara_tipo_value: "telefone", action: "input->mascara#aplicar" } } %>
+      <%= render "compartilhado/campo", f: f, campo: :cpf, rotulo: "CPF *",
+            html: { value: formatar_cpf(@pessoa.cpf), inputmode: "numeric", placeholder: "000.000.000-00",
+                    data: { controller: "mascara", mascara_tipo_value: "cpf", action: "input->mascara#aplicar" } } %>
+      <%= render "compartilhado/campo_data", f: f, campo: :data_nascimento, rotulo: "Data de nascimento" %>
+      <%= render "compartilhado/campo", f: f, campo: :sexo, rotulo: "Sexo", tipo: :select, opcoes: Rh::Pessoa::SEXOS.map { |valor, texto| [ texto, valor ] } %>
+    </div>
+
+    <fieldset class="space-y-4 rounded-[var(--radius-card)] border border-[var(--border-subtle)] p-4">
+      <legend class="mb-0 px-1 text-sm font-semibold text-[var(--text-primary)]">Vínculo funcional</legend>
+      <p class="text-xs text-[var(--text-muted)]">Opcional. Se preencher um campo do vínculo, preencha os três.</p>
+      <%# Um campo de busca por linha (como no seed): lado a lado, o texto de ajuda era cortado e a lista ficava estreita. %>
+      <div class="space-y-4">
+        <%= render "compartilhado/campo_autocomplete", nome: "pessoa[vinculo][tipo_vinculo_id]", id: "pessoa_vinculo_tipo_vinculo", rotulo: "Vínculo",
+              url: rh_opcoes_path("tipos_vinculo"), valor: vinculo.tipo_vinculo_id, texto: vinculo.tipo_vinculo&.nome,
+              erros: ((vinculo.errors[:tipo_vinculo] + vinculo.errors[:tipo_vinculo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum vínculo cadastrado." %>
+        <%= render "compartilhado/campo_autocomplete", nome: "pessoa[vinculo][cargo_id]", id: "pessoa_vinculo_cargo", rotulo: "Cargo",
+              url: rh_opcoes_path("cargos"), valor: vinculo.cargo_id, texto: vinculo.cargo&.nome,
+              erros: ((vinculo.errors[:cargo] + vinculo.errors[:cargo_id]).any? ? [ "deve ser escolhido na lista" ] : []), vazio: "Nenhum cargo cadastrado." %>
+        <% erros = vinculo.errors[:data_inicio] %>
+        <div class="space-y-1.5 sm:max-w-[14rem]">
+          <label for="pessoa_vinculo_data_inicio" class="<%= rotulo %>">Início do vínculo</label>
+          <%= text_field_tag "pessoa[vinculo][data_inicio]", DataBr.formatar(vinculo.data_inicio || vinculo.data_inicio_before_type_cast), id: "pessoa_vinculo_data_inicio",
+                placeholder: "dd/mm/aaaa", inputmode: "numeric", maxlength: 10, class: "#{seletor} #{borda.call(erros)}",
+                data: { controller: "mascara", mascara_tipo_value: "data", action: "input->mascara#aplicar" } %>
+          <% if erros.any? %><p class="text-sm text-[var(--danger-text)]">Início do vínculo <%= erros.first %></p><% end %>
+        </div>
+      </div>
+    </fieldset>
+
+    <p class="text-xs text-[var(--text-muted)]">Os campos marcados com * são requeridos.</p>
+  <% end %>
+<% end %>

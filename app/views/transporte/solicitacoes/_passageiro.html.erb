@@ -1,0 +1,21 @@
+<%# Uma linha de passageiro. locals: passageiro, indice (número ou "NOVO" no modelo) %>
+<% nome = "solicitacao[passageiros][#{indice}]" %>
+<% borda = ->(campo) { passageiro.errors[campo].any? ? "border-[var(--danger-border-strong)]" : "border-[var(--border-subtle)] focus:border-[var(--accent-strong)]" } %>
+<div data-lista-target="item" class="rounded-xl border border-[var(--border-subtle)] p-3">
+  <div class="grid gap-3 sm:grid-cols-[11rem_1fr_auto] sm:items-end">
+    <div class="space-y-1.5">
+      <label for="passageiro_<%= indice %>_cpf" class="text-sm font-medium text-[var(--text-secondary)]">CPF *</label>
+      <%= text_field_tag "#{nome}[cpf]", Cpf.formatar(passageiro.cpf), id: "passageiro_#{indice}_cpf", inputmode: "numeric", placeholder: "000.000.000-00", autocomplete: "off",
+            data: { controller: "mascara", mascara_tipo_value: "cpf", action: "input->mascara#aplicar" }, class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:cpf)}" %>
+    </div>
+    <div class="space-y-1.5">
+      <label for="passageiro_<%= indice %>_nome" class="text-sm font-medium text-[var(--text-secondary)]">Nome do passageiro *</label>
+      <%= text_field_tag "#{nome}[nome]", passageiro.nome, id: "passageiro_#{indice}_nome", maxlength: 120, autocomplete: "off", class: "h-11 w-full rounded-xl border bg-[var(--filter-field-bg)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] #{borda.call(:nome)}" %>
+    </div>
+    <button type="button" data-action="lista#remover" title="Remover passageiro" aria-label="Remover passageiro"
+            class="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--danger-border-strong)] hover:text-[var(--danger-text)]"><%= icone(:trash) %></button>
+  </div>
+  <% { cpf: "CPF", nome: "Nome" }.each do |campo, rotulo| %>
+    <% passageiro.errors[campo].each do |mensagem| %><p class="mt-1 text-sm text-[var(--danger-text)]"><%= rotulo %> <%= mensagem %></p><% end %>
+  <% end %>
+</div>

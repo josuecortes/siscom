@@ -1,0 +1,14 @@
+<% content_for :title, "Minha ficha" %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Minha ficha", icone: :description, migalha: [ "RH", rh_minha_ficha_path ] } do %>
+<% end %>
+
+<% if @pessoa %>
+  <%= render "rh/pessoas/ficha", pessoa: @pessoa, lotacoes: @lotacoes %>
+  <p class="mt-4 text-xs text-[var(--text-muted)]">Encontrou algo errado? Procure o RH para corrigir os seus dados.</p>
+<% else %>
+  <section class="mt-6 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+    <h2 class="text-sm font-semibold text-[var(--text-primary)]">Você ainda não tem ficha no RH.</h2>
+    <p class="mt-1 text-sm text-[var(--text-secondary)]">Procure o RH para fazer o seu cadastro.</p>
+  </section>
+<% end %>

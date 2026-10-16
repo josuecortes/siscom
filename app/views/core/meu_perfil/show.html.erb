@@ -1,0 +1,73 @@
+<% content_for :title, "Perfil" %>
+<% erros = @erros || current_user.errors.full_messages %>
+
+<%= render layout: "compartilhado/cabecalho_pagina", locals: { titulo: "Perfil", icone: :user, migalha: [ "Minha área", meu_perfil_path ] } do %>
+<% end %>
+
+<div class="mt-6 space-y-6">
+  <% if erros.any? %>
+    <%= render "compartilhado/faixa_aviso", tom: :erro, mensagem: erros.to_sentence %>
+  <% end %>
+
+  <section class="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[var(--shadow-card)]">
+    <div class="border-b border-[var(--border-subtle)] px-6 py-5">
+      <h2 class="text-sm font-semibold text-[var(--text-primary)]">Informações pessoais</h2>
+      <p class="mt-1 text-sm text-[var(--text-secondary)]">Dados do usuário autenticado no sistema.</p>
+    </div>
+
+    <div class="space-y-6 px-6 py-5">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="h-16 w-16 overflow-hidden rounded-full border border-[var(--border-subtle)] bg-[var(--surface-subtle)]">
+          <% if current_user.avatar.attached? && current_user.avatar.persisted? %>
+            <%= image_tag rails_blob_path(current_user.avatar, only_path: true), alt: "Avatar do usuário", class: "h-full w-full object-cover" %>
+          <% else %>
+            <div class="flex h-full w-full items-center justify-center text-[var(--text-muted)]"><%= icone(:user, classe: "h-6 w-6") %></div>
+          <% end %>
+        </div>
+
+        <%= form_with model: current_user, scope: :user, url: meu_perfil_path, method: :patch, class: "group flex flex-wrap items-center gap-3" do |f| %>
+          <%# Como no seed, o botão fica apagado enquanto nenhum arquivo foi escolhido (o campo é obrigatório). %>
+          <%= f.label :avatar, "Nova imagem do perfil", class: "sr-only" %>
+          <%= f.file_field :avatar, accept: ".png,.jpg,.jpeg,.webp", required: true,
+                class: "block max-w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--filter-field-bg)] px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent-strong)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" %>
+          <%= f.button "Trocar imagem", type: "submit", data: { turbo_submits_with: "Salvando..." },
+                class: "inline-flex h-10 cursor-pointer items-center justify-center rounded-xl bg-[var(--accent-strong)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-70 group-has-[:invalid]:cursor-not-allowed group-has-[:invalid]:opacity-70" %>
+        <% end %>
+      </div>
+
+      <dl class="grid gap-4 md:grid-cols-2">
+        <% [ [ "Nome completo", current_user.nome ],
+             [ "E-mail", current_user.email ],
+             [ "Telefone", formatar_telefone(current_user.celular) ],
+             [ "CPF", formatar_cpf(current_user.cpf) ],
+             [ "Data de nascimento", (l(current_user.data_nascimento) if current_user.data_nascimento) ],
+             [ "Último acesso", (l(current_user.last_sign_in_at, format: :short) if current_user.last_sign_in_at) ] ].each do |rotulo, valor| %>
+          <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+            <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]"><%= rotulo %></dt>
+            <dd class="mt-1 break-words text-sm text-[var(--text-primary)]"><%= valor.presence || "Não informado" %></dd>
+          </div>
+        <% end %>
+      </dl>
+
+      <%# Lotações ativas (RH), como no seed. %>
+      <% lotacoes = Rh::Api.lotacoes_ativas(current_user) %>
+      <div class="space-y-3 border-t border-[var(--border-subtle)] pt-4">
+        <h3 class="text-sm font-semibold text-[var(--text-primary)]">Lotações ativas</h3>
+        <% if lotacoes.any? %>
+          <div class="space-y-2">
+            <% lotacoes.each do |lotacao| %>
+              <div class="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3">
+                <p class="text-sm font-semibold text-[var(--text-primary)]"><%= lotacao.unidade.nome %></p>
+                <p class="text-sm text-[var(--text-secondary)]"><%= [ lotacao.unidade.sigla, lotacao.funcao ].compact.join(" · ") %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-[var(--text-secondary)]">Sem lotações ativas.</p>
+        <% end %>
+      </div>
+
+      <p class="text-xs text-[var(--text-muted)]">Para corrigir nome, e-mail ou dados pessoais, procure o administrador do sistema.</p>
+    </div>
+  </section>
+</div>

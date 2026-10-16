@@ -1,0 +1,11 @@
+<% content_for :title, "Novo usuário" %>
+<% rodape = capture do %>
+  <button type="button" data-action="painel#fechar" class="cursor-pointer rounded-md border border-[var(--border-subtle)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">Cancelar</button>
+  <button type="submit" form="formulario_usuario" data-turbo-submits-with="Salvando..." class="cursor-pointer rounded-md bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)] disabled:cursor-not-allowed disabled:opacity-60">Salvar usuário</button>
+<% end %>
+
+<%= render layout: "compartilhado/painel_formulario",
+      locals: { sobretitulo: "Novo usuário", titulo: "Cadastrar usuário", voltar: core_usuarios_path, rodape: rodape,
+                descricao: ("O sistema gera uma senha temporária, mostrada uma única vez ao salvar. O usuário troca a senha no primeiro acesso.") } do %>
+  <%= render "formulario", usuario: @usuario %>
+<% end %>

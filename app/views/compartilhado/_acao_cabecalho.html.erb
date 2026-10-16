@@ -1,0 +1,25 @@
+<%# Botão de ação do cabeçalho de página (porta dos botões de page-context-header.tsx).
+    No celular é só o ícone (36 x 36 px, com title e aria-label); a partir de sm, ícone + texto (40 px de altura).
+    Uso, dentro do bloco de compartilhado/cabecalho_pagina:
+      render "compartilhado/acao_cabecalho", rotulo: "Novo usuário", icone: :plus, caminho: novo_caminho
+      render "compartilhado/acao_cabecalho", rotulo: "Voltar", caminho: caminho, secundaria: true
+    opcoes: atributos extras do link (ex.: { data: { turbo_frame: "painel" } }).
+    formulario: id de um formulário GET da página (ex.: filtros). O botão envia esse formulário para `caminho`, com o que
+    está preenchido na tela agora, mesmo sem ter clicado em filtrar (usado no "Exportar Excel" dos relatórios). %>
+<% secundaria = local_assigns.fetch(:secundaria, false) %>
+<% classes = if secundaria
+     "inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-secondary)] hover:border-[var(--accent-strong)] hover:text-[var(--accent-strong)] sm:h-10 sm:w-auto sm:px-4"
+   else
+     "inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md bg-[var(--accent-strong)] text-white hover:bg-[var(--accent-stronger)] sm:h-10 sm:w-auto sm:px-4"
+   end %>
+<% if local_assigns[:formulario] %>
+  <button type="submit" form="<%= formulario %>" formaction="<%= caminho %>" formmethod="get" data-turbo="false" title="<%= rotulo %>" aria-label="<%= rotulo %>" class="<%= classes %>">
+    <%= icone(local_assigns.fetch(:icone, :plus), classe: "h-4 w-4") %>
+    <span class="sr-only sm:not-sr-only sm:ml-2 sm:text-sm sm:font-semibold"><%= rotulo %></span>
+  </button>
+<% else %>
+  <%= link_to caminho, { title: rotulo, aria: { label: rotulo }, class: classes }.merge(local_assigns.fetch(:opcoes, {})) do %>
+    <%= icone(local_assigns.fetch(:icone, secundaria ? :arrow_left : :plus), classe: "h-4 w-4") %>
+    <span class="sr-only sm:not-sr-only sm:ml-2 sm:text-sm sm:font-semibold"><%= rotulo %></span>
+  <% end %>
+<% end %>
