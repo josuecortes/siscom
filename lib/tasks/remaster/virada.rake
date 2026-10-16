@@ -10,6 +10,7 @@ namespace :remaster do
     [ "remaster:core:importar", "Administração: permissões antigas (master → superadministrador, admin → administrador de usuários)" ],
     [ "remaster:rh:importar", "RH: tipos de unidade, unidades, funções, cargos, pessoas e lotações" ],
     [ "remaster:ti:catalogo_inicial", "TI: catálogo (categorias, solicitações, campos, perfis de abertura, grupo técnico)" ],
+    [ "remaster:ti:perfis_de_abertura", "TI: perfis de abertura (já montados pela carga do catálogo; aqui confere e lista)" ],
     [ "remaster:transporte:importar_papeis", "Transporte: permissões antigas (solicitante e técnico)" ],
     [ "remaster:migracao:chamados_de_ti", "TI: chamados antigos" ],
     [ "remaster:migracao:solicitacoes_de_transporte", "Transporte: requisições antigas" ],

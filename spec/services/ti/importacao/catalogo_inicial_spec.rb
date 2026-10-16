@@ -65,16 +65,18 @@ RSpec.describe Ti::Importacao::CatalogoInicial do
     expect(campos.call("COMPUTADOR NAO LIGA").pluck(:rotulo, :obrigatorio)).to eq([ [ "Observações", false ] ])
   end
 
-  it "cria o perfil GERAL padrão com a solicitação descritiva" do
+  it "cria o perfil padrão SERVIDORES com a solicitação geral e os problemas e senhas dos sistemas" do
     described_class.call
 
-    geral = Ti::PerfilAbertura.find_by!(nome: "GERAL")
-    expect(geral).to have_attributes(padrao: true)
-    expect(geral.problemas.sole).to have_attributes(nome: "SOLICITAÇÃO GERAL", exige_triagem: true)
-    expect(geral.problemas.sole.campos.ordenados.pluck(:tipo, :obrigatorio)).to eq([ [ "texto_longo", true ], [ "arquivos", false ] ])
+    servidores = Ti::PerfilAbertura.find_by!(nome: "SERVIDORES")
+    expect(servidores).to have_attributes(padrao: true)
+    expect(servidores.problemas.order(:nome).pluck(:nome)).to eq([ "PRODOC - PROBLEMAS", "SOLICITAÇÃO GERAL" ])
+    geral = servidores.problemas.find_by!(nome: "SOLICITAÇÃO GERAL")
+    expect(geral).to have_attributes(exige_triagem: true)
+    expect(geral.campos.ordenados.pluck(:tipo, :obrigatorio)).to eq([ [ "texto_longo", true ], [ "arquivos", false ] ])
   end
 
-  it "reproduz quem abria o quê no siscom antigo com os perfis de abertura" do
+  it "reproduz quem abria o quê no siscom antigo com os perfis de abertura, cada pessoa num perfil só" do
     sede_comum = usuario_antigo(sede, "req_serv_ti")
     sede_sistemas = usuario_antigo(sede, "req_serv_ti", "req_serv_ti_sis")
     escola_comum = usuario_antigo(escola, "req_serv_ti")
@@ -85,9 +87,12 @@ RSpec.describe Ti::Importacao::CatalogoInicial do
 
     expect(abre(sede_comum)).to eq([ "HARDWARE", "OUTROS", "REDE", "S.O.", "SISTEMAS WEB (NÃO RESPONSÁVEL)", "SUPORTE EXTERNO" ])
     expect(abre(sede_sistemas)).to eq(abre(sede_comum).push("SISTEMAS WEB").sort)
-    expect(abre(escola_comum)).to eq([ "CONECTIVIDADE - ESCOLA", "OUTROS", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ])
-    expect(abre(escola_sistemas)).to eq([ "CONECTIVIDADE - ESCOLA", "OUTROS", "SISTEMAS WEB", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ])
-    expect(abre(sem_permissao)).to eq([ "OUTROS" ])
+    expect([ abre(escola_comum), abre(escola_sistemas) ]).to eq([ [ "CONECTIVIDADE - ESCOLA", "OUTROS", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ],
+                                                               [ "CONECTIVIDADE - ESCOLA", "OUTROS", "SISTEMAS WEB", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ] ])
+    # Conta sem permissão antiga (ou nova): só o padrão SERVIDORES.
+    expect(abre(sem_permissao)).to eq([ "OUTROS", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ])
+    expect(Ti::PerfilUsuario.joins(:perfil_abertura).where(user: [ sede_comum, sede_sistemas, escola_comum, escola_sistemas ]).pluck("ti_perfis_abertura.nome"))
+      .to contain_exactly("ADMINISTRATIVO - SERVIDORES", "ADMINISTRATIVO - GESTÃO", "ESCOLAS - SERVIDORES", "ESCOLAS - GESTÃO ESCOLAR")
   end
 
   it "dá o papel de técnico e monta o grupo SUPORTE TI, que atende tudo" do

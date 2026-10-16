@@ -5,22 +5,12 @@ module Ti
     # não duplica nada e não desfaz o que foi ajustado depois nas telas. NÃO migra chamados.
     #
     #   tipo_problema_tis → ti_categorias          problema_tis → ti_problemas (+ campos)
-    #   regra escondida de abertura → 4 perfis de abertura (ver PERFIS)
+    #   regra escondida de abertura → perfis de abertura (Ti::Importacao::PerfisDeAbertura)
     #   tec_serv_ti → papel `tecnico` + grupo técnico SUPORTE TI (atende tudo)
     class CatalogoInicial
       # Tipos antigos em que o usuário podia ter vários chamados abertos ao mesmo tempo.
       TIPOS_COM_VARIOS_ABERTOS = [ "SISTEMAS WEB", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ].freeze
-      GERAL = "GERAL".freeze
-      ADMINISTRATIVAS = "UNIDADES ADMINISTRATIVAS".freeze
-      ESCOLA = "ESCOLA".freeze
-      SISTEMAS = "SISTEMAS WEB".freeze
-      # Perfil de abertura => tipos de problema antigos que ele pode abrir.
-      PERFIS = {
-        ADMINISTRATIVAS => { descricao: "Servidores de unidades que não são escola.",
-                             tipos: [ "REDE", "S.O.", "HARDWARE", "SUPORTE EXTERNO", "SISTEMAS WEB (NÃO RESPONSÁVEL)" ] },
-        ESCOLA => { descricao: "Servidores lotados em escolas.", tipos: [ "SISTEMAS WEB (NÃO RESPONSÁVEL)", "CONECTIVIDADE - ESCOLA" ] },
-        SISTEMAS => { descricao: "Quem pode pedir cadastros e acessos nos sistemas (antigo Requisitante de TI - Sistemas).", tipos: [ "SISTEMAS WEB" ] }
-      }.freeze
+      # Os perfis de abertura (quem abre o quê) são montados por PerfisDeAbertura.
       GRUPO = "SUPORTE TI".freeze
       CATEGORIA_GERAL = "OUTROS".freeze
       SOLICITACAO_GERAL = "SOLICITAÇÃO GERAL".freeze
@@ -94,13 +84,11 @@ module Ti
         end
       end
 
-      # Perfil padrão (todo usuário) com uma solicitação descritiva: serve para qualquer pedido,
+      # Perfil padrão SERVIDORES (todo usuário) com uma solicitação descritiva: serve para qualquer pedido,
       # inclusive pedir inclusão em outros perfis de abertura.
       def criar_solicitacao_geral
         categoria = Ti::Categoria.find_or_create_by!(nome: CATEGORIA_GERAL) { |nova| nova.descricao = "Pedidos que não se encaixam nas outras categorias." }
-        perfil = Ti::PerfilAbertura.find_or_create_by!(nome: GERAL) do |novo|
-          novo.assign_attributes(padrao: true, descricao: "Vale para todos os usuários.")
-        end
+        perfil = PerfisDeAbertura.perfil_padrao!
         return if categoria.problemas.exists?(nome: SOLICITACAO_GERAL)
 
         solicitacao = categoria.problemas.create!(
@@ -112,27 +100,8 @@ module Ti
         solicitacao.perfis_abertura << perfil
       end
 
-      # Só preenche um perfil (solicitações e usuários) quando ele é criado por esta carga.
-      def criar_perfis(categorias)
-        escolas = Legado::Api.ids_das_unidades_do_tipo("ESCOLA")
-        requisitantes = @usuarios.where(id: Legado::Api.ids_dos_usuarios_com_papel("req_serv_ti") + Legado::Api.ids_dos_usuarios_com_papel("req_serv_ti_sis"))
-        usuarios = {
-          ADMINISTRATIVAS => requisitantes.where.not(unidade_id: escolas).or(requisitantes.where(unidade_id: nil)),
-          ESCOLA => requisitantes.where(unidade_id: escolas),
-          SISTEMAS => @usuarios.where(id: Legado::Api.ids_dos_usuarios_com_papel("req_serv_ti_sis"))
-        }
-
-        PERFIS.each do |nome, definicao|
-          next if Ti::PerfilAbertura.exists?(nome: nome)
-
-          perfil = Ti::PerfilAbertura.create!(nome: nome, descricao: definicao[:descricao])
-          do_perfil = categorias.values.select { |categoria| definicao[:tipos].include?(categoria.nome) }
-          perfil.problemas << Ti::Problema.where(categoria: do_perfil).where.not(legacy_id: nil)
-          agora = Time.current
-          linhas = usuarios.fetch(nome).pluck(:id).map { |user_id| { perfil_abertura_id: perfil.id, user_id: user_id, created_at: agora, updated_at: agora } }
-          Ti::PerfilUsuario.insert_all(linhas) if linhas.any?
-        end
-      end
+      # Quem abre o quê: os perfis de abertura (só preenchidos quando são criados).
+      def criar_perfis(_categorias) = PerfisDeAbertura.call(usuarios: @usuarios)
 
       # No siscom antigo todo técnico via todas as requisições: um grupo só, que atende tudo.
       def criar_grupo_tecnico
