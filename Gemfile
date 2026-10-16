@@ -54,7 +54,7 @@ end
 group :test do
   gem "shoulda-matchers", "~> 7.0"
   gem "webmock", "~> 3.26"
-  gem "simplecov", "~> 0.22.0", require: false
+  gem "simplecov", "~> 1.3.2", require: false
   gem "capybara"
   gem "selenium-webdriver"
 end
