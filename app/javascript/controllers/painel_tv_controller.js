@@ -24,6 +24,9 @@ export default class extends Controller {
   }
 
   connect() {
+    // ?modo=compativel: o modo das TVs antigas (compartilhado/painel_tv/_modo_compativel) cuida da tela.
+    if (this.element.dataset.modo === "compativel") return
+    this.element.dataset.moderno = "1" // avisa o modo compatível que o painel moderno está funcionando
     this.medir = this.medir.bind(this)
     this.quadro = this.quadro.bind(this)
     this.conferirChegadas = this.conferirChegadas.bind(this)
@@ -37,6 +40,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    if (this.element.dataset.modo === "compativel") return
     clearInterval(this.relogio)
     clearTimeout(this.esperaDasChegadas)
     document.removeEventListener("turbo:render", this.conferirChegadas)

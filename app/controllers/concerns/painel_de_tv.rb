@@ -24,6 +24,7 @@ module PainelDeTv
     return render("compartilhado/painel_tv/senha") unless liberado?
 
     @quadro = quadro_do_painel
+    @modo_compativel = params[:modo] == "compativel" # força o modo das TVs antigas, para testar no computador
     render "compartilhado/painel_tv/quadro"
   end
 

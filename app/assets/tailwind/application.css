@@ -407,6 +407,9 @@ select {
 .tv-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1.5rem; font-size: 0.8rem; color: var(--tv-suave); }
 .tv-legenda { display: flex; flex-wrap: wrap; gap: 0.35rem 1.5rem; }
 .tv-legenda li { display: flex; align-items: flex-start; gap: 0.45rem; }
+/* Modo compatível (TVs com navegador antigo): aviso no topo e, no rodapé, qual é o navegador. */
+.tv-aviso-compativel { margin-top: 0.35rem; color: #f5c451; letter-spacing: 0.12em; }
+.tv-navegador { flex: 1 1 100%; font-size: 0.7rem; color: var(--tv-suave); word-break: break-all; }
 .tv-sair { cursor: pointer; border: 1px solid var(--tv-borda); border-radius: 0.5rem; padding: 0.35rem 0.8rem; color: var(--tv-suave); }
 .tv-sair:hover { color: var(--tv-texto); border-color: var(--tv-suave); }
 
