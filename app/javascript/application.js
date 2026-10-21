@@ -6,6 +6,7 @@ import "pwa"
 import "sons"
 import "arquivos"
 import "sessao"
+import "aba"
 
 // Um painel aberto não é fechado pelo refresh da página por baixo (outra pessoa mexeu na lista).
 // O mesmo vale para o campo de data com calendário (o embrulho é criado no navegador pelo controller `mascara`):
