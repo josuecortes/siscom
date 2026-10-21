@@ -300,6 +300,7 @@ select {
   --tv-normal: #64748b;
   position: fixed;
   inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0; /* o mesmo que inset, para navegadores antigos de TV */
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -456,3 +457,13 @@ select {
 @media (orientation: landscape) and (min-width: 768px) and (max-width: 899px) { .tv-painel { zoom: 0.65; } }
 @media (orientation: landscape) and (min-width: 640px) and (max-width: 767px) { .tv-painel { zoom: 0.55; } }
 @media (orientation: landscape) and (max-width: 639px) { .tv-painel { zoom: 0.45; } }
+
+/* Modo compatível (TVs com navegador antigo, que muitas vezes não entendem CSS Grid nem gap): sempre a tela toda, com as
+   quatro colunas lado a lado montadas com flexbox e margens. A redução (zoom) é calculada pelo script, pela largura real. */
+.tv-painel[data-compativel="1"] { position: fixed; top: 0; right: 0; bottom: 0; left: 0; min-height: 0; overflow: hidden; padding: 1.25rem 1.5rem; }
+.tv-painel[data-compativel="1"] > * + * { margin-top: 1rem; }
+.tv-painel[data-compativel="1"] .tv-colunas { display: flex; flex-direction: row; flex: 1 1 0%; min-height: 0; }
+.tv-painel[data-compativel="1"] .tv-coluna { flex: 1 1 0%; min-width: 0; margin-right: 1rem; }
+.tv-painel[data-compativel="1"] .tv-coluna:last-child { margin-right: 0; }
+.tv-painel[data-compativel="1"] .tv-lista { overflow-y: auto; }
+.tv-painel[data-compativel="1"] .tv-relogio { text-align: right; }

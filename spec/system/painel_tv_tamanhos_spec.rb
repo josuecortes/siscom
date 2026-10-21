@@ -33,4 +33,15 @@ RSpec.describe "Painel de TV nos tamanhos de tela", :js do
     visit ti_acompanhamento_path
     expect(linhas_das_colunas).to eq(4)
   end
+
+  it "modo compatível: colunas sempre lado a lado (flexbox), na tela toda e reduzidas pela largura, mesmo com a tela em pé" do
+    [ [ 600, 338 ], [ 600, 900 ] ].each do |largura, altura|
+      usar_tela(largura: largura, altura: altura)
+      visit ti_acompanhamento_path(modo: "compativel")
+      page.find("#painel_tv[data-compativel='1']")
+
+      expect([ linhas_das_colunas, page.evaluate_script("getComputedStyle(document.querySelector('.tv-colunas')).display"), zoom, cabe_na_tela? ])
+        .to eq([ 1, "flex", (largura / 1280.0).round(6).to_s.sub(/0+\z/, ""), true ])
+    end
+  end
 end

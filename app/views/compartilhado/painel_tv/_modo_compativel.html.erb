@@ -26,6 +26,14 @@
     var som = alvo("som");
     if (som) som.style.display = "none";
 
+    // Reduz o painel na proporção da largura que a TV informa (o desenho é feito para 1280), e de novo quando ela muda.
+    function ajustarTamanho() {
+      var largura = window.innerWidth || document.documentElement.clientWidth;
+      raiz.style.zoom = largura < 1280 ? String(Math.max(0.4, largura / 1280)) : "1";
+    }
+    ajustarTamanho();
+    window.addEventListener("resize", ajustarTamanho);
+
     var listas = alvos("lista");
     var intervalo = parseInt(raiz.getAttribute("data-painel-tv-intervalo-value"), 10) || 30;
     var horaDoServidor = parseInt(raiz.getAttribute("data-agora-servidor"), 10) || new Date().getTime();
