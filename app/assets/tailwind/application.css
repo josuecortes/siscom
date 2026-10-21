@@ -435,13 +435,24 @@ select {
   .tv-barra { transition: none; }
 }
 
-/* Tela estreita (celular, tablet em pé): uma coluna embaixo da outra, com a página rolando. */
-@media (max-width: 1023px) {
+/* Tela em pé e estreita (celular, tablet em pé): uma coluna embaixo da outra, com a página rolando.
+   Só em pé: navegador de TV costuma informar uma largura pequena (ex.: 960 ou menos para uma TV Full HD) e
+   ampliar a página; deitada, a tela continua com as quatro colunas lado a lado. */
+@media (orientation: portrait) and (max-width: 1023px) {
   .tv-painel { position: static; min-height: 100vh; overflow: visible; padding: 1rem; }
   .tv-colunas { grid-template-columns: 1fr; }
   .tv-lista { overflow: visible; }
   .tv-relogio { text-align: left; }
 }
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (orientation: portrait) and (min-width: 640px) and (max-width: 1023px) {
   .tv-colunas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* Tela deitada que se apresenta estreita (TVs): o painel inteiro é reduzido na proporção da largura, para as quatro
+   colunas caberem com o mesmo desenho do computador (a TV amplia de volta). `zoom` em degraus: navegadores antigos
+   de TV entendem, e não precisa de JavaScript. */
+@media (orientation: landscape) and (min-width: 1024px) and (max-width: 1279px) { .tv-painel { zoom: 0.85; } }
+@media (orientation: landscape) and (min-width: 900px) and (max-width: 1023px) { .tv-painel { zoom: 0.75; } }
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 899px) { .tv-painel { zoom: 0.65; } }
+@media (orientation: landscape) and (min-width: 640px) and (max-width: 767px) { .tv-painel { zoom: 0.55; } }
+@media (orientation: landscape) and (max-width: 639px) { .tv-painel { zoom: 0.45; } }

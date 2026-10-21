@@ -21,7 +21,8 @@
     var avisos = raiz.querySelectorAll("[data-aviso-compativel]");
     for (var a = 0; a < avisos.length; a++) avisos[a].removeAttribute("hidden");
     var navegador = document.getElementById("navegador_da_tv");
-    if (navegador) navegador.textContent = navigator.userAgent;
+    // Tamanho que a TV informa à página (ajuda a ajustar o desenho para ela) e o navegador.
+    if (navegador) navegador.textContent = window.innerWidth + " x " + window.innerHeight + " (escala " + (window.devicePixelRatio || 1) + ") · " + navigator.userAgent;
     var som = alvo("som");
     if (som) som.style.display = "none";
 
