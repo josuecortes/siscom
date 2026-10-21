@@ -9,11 +9,16 @@
 <% hora = ->(valor) { valor ? l(valor, format: (valor.to_date == agora.to_date ? "%H:%M" : "%d/%m %H:%M")) : "—" } %>
 <% nomes = { "critico" => "Atrasado", "urgente" => "Falta pouco", "atencao" => "Atenção", "normal" => "No prazo" } %>
 
-<div class="tv-painel" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>" data-painel-tv-nome-value="<%= @textos[:modulo].parameterize %>">
+<%# Sem JavaScript nenhum (último recurso), a página ainda se recarrega sozinha. %>
+<% content_for :head do %><noscript><meta http-equiv="refresh" content="60"></noscript><% end %>
+
+<div class="tv-painel" id="painel_tv" data-controller="painel-tv" data-painel-tv-intervalo-value="<%= PainelDeTv::ATUALIZA_A_CADA %>" data-painel-tv-nome-value="<%= @textos[:modulo].parameterize %>"
+     data-agora-servidor="<%= (agora.to_f * 1000).to_i %>" <%= 'data-modo=compativel' if @modo_compativel %>>
   <header class="tv-cabecalho">
     <div class="min-w-0">
       <p class="tv-sobretitulo"><%= @textos[:modulo] %></p>
       <h1 class="tv-titulo">Acompanhamento em tempo real</h1>
+      <p class="tv-sobretitulo tv-aviso-compativel" data-aviso-compativel hidden>Modo compatível: navegador antigo, a tela atualiza a cada ciclo</p>
     </div>
 
     <ul class="tv-resumo" aria-label="Resumo por urgência">
@@ -72,6 +77,7 @@
       <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
       <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
     </ul>
+    <p class="tv-navegador" data-aviso-compativel hidden>Modo compatível para navegadores antigos (sem som e sem atualização instantânea) · <span id="navegador_da_tv"></span></p>
     <div class="flex items-center gap-2">
       <%# O navegador só toca depois de um clique nesta tela: o botão mostra se o alerta sonoro está valendo. %>
       <button type="button" class="tv-sair" data-painel-tv-target="som" data-action="painel-tv#ligarSom" title="Alerta sonoro quando chega uma solicitação">Som: ligar</button>
@@ -79,3 +85,5 @@
     </div>
   </footer>
 </div>
+
+<%= render "compartilhado/painel_tv/modo_compativel" %>

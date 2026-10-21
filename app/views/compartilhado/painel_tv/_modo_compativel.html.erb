@@ -1,0 +1,74 @@
+<%# Modo compatível do painel de TV, para navegadores antigos (TVs): escrito em JavaScript antigo (ES5), sem módulos.
+    Roda em toda TV, mas só assume se o painel moderno (painel_tv_controller.js) não iniciar em 3 segundos, ou se a
+    página foi aberta com ?modo=compativel (para testar no computador). Faz o essencial: relógio pela hora do servidor,
+    contagem, barra, rolagem das colunas e recarga da página no fim do ciclo (o que traz as novidades). Sem som e sem
+    atualização instantânea. NÃO usar aqui let/const, =>, crases, classes, ?. nem ?? (spec/requests/painel_tv_compativel_spec.rb). %>
+<%= javascript_tag nonce: true do %>
+(function () {
+  var raiz = document.getElementById("painel_tv");
+  if (!raiz) return;
+
+  var PAUSA_TOPO = 5, PAUSA_FIM = 4, VELOCIDADE = 30;
+
+  function alvo(nome) { return raiz.querySelector('[data-painel-tv-target~="' + nome + '"]'); }
+  function alvos(nome) { return raiz.querySelectorAll('[data-painel-tv-target~="' + nome + '"]'); }
+  function dois(n) { return (n < 10 ? "0" : "") + n; }
+
+  function iniciar() {
+    if (raiz.getAttribute("data-compativel") === "1") return;
+    raiz.setAttribute("data-compativel", "1");
+
+    var avisos = raiz.querySelectorAll("[data-aviso-compativel]");
+    for (var a = 0; a < avisos.length; a++) avisos[a].removeAttribute("hidden");
+    var navegador = document.getElementById("navegador_da_tv");
+    if (navegador) navegador.textContent = navigator.userAgent;
+    var som = alvo("som");
+    if (som) som.style.display = "none";
+
+    var listas = alvos("lista");
+    var intervalo = parseInt(raiz.getAttribute("data-painel-tv-intervalo-value"), 10) || 30;
+    var horaDoServidor = parseInt(raiz.getAttribute("data-agora-servidor"), 10) || new Date().getTime();
+    var inicio = new Date().getTime();
+
+    var sobra = 0;
+    for (var i = 0; i < listas.length; i++) {
+      listas[i].scrollTop = 0;
+      sobra = Math.max(sobra, listas[i].scrollHeight - listas[i].clientHeight);
+    }
+    var ciclo = Math.ceil(Math.max(intervalo, sobra > 0 ? PAUSA_TOPO + sobra / VELOCIDADE + PAUSA_FIM : 0));
+
+    function decorrido() { return (new Date().getTime() - inicio) / 1000; }
+
+    // Hora do Amapá (UTC-3, sem horário de verão), contada a partir da hora do servidor: o relógio da TV pode estar errado.
+    function mostrar() {
+      var amapa = new Date(horaDoServidor + (new Date().getTime() - inicio) - 3 * 3600 * 1000);
+      var hora = alvo("hora"), data = alvo("data"), contagem = alvo("contagem"), barra = alvo("barra");
+      var faltam = Math.max(0, Math.ceil(ciclo - decorrido()));
+      if (hora) hora.textContent = dois(amapa.getUTCHours()) + ":" + dois(amapa.getUTCMinutes()) + ":" + dois(amapa.getUTCSeconds());
+      if (data) data.textContent = dois(amapa.getUTCDate()) + "/" + dois(amapa.getUTCMonth() + 1) + "/" + amapa.getUTCFullYear();
+      if (contagem) contagem.textContent = faltam >= 60 ? Math.floor(faltam / 60) + " min " + (faltam % 60) + " s" : faltam + " s";
+      if (barra) barra.style.width = (faltam / ciclo) * 100 + "%";
+      if (decorrido() >= ciclo) window.location.reload();
+    }
+
+    function rolar() {
+      var rolagem = ciclo - PAUSA_TOPO - PAUSA_FIM;
+      var avanco = rolagem > 0 ? Math.min(1, Math.max(0, (decorrido() - PAUSA_TOPO) / rolagem)) : 0;
+      for (var j = 0; j < listas.length; j++) {
+        var resto = listas[j].scrollHeight - listas[j].clientHeight;
+        if (resto > 0) listas[j].scrollTop = resto * avanco;
+      }
+    }
+
+    mostrar();
+    setInterval(mostrar, 1000);
+    setInterval(rolar, 100);
+  }
+
+  if (raiz.getAttribute("data-modo") === "compativel") {
+    iniciar();
+  } else {
+    setTimeout(function () { if (raiz.getAttribute("data-moderno") !== "1") iniciar(); }, 3000);
+  }
+})();
+<% end %>

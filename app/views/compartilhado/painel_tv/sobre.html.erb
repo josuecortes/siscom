@@ -67,7 +67,14 @@
 </div>
 
 <section class="mt-6 <%= cartao %> flex flex-wrap items-center justify-between gap-4 px-6 py-5">
-  <p class="<%= texto %>">O painel abre numa aba nova. Para usar numa TV, abra o endereço no navegador da TV (ou de um computador ligado a ela) e deixe em tela cheia (tecla F11).</p>
+  <div class="space-y-2" id="modo_compativel">
+    <p class="<%= texto %>">O painel abre numa aba nova. Para usar numa TV, abra o endereço no navegador da TV (ou de um computador ligado a ela) e deixe em tela cheia (tecla F11).</p>
+    <p class="<%= texto %>">
+      <strong class="font-semibold text-[var(--text-primary)]">TVs com navegador antigo:</strong> o painel entra sozinho em <strong class="font-semibold text-[var(--text-primary)]">modo compatível</strong>
+      (aparece escrito no topo e no rodapé da tela). Nesse modo o relógio, a contagem e a rolagem funcionam e a tela se atualiza a cada ciclo,
+      mas sem o alerta sonoro e sem a atualização instantânea. Para conferir esse modo num computador, abra o painel com <code><%= painel %>?modo=compativel</code>.
+    </p>
+  </div>
   <% if @ligado %>
     <%= link_to painel, target: "_blank", rel: "noopener", data: { turbo: false }, id: "abrir_o_painel",
           class: "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--accent-strong)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent-stronger)]" do %>

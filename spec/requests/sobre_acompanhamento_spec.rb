@@ -36,7 +36,7 @@ RSpec.describe "Página do acompanhamento" do
     get ti_sobre_acompanhamento_path
 
     expect(menu).to include("Acompanhamento")
-    expect(response.body).to include("/ti/acompanhamento", "senha própria", "Aguardando atendimento", "Painel ligado")
+    expect(response.body).to include("/ti/acompanhamento", "senha própria", "Aguardando atendimento", "Painel ligado", "modo compatível", "/ti/acompanhamento?modo=compativel")
     expect(pagina.css("#administradores_do_painel li").map(&:text)).to eq([ "ANA ADMINISTRADORA" ])
     expect(pagina.at_css("a#abrir_o_painel").to_h.slice("href", "target")).to eq("href" => "/ti/acompanhamento", "target" => "_blank")
   end

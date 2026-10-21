@@ -10,4 +10,5 @@ pin "pwa"
 pin "sons"
 pin "arquivos"
 pin "sessao"
+pin "aba"
 pin "leaflet" # @1.9.4
