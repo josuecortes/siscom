@@ -467,3 +467,31 @@ select {
 .tv-painel[data-compativel="1"] .tv-coluna:last-child { margin-right: 0; }
 .tv-painel[data-compativel="1"] .tv-lista { overflow-y: auto; }
 .tv-painel[data-compativel="1"] .tv-relogio { text-align: right; }
+/* O Chrome 49 das TVs não entende `gap` em flexbox: no modo compatível os espaços viram margens (e o gap é zerado,
+   para não somar com as margens quando o modo é forçado num navegador moderno). */
+.tv-painel[data-compativel="1"], .tv-painel[data-compativel="1"] .tv-cabecalho, .tv-painel[data-compativel="1"] .tv-resumo,
+.tv-painel[data-compativel="1"] .tv-resumo-item, .tv-painel[data-compativel="1"] .tv-coluna-titulo, .tv-painel[data-compativel="1"] .tv-contadores,
+.tv-painel[data-compativel="1"] .tv-lista, .tv-painel[data-compativel="1"] .tv-cartao-topo, .tv-painel[data-compativel="1"] .tv-aviso,
+.tv-painel[data-compativel="1"] .tv-rodape, .tv-painel[data-compativel="1"] .tv-legenda, .tv-painel[data-compativel="1"] .tv-legenda li { gap: 0; }
+/* Cabeçalho numa linha só: o bloco do título encolhe (o aviso amarelo quebra dentro dele), resumo e relógio ficam inteiros. */
+.tv-painel[data-compativel="1"] .tv-cabecalho { flex-wrap: nowrap; }
+.tv-painel[data-compativel="1"] .tv-cabecalho > :first-child { flex: 1 1 0%; min-width: 0; }
+.tv-painel[data-compativel="1"] .tv-cabecalho > * + * { margin-left: 2rem; }
+.tv-painel[data-compativel="1"] .tv-resumo { flex-wrap: nowrap; }
+.tv-painel[data-compativel="1"] .tv-codigo { flex-shrink: 0; white-space: nowrap; letter-spacing: 0.04em; }
+.tv-painel[data-compativel="1"] .tv-resumo-item + .tv-resumo-item { margin-left: 0.75rem; }
+.tv-painel[data-compativel="1"] .tv-resumo-item > * + * { margin-left: 0.6rem; }
+.tv-painel[data-compativel="1"] .tv-coluna-titulo > * + * { margin-left: 0.75rem; }
+.tv-painel[data-compativel="1"] .tv-contadores > * + * { margin-left: 0.4rem; }
+.tv-painel[data-compativel="1"] .tv-lista > * + * { margin-top: 0.6rem; }
+.tv-painel[data-compativel="1"] .tv-cartao-topo > * + * { margin-left: 0.75rem; }
+.tv-painel[data-compativel="1"] .tv-ponto { margin-right: 0.45rem; }
+.tv-painel[data-compativel="1"] .tv-legenda li + li { margin-left: 1.5rem; }
+.tv-painel[data-compativel="1"] .tv-rodape > * { margin-right: 1.5rem; }
+.tv-painel[data-compativel="1"] .tv-navegador { margin-left: 0; margin-top: 0.25rem; }
+.tv-painel[data-compativel="1"] .tv-sem-conexao { color: #f5c451; font-weight: 600; }
+/* Ações do rodapé (Som, Sair) com estilo próprio: o Chrome 49 ignora as classes do Tailwind (que ficam em @layer). */
+.tv-acoes-rodape { display: flex; align-items: center; }
+.tv-acoes-rodape > * + * { margin-left: 0.5rem; }
+.tv-acoes-rodape form { display: inline-block; margin: 0; }
+.tv-sair { -webkit-appearance: none; appearance: none; background: transparent; font: inherit; }

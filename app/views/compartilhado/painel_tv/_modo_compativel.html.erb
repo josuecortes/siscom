@@ -1,66 +1,131 @@
-<%# Modo compatível do painel de TV, para navegadores antigos (TVs): escrito em JavaScript antigo (ES5), sem módulos.
-    Roda em toda TV, mas só assume se o painel moderno (painel_tv_controller.js) não iniciar em 3 segundos, ou se a
-    página foi aberta com ?modo=compativel (para testar no computador). Faz o essencial: relógio pela hora do servidor,
-    contagem, barra, rolagem das colunas e recarga da página no fim do ciclo (o que traz as novidades). Sem som e sem
-    atualização instantânea. NÃO usar aqui let/const, =>, crases, classes, ?. nem ?? (spec/requests/painel_tv_compativel_spec.rb). %>
+<%# Modo compatível do painel de TV, para navegadores antigos (TVs; a Philips PUG6654 usa um Chrome 49): escrito em
+    JavaScript antigo (ES5), sem módulos. Roda em toda TV, mas só assume se o painel moderno (painel_tv_controller.js)
+    não iniciar em 3 segundos, ou se a página foi aberta com ?modo=compativel (para testar no computador).
+    - Tamanho: o desenho é pensado para 1280 de largura; o painel é ampliado ou reduzido (zoom) na proporção da largura que
+      a TV informa e recebe largura e altura exatas da tela (recalculadas a cada 2 s, porque TVs nem sempre avisam).
+    - Atualização em silêncio: no fim de cada ciclo busca a página por baixo dos panos e troca só o resumo e as colunas (a
+      tela não pisca). Sem conexão, mantém o que tem e tenta de novo; com a senha vencida, recarrega (tela de senha). Uma
+      vez por hora recarrega a página inteira (pega atualizações do sistema e não acumula memória).
+    Sem som e sem atualização instantânea.
+    NÃO usar aqui let/const, =>, crases, classes, ?. nem ?? (spec/requests/painel_tv_compativel_spec.rb). %>
 <%= javascript_tag nonce: true do %>
 (function () {
   var raiz = document.getElementById("painel_tv");
   if (!raiz) return;
 
-  var PAUSA_TOPO = 5, PAUSA_FIM = 4, VELOCIDADE = 30;
+  var PAUSA_TOPO = 5, PAUSA_FIM = 4, VELOCIDADE = 30, LARGURA_DO_DESENHO = 1280, RECARGA_COMPLETA = 60 * 60 * 1000;
 
   function alvo(nome) { return raiz.querySelector('[data-painel-tv-target~="' + nome + '"]'); }
   function alvos(nome) { return raiz.querySelectorAll('[data-painel-tv-target~="' + nome + '"]'); }
   function dois(n) { return (n < 10 ? "0" : "") + n; }
+  function agoraMs() { return new Date().getTime(); }
 
   function iniciar() {
     if (raiz.getAttribute("data-compativel") === "1") return;
     raiz.setAttribute("data-compativel", "1");
 
+    // Fundo escuro na página toda: se sobrar algum espaço, ele não fica branco.
+    document.documentElement.style.background = "#0b1220";
+    document.body.style.background = "#0b1220";
+
     var avisos = raiz.querySelectorAll("[data-aviso-compativel]");
     for (var a = 0; a < avisos.length; a++) avisos[a].removeAttribute("hidden");
-    var navegador = document.getElementById("navegador_da_tv");
-    // Tamanho que a TV informa à página (ajuda a ajustar o desenho para ela) e o navegador.
-    if (navegador) navegador.textContent = window.innerWidth + " x " + window.innerHeight + " (escala " + (window.devicePixelRatio || 1) + ") · " + navigator.userAgent;
     var som = alvo("som");
     if (som) som.style.display = "none";
 
-    // Reduz o painel na proporção da largura que a TV informa (o desenho é feito para 1280), e de novo quando ela muda.
-    function ajustarTamanho() {
-      var largura = window.innerWidth || document.documentElement.clientWidth;
-      raiz.style.zoom = largura < 1280 ? String(Math.max(0.4, largura / 1280)) : "1";
-    }
-    ajustarTamanho();
-    window.addEventListener("resize", ajustarTamanho);
-
-    var listas = alvos("lista");
     var intervalo = parseInt(raiz.getAttribute("data-painel-tv-intervalo-value"), 10) || 30;
-    var horaDoServidor = parseInt(raiz.getAttribute("data-agora-servidor"), 10) || new Date().getTime();
-    var inicio = new Date().getTime();
+    var horaDoServidor = parseInt(raiz.getAttribute("data-agora-servidor"), 10) || agoraMs();
+    var carregadaEm = agoraMs();
+    var inicio = agoraMs();
+    var ciclo = intervalo;
+    var buscando = false;
 
-    var sobra = 0;
-    for (var i = 0; i < listas.length; i++) {
-      listas[i].scrollTop = 0;
-      sobra = Math.max(sobra, listas[i].scrollHeight - listas[i].clientHeight);
+    // Largura × altura da TV, navegador resumido (ex.: "Chrome 49"); o texto completo fica no title.
+    function mostrarNavegador() {
+      var navegador = document.getElementById("navegador_da_tv");
+      if (!navegador) return;
+      var versao = navigator.userAgent.match(/Chrome\/(\d+)/);
+      navegador.textContent = (versao ? "Chrome " + versao[1] : navigator.userAgent.substring(0, 40)) + " · " + larguraDaTela() + "×" + alturaDaTela();
+      navegador.parentNode.setAttribute("title", navigator.userAgent);
     }
-    var ciclo = Math.ceil(Math.max(intervalo, sobra > 0 ? PAUSA_TOPO + sobra / VELOCIDADE + PAUSA_FIM : 0));
 
-    function decorrido() { return (new Date().getTime() - inicio) / 1000; }
+    function larguraDaTela() { return window.innerWidth || document.documentElement.clientWidth; }
+    function alturaDaTela() { return window.innerHeight || document.documentElement.clientHeight; }
+
+    function ajustarTamanho() {
+      var largura = larguraDaTela(), altura = alturaDaTela();
+      var zoom = Math.max(0.4, Math.min(2, largura / LARGURA_DO_DESENHO));
+      raiz.style.zoom = String(zoom);
+      raiz.style.right = "auto";
+      raiz.style.bottom = "auto";
+      raiz.style.width = (largura / zoom) + "px";
+      raiz.style.height = (altura / zoom) + "px";
+    }
+
+    function calcularCiclo() {
+      var listas = alvos("lista"), sobra = 0;
+      for (var i = 0; i < listas.length; i++) {
+        listas[i].scrollTop = 0;
+        sobra = Math.max(sobra, listas[i].scrollHeight - listas[i].clientHeight);
+      }
+      ciclo = Math.ceil(Math.max(intervalo, sobra > 0 ? PAUSA_TOPO + sobra / VELOCIDADE + PAUSA_FIM : 0));
+      inicio = agoraMs();
+    }
+
+    function decorrido() { return (agoraMs() - inicio) / 1000; }
+
+    function semConexao(sem) {
+      var aviso = document.getElementById("estado_da_conexao");
+      if (!aviso) return;
+      if (sem) aviso.removeAttribute("hidden"); else aviso.setAttribute("hidden", "hidden");
+    }
+
+    // Troca o resumo e as colunas pelos da página nova, sem recarregar (a tela não pisca).
+    function trocar(novoPainel) {
+      var partes = [".tv-resumo", ".tv-colunas"];
+      for (var p = 0; p < partes.length; p++) {
+        var atual = raiz.querySelector(partes[p]), nova = novoPainel.querySelector(partes[p]);
+        if (atual && nova) atual.innerHTML = nova.innerHTML;
+      }
+      horaDoServidor = parseInt(novoPainel.getAttribute("data-agora-servidor"), 10) || (horaDoServidor + (agoraMs() - carregadaEm));
+      carregadaEm = agoraMs();
+    }
+
+    function atualizarEmSilencio() {
+      if (buscando) return;
+      if (agoraMs() - paginaAbertaEm >= RECARGA_COMPLETA) { window.location.reload(); return; }
+      buscando = true;
+      var pedido = new XMLHttpRequest();
+      pedido.open("GET", window.location.href, true);
+      pedido.setRequestHeader("Accept", "text/html");
+      pedido.onreadystatechange = function () {
+        if (pedido.readyState !== 4) return;
+        buscando = false;
+        if (pedido.status !== 200) { semConexao(true); calcularCiclo(); return; }
+        var documento = new DOMParser().parseFromString(pedido.responseText, "text/html");
+        var novoPainel = documento.getElementById("painel_tv");
+        if (!novoPainel) { window.location.reload(); return; } // senha vencida: a tela de senha
+        semConexao(false);
+        trocar(novoPainel);
+        calcularCiclo();
+      };
+      pedido.send();
+    }
 
     // Hora do Amapá (UTC-3, sem horário de verão), contada a partir da hora do servidor: o relógio da TV pode estar errado.
     function mostrar() {
-      var amapa = new Date(horaDoServidor + (new Date().getTime() - inicio) - 3 * 3600 * 1000);
+      var amapa = new Date(horaDoServidor + (agoraMs() - carregadaEm) - 3 * 3600 * 1000);
       var hora = alvo("hora"), data = alvo("data"), contagem = alvo("contagem"), barra = alvo("barra");
       var faltam = Math.max(0, Math.ceil(ciclo - decorrido()));
       if (hora) hora.textContent = dois(amapa.getUTCHours()) + ":" + dois(amapa.getUTCMinutes()) + ":" + dois(amapa.getUTCSeconds());
       if (data) data.textContent = dois(amapa.getUTCDate()) + "/" + dois(amapa.getUTCMonth() + 1) + "/" + amapa.getUTCFullYear();
       if (contagem) contagem.textContent = faltam >= 60 ? Math.floor(faltam / 60) + " min " + (faltam % 60) + " s" : faltam + " s";
       if (barra) barra.style.width = (faltam / ciclo) * 100 + "%";
-      if (decorrido() >= ciclo) window.location.reload();
+      if (decorrido() >= ciclo) atualizarEmSilencio();
     }
 
     function rolar() {
+      var listas = alvos("lista");
       var rolagem = ciclo - PAUSA_TOPO - PAUSA_FIM;
       var avanco = rolagem > 0 ? Math.min(1, Math.max(0, (decorrido() - PAUSA_TOPO) / rolagem)) : 0;
       for (var j = 0; j < listas.length; j++) {
@@ -69,7 +134,13 @@
       }
     }
 
+    var paginaAbertaEm = agoraMs();
+    ajustarTamanho();
+    mostrarNavegador();
+    calcularCiclo();
     mostrar();
+    window.addEventListener("resize", function () { ajustarTamanho(); mostrarNavegador(); });
+    setInterval(ajustarTamanho, 2000);
     setInterval(mostrar, 1000);
     setInterval(rolar, 100);
   }

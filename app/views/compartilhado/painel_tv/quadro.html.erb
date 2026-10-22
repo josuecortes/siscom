@@ -77,8 +77,8 @@
       <li data-nivel="atencao"><span class="tv-ponto"></span>Amarelo: convém olhar</li>
       <li data-nivel="normal"><span class="tv-ponto"></span>Cinza: no prazo</li>
     </ul>
-    <p class="tv-navegador" data-aviso-compativel hidden>Modo compatível para navegadores antigos (sem som e sem atualização instantânea) · <span id="navegador_da_tv"></span></p>
-    <div class="flex items-center gap-2">
+    <p class="tv-navegador" data-aviso-compativel hidden>Modo compatível · <span id="navegador_da_tv"></span><span id="estado_da_conexao" class="tv-sem-conexao" hidden> · sem conexão, tentando de novo</span></p>
+    <div class="tv-acoes-rodape">
       <%# O navegador só toca depois de um clique nesta tela: o botão mostra se o alerta sonoro está valendo. %>
       <button type="button" class="tv-sair" data-painel-tv-target="som" data-action="painel-tv#ligarSom" title="Alerta sonoro quando chega uma solicitação">Som: ligar</button>
       <%= button_to "Sair do painel", @textos[:caminho], method: :delete, class: "tv-sair" %>
