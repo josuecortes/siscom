@@ -53,7 +53,7 @@ end
 
 group :test do
   gem "shoulda-matchers", "~> 7.0"
-  gem "webmock", "~> 3.26"
+  gem "webmock", "~> 3.34"
   gem "simplecov", "~> 0.22.0", require: false
   gem "capybara"
   gem "selenium-webdriver"
