@@ -52,7 +52,7 @@ group :development do
 end
 
 group :test do
-  gem "shoulda-matchers", "~> 7.0"
+  gem "shoulda-matchers", "~> 8.0"
   gem "webmock", "~> 3.26"
   gem "simplecov", "~> 0.22.0", require: false
   gem "capybara"
