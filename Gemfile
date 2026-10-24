@@ -20,7 +20,7 @@ gem "solid_cable"
 
 gem "bootsnap", require: false
 gem "tzinfo-data", platforms: %i[ windows jruby ]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.2"
 
 # Autenticação, autorização e segurança
 gem "devise"
